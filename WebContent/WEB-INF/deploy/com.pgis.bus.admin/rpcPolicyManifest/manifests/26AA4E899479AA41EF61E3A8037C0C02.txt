@@ -1,0 +1,2 @@
+serviceClass: com.pgis.bus.admin.client.network.AuthService
+path: 91CBC26C8548890FE1F7CD4C1AD44EB8.gwt.rpc

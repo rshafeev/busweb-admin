@@ -1,0 +1,2 @@
+serviceClass: busAdminApp.client.network.AuthService
+path: 71BB0F4DCDFC2F031F51751B99873A74.gwt.rpc

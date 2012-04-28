@@ -1,0 +1,13 @@
+2012-04-22 00:39:42 j.s.ServletContextListener [INFO] contextInitialized
+2012-04-22 00:43:09 j.s.ServletContextListener [INFO] contextInitialized
+2012-04-22 14:16:41 j.s.ServletContextListener [INFO] contextInitialized
+2012-04-22 14:16:56 c.p.b.a.s.p.CustomAuthenticationProvider [INFO] INFO:     LOGIN USER!!!!!
+2012-04-22 14:16:56 c.p.b.a.s.l.CustomAuthListener [INFO] open AbstractAuthenticationEvent( )  function
+2012-04-22 14:16:56 c.p.b.a.s.l.CustomAuthListener [WARN] Authentication event AuthenticationSuccessEvent: CustomUserAuthentication; details: org.springframework.security.web.authentication.WebAuthenticationDetails@fffc7f0c: RemoteIpAddress: 127.0.0.1; SessionId: 9lqbvjeft7ct
+2012-04-22 14:16:56 c.p.b.a.s.l.CustomAuthListener [INFO] open AbstractAuthenticationEvent( )  function
+2012-04-22 14:16:56 c.p.b.a.s.l.CustomAuthListener [WARN] Authentication event InteractiveAuthenticationSuccessEvent: CustomUserAuthentication; details: org.springframework.security.web.authentication.WebAuthenticationDetails@fffc7f0c: RemoteIpAddress: 127.0.0.1; SessionId: 9lqbvjeft7ct
+2012-04-22 14:17:17 c.p.b.a.s.p.CustomAuthenticationProvider [INFO] INFO:     LOGIN USER!!!!!
+2012-04-22 14:17:17 c.p.b.a.s.l.CustomAuthListener [INFO] open AbstractAuthenticationEvent( )  function
+2012-04-22 14:17:17 c.p.b.a.s.l.CustomAuthListener [WARN] Authentication event AuthenticationSuccessEvent: CustomUserAuthentication; details: org.springframework.security.web.authentication.WebAuthenticationDetails@0: RemoteIpAddress: 127.0.0.1; SessionId: qv5r1ws61dj6
+2012-04-22 14:17:17 c.p.b.a.s.l.CustomAuthListener [INFO] open AbstractAuthenticationEvent( )  function
+2012-04-22 14:17:17 c.p.b.a.s.l.CustomAuthListener [WARN] Authentication event InteractiveAuthenticationSuccessEvent: CustomUserAuthentication; details: org.springframework.security.web.authentication.WebAuthenticationDetails@0: RemoteIpAddress: 127.0.0.1; SessionId: qv5r1ws61dj6
