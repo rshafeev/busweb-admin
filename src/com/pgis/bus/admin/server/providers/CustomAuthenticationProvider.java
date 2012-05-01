@@ -32,8 +32,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		
 		
 		
-		System.out.println( username);
-		
 		if (users.get(username)==null)
 			throw new UsernameNotFoundException("User not found");
 		

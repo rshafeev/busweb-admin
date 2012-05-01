@@ -12,7 +12,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 import org.springframework.web.servlet.view.RedirectView;
 
-import com.google.gwt.dev.util.collect.HashMap;
 import com.pgis.bus.admin.server.models.CustomUserAuthentication;
 
 public class AuthController extends AbstractController {

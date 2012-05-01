@@ -65,9 +65,13 @@ DROP TABLE  bus.languages;
 DROP TABLE  bus.calc_shortest_way_times;
 DROP TABLE  bus.calc_shortest_ways;
 
-DROP TYPE bus.transport_type_enum;
-DROP TYPE bus.route_type_enum;
-DROP TYPE bus.node_type_enum;
-DROP TYPE day_enum;
-DROP TYPE lang_enum;
-DROP TYPE bus.short_path;
+DROP TABLE  bus.users;
+DROP TABLE  bus.user_roles;
+
+DROP TYPE  bus.transport_type_enum;
+DROP TYPE  bus.route_type_enum;
+DROP TYPE  bus.node_type_enum;
+DROP TYPE  bus.short_path;
+
+DROP TYPE  day_enum;
+DROP TYPE  lang_enum;

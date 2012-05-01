@@ -58,10 +58,32 @@ CREATE TYPE bus.short_path AS
 ALTER TYPE bus.short_path OWNER TO postgres;
 
 ------------------------------------ create database --------------------------------------
+CREATE TABLE bus.user_roles
+(
+  id       bigserial      NOT NULL,
+  name     character(256) NOT NULL,
+  CONSTRAINT user_role_id_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE bus.users
+(
+  id        bigserial      NOT NULL,
+  role_id   bigint         NOT NULL,
+  login     character(256) NOT NULL,
+  password  character(256) NOT NULL,
+  
+  CONSTRAINT user_id_pk PRIMARY KEY (id),
+
+  CONSTRAINT users_role_id_fk FOREIGN KEY (role_id)
+      REFERENCES bus.user_roles (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
+  
+);
+
 CREATE TABLE bus.languages
 (
   id        lang_enum       NOT NULL,
-  name      character(255)      NOT NULL,
+  name      character(255)  NOT NULL,
   
   CONSTRAINT languages_pk PRIMARY KEY (id)
 );

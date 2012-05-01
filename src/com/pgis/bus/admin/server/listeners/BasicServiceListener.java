@@ -6,7 +6,8 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pgis.bus.server.db.DBConnectionFactory;
+import com.pgis.bus.data.DBConnectionFactory;
+
 
 public class BasicServiceListener implements ServletContextListener {
 	private  static final Logger log = LoggerFactory.getLogger( BasicServiceListener.class );
