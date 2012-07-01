@@ -1,2 +1,0 @@
-serviceClass: com.pgis.bus.admin.client.network.GreetingService
-path: 3D753279B6586CD0DC6252C94564FE66.gwt.rpc

@@ -5,9 +5,9 @@
 <%@page session="true"%>
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
+<!-- 
+ -->
 <html lang="en">
 
 <head>
@@ -36,7 +36,7 @@ if (login_error!=null){
 	</font>
 <%} %>
 
-    <form name="loginform" action="<c:url value='j_spring_security_check'/>"
+    <form name="loginform" action="j_spring_security_check"
                 method="POST" >
                 <input type="text" name="j_username" placeholder="Логин">
 				<input type="password" name="j_password" placeholder="Пароль">

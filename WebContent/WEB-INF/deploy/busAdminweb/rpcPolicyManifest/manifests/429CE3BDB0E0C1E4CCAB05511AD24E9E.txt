@@ -1,2 +1,0 @@
-serviceClass: busAdminApp.client.network.GreetingService
-path: 2EB1A9CDEE98A970AE41B0E244B1FFD4.gwt.rpc

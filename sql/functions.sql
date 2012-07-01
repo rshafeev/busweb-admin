@@ -74,26 +74,31 @@ END;
 $BODY$  LANGUAGE plpgsql VOLATILE  COST 100;	
 
 --=============================
--- return 1 : invalid login
--- return 2 : invalid password
 -- return 0 : ok
+-- return 1 : invalid role
+-- return 2 : invalid login
+-- return 3 : invalid password
+
 CREATE OR REPLACE FUNCTION bus.authenticate(role_name character,v_login character, v_password character)
 RETURNS bigint AS
 $BODY$
 DECLARE
  user_id bigint;
  v_role_id bigint;
+ v_user  record;
 BEGIN
   SELECT id INTO v_role_id  FROM bus.user_roles WHERE name = role_name;
   IF NOT FOUND THEN
      RETURN 1;
    END IF;
   RAISE NOTICE '%', v_role_id;
-  SELECT id INTO user_id  FROM bus.users WHERE bus.users.role_id = v_role_id AND bus.users.login = v_login 
-                                                AND bus.users.password = v_password;
+  SELECT * INTO v_user  FROM bus.users WHERE bus.users.role_id = v_role_id AND bus.users.login = v_login;
   IF NOT FOUND THEN
      RETURN 2;
    END IF;
+  IF v_user.password <> v_password THEN
+     RETURN 3;
+  END IF;
   RETURN 0;
 END;
 $BODY$  LANGUAGE plpgsql VOLATILE  COST 100;	

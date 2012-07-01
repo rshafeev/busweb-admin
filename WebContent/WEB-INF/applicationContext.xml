@@ -5,7 +5,6 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
-
     <beans:bean id="customAuthListener" class="com.pgis.bus.admin.server.listeners.CustomAuthListener"/>
 
     <http  access-denied-page="/login">
@@ -15,6 +14,7 @@
         <intercept-url pattern="/admin" access="ROLE_USER"/>
         <intercept-url pattern="/admin.jsp" access="ROLE_RR"/>
         <intercept-url pattern="/**" access="ROLE_USER"/>
+        
         <form-login login-page="/login" default-target-url="/admin" always-use-default-target="true"
                       authentication-failure-url="/login?login_error=1"  />
         <logout logout-url="/j_spring_security_logout" logout-success-url="/login" invalidate-session="true" />

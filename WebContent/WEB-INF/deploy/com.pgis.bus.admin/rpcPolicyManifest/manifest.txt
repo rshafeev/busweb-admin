@@ -1,2 +1,0 @@
-# Module com.pgis.bus.admin
-# RPC service class, partial path of RPC policy file
