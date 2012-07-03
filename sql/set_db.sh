@@ -1,0 +1,1 @@
+/home/romario/Documents/postgres/set_db.sh

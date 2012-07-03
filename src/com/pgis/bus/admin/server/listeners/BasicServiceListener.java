@@ -22,6 +22,7 @@ public class BasicServiceListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce)
     {
+    	
     	DBConnectionFactory.init("jdbc/busPoolDB");
     	log.info("contextInitialized");
 

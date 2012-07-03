@@ -1,6 +1,7 @@
 ﻿--------------------- clear database -------------------------------
 
 
+
 delete from bus.route_way_days;
 delete from bus.route_schedule;
 delete from bus.route_way_daygroups;

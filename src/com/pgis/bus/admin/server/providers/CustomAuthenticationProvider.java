@@ -31,6 +31,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	static {
 		users.put("roman", "rar");
 		users.put("justin", "javacodegeeks1");
+		
 	}
 
 	@Override
