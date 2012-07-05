@@ -1,8 +1,0 @@
-#!/bin/bash
-
-. /home/romario/set_db.conf
-CONN_STR="-h $HOST -p $PORT -U $USER"
-echo "${CONN_STR}"
-sudo -u postgres dropdb -h $HOST -p $PORT -U $USER $DATABASE
-sudo -u postgres createdb -h $HOST -p $PORT -U $USER $DATABASE
-#sudo -u postgres psql -f clear_func.sql -d transportDB  

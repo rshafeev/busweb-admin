@@ -1,6 +1,0 @@
-
-SCRIPT_DIR=/home/romario/dev/Files/premiumGIS/Software/Programms/busApps/busWeb.admin/sql
-HOST=localhost
-PORT=5432
-DATABASE=transportDB
-USER=postgres
