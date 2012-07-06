@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jdbc</artifactId>
-			<version>7.0.27</version>
+			<version>7.0.28</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -182,7 +182,7 @@
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
-							<excludeArtifactIds>gwt-user,gwt-dev,javax.servlet-api</excludeArtifactIds>
+							<excludeArtifactIds>gwt-user,gwt-dev,javax.servlet-api,tomcat-jdbc</excludeArtifactIds>
 						</configuration>
 					</execution>
 				</executions>
