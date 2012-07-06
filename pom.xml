@@ -196,7 +196,9 @@
 						<configuration>
 							<module>com.pgis.bus.admin.BusAdminWeb</module>
 						</configuration>
-						
+						<goals>
+							<goal>compile</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
