@@ -182,8 +182,9 @@
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
-							<excludeArtifactIds>gwt-user,gwt-dev,javax.servlet-api,tomcat-jdbc</excludeArtifactIds>
-						</configuration>
+						  	<excludeArtifactIds>javax.servlet-api,gwt-user,gwt-dev,javax.servlet-api,
+						  	tomcat-jsp-api,tomcat-jsp-api,tomcat-el-api,jstl,tomcat-servlet-api,tomcat-jdbc</excludeArtifactIds>
+						  	</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -196,9 +197,9 @@
 						<configuration>
 							<module>com.pgis.bus.admin.BusAdminWeb</module>
 						</configuration>
-						<goals>
+						<!--  <goals>
 							<goal>compile</goal>
-						</goals>
+						</goals> -->
 					</execution>
 				</executions>
 			</plugin>
