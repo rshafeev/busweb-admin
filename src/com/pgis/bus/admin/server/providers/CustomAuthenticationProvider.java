@@ -20,6 +20,7 @@ import com.pgis.bus.data.Authenticate_enum;
 import com.pgis.bus.data.DBConnectionFactory;
 import com.pgis.bus.data.IAdminDataBaseService;
 import com.pgis.bus.data.WebDataBaseServiceException;
+import com.pgis.bus.data.orm.User;
 import com.pgis.bus.data.repositories.RepositoryException;
 
 public class CustomAuthenticationProvider implements AuthenticationProvider {
@@ -45,7 +46,12 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		Authenticate_enum result = null;
 
 		try {
+			User user = db.getUser(1);
+			log.info("User name from DB: "+ user.name);
+			
 			result = db.authenticate("admin", userName, userPassword);
+			
+			
 		} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
 			log.error(

@@ -154,6 +154,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
 					<warSourceDirectory>WebContent</warSourceDirectory>
+					<packagingExcludes>META-INF/context.xml</packagingExcludes>
 				</configuration>
 				<executions>
 					<execution>
@@ -195,9 +196,7 @@
 						<configuration>
 							<module>com.pgis.bus.admin.BusAdminWeb</module>
 						</configuration>
-						<goals>
-							<goal>compile</goal>
-						</goals>
+						
 					</execution>
 				</executions>
 			</plugin>
