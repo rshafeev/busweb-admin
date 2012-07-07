@@ -6,6 +6,7 @@
 	<!-- the application context definition for the springapp DispatcherServlet -->
 	<bean name="/login"     class="com.pgis.bus.admin.server.controllers.AuthController" />
 	<bean name="/admin"     class="com.pgis.bus.admin.server.controllers.MainController" />
+	<bean name="/index"     class="com.pgis.bus.admin.server.controllers.IndexController" />
 	
 	<bean id="viewResolver"
           class="org.springframework.web.servlet.view.InternalResourceViewResolver" >

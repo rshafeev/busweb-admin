@@ -3,14 +3,30 @@
 	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5">
+	
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+            WEB-INF/main-servlet.xml,
+            WEB-INF/security.xml
+            
+        </param-value>
+	</context-param>
+	
+	
+		<!-- Spring Security -->
+	
 	<filter>
 		<filter-name>springSecurityFilterChain</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
 	</filter>
+
 	<filter-mapping>
 		<filter-name>springSecurityFilterChain</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+	
+	 
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
@@ -34,6 +50,7 @@
 		<servlet-name>main</servlet-name>
 		<url-pattern>/login</url-pattern>
 		<url-pattern>/admin</url-pattern>
+		<url-pattern>/index</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>greet</servlet-name>
@@ -43,6 +60,7 @@
 		<servlet-name>auth</servlet-name>
 		<url-pattern>/com.pgis.bus.admin/auth</url-pattern>
 	</servlet-mapping>
+	 <!--  
 	<servlet-mapping>
 		<servlet-name>default</servlet-name>
 		<url-pattern>*.css</url-pattern>
@@ -51,14 +69,15 @@
 		<url-pattern>*.gif</url-pattern>
 		<url-pattern>*.jpg</url-pattern>
 		<url-pattern>*.swf</url-pattern>
-	</servlet-mapping>
-	<security-constraint>
+	</servlet-mapping>-->
+	  <security-constraint>
 		<web-resource-collection>
 			<web-resource-name>JSP templates</web-resource-name>
 			<url-pattern>*.jsp</url-pattern>
 		</web-resource-collection>
 		<auth-constraint />
 	</security-constraint>
+	
 	<welcome-file-list>
 		<welcome-file>login</welcome-file>
 	</welcome-file-list>

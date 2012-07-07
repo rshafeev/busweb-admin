@@ -66,8 +66,9 @@ public class BusAdminWeb implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		setUserSessionInfo ();
-		
+		//setUserSessionInfo ();
+		userName="error!";
+		onModulBodyLoad();
 
 	}
 	private void setUserSessionInfo () 
@@ -75,7 +76,9 @@ public class BusAdminWeb implements EntryPoint {
 		authService.retrieveUsername(
 				new AsyncCallback<String>(){
 					public void onFailure(Throwable caught) {
-				       Window.Location.replace("/login");
+				      // Window.Location.replace("/login");
+						onModulBodyLoad();
+						userName="error!";
 					}
 
 					public void onSuccess(String result) {

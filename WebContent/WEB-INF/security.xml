@@ -1,0 +1,52 @@
+ 
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/security 
+    http://www.springframework.org/schema/security/spring-security-3.1.xsd
+    http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+	
+	
+	
+	
+	<beans:bean id="customAuthenticationProvider"
+		class="com.pgis.bus.admin.server.providers.CustomAuthenticationProvider" />
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider ref="customAuthenticationProvider" />
+	</authentication-manager>
+	<beans:bean id="customAuthListener"
+		class="com.pgis.bus.admin.server.listeners.CustomAuthListener" />
+
+	<http access-denied-page="/login">
+		<intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/media/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/com.pgis.bus.admin/auth"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/admin" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/admin.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/j_spring_security_logout"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/j_spring_security_check"
+			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+
+	 
+		<intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+
+		<form-login login-page="/login" default-target-url="/admin"
+			always-use-default-target="true" authentication-failure-url="/login?login_error=1" />
+		<logout logout-url="/j_spring_security_logout"
+			logout-success-url="/login" invalidate-session="true" />
+
+
+	</http>
+
+
+
+
+</beans:beans>
+
+

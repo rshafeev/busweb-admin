@@ -28,9 +28,48 @@
 
 	<properties>
 		<gwtVersion>2.5.0-rc1</gwtVersion>
+		<spring.version>3.1.0.RELEASE</spring.version>
 	</properties>
 
 	<dependencies>
+
+		<!-- Spring 3 dependencies -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<!-- Spring Security -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.premiumgis</groupId>
 			<artifactId>busWeb.data</artifactId>
@@ -58,36 +97,11 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
+			<version>3.1-b01</version>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>3.1.1.RELEASE</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>3.1.1.RELEASE</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core</artifactId>
-			<version>3.1.0.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-config</artifactId>
-			<version>3.1.0.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-web</artifactId>
-			<version>3.1.0.RELEASE</version>
-		</dependency>
+
+
 		<dependency>
 			<groupId>org.gwtopenmaps.openlayers</groupId>
 			<artifactId>gwt-openlayers-client</artifactId>
@@ -115,19 +129,19 @@
 		</dependency>
 
 		<!-- GWT deps (from central repo) -->
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-servlet</artifactId>
-      <version>2.4.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-user</artifactId>
-      <version>2.4.0</version>
-      <scope>provided</scope>
-    </dependency>
-  	</dependencies>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-servlet</artifactId>
+			<version>2.4.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+			<version>2.4.0</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<sourceDirectory>${basedir}/src</sourceDirectory>
@@ -182,9 +196,9 @@
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
-						  	<excludeArtifactIds>javax.servlet-api,gwt-user,gwt-dev,javax.servlet-api,
-						  	tomcat-jsp-api,tomcat-jsp-api,tomcat-el-api,jstl,tomcat-servlet-api,tomcat-jdbc</excludeArtifactIds>
-						  	</configuration>
+							<excludeArtifactIds>javax.servlet-api,gwt-user,gwt-dev,javax.servlet-api,
+								tomcat-jsp-api,tomcat-jsp-api,tomcat-el-api,jstl,tomcat-servlet-api,tomcat-jdbc</excludeArtifactIds>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -197,9 +211,7 @@
 						<configuration>
 							<module>com.pgis.bus.admin.BusAdminWeb</module>
 						</configuration>
-						<!--  <goals>
-							<goal>compile</goal>
-						</goals> -->
+						<!-- <goals> <goal>compile</goal> </goals> -->
 					</execution>
 				</executions>
 			</plugin>
