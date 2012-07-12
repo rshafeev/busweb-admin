@@ -142,7 +142,7 @@
 
       "copy-resources" :
       {
-        "target" : "build"
+        "target" : "../../"
       }
     },
 

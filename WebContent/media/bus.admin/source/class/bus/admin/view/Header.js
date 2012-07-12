@@ -78,7 +78,7 @@ qx.Class.define("bus.admin.view.Header",
 
     select.addListener("changeSelection", function(evt) {
       var selected = evt.getData()[0];
-      var url = "index.html?qx.theme=" + selected.getUserData("value");
+      var url = applicationURL + "?qx.theme=" + selected.getUserData("value");
       window.location = url;
     });
 
