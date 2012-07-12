@@ -2,7 +2,7 @@
 {
   var jsFileURL;
   var jsSourceURL;
-
+  var absolutePath = "media/bus.admin/build/script";
   /*
      This class contains code based on the following work:
 
@@ -55,17 +55,20 @@
     var theme = uri.queryKey["qx.theme"] || "qx.theme.Indigo";
     theme = theme.split(".").pop().toLowerCase();
 
-    jsFileURL = "script/bus.admin." + theme + ".js";
+    jsFileURL = absolutePath + "/bus.admin." + theme + ".js";
     
     //<script type="text/javascript" src="script/bus.admin.js"></script>
   }
 
-  function loadScript()
+  function loadScript(choose_jsFileURL)
   {
     var head = document.getElementsByTagName("head")[0];
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src = jsFileURL;
+    if(choose_jsFileURL==null)
+       script.src = jsFileURL;
+    else
+       script.src = absolutePath + choose_jsFileURL;
     head.appendChild(script);
   }
 
