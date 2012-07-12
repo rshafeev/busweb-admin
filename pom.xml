@@ -76,11 +76,7 @@
 			<version>0.0.1 </version>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-servlet</artifactId>
-			<version>2.4.0</version>
-		</dependency>
+
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jdbc</artifactId>
@@ -102,11 +98,7 @@
 		</dependency>
 
 
-		<dependency>
-			<groupId>org.gwtopenmaps.openlayers</groupId>
-			<artifactId>gwt-openlayers-client</artifactId>
-			<version>0.8</version>
-		</dependency>
+
 		<dependency>
 			<groupId>jstl</groupId>
 			<artifactId>jstl</artifactId>
@@ -128,24 +120,32 @@
 			<version>1.1.1</version>
 		</dependency>
 
-		<!-- GWT deps (from central repo) -->
 		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-servlet</artifactId>
-			<version>2.4.0</version>
-			<scope>compile</scope>
+			<groupId>org.qooxdoo</groupId>
+			<artifactId>qooxdoo-sdk</artifactId>
+			<version>2.0.1</version>
+
 		</dependency>
-		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-user</artifactId>
-			<version>2.4.0</version>
-			<scope>provided</scope>
-		</dependency>
+
 	</dependencies>
 
 	<build>
-		<sourceDirectory>${basedir}/src</sourceDirectory>
-		<outputDirectory>${basedir}/WebContent/WEB-INF/classes</outputDirectory>
+		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>
+		  ${basedir}/src/main/resources
+		</directory>
+			</resource>
+		</resources>
+		<testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
+
+		<testResources>
+			<testResource>
+				<directory>${basedir}/src/test/resources</directory>
+			</testResource>
+		</testResources>
+		<outputDirectory>${basedir}/bin</outputDirectory>
 		<directory>${basedir}/target</directory>
 		<plugins>
 			<plugin>
@@ -168,7 +168,8 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
 					<warSourceDirectory>WebContent</warSourceDirectory>
-					<packagingExcludes>META-INF/context.xml</packagingExcludes>
+					<packagingExcludes>META-INF/context.xml,media/bus.admin</packagingExcludes>
+					<packagingIncludes>media/bus.admin/build/**</packagingIncludes>
 				</configuration>
 				<executions>
 					<execution>
@@ -202,18 +203,31 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>gwt-maven-plugin</artifactId>
-				<version>2.4.0</version>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2</version>
 				<executions>
+					<!--Compile qooxdoo code -->
 					<execution>
-						<configuration>
-							<module>com.pgis.bus.admin.BusAdminWeb</module>
-						</configuration>
-						<!-- <goals> <goal>compile</goal> </goals> -->
+						<id>compile-js</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>compile</phase>
 					</execution>
 				</executions>
+				<configuration>
+					<executable>python</executable>
+					<workingDirectory>${basedir}/WebContent</workingDirectory>
+					<arguments>
+						<argument>/opt/qooxdoo/tool/bin/generator.py</argument>
+						<argument>build</argument>
+						<argument>--macro=QOOXDOO_PATH:/opt/qooxdoo</argument>
+						<argument>--config=${basedir}/WebContent/media/bus.admin/config.json</argument>
+					</arguments>
+				</configuration>
 			</plugin>
 		</plugins>
 
