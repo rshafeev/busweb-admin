@@ -30,7 +30,7 @@
  *
  */
 
-qx.Class.define("bus.admin.pages.Basic",
+qx.Class.define("bus.admin.pages.Cities",
 {
   extend: bus.admin.pages.AbstractPage,
 
@@ -51,7 +51,7 @@ qx.Class.define("bus.admin.pages.Basic",
       var widgets = this._widgets;
 
       // Label
-      var label = new qx.ui.basic.Label("Label").set({alignY: "middle"});
+      var label = new qx.ui.basic.Label("Cities").set({alignY: "middle"});
       widgets.push(label);
       this.__hbox.add(label);
     

@@ -18,7 +18,7 @@
 ************************************************************************* */
 
 
-qx.Theme.define("bus.admin.theme.Decoration",
+qx.Theme.define("bus.admin.theme.indigo.Decoration",
 {
   extend : qx.theme.indigo.Decoration,
 

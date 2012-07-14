@@ -104,7 +104,12 @@
 
     "source-script-indigo" :
     {
-      "let"     : {"QXTHEME" : "qx.theme.Indigo"},
+    
+      "let"     :	
+       {
+         "QXTHEME"      : "bus.admin.theme.indigo.Theme"
+      	 //"QXTHEME" : "qx.theme.Indigo"
+       },
       "extend"  : ["source-script"],
       "compile-options" : {
         "code" :
@@ -243,15 +248,24 @@
           {
             "include" : [ "${QXTHEME}", "bus.admin.Application" ]
           },
-          "window" :
-          {
-            "include" : [ "bus.admin.pages.Window" ]
-          },
-          
           "basic" :
           {
             "include" : [ "bus.admin.pages.Basic" ]
+          },
+          "cities" :
+          {
+            "include" : [ "bus.admin.pages.Cities" ]
+          },
+          "stations" :
+          {
+            "include" : [ "bus.admin.pages.Stations" ]
+          },
+          "routes" :
+          {
+            "include" : [ "bus.admin.pages.Routes" ]
           }
+          
+
 
         }
       }

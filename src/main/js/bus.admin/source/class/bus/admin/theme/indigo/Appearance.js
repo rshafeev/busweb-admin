@@ -19,7 +19,7 @@
 /**
  * A custom apperance theme for the playground.
  */
-qx.Theme.define("bus.admin.theme.Appearance",
+qx.Theme.define("bus.admin.theme.indigo.Appearance",
 {
   extend : qx.theme.indigo.Appearance,
 
@@ -34,7 +34,7 @@ qx.Theme.define("bus.admin.theme.Appearance",
           textColor : "text-selected",
           backgroundColor: "background-selected-dark",
           decorator: "app-header",
-          padding : [10, 10, 0, 10]
+          padding : [15, 10, 0, 10]
         };
       }
     },

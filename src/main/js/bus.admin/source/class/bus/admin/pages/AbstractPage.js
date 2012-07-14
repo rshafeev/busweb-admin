@@ -35,10 +35,19 @@ qx.Class.define("bus.admin.pages.AbstractPage",
   members :
   {
     _widgets: null,
-
+    __name   : null,  
+    
     getWidgets: function()
     {
       return this._widgets;
+    },
+    
+    setName: function(name){
+    	this.__name = name;
+    },
+    
+    getName: function(){
+    	return this.__name;
     }
   }
 });

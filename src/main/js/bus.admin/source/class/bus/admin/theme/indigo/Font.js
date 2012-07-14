@@ -21,7 +21,7 @@
 /**
  * The custom font theme for the playground.
  */
-qx.Theme.define("bus.admin.theme.Font",
+qx.Theme.define("bus.admin.theme.indigo.Font",
 {
   extend : qx.theme.indigo.Font,
 

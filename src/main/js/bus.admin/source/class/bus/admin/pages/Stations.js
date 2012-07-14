@@ -19,28 +19,20 @@
 
 /* ************************************************************************
 
-#asset(qx/icon/${qx.icontheme}/16/apps/office-calendar.png)
-#asset(qx/icon/${qx.icontheme}/32/apps/office-address-book.png)
-#asset(qx/icon/${qx.icontheme}/16/apps/internet-feed-reader.png)
-#asset(qx/icon/${qx.icontheme}/16/apps/internet-telephony.png)
-#asset(qx/icon/${qx.icontheme}/22/apps/utilities-calculator.png)
-#asset(qx/icon/${qx.icontheme}/32/status/dialog-error.png)
-#asset(qx/icon/${qx.icontheme}/16/actions/dialog-ok.png)
-#asset(qx/icon/${qx.icontheme}/16/actions/dialog-cancel.png)
+#asset(qx/icon/${qx.icontheme}/32/status/dialog-information.png)
 
 ************************************************************************ */
 
 /**
- * Demonstrates qx.ui.window(...):
+ * Demonstrates qx.ui.basic(...):
  *
- * Desktop, Window
+ * Label, Image, Atom
  *
  */
 
-qx.Class.define("bus.admin.pages.Window",
+qx.Class.define("bus.admin.pages.Stations",
 {
   extend: bus.admin.pages.AbstractPage,
-
   construct: function()
   {
     this.base(arguments);
@@ -77,7 +69,6 @@ qx.Class.define("bus.admin.pages.Window",
       widgets.push(w3);
       w3.open();
       this.__desktop.add(w3, {left: 80, top: 230});
-      
     },
 
     __createWindow1 : function()
@@ -116,7 +107,6 @@ qx.Class.define("bus.admin.pages.Window",
       var page3 = new qx.ui.tabview.Page("Page 3");
       tabView.add(page3);
 
-      
       return win;
     },
 

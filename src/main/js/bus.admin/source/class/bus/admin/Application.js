@@ -32,6 +32,8 @@ qx.Class.define("bus.admin.Application",
 				__tabs : null,
 				__scroll : null,
 				__history : null,
+				__pageContainer : null,
+				__loadingIndicator : null,
 				/**
 				 * This method contains the initial application code and gets
 				 * called during startup of the application
@@ -39,7 +41,7 @@ qx.Class.define("bus.admin.Application",
 				 * @lint ignoreDeprecated(alert)
 				 */
 				main : function() {
-					
+
 					// Call super class
 					this.base(arguments);
 
@@ -69,23 +71,25 @@ qx.Class.define("bus.admin.Application",
 						edge : 0
 					});
 
+					this.__pageContainer = new qx.ui.container.Stack();
+					
+					var loadingImage = new qx.ui.basic.Image("bus/admin/loading66.gif");
+					loadingImage.setMarginTop(-33);
+					loadingImage.setMarginLeft(-33);				
+				    this.__loadingIndicator = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+				    this.__loadingIndicator.add(loadingImage,{left: "50%", top: "50%"});
+					this.__pageContainer.add(this.__loadingIndicator);
+				    
 					this.__header = new bus.admin.view.Header();
+
 					dockLayoutComposite.add(this.__header, {
 						edge : "north"
 					});
-
-					this.__scroll = new qx.ui.container.Scroll();
-					dockLayoutComposite.add(this.__scroll);
-
-					this.__tabs = new bus.admin.view.TabView();
-					
-					this.__tabs.set({
-						minWidth : 800,
-						padding : 10
+					dockLayoutComposite.add(this.__pageContainer, {
+						edge : "center"
 					});
-					this.__scroll.add(this.__tabs);
-					this.__initBookmarkSupport();
 					
+					this.__initBookmarkSupport();
 
 				},
 
@@ -112,11 +116,12 @@ qx.Class.define("bus.admin.Application",
 					this.__history.addListener("changeState",
 							this.__onHistoryChanged, this);
 
-					qx.core.Init.getApplication().__onHistoryChanged(new qx.event.type.Data()
-					.init(qx.core.Init.getApplication().__history.getState()));
+					qx.core.Init.getApplication().__onHistoryChanged(
+							new qx.event.type.Data().init(qx.core.Init
+									.getApplication().__history.getState()));
 
 				},
-				
+
 				/**
 				 * Handler for changes of the history.
 				 * 
@@ -128,21 +133,25 @@ qx.Class.define("bus.admin.Application",
 					this.debug("__onHistoryChanged : execute");
 					var state = new qx.type.BaseString(e.getData());
 					if (state.match('page-*')) {
-						this.__tabs.selectTab(state.substr(5));
+						this.__header.getPagesGroup().selectPage(state.substr(5));
+						
+					} else if (state == '') {
+						this.__header.getPagesGroup().selectPage('Cities');
 					}
-					else
-						if(state==''){
-							this.__tabs.selectTab('Window');
-						}
 
 				},
 				
-				is_initialized: function(){
-					if(this.__history==null)
-						return false;
-					return true;
-					
+				getPageContainer : function(){
+					this.debug("call getPageContainer");
+					return  this.__pageContainer;
+				},
+                
+				getLoadingIndicator : function(){
+					return this.__loadingIndicator;
+				},
+				
+				getHistoryObj : function(){
+					return this.__history;
 				}
-
 			}
 		});

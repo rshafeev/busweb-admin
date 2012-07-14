@@ -19,14 +19,14 @@
 /**
  * Playgrounds default theme, mostly the modern theme.
  */
-qx.Theme.define("bus.admin.theme.Theme",
+qx.Theme.define("bus.admin.theme.indigo.Theme",
 {
   meta :
   {
     color : qx.theme.indigo.Color,
-    decoration : bus.admin.theme.Decoration,
-    font : bus.admin.theme.Font,
-    appearance : bus.admin.theme.Appearance,
+    decoration : bus.admin.theme.indigo.Decoration,
+    font : bus.admin.theme.indigo.Font,
+    appearance : bus.admin.theme.indigo.Appearance,
     icon : qx.theme.icon.Tango
   }
 });

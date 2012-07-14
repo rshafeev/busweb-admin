@@ -34,37 +34,66 @@ qx.Class.define("bus.admin.view.Header",
 	    this.base(arguments, new qx.ui.layout.HBox());
 	    this.setAppearance("app-header");
 
+	        
+	    // Build select-box
+	    var select = new qx.ui.form.SelectBox("Theme");
+	    qx.core.Init.getApplication().getThemes().forEach(function(theme) {
+	      var name = qx.Bootstrap.getKeys(theme)[0];
+	      var item = new qx.ui.form.ListItem(name + " Theme");
+	      item.setUserData("value", theme[name]);
+	      select.add(item);
+
+	      var value = theme[name];
+	      if (value == qx.core.Environment.get("qx.theme")) {
+	        select.setSelection( [item] );
+	      }
+	    });
+
+	    select.setFont("default");
+
+	    // Find current theme from URL search param
+	    var currentThemeItem = select.getSelectables().filter(function(item) {
+	      if (window.location.search) {
+	        return window.location.search.match(item.getUserData("value"));
+	      }
+	    })[0];
+
+	    // Set current theme
+	    if (currentThemeItem) {
+	      select.setSelection([currentThemeItem]);
+	    }
+
+	    select.setTextColor("black");
+
+	    select.addListener("changeSelection", function(evt) {
+	      var selected = evt.getData()[0];
+	      var url = "app?qx.theme=" + selected.getUserData("value");
+	      window.location = url;
+	    });
+	    //////////////
+	    
 	    // EVIL HACK
 	    this.addListener("appear", function() {
 	      var el = this.getContentElement();
 	      el.setStyle("top", (parseInt(el.getStyle("top")) + 1) + "px");
 	    }, this);
 	    // /////////
+	    
+	    this.__pagesGroup = new bus.admin.view.PagesGroup();
 
-	    var version = new qxc.ui.versionlabel.VersionLabel(this.tr("qooxdoo"));
-	    version.setFont("default");
-	    var riaButton = new qx.ui.form.RadioButton(this.tr("Desktop"));
-	    riaButton.set({
-	      model: "ria",
-	      appearance: "modeButton"
-	    });
-	    var mobileButton = new qx.ui.form.RadioButton(this.tr("Mobile"));
-	    mobileButton.set({
-	      model: "mobile",
-	      appearance: "modeButton"
-	    });
-
-	    this.__buttons = [riaButton, mobileButton];
-
-	    this.__group = new qx.ui.form.RadioGroup(riaButton, mobileButton);
-	    this.__group.bind("modelSelection[0]", this, "mode");
-
-	    this.add(new qx.ui.basic.Label(this.tr("Playground")));
+	    this.add(new qx.ui.basic.Label(this.tr("Bus.admin")));
 	    this.add(new qx.ui.core.Spacer(30));
-	    this.add(riaButton);
-	    this.add(mobileButton);
+	    
+	    this.add(this.__pagesGroup);
+	    
 	    this.add(new qx.ui.core.Spacer(), { flex : 1 });
-	    this.add(version);
+	  
+	    this.add(new qx.ui.core.Spacer, {flex : 1});
+	    this.add(select);
+	    this.add(new qx.ui.core.Spacer, {width: "2%"});
+	    
+	    
+	    
 	  },
 
 
@@ -80,8 +109,7 @@ qx.Class.define("bus.admin.view.Header",
 
 
 	  members : {
-	    __buttons : null,
-	    __group : null,
+	    __pagesGroup : null,
 
 
 	    // property apply
@@ -108,6 +136,10 @@ qx.Class.define("bus.admin.view.Header",
 	      var label = value ? this.tr("Mobile") : this.tr("Mobile (Webkit only)");
 	      button.setEnabled(value);
 	      button.setLabel(label);
+	    },
+	    
+	    getPagesGroup : function(){
+	    	return this.__pagesGroup;
 	    }
 	  }
 	});
