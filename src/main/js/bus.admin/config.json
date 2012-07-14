@@ -138,7 +138,7 @@
 
     "build-files":
     {
-    //  "let" : {"QXICONTHEME" : ["Oxygen", "Tango"]},
+      "let" : {"QXICONTHEME" : ["Oxygen", "Tango"]},
       "include" :
       [
       /*  "qx.theme.Classic",
@@ -155,13 +155,13 @@
     
     "build-resources":
     {
-   //   "let" : {"QXICONTHEME" : ["Oxygen", "Tango"]},
+      "let" : {"QXICONTHEME" : ["Oxygen", "Tango"]},
       "include" :
       [
-     /*   "bus.admin.theme.classic.Theme",
+        "bus.admin.theme.classic.Theme",
         "bus.admin.theme.simple.Theme",
         "bus.admin.theme.modern.Theme",
-        "bus.admin.theme.indigo.Theme"*/
+        "bus.admin.theme.indigo.Theme"
       ],
 
       "copy-resources" :
