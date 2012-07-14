@@ -96,13 +96,13 @@ qx.Class.define("bus.admin.Application",
 				getThemes : function() {
 					return ([ {
 						"Indigo" : "qx.theme.Indigo"
-					}, {
-						"Modern" : "qx.theme.Modern"
-					}, {
-						"Simple" : "qx.theme.Simple"
-					}, {
+					},
+					{"Simple" : "qx.theme.Simple"
+				}/*,
+				{	"Modern" : "qx.theme.Modern"}, 
+					, {
 						"Classic" : "qx.theme.Classic"
-					} ]);
+					}*/ ]);
 				},
 
 				// ***************************************************

@@ -53,7 +53,7 @@
     {
       "let"     : 
       { 
-        "QXTHEME" : "qx.theme.Classic",
+        "QXTHEME" : "bus.admin.theme.classic.Theme",
         "QXICONTHEME" : ["Oxygen"]
       },
       "extend"  : ["source-script"],
@@ -72,7 +72,7 @@
 
     "source-script-modern" :
     {
-      "let"     : {"QXTHEME" : "qx.theme.Modern"},
+      "let"     : {"QXTHEME" : "bus.admin.theme.modern.Theme"},
       "extend"  : ["source-script"],
       "compile-options" : {
         "code" :
@@ -88,7 +88,7 @@
 
     "source-script-simple" :
     {
-      "let"     : {"QXTHEME" : "qx.theme.Simple"},
+      "let"     : {"QXTHEME" : "bus.admin.theme.simple.Theme"},
       "extend"  : ["source-script"],
       "compile-options" : {
         "code" :
@@ -108,7 +108,6 @@
       "let"     :	
        {
          "QXTHEME"      : "bus.admin.theme.indigo.Theme"
-      	 //"QXTHEME" : "qx.theme.Indigo"
        },
       "extend"  : ["source-script"],
       "compile-options" : {
@@ -139,13 +138,13 @@
 
     "build-files":
     {
-      "let" : {"QXICONTHEME" : ["Oxygen", "Tango"]},
+    //  "let" : {"QXICONTHEME" : ["Oxygen", "Tango"]},
       "include" :
       [
-        "qx.theme.Classic",
+      /*  "qx.theme.Classic",
         "qx.theme.Simple",
         "qx.theme.Modern",
-        "qx.theme.Indigo"
+        "qx.theme.Indigo"*/
       ],
 
       "copy-files" :
@@ -156,13 +155,13 @@
     
     "build-resources":
     {
-      "let" : {"QXICONTHEME" : ["Oxygen", "Tango"]},
+   //   "let" : {"QXICONTHEME" : ["Oxygen", "Tango"]},
       "include" :
       [
-        "qx.theme.Classic",
-        "qx.theme.Simple",
-        "qx.theme.Modern",
-        "qx.theme.Indigo"
+     /*   "bus.admin.theme.classic.Theme",
+        "bus.admin.theme.simple.Theme",
+        "bus.admin.theme.modern.Theme",
+        "bus.admin.theme.indigo.Theme"*/
       ],
 
       "copy-resources" :
@@ -173,11 +172,10 @@
 
     "build-script-classic" :
     {
-      "let" :
-      {
-        "QXTHEME" : "qx.theme.Classic",
-        "QXICONTHEME" : ["Oxygen"]
-      },
+      "let"     :	
+       {
+         "QXTHEME"      : "bus.admin.theme.classic.Theme"
+       },
       "extend"  : ["build-script"],
       "compile-options" : {
         "paths" :
@@ -190,7 +188,7 @@
 
     "build-script-modern" :
     {
-      "let"     : {"QXTHEME" : "qx.theme.Modern"},
+      "let"     : { "QXTHEME"      : "bus.admin.theme.modern.Theme"},
       "extend"  : ["build-script"],
       "compile-options" : {
         "paths" :
@@ -202,7 +200,7 @@
 
     "build-script-simple" :
     {
-      "let"     : {"QXTHEME" : "qx.theme.Simple"},
+      "let"     : { "QXTHEME"      : "bus.admin.theme.simple.Theme"},
       "extend"  : ["build-script"],
       "compile-options" : {
         "paths" :
@@ -214,7 +212,7 @@
 
     "build-script-indigo" :
     {
-      "let"     : {"QXTHEME" : "qx.theme.Indigo"},
+      "let"     : { "QXTHEME"      : "bus.admin.theme.indigo.Theme"},
       "extend"  : ["build-script"],
       "compile-options" : {
         "paths" :

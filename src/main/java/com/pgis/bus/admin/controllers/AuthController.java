@@ -26,7 +26,7 @@ public class AuthController extends AbstractController {
 		if(authentication instanceof CustomUserAuthentication)
 				{ 
 				   if(((CustomUserAuthentication)authentication).isAuthenticated())
-					return new ModelAndView(new RedirectView("admin")); 
+					return new ModelAndView("redirect:/app"); 
 				   
 				}
 		
@@ -37,7 +37,6 @@ public class AuthController extends AbstractController {
         //mv.addObject("login_error", arg0.getParameterNames().toString());		
         mv.addObject("req", arg0);		
         mv.addObject("res", arg1);	
-        
         return mv;
 	}
 
