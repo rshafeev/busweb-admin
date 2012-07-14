@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>bus.admin</title>
+   <script type="text/javascript">   
+	var applicationPath="";   
+	var applicationURL="";
+   </script>
+  <script type="text/javascript" src="resource/bus/admin/helper.js"></script>
+</head>
+<body>
+
+<div id="laod_waiting" 
+   style="width: 100%; 
+   height: 100%; 
+   min-height: 100%; 
+   position: absolute; 
+   left: 0px; 
+   top: 0px; 
+   background-color: #c2c2c2;"> 
+
+   <img src="resource/bus/admin/loading66.gif" 
+     style="width: 32px; 
+     height: 32px; 
+     top: 50%; 
+     left: 50%; 
+     position: absolute; 
+     margin-left: -16px; 
+     margin-top: -16px;"/> 
+</div> 
+
+
+
+</body>
+</html>
