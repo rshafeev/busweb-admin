@@ -7,10 +7,7 @@ qx.Class.define("bus.admin.view.PagesGroup",
   construct : function()
   {
     this.base(arguments,new qx.ui.layout.HBox(1));
-
     this.init();
-    this.addListener("changeSelection", this._onChangeSelection, this);
-    this.debug("TabView consctuctor was finished");
    
   },
 
@@ -40,6 +37,7 @@ qx.Class.define("bus.admin.view.PagesGroup",
       controls = {disabled: true};
       var routes = new bus.admin.view.PageButton("Routes", classname, controls, pagesContainer);
       routes.set({	appearance: "modeButton"   });
+      
       this.add(routes);
       
       
@@ -48,27 +46,17 @@ qx.Class.define("bus.admin.view.PagesGroup",
 
     	this.debug("page_name:" +page_name);
     	
-    	var selectButton = new qx.type.Array().append(this.getChildren()).filter(function(tab) {
-            return tab.getLabel() == page_name;
+    	var selectButton = new qx.type.Array().append(this.getChildren()).filter(function(btn) {
+            return btn.getLabel() == page_name;
+            
         })[0];
        if(selectButton){
     	   this.setSelection([selectButton]);
     	   selectButton.selectPage();
        }
-    	
-    	/*var newTab = new qx.type.Array().append(this.getChildren()).filter(function(tab) {
-            return tab.getLabel() == page_name;
-        })[0];
-    	if (newTab) {
-    		this.debug("page_name:" + newTab.getLabel());
-    	    
-    	}*/
-    },
-    _onChangeSelection: function(e) {
-    	
-    	
-    	
+
     }
+
 
   }
 });

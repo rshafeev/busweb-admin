@@ -26,21 +26,12 @@ qx.Class.define("bus.admin.pages.AbstractPage",
   construct : function()
   {
     this.base(arguments);
-    this.setLayout(new qx.ui.layout.Canvas());
-
-    this._widgets = new qx.type.Array();
-   
+  
   },
 
   members :
   {
-    _widgets: null,
     __name   : null,  
-    
-    getWidgets: function()
-    {
-      return this._widgets;
-    },
     
     setName: function(name){
     	this.__name = name;

@@ -53,6 +53,8 @@ qx.Class.define("bus.admin.Application",
 						// support additional cross-browser console. Press F7 to
 						// toggle visibility
 						qx.log.appender.Console;
+						
+						
 					}
 
 					/*

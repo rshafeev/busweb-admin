@@ -52,17 +52,17 @@ qx.Class.define("bus.admin.pages.Basic",
 
       // Label
       var label = new qx.ui.basic.Label("Label").set({alignY: "middle"});
-      widgets.push(label);
+     
       this.__hbox.add(label);
     
       // Image
       var image = new qx.ui.basic.Atom("Image", "icon/32/status/dialog-information.png");
-      widgets.push(image);
+      
       this.__hbox.add(image);
 
       // Atom
       var atom = new qx.ui.basic.Atom("Atom", "icon/32/status/dialog-information.png");
-      widgets.push(atom);
+  
       this.__hbox.add(atom);
   }
   }
