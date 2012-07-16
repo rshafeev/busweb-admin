@@ -41,36 +41,27 @@ qx.Class.define("bus.admin.pages.Cities", {
 		__splitpane : null,
 		__panelContainer : null,
 		initWidgets : function() {
-						var dock = new qx.ui.layout.Dock();
-			dock.setSeparatorX("separator-horizontal");
-			dock.setSeparatorY("separator-vertical");
-			dock.setSpacingX(5);
-			dock.setSpacingY(5);
-
-			this.setLayout(dock);
-
+			this.setLayout(new qx.ui.layout.Dock());
+			//left-panel
 			var panelContainer = new qx.ui.container.Composite(new qx.ui.layout.HBox(1));
 			panelContainer.setWidth(300);
-			// Create left panel
-
+			panelContainer.setAppearance("left-panel");
 			var label = new qx.ui.basic.Label("Cities").set({
 						alignY : "middle"
 					});
 			panelContainer.add(label);
-
+			// Create map widget
 			var mapContainer = this.__createOSMMapContainer();
 
+			// Create split
 			var splitpane = new qx.ui.splitpane.Pane("horizontal");
 			splitpane.setWidth(300);
 			splitpane.setMinWidth(250);
 			splitpane.add(panelContainer, 0);
 			splitpane.add(mapContainer, 1)
-
 			this.add(splitpane, {
 						edge : "center"
 					});
-			
-			//this.add(this.__createOSMMapContainer(),{edge: "center"});
 		},
 
 		__createOSMMapContainer : function() {

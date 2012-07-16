@@ -36,6 +36,14 @@ qx.Theme.define("bus.admin.theme.indigo.Decoration",
         color : "highlight-shade",
         backgroundColor: "background-selected"
       }
+    },
+    
+    "left-panel-gradient" : {
+      include : "button-box-pressed",
+      style :
+      {
+  			
+      }
     }
   }
 });

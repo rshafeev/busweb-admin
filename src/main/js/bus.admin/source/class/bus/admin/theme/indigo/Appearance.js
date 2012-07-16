@@ -34,11 +34,23 @@ qx.Theme.define("bus.admin.theme.indigo.Appearance",
           textColor : "text-selected",
           backgroundColor: "background-selected-dark",
           decorator: "app-header",
-          padding : [15, 10, 0, 10]
+          padding : [15, 10, 1, 50]
         };
       }
     },
-
+    "left-panel" :
+    {
+      style : function(states)
+      {
+        return {
+          font : "headline",
+          textColor : "text-selected",
+          backgroundColor: "background-selected-dark",
+          decorator: "left-panel-gradient",
+          padding : [15, 10, 1, 50]
+        };
+      }
+    },
     "modeButton" :
     {
       include : "tabview-page/button",
