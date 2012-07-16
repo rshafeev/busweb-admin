@@ -8,8 +8,9 @@
 	var applicationURL="";
    </script>
   <!-- load the Google Maps API -->
-  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true&language=en"></script>
-  <script src="http://www.openlayers.org/api/OpenLayers.js"></script> 
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+  <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+ 
   <script type="text/javascript" src="resource/bus/admin/helper.js"></script>
 </head>
 <body>

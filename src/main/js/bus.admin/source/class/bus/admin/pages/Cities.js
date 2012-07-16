@@ -38,9 +38,10 @@ qx.Class.define("bus.admin.pages.Cities", {
 	members : {
 		__map : null,
 		__mapWidget : null,
+		__splitpane : null,
+		__panelContainer : null,
 		initWidgets : function() {
-
-			var dock = new qx.ui.layout.Dock();
+						var dock = new qx.ui.layout.Dock();
 			dock.setSeparatorX("separator-horizontal");
 			dock.setSeparatorY("separator-vertical");
 			dock.setSpacingX(5);
@@ -57,7 +58,7 @@ qx.Class.define("bus.admin.pages.Cities", {
 					});
 			panelContainer.add(label);
 
-			var mapContainer = this.__createGoogleMapContainer();
+			var mapContainer = this.__createOSMMapContainer();
 
 			var splitpane = new qx.ui.splitpane.Pane("horizontal");
 			splitpane.setWidth(300);
@@ -68,54 +69,44 @@ qx.Class.define("bus.admin.pages.Cities", {
 			this.add(splitpane, {
 						edge : "center"
 					});
-
+			
+			//this.add(this.__createOSMMapContainer(),{edge: "center"});
 		},
 
 		__createOSMMapContainer : function() {
-			var mapContainer = new qx.ui.container.Composite(new qx.ui.layout.Dock());
+			var mapContainer = new qx.ui.container.Composite();
+			mapContainer.setLayout(new qx.ui.layout.Dock());
 			// create Map Widget
-			var mapWidget = new qx.ui.core.Widget();
-
-			mapWidget.addListenerOnce("appear", function() {
-
-						var mapDomId = "OpenLayersMap" + this.toHashCode();
-						var el = this.getContentElement();
-						el.setAttribute("id", mapDomId);
-						qx.html.Element.flush();
-
-						var map = new OpenLayers.Map(mapDomId);
-
-						var mapnik = new OpenLayers.Layer.OSM();
-						var fromProjection = new OpenLayers.Projection("EPSG:4326");
-						var toProjection = new OpenLayers.Projection("EPSG:900913");
-						var position = new OpenLayers.LonLat(13.41, 52.52)
-								.transform(fromProjection, toProjection);
-						var zoom = 15;
-
-						map.addLayer(mapnik);
-						map.setCenter(position, zoom);
-					});
-			mapContainer.add(mapWidget, {
-						edge : "center"
-					});
+			var mapWidget = new bus.admin.view.OpenLayersMap();	
+			mapContainer.add(mapWidget,{edge: "center"});
 			return mapContainer;
 		},
+    
 		__createGoogleMapContainer : function() {
 			var mapContainer = new qx.ui.container.Composite();
-			mapContainer.setLayout(new qx.ui.layout.Canvas());
+			mapContainer.setLayout(new qx.ui.layout.VBox().set({spacing: 10}));
+			mapContainer.setWidth(850);
+			mapContainer.setHeight(400);
+			
 			// create Map Widget
-			this.__mapWidget = new qx.ui.core.Widget();
+			this.__mapWidget = new qx.ui.core.Widget().set({
+					width: 850,
+					height: 400
+			});;
+            this.__mapWidget.setDecorator("main");
 			this.__mapWidget.setDroppable(true);
 			var mapWidget = this.__mapWidget;
-		        var  map=null;
+		    var  map=null;
 			
-	  
+			//window.onresize=function(){alert('aaaaaa')};
 			mapWidget.addListenerOnce("appear", function() {
 			   
 			   
 			   mapWidget.addListener("resize",function(){
 					  //map.checkResize();
 			          this.debug("Mapwidget: changeAppearance()!");
+			          //var off =  mapContainer.getWidth();
+			          //mapContainer.setWidth(off+2);
 				  google.maps.event.trigger(map, 'resize');
 			});
 			   
@@ -140,19 +131,19 @@ qx.Class.define("bus.admin.pages.Cities", {
 						function() {
 							// Wait for DOM
 							this_obj.debug("Map: center_changed!!!!");
-							window.setTimeout(function() {
+							/*window.setTimeout(function() {
 								var zIndex = mapWidget.getContentElement()
 										.getStyle('zIndex');
 								mapWidget.getContentElement().getDomElement().style.zIndex = zIndex;
 							    
 							    
-							}, 2000);
+							}, 2000);*/
 						});
 
 				map.setCenter(new google.maps.LatLng(49.011899, 8.403311));
 			});
-			mapContainer.add(mapWidget, {left: "0%", top: "0%", width: "100%", height: "100%"});
-			
+			//mapContainer.add(mapWidget, {left: "0%", top: "0%", width: "100%", height: "100%"});
+			mapContainer.add(mapWidget);
 
 			return mapContainer;
 		}
