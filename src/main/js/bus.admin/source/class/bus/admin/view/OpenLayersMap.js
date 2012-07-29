@@ -92,9 +92,20 @@ qx.Class.define("bus.admin.view.OpenLayersMap",
       //      so figure out how to known when the DOM node is actually
       //      resized and call updateMapSize in there. maybe the Element class
       //      raises events?
-      if (this.__map)
+      if (this.__map){
+      	qx.html.Element.flush();
         this.__map.updateSize();
+      }
       this.debug("__onResize");
+    },
+    
+    __refresh : function(){
+      if (this.__map){
+        // this.__map.destroy();
+         
+      }
+    
     }
+   
   }
 });
