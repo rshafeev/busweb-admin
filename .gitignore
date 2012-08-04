@@ -15,6 +15,7 @@ target*/
 build/
 WebContent/resource/**
 WebContent/script/**
+WebContent/META-INF/context.xml
 bin/
 target/
 src/main/js/bus.admin/source/script/**
