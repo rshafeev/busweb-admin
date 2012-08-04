@@ -161,6 +161,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
 					<warSourceDirectory>WebContent</warSourceDirectory>
+					<warName>busWeb.admin</warName>
 					<packagingExcludes>META-INF/context.xml</packagingExcludes>
 				</configuration>
 				<executions>
