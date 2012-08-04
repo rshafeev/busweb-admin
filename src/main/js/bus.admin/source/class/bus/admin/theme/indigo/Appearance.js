@@ -43,11 +43,9 @@ qx.Theme.define("bus.admin.theme.indigo.Appearance",
       style : function(states)
       {
         return {
-          font : "headline",
-          textColor : "text-selected",
+          textColor : "black",
           backgroundColor: "background-selected-dark",
-          decorator: "left-panel-gradient",
-          padding : [15, 10, 1, 50]
+          decorator: "left-panel-gradient"
         };
       }
     },

@@ -75,7 +75,7 @@ qx.Class.define("bus.admin.Application",
 
 					this.__pageContainer = new qx.ui.container.Stack();
 					
-					var loadingImage = new qx.ui.basic.Image("bus/admin/loading66.gif");
+					var loadingImage = new qx.ui.basic.Image("bus/admin/images/loading.gif");
 					loadingImage.setMarginTop(-33);
 					loadingImage.setMarginLeft(-33);				
 				    this.__loadingIndicator = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
