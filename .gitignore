@@ -9,13 +9,15 @@
 *.jar
 *.class
 *.*~
+*.directory
 bin*/
 target*/
 build/
+WebContent/resource/**
+WebContent/script/**
+WebContent/META-INF/context.xml
 bin/
 target/
+src/main/js/bus.admin/source/script/**
 
 >>>>>>> 96600d1929838e5e765d5e12f72d64af681041c8
-
-
-

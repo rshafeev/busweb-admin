@@ -24,10 +24,7 @@
 	<http access-denied-page="/login">
 		<intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/media/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/com.pgis.bus.admin/auth"
-			access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/admin" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/admin.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/app" access="ROLE_USER" />
 		<intercept-url pattern="/j_spring_security_logout"
 			access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/j_spring_security_check"
@@ -36,7 +33,7 @@
 	 
 		<intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
-		<form-login login-page="/login" default-target-url="/admin"
+		<form-login login-page="/login" default-target-url="/app"
 			always-use-default-target="true" authentication-failure-url="/login?login_error=1" />
 		<logout logout-url="/j_spring_security_logout"
 			logout-success-url="/login" invalidate-session="true" />

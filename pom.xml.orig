@@ -1,0 +1,227 @@
+<?xml version="1.0" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                    http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.premiumgis</groupId>
+	<artifactId>busWeb.admin</artifactId>
+	<version>0.0.1 </version>
+
+
+
+	<properties>
+			<spring.version>3.1.0.RELEASE</spring.version>
+	</properties>
+
+	<dependencies>
+
+		<!-- Spring 3 dependencies -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<!-- Spring Security -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.premiumgis</groupId>
+			<artifactId>busWeb.data</artifactId>
+			<version>0.0.1 </version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.premiumgis</groupId>
+			<artifactId>busWeb</artifactId>
+			<version>0.0.1 </version>
+			<type>war</type>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-jdbc</artifactId>
+			<version>7.0.28</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.4</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1-b01</version>
+			<scope>compile</scope>
+		</dependency>
+
+
+
+		<dependency>
+			<groupId>jstl</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+<<<<<<< HEAD
+
+=======
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+>>>>>>> release_test
+	</dependencies>
+
+	<build>
+		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>
+		  ${basedir}/src/main/resources
+		</directory>
+			</resource>
+		</resources>
+		<testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
+
+		<testResources>
+			<testResource>
+				<directory>${basedir}/src/test/resources</directory>
+			</testResource>
+		</testResources>
+		<outputDirectory>${basedir}/bin</outputDirectory>
+		<directory>${basedir}/target</directory>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<warSourceDirectory>WebContent</warSourceDirectory>
+					<warName>busWeb.admin</warName>
+					<packagingExcludes>META-INF/context.xml</packagingExcludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default-war</id>
+						<phase>install</phase>
+						<goals>
+							<goal>war</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/WebContent/WEB-INF/lib/</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<excludeArtifactIds>javax.servlet-api,javax.servlet-api,
+								tomcat-jsp-api,tomcat-jsp-api,tomcat-el-api,jstl,tomcat-servlet-api,tomcat-jdbc</excludeArtifactIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+					<!--Compile qooxdoo code -->
+					<!--  <execution>
+						<id>compile-js</id>
+						<goals>
+						<goal>exec</goal>
+						</goals>
+						<phase>compile</phase>
+					</execution> -->
+				</executions>
+				<configuration>
+					<executable>python</executable>
+					<workingDirectory>${basedir}/src/main/js/bus.admin</workingDirectory>
+					<arguments>
+						<argument>${basedir}/src/main/js/bus.admin/generate.py</argument>
+						<argument>build</argument>
+					</arguments>
+				</configuration>
+			</plugin>
+		</plugins>
+
+	</build>
+
+
+	<packaging>war</packaging>
+</project>
