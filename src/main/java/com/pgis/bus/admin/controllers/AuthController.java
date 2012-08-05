@@ -7,39 +7,43 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.AbstractController;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.pgis.bus.admin.models.CustomUserAuthentication;
+import com.pgis.bus.admin.models.LoginPageModel;
 
-public class AuthController extends AbstractController {
+@Controller
+@RequestMapping(value = "/")
+public class AuthController {
 
-	@Override
-	public ModelAndView handleRequestInternal(HttpServletRequest arg0,
-			HttpServletResponse arg1) throws Exception {
-		ModelAndView mv  = new ModelAndView("login");
+	@RequestMapping(value = "login")
+	public ModelAndView login(Integer login_error) {
+
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
+		if (authentication instanceof CustomUserAuthentication) {
+			if (((CustomUserAuthentication) authentication).isAuthenticated())
+				return new ModelAndView("redirect:/app");
+
+		}
+
+		LoginPageModel model = new LoginPageModel();
+		if (authentication != null)
+			model.setLoginName((String) authentication.getPrincipal());
+		if (login_error == null) {
+			model.setLoginFailed(false);
+			model.setPassFailed(false);
+		} else {
+			model.setLoginFailed(true);
+			model.setPassFailed(true);
+		}
 		
-		arg0.getSession();
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if(authentication instanceof CustomUserAuthentication)
-				{ 
-				   if(((CustomUserAuthentication)authentication).isAuthenticated())
-					return new ModelAndView("redirect:/app"); 
-				   
-				}
-		
-		if(authentication!=null)
-			mv.addObject("login",authentication.getPrincipal());
-		
-        mv.addObject("login_error", arg0.getParameter("login_error"));		
-        //mv.addObject("login_error", arg0.getParameterNames().toString());		
-        mv.addObject("req", arg0);		
-        mv.addObject("res", arg1);	
-        return mv;
+		return new ModelAndView("login", "model", model);
 	}
-
-	
 
 }

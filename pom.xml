@@ -8,27 +8,9 @@
 	<version>0.0.1 </version>
 
 
-	<!-- include pluginRepository and repository for GWT-Maven -->
-	<pluginRepositories>
-		<pluginRepository>
-			<id>gwt-maven-plugins</id>
-			<url>
-                http://gwt-maven.googlecode.com/svn/trunk/mavenrepo/
-            </url>
-		</pluginRepository>
-	</pluginRepositories>
-	<repositories>
-		<repository>
-			<id>gwt-maven</id>
-			<url>
-                http://gwt-maven.googlecode.com/svn/trunk/mavenrepo/
-            </url>
-		</repository>
-	</repositories>
 
 	<properties>
-		<gwtVersion>2.5.0-rc1</gwtVersion>
-		<spring.version>3.1.0.RELEASE</spring.version>
+			<spring.version>3.1.0.RELEASE</spring.version>
 	</properties>
 
 	<dependencies>
@@ -70,13 +52,21 @@
 			<artifactId>spring-security-config</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>com.premiumgis</groupId>
 			<artifactId>busWeb.data</artifactId>
 			<version>0.0.1 </version>
 			<scope>compile</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>com.premiumgis</groupId>
+			<artifactId>busWeb</artifactId>
+			<version>0.0.1 </version>
+			<type>war</type>
+			<scope>compile</scope>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jdbc</artifactId>
@@ -119,7 +109,11 @@
 			<artifactId>commons-logging</artifactId>
 			<version>1.1.1</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -190,7 +184,7 @@
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
-							<excludeArtifactIds>javax.servlet-api,gwt-user,gwt-dev,javax.servlet-api,
+							<excludeArtifactIds>javax.servlet-api,javax.servlet-api,
 								tomcat-jsp-api,tomcat-jsp-api,tomcat-el-api,jstl,tomcat-servlet-api,tomcat-jdbc</excludeArtifactIds>
 						</configuration>
 					</execution>
@@ -203,13 +197,13 @@
 				<version>1.2</version>
 				<executions>
 					<!--Compile qooxdoo code -->
-					<execution>
+					<!--  <execution>
 						<id>compile-js</id>
 						<goals>
-							<goal>exec</goal>
+						<goal>exec</goal>
 						</goals>
 						<phase>compile</phase>
-					</execution>
+					</execution> -->
 				</executions>
 				<configuration>
 					<executable>python</executable>
