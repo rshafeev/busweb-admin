@@ -16,6 +16,8 @@ import com.pgis.bus.data.IDataBaseService;
 import com.pgis.bus.data.impl.DataBaseService;
 import com.pgis.bus.data.orm.City;
 import com.pgis.bus.data.repositories.RepositoryException;
+import com.pgis.bus.server.models.CitiesModel;
+import com.pgis.bus.server.models.CityModel;
 
 @Controller
 @RequestMapping(value = "cities/")
@@ -27,25 +29,17 @@ public class CitiesController {
 	@RequestMapping(value = "get_all.htm", method = RequestMethod.POST)
 	public String get_all() {
 		
-		return null;
-/*
 		try {
 			
 			// Загрузим список всех городов из БД
 			IDataBaseService db = new DataBaseService();
 			ArrayList<City> cities = db.getAllCities();
 			
-			// Создадим модель CitiesModel на базе списка cities
-			CitiesModel model = new CitiesModel();
-			for(City city : cities){
-				model.addCity(new CityModel(city, locale));
-			}
-			
 			// Отправим модель в формате GSON клиенту
-			return  (new Gson()).toJson(model);
+			return  (new Gson()).toJson(cities);
 		} catch (RepositoryException e) {
 			return null;
-		}*/
+		}
 
 	}
 
