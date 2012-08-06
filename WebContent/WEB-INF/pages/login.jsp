@@ -18,9 +18,6 @@
 </script>
 <link rel="stylesheet" href="media/css/login-form.css" media="screen">
 
-<style>
-
-</style>
 <meta name="robots" content="noindex,follow" />
 </head>
 
@@ -38,8 +35,8 @@
 				> <input type="password"
 				name="j_password" placeholder="Password"> <span> <input
 				type="checkbox" name="_spring_security_remember_me"> <label
-				for="checkbox">Submit</label>
-			</span> <input type="submit" value="Войти">
+				for="checkbox">Remember</label>
+			</span> <input type="submit" value="Submit">
 		</form>
 	</div>
 

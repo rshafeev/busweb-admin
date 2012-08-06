@@ -1,9 +1,7 @@
 
-/*******************************************************************************
- * 
- * #asset(bus/admin/*)
- * 
- ******************************************************************************/
+/*
+  #asset(bus/admin/images/*)
+ */
 
 qx.Class.define("bus.admin.pages.cities.CityLeftPanel", {
 	extend : qx.ui.container.Composite,
@@ -122,6 +120,7 @@ qx.Class.define("bus.admin.pages.cities.CityLeftPanel", {
 			this.btn_delete.setWidth(90);
 			this.btn_refresh = new qx.ui.form.Button("Refresh",
 					"bus/admin/images/btn/view-refresh.png");
+			this.btn_refresh.addListener("execute", this.on_btn_refresh_click);
 			this.btn_refresh.setWidth(90);
 			this.btn_delete.setEnabled(false);
 			this.btn_change.setEnabled(false);
@@ -186,6 +185,21 @@ qx.Class.define("bus.admin.pages.cities.CityLeftPanel", {
 			citiesTable.setStatusBarVisible(false);
 			return citiesTable;
 
+		},
+
+		on_btn_refresh_click : function() {
+			qx.core.Init.getApplication().setWaitingWindow(true);
+			var request = new qx.io.remote.Request("cities/get_all.htm",
+					"POST", "application/json");
+			request.addListener("completed", function() {
+						qx.core.Init.getApplication().setWaitingWindow(false);
+						this.debug("received data");
+					}, this);
+			request.addListener("failed", function() {
+						qx.core.Init.getApplication().setWaitingWindow(false);
+						this.debug("received failed");
+					}, this);
+			request.send()
 		}
 	}
 });

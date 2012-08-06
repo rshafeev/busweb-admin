@@ -1,3 +1,9 @@
+
+/*
+#ignore(google.maps)
+#ignore(google.maps.*)
+*/
+
 /**
  * Wraps an OpenLayers Map in an qooxdoo Widget.
  * 
