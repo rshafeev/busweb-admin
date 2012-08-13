@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pgis.bus.data.DBConnectionFactory;
+import com.pgis.bus.data.DBConnectionManager;
 
 
 public class BasicServiceListener implements ServletContextListener {
@@ -23,7 +24,7 @@ public class BasicServiceListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce)
     {
     	
-    	DBConnectionFactory.init("jdbc/busPoolDB");
+    	DBConnectionFactory.init(new DBConnectionManager("jdbc/busPoolDB"));
     	log.info("contextInitialized");
 
     }

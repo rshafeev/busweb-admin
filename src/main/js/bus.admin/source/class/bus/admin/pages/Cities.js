@@ -34,24 +34,42 @@ qx.Class.define("bus.admin.pages.Cities", {
 		this.base(arguments);
 		this.initWidgets();
 	},
-
+	properties : {
+		cityLeftPanel : {
+			nullable : true
+		},
+		cityMap : {
+			nullable : true
+		}
+	},
 	members : {
-		__mapWidget : null,
-		__leftPanel : null,
 		initWidgets : function() {
 			this.setLayout(new qx.ui.layout.Dock());
 			// Create left-panel
-			this. __leftPanel = new bus.admin.pages.cities.CityLeftPanel(this);
-			// Create map widget
-			this.__mapWidget = new bus.admin.pages.cities.CityMap(this);
 
+			// Create map widget
+			this.setCityMap(new bus.admin.pages.cities.CityMap(this));
+			this.setCityLeftPanel(new bus.admin.pages.cities.CityLeftPanel(this
+							.getCityMap()));
 			// Create split
 			var splitpane = new qx.ui.splitpane.Pane("horizontal");
-			splitpane.add(this. __leftPanel, 0);
-			splitpane.add(this.__mapWidget, 1)
+			splitpane.add(this.getCityLeftPanel(), 0);
+			splitpane.add(this.getCityMap(), 1)
 			this.add(splitpane, {
 						edge : "center"
 					});
+			this.getCityLeftPanel().addListenerOnce("received_all_responces", function() {
+						this.__showApplication();
+					}, this);
+			this.getCityLeftPanel().initialize();
+
+		},
+
+		__showApplication : function() {
+			if (qx.core.Init.getApplication().getRoot().isVisible() == false) {
+				qx.core.Init.getApplication().getRoot()
+						.setVisibility("visible");
+			}
 		}
 
 	}

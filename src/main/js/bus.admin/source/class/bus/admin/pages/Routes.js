@@ -41,6 +41,10 @@ qx.Class.define("bus.admin.pages.Routes",
     var hbox = this.__hbox = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
     this.add(hbox, {top: 0});
     this.initWidgets();
+    if (qx.core.Init.getApplication().getRoot().isVisible() == false) {
+					qx.core.Init.getApplication().getRoot()
+							.setVisibility("visible");
+				}
   },
 
   members :

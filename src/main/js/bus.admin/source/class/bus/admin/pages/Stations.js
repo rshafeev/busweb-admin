@@ -42,6 +42,10 @@ qx.Class.define("bus.admin.pages.Stations", {
 						});
 				this.setLayout(new qx.ui.layout.Canvas());
 				this.initWidgets();
+				if (qx.core.Init.getApplication().getRoot().isVisible() == false) {
+					qx.core.Init.getApplication().getRoot()
+							.setVisibility("visible");
+				}
 			},
 
 			members : {

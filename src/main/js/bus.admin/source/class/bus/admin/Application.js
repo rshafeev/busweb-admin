@@ -43,7 +43,7 @@ qx.Class.define("bus.admin.Application", {
 
 			// Call super class
 			this.base(arguments);
-
+			this.getRoot().setVisibility("hidden");
 			// Enable logging in debug variant
 			if (qx.core.Environment.get("qx.debug")) {
 				// support native logging capabilities, e.g. Firebug for
@@ -174,7 +174,8 @@ qx.Class.define("bus.admin.Application", {
 						});
 				this.__pageContainer.setEnabled(false);
 				this.__header.setEnabled(false);
-				this.__blocker = new qx.bom.Blocker();
+				if(this.__blocker==null)
+					this.__blocker = new qx.bom.Blocker();
 				this.__blocker.block();
 			}
 		},
