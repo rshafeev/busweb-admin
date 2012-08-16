@@ -218,13 +218,13 @@
 						"include" : ["${QXTHEME}", "bus.admin.Application"]
 					},
 					"cities" : {
-						"include" : ["bus.admin.pages.Cities"]
+						"include" : ["bus.admin.mvp.view.Cities"]
 					},
 					"stations" : {
-						"include" : ["bus.admin.pages.Stations"]
+						"include" : ["bus.admin.mvp.view.Stations"]
 					},
 					"routes" : {
-						"include" : ["bus.admin.pages.Routes"]
+						"include" : ["bus.admin.mvp.view.Routes"]
 					}
 
 				}

@@ -22,7 +22,7 @@
  * The Application's header
  */
 
-qx.Class.define("bus.admin.view.Header",
+qx.Class.define("bus.admin.page.Header",
 		{
 	  extend : qx.ui.container.Composite,
 
@@ -79,7 +79,7 @@ qx.Class.define("bus.admin.view.Header",
 	    }, this);
 	    // /////////
 	    
-	    this.__pagesGroup = new bus.admin.view.PagesGroup();
+	    this.__pagesGroup = new bus.admin.page.header.PagesGroup();
 
 	    this.add(new qx.ui.basic.Label(this.tr("Bus.admin")));
 	    this.add(new qx.ui.core.Spacer(30));

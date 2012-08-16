@@ -22,6 +22,7 @@ public class CityModel{
 	int scale;
 	int name_key;
 	StringValue[] names;
+	
 	public CityModel(City city) {
 		this.location = new Location(city.lat,city.lon);
 		this.id = city.id;

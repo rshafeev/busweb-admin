@@ -27,8 +27,8 @@
  * 
  */
 
-qx.Class.define("bus.admin.pages.Stations", {
-			extend : bus.admin.pages.AbstractPage,
+qx.Class.define("bus.admin.mvp.view.Stations", {
+			extend : bus.admin.mvp.view.AbstractPage,
 			construct : function() {
 				this.base(arguments);
 

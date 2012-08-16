@@ -1,0 +1,52 @@
+
+
+qx.Class.define("bus.admin.mvp.model.CitiesModel", {
+			extend : qx.core.Object,
+			properties : {
+				data : {
+					nullable : true
+				}
+			},
+			members : {
+				insertCity : function(city){
+					this.getData().push(city);
+				},
+				deleteCity : function(id){
+				var cities = this.getData();
+					if (cities == null)
+						return;
+					for (var i = 0; i < cities.length; i++) {
+						if (id == cities[i].id) {
+							cities.splice(i,1);
+							return;
+						}
+					}
+				},
+				updateCity : function(city) {
+					var cities = this.getData();
+					if (cities == null)
+						return null;
+					for (var i = 0; i < cities.length; i++) {
+						if (city.id == cities[i].id) {
+							cities[i] = city;
+							return;
+						}
+					}
+					return null;
+				},
+			
+				getCityByID : function(id) {
+					var cities = this.getData();
+					if (cities == null)
+						return null;
+					for (var i = 0; i < cities.length; i++) {
+						if (cities[i].id == id) {
+							return cities[i];
+						}
+					}
+					return null;
+
+				}
+
+			}
+		});

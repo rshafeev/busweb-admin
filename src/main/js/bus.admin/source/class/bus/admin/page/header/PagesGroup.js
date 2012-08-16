@@ -1,5 +1,5 @@
 
-qx.Class.define("bus.admin.view.PagesGroup",
+qx.Class.define("bus.admin.page.header.PagesGroup",
 {
 	extend : qx.ui.form.RadioButtonGroup,
 	include : [qx.ui.core.MContentPadding],
@@ -19,23 +19,23 @@ qx.Class.define("bus.admin.view.PagesGroup",
       var pagesContainer = qx.core.Init.getApplication().getPageContainer();
       this.debug(pagesContainer);
       // Cities
-      classname = "bus.admin.pages.Cities";
+      classname = "bus.admin.mvp.view.Cities";
       controls = {disabled: true};
-      var cities = new bus.admin.view.PageButton("Cities", classname, controls, pagesContainer);
+      var cities = new bus.admin.page.header.PageButton("Cities", classname, controls, pagesContainer);
       cities.set({	appearance: "modeButton"   });
       this.add(cities);
       
       // Stations
-      classname = "bus.admin.pages.Stations";
+      classname = "bus.admin.mvp.view.Stations";
       controls = {disabled: true};
-      var stations = new bus.admin.view.PageButton("Stations", classname, controls, pagesContainer);
+      var stations = new bus.admin.page.header.PageButton("Stations", classname, controls, pagesContainer);
       stations.set({	appearance: "modeButton"   });
       this.add(stations);
       
       // Routes
-      classname = "bus.admin.pages.Routes";
+      classname = "bus.admin.mvp.view.Routes";
       controls = {disabled: true};
-      var routes = new bus.admin.view.PageButton("Routes", classname, controls, pagesContainer);
+      var routes = new bus.admin.page.header.PageButton("Routes", classname, controls, pagesContainer);
       routes.set({	appearance: "modeButton"   });
       
       this.add(routes);

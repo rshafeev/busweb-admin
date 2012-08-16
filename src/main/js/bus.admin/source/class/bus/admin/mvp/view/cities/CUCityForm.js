@@ -1,14 +1,14 @@
 /*
  * #asset(bus/admin/images/*)
  */
-qx.Class.define("bus.admin.pages.cities.CUCityForm", {
+qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 	extend : qx.ui.window.Window,
 
-	construct : function(cityLeftPanel, change_dialog, cityModel) {
+	construct : function(citiesPage, change_dialog, cityModel) {
 		this.base(arguments);
 		this.setChangeDialog(change_dialog);
 		this.__cityModel = cityModel;
-		this.__cityLeftPanel = cityLeftPanel;
+		this.__citiesPage = citiesPage;
 		this.initWidgets();
 		this.__setOptions();
 	},
@@ -18,8 +18,8 @@ qx.Class.define("bus.admin.pages.cities.CUCityForm", {
 		}
 	},
 	members : {
+		__citiesPage : null,
 		__cityModel : null,
-		__cityLeftPanel : null,
 		btn_save : null,
 		btn_cancel : null,
 		editLat : null,
@@ -37,64 +37,112 @@ qx.Class.define("bus.admin.pages.cities.CUCityForm", {
 					return;
 				}
 			}
-			qx.core.Init.getApplication().setWaitingWindow(true);
 
 			if (this.getChangeDialog()) {
-
+				this.__updateCity();
 			} else {
-				// create model
-				var newCityModel = {
-					location : {
-						lat : this.editLat.getValue(),
-						lon : this.editLon.getValue()
-					},
-					scale : editScale.getValue(),
-					names : []
-				};
-				for (var i = 0; i < this.table_names.getTableModel()
-						.getRowCount(); i++) {
-					var rowData = this.table_names.getTableModel()
-							.getRowDataAsMap(i);
-					newCityModel.names.push(rowData.Language, rowData.Name);
-				}
-				// sent to the server
-
-				var request = bus.admin.net.CitiesRequest();
-				request.insertCity(newCityModel, function(responce) {
-					qx.core.Init.getApplication().setWaitingWindow(false);
-					var insertedCity = response.getContent();
-					if (insertedCity != null ) {
-						this.__cityLeftPanel.insertCity(insertedCity);
-						this.close();
-						/*this.citiesData.changeCity(update_city.id, update_city);
-						this.__cityMap.updateMarker(update_city.id,
-								update_city.location.lat,
-								update_city.location.lon);
-						var tableModel = this.citiesTable.getTableModel();
-						tableModel.setValue(tableModel
-										.getColumnIndexById("Lat"), row,
-								update_city.location.lat);
-						tableModel.setValue(tableModel
-										.getColumnIndexById("Lon"), row,
-								update_city.location.lon);*/
-
-					} else {
-						alert("Request error!");
-					}
-					
-
-				}, function() {
-					qx.core.Init.getApplication().setWaitingWindow(false);
-					alert("Request error!");
-				}, this);
+				this.__insertCity();
 			}
-			/*
-			 * var cityModel = { id : this.__cityModel, name_key : location : {
-			 * lat : this.editLat.getValue(), lon : this.editLon.getValue() },
-			 * scale : editScale.getValue() };
-			 */
+		},
 
-			// this.close();
+		__updateCity : function() {
+			// model
+			qx.core.Init.getApplication().setWaitingWindow(true);
+			var update_city = {
+				id : this.__cityModel.id,
+				location : {
+					lat : this.editLat.getValue(),
+					lon : this.editLon.getValue()
+				},
+				scale : this.editScale.getValue(),
+				name_key : this.__cityModel.name_key,
+				names : []
+			};
+			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
+				var rowData = this.table_names.getTableModel()
+						.getRowDataAsMap(i);
+				var lang = this.__citiesPage.getLanguagesModel()
+						.getLangByName(rowData.Language);
+				var stringValue = bus.admin.mvp.model.helpers.CitiesModelHelper
+						.getCityStringValueByLang(this.__cityModel, lang.id);
+				if (stringValue != null) {
+					update_city.names.push({
+								id : stringValue.id,
+								key_id : stringValue.key_id,
+								lang_id : lang.id,
+								value : rowData.Name
+							});
+				} else {
+					update_city.names.push({
+								id : null,
+								key_id : null,
+								lang_id : lang.id,
+								value : rowData.Name
+							});
+				}
+			}
+			var citiesRequest = new bus.admin.net.CitiesRequest();
+			qx.core.Init.getApplication().setWaitingWindow(true);
+			var update_city_json = qx.lang.Json.stringify(update_city);
+			citiesRequest.updateCity(update_city_json, function(response) {
+						var result = response.getContent();
+						if (result == null || result.error != null) {
+							alert(result.error);
+						} else if (result != null) {
+							this.__citiesPage.getPresenter().updateCity(result);
+							this.close();
+						}
+						qx.core.Init.getApplication().setWaitingWindow(false);
+					}, function() {
+						alert("server responce error!");
+						qx.core.Init.getApplication().setWaitingWindow(false);
+					}, this);
+			
+		},
+
+		__insertCity : function() {
+			qx.core.Init.getApplication().setWaitingWindow(true);
+			// create model
+			var newCityModel = {
+				location : {
+					lat : this.editLat.getValue(),
+					lon : this.editLon.getValue()
+				},
+				scale : this.editScale.getValue(),
+				names : []
+			};
+			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
+				var rowData = this.table_names.getTableModel()
+						.getRowDataAsMap(i);
+				var lang = this.__citiesPage.getLanguagesModel()
+						.getLangByName(rowData.Language);
+				newCityModel.names.push({
+							lang_id : lang.id,
+							value : rowData.Name
+						});
+			}
+
+			// sent to the server
+			var request = new bus.admin.net.CitiesRequest();
+			var newCityModel_json = qx.lang.Json.stringify(newCityModel);
+			request.insertCity(newCityModel_json, function(responce) {
+						qx.core.Init.getApplication().setWaitingWindow(false);
+						var result = responce.getContent();
+						if (result.error != null) {
+							alert(result.error.toString());
+						} else if (result != null) {
+							var insertedCity = result;
+							this.__citiesPage.getPresenter()
+									.insertCity(insertedCity);
+							this.close();
+						} else {
+							alert("Request error!");
+						}
+
+					}, function() {
+						qx.core.Init.getApplication().setWaitingWindow(false);
+						alert("Request error!");
+					}, this);
 		},
 		on_cancel_click : function() {
 			this.close();
@@ -107,7 +155,7 @@ qx.Class.define("bus.admin.pages.cities.CUCityForm", {
 
 			var labelLat = new qx.ui.basic.Label("Lat:");
 			var labelLon = new qx.ui.basic.Label("Lon:");
-			var labelScale = new qx.ui.basic.Label("Scale(2-16):");
+			var labelScale = new qx.ui.basic.Label("Scale(2-21):");
 			this.editLat = new qx.ui.form.TextField(this.__cityModel.location.lat
 					.toString());
 			this.editLat.setWidth(110);
@@ -117,7 +165,7 @@ qx.Class.define("bus.admin.pages.cities.CUCityForm", {
 
 			this.editScale = new qx.ui.form.Spinner();
 			this.editScale.set({
-						maximum : 16,
+						maximum : 21,
 						minimum : 2
 					});
 			this.editScale.setWidth(50);
@@ -136,7 +184,7 @@ qx.Class.define("bus.admin.pages.cities.CUCityForm", {
 
 			var tableModel = new qx.ui.table.model.Simple();
 			tableModel.setColumns(["Language", "Name"]);
-			tableModel.setColumnEditable(0, true);
+			tableModel.setColumnEditable(0, false);
 			tableModel.setColumnEditable(1, true);
 
 			// table
@@ -221,24 +269,20 @@ qx.Class.define("bus.admin.pages.cities.CUCityForm", {
 			this.editScale.setValue(this.__cityModel.scale);
 
 			// fill table
-			if (this.__cityLeftPanel.citiesData != null) {
-				var langsModel = this.__cityLeftPanel.citiesData
-						.getLangsModel();
 
-				var rowData = [];
-				for (var i = 0; i < langsModel.length; i++) {
-					var lang_name = langsModel[i].name;
-					var name = "";
-					if (this.getChangeDialog()) {
-						name = bus.admin.helpers.CitiesModelHelper
-								.getCityNameByLang(this.__cityModel,
-										langsModel[i].id);
-					}
-					rowData.push([lang_name, name]);
-					this.debug(lang_name);
+			var langs = this.__citiesPage.getLanguagesModel().getData();
+			this.debug(langs.length);
+			var rowData = [];
+			for (var i = 0; i < langs.length; i++) {
+				var name = "";
+				if (this.getChangeDialog()) {
+					name = bus.admin.mvp.model.helpers.CitiesModelHelper
+							.getCityNameByLang(this.__cityModel, langs[i].id);
 				}
-				this.table_names.getTableModel().setData(rowData);
+				rowData.push([langs[i].name, name]);
+				this.debug(langs[i].name);
 			}
+			this.table_names.getTableModel().setData(rowData);
 
 		}
 	}

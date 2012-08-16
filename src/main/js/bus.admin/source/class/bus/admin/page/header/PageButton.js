@@ -18,12 +18,12 @@
  ************************************************************************ */
 
 /* ************************************************************************
- #use(bus.admin.pages.Cities)
- #use(bus.admin.pages.Stations)
- #use(bus.admin.pages.Routes)
+ #use(bus.admin.mvp.view.Cities)
+ #use(bus.admin.mvp.view.Stations)
+ #use(bus.admin.mvp.view.Routes)
  ************************************************************************ */
 
-qx.Class.define("bus.admin.view.PageButton", {
+qx.Class.define("bus.admin.page.header.PageButton", {
 	extend : qx.ui.form.RadioButton,
 
 	include : bus.admin.MControls,

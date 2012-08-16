@@ -9,7 +9,7 @@
  * 
  * @author Rui Lopes (ruilopes.com)
  */
-qx.Class.define("bus.admin.view.GoogleMap", {
+qx.Class.define("bus.admin.widget.GoogleMap", {
 	extend : qx.ui.core.Widget,
 
 	construct : function() {
@@ -72,7 +72,7 @@ qx.Class.define("bus.admin.view.GoogleMap", {
 		},
 
 		__onResize : function(e) {
-			if (this.mapObject) {
+			if (this.getMapObject()!=null) {
 				this.debug("Mapwidget: changeAppearance()!");
 				qx.html.Element.flush();
 				google.maps.event.trigger(this.getMapObject(), 'resize');

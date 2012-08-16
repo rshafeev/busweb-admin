@@ -3,7 +3,7 @@
  *
  * @author Rui Lopes (ruilopes.com)
  */
-qx.Class.define("bus.admin.view.OpenLayersMap",
+qx.Class.define("bus.admin.widget.OpenLayersMap",
 {
   extend : qx.ui.core.Widget,
 

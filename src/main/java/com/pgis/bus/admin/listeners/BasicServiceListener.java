@@ -16,7 +16,7 @@ public class BasicServiceListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce)
     {
-    	
+    	DBConnectionFactory.free();
     	log.debug("contextInitialized");
     }
 

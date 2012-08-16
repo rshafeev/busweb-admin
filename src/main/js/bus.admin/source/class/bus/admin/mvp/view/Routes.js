@@ -30,9 +30,9 @@
  *
  */
 
-qx.Class.define("bus.admin.pages.Routes",
+qx.Class.define("bus.admin.mvp.view.Routes",
 {
-  extend: bus.admin.pages.AbstractPage,
+  extend: bus.admin.mvp.view.AbstractPage,
 
   construct: function()
   {

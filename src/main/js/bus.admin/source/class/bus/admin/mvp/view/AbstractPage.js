@@ -17,7 +17,7 @@
 
 ************************************************************************ */
 
-qx.Class.define("bus.admin.pages.AbstractPage",
+qx.Class.define("bus.admin.mvp.view.AbstractPage",
 {
   type: "abstract",
 

@@ -1,12 +1,12 @@
 /*
  * #ignore(google.maps) #ignore(google.maps.*)
  */
-qx.Class.define("bus.admin.pages.cities.CityMap", {
+qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 	extend : qx.ui.container.Composite,
 
-	construct : function(cities_pt) {
+	construct : function(citiesPage) {
 		this.base(arguments);
-		this.__cities_pt = cities_pt;
+		this.__citiesPage = citiesPage;
 		this.setLayout(new qx.ui.layout.Dock());
 		this.initWidgets();
 	},
@@ -16,8 +16,11 @@ qx.Class.define("bus.admin.pages.cities.CityMap", {
 		}
 	},
 	members : {
-		__cities_pt : null,
+		__citiesPage : null,
 		__markers : [],
+		initialize : function() {
+
+		},
 		getContextMenu : function() {
 			var menu = new qx.ui.menu.Menu;
 
@@ -36,7 +39,7 @@ qx.Class.define("bus.admin.pages.cities.CityMap", {
 		},
 		initWidgets : function() {
 			// create Map Widget
-			this.setGoogleMap(new bus.admin.view.GoogleMap());
+			this.setGoogleMap(new bus.admin.widget.GoogleMap());
 			this.getGoogleMap().init(50, 30, 5);
 
 			/*
@@ -114,10 +117,8 @@ qx.Class.define("bus.admin.pages.cities.CityMap", {
 										},
 										scale : map.getZoom()
 									};
-									var cityLeftPanel = T.__cities_pt
-											.getCityLeftPanel();
-									var changeDialog = new bus.admin.pages.cities.CUCityForm(
-											cityLeftPanel, false, cityModel);
+									var changeDialog = new bus.admin.mvp.view.cities.CUCityForm(
+											T.__citiesPage, false, cityModel);
 									changeDialog.open();
 									break;
 								case 'zoom_in_click' :

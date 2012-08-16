@@ -82,7 +82,7 @@ qx.Class.define("bus.admin.Application", {
 					});
 			this.__pageContainer.add(this.__loadingIndicator);
 
-			this.__header = new bus.admin.view.Header();
+			this.__header = new bus.admin.page.Header();
 
 			dockLayoutComposite.add(this.__header, {
 						edge : "north"

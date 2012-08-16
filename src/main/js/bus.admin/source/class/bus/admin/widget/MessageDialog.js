@@ -21,7 +21,7 @@
 
 ************************************************************************ */
 
-qx.Class.define("bus.admin.view.MessageDialog",
+qx.Class.define("bus.admin.widget.MessageDialog",
 {
   extend: qx.ui.window.Window,
 
