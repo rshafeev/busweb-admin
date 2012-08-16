@@ -14,7 +14,6 @@
 bin*/
 target*/
 build/
-WebContent/resource/**
 WebContent/script/**
 WebContent/META-INF/context.xml
 bin/
