@@ -14,17 +14,13 @@
  * 
  ******************************************************************************/
 
-/*******************************************************************************
- * 
- * #asset(qx/icon/${qx.icontheme}/32/status/dialog-information.png)
- * 
- ******************************************************************************/
+/*
+  #asset(qx/icon/${qx.icontheme}/32/status/dialog-information.png)
+*/
 
 /**
- * Demonstrates qx.ui.basic(...):
- * 
- * Label, Image, Atom
- * 
+  Demonstrates qx.ui.basic(...):
+  Label, Image, Atom
  */
 
 qx.Class.define("bus.admin.mvp.view.Stations", {
@@ -42,16 +38,17 @@ qx.Class.define("bus.admin.mvp.view.Stations", {
 						});
 				this.setLayout(new qx.ui.layout.Canvas());
 				this.initWidgets();
-				if (qx.core.Init.getApplication().getRoot().isVisible() == false) {
-					qx.core.Init.getApplication().getRoot()
-							.setVisibility("visible");
-				}
+
+				this.debug("Stations page: initialized");
 			},
 
 			members : {
 
 				__desktop : null,
+				initialize : function() {
 
+					this.fireEvent("init_finished");
+				},
 				initWidgets : function() {
 					var w1, w2, w3;
 

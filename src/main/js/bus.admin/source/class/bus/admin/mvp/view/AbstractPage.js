@@ -1,44 +1,40 @@
-/* ************************************************************************
+/*******************************************************************************
+ * 
+ * qooxdoo - the new era of web development
+ * 
+ * http://qooxdoo.org
+ * 
+ * Copyright: 2004-2010 1&1 Internet AG, Germany, http://www.1und1.de
+ * 
+ * License: LGPL: http://www.gnu.org/licenses/lgpl.html EPL:
+ * http://www.eclipse.org/org/documents/epl-v10.php See the LICENSE file in the
+ * project's top-level directory for details.
+ * 
+ * Authors: Tristan Koch (tristankoch)
+ * 
+ ******************************************************************************/
 
-   qooxdoo - the new era of web development
+qx.Class.define("bus.admin.mvp.view.AbstractPage", {
+			type : "abstract",
 
-   http://qooxdoo.org
+			extend : qx.ui.container.Composite,
+			events : {
+				"init_finished" : "qx.event.type.Event"
+			},
+			construct : function() {
+				this.base(arguments);
 
-   Copyright:
-     2004-2010 1&1 Internet AG, Germany, http://www.1und1.de
+			},
 
-   License:
-     LGPL: http://www.gnu.org/licenses/lgpl.html
-     EPL: http://www.eclipse.org/org/documents/epl-v10.php
-     See the LICENSE file in the project's top-level directory for details.
+			members : {
+				__name : null,
 
-   Authors:
-     * Tristan Koch (tristankoch)
+				setName : function(name) {
+					this.__name = name;
+				},
 
-************************************************************************ */
-
-qx.Class.define("bus.admin.mvp.view.AbstractPage",
-{
-  type: "abstract",
-
-  extend: qx.ui.container.Composite,
-
-  construct : function()
-  {
-    this.base(arguments);
-  
-  },
-
-  members :
-  {
-    __name   : null,  
-    
-    setName: function(name){
-    	this.__name = name;
-    },
-    
-    getName: function(){
-    	return this.__name;
-    }
-  }
-});
+				getName : function() {
+					return this.__name;
+				}
+			}
+		});

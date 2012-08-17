@@ -21,22 +21,6 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 		initialize : function() {
 
 		},
-		getContextMenu : function() {
-			var menu = new qx.ui.menu.Menu;
-
-			var cutButton = new qx.ui.menu.Button("Cut",
-					"icon/16/actions/edit-cut.png", this._cutCommand);
-			var copyButton = new qx.ui.menu.Button("Copy",
-					"icon/16/actions/edit-copy.png", this._copyCommand);
-			var pasteButton = new qx.ui.menu.Button("Paste",
-					"icon/16/actions/edit-paste.png", this._pasteCommand);
-
-			menu.add(cutButton);
-			menu.add(copyButton);
-			menu.add(pasteButton);
-
-			return menu;
-		},
 		initWidgets : function() {
 			// create Map Widget
 			this.setGoogleMap(new bus.admin.widget.GoogleMap());
@@ -150,8 +134,6 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 					});
 			this.__markers.push(marker);
 			this.debug("insertCityMarker");
-		},
-		showContextMenu : function(caurrentLatLng) {
 		},
 		deleteMarker : function(id) {
 			for (var i = 0; i < this.__markers.length; i++) {

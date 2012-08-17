@@ -1,33 +1,31 @@
-/* ************************************************************************
-
-   qooxdoo - the new era of web development
-
-   http://qooxdoo.org
-
-   Copyright:
-     2004-2010 1&1 Internet AG, Germany, http://www.1und1.de
-
-   License:
-     LGPL: http://www.gnu.org/licenses/lgpl.html
-     EPL: http://www.eclipse.org/org/documents/epl-v10.php
-     See the LICENSE file in the project's top-level directory for details.
-
-   Authors:
- * Tristan Koch (tristankoch)
-
- ************************************************************************ */
-
-/* ************************************************************************
- #use(bus.admin.mvp.view.Cities)
- #use(bus.admin.mvp.view.Stations)
- #use(bus.admin.mvp.view.Routes)
- ************************************************************************ */
+/*******************************************************************************
+ * 
+ * qooxdoo - the new era of web development
+ * 
+ * http://qooxdoo.org
+ * 
+ * Copyright: 2004-2010 1&1 Internet AG, Germany, http://www.1und1.de
+ * 
+ * License: LGPL: http://www.gnu.org/licenses/lgpl.html EPL:
+ * http://www.eclipse.org/org/documents/epl-v10.php See the LICENSE file in the
+ * project's top-level directory for details.
+ * 
+ * Authors: Tristan Koch (tristankoch)
+ * 
+ ******************************************************************************/
+/*
+  use(bus.admin.mvp.view.Cities) 
+  use(bus.admin.mvp.view.Stations)
+  use(bus.admin.mvp.view.Routes)
+ */
 
 qx.Class.define("bus.admin.page.header.PageButton", {
 	extend : qx.ui.form.RadioButton,
 
 	include : bus.admin.MControls,
-
+	events : {
+		"load_page_finished" : "qx.event.type.Event"
+	},
 	construct : function(label, classname, controls, viewContainer) {
 		this.base(arguments);
 
@@ -58,7 +56,10 @@ qx.Class.define("bus.admin.page.header.PageButton", {
 				// Finally, instantiate class
 				var clazz = qx.Class.getByName(this.__classname);
 				this.__page = new clazz();
-
+				this.__page.addListenerOnce("init_finished", function() {
+							this.fireEvent("load_page_finished");
+						}, this);
+				this.__page.initialize();
 				// Add to page
 				// this.add(pageContent, {top: 40, edge: 0});
 
@@ -73,13 +74,13 @@ qx.Class.define("bus.admin.page.header.PageButton", {
 									scroll.scrollTop = 0;
 								}
 							});
+
 				}
 
 				// Init controls for widgets of page
 				this.__viewContainer.add(this.__page);
 				this.__viewContainer.setSelection([this.__page]);
 				this.__saveHistoryToUrl();
-				
 
 			}, this);
 		},
@@ -90,7 +91,7 @@ qx.Class.define("bus.admin.page.header.PageButton", {
 				this.__saveHistoryToUrl();
 			} else {
 				this.__viewContainer.setSelection([qx.core.Init
-								.getApplication().getLoadingIndicator()]);
+						.getApplication().getLoadingIndicator()]);
 				this.__loadPart();
 			}
 

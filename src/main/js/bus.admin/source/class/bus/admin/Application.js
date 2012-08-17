@@ -24,6 +24,15 @@ qx.Class.define("bus.admin.Application", {
 	 * ****************************************************************************
 	 */
 
+	properties : {
+		presenter : {
+			nullable : true
+		},
+		modelsContainer : {
+			nullable : true
+		}
+
+	},
 	members : {
 		__header : null,
 		__tabs : null,
@@ -54,45 +63,12 @@ qx.Class.define("bus.admin.Application", {
 				qx.log.appender.Console;
 
 			}
-
-			/*
-			 * -------------------------------------------------------------------------
-			 * Below is your actual application code...
-			 * -------------------------------------------------------------------------
-			 */
-
-			// Document is the application root
-			var doc = this.getRoot();
-
-			var dockLayout = new qx.ui.layout.Dock();
-			var dockLayoutComposite = new qx.ui.container.Composite(dockLayout);
-			doc.add(dockLayoutComposite, {
-						edge : 0
-					});
-
-			this.__pageContainer = new qx.ui.container.Stack();
-
-			var loadingImage = new qx.ui.basic.Image("bus/admin/images/loading.gif");
-			loadingImage.setMarginTop(-33);
-			loadingImage.setMarginLeft(-33);
-			this.__loadingIndicator = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-			this.__loadingIndicator.add(loadingImage, {
-						left : "50%",
-						top : "50%"
-					});
-			this.__pageContainer.add(this.__loadingIndicator);
-
-			this.__header = new bus.admin.page.Header();
-
-			dockLayoutComposite.add(this.__header, {
-						edge : "north"
-					});
-			dockLayoutComposite.add(this.__pageContainer, {
-						edge : "center"
-					});
-
+			this.setPresenter(new bus.admin.mvp.presenter.GlobalPresenter());
+			this.setModelsContainer(new bus.admin.mvp.model.ModelsContainer());
+			this.initWidgets();
 			this.__initBookmarkSupport();
 
+			
 		},
 
 		getThemes : function() {
@@ -100,15 +76,13 @@ qx.Class.define("bus.admin.Application", {
 						"Indigo" : "qx.theme.Indigo"
 					}, {
 						"Simple" : "qx.theme.Simple"
-					}/*
-						 * , { "Modern" : "qx.theme.Modern"}, , { "Classic" :
-						 * "qx.theme.Classic" }
-						 */]);
+					}]);
 		},
 
 		// ***************************************************
 		// HISTORY SUPPORT
 		// ***************************************************
+
 		/**
 		 * Back button and bookmark support
 		 */
@@ -117,10 +91,31 @@ qx.Class.define("bus.admin.Application", {
 			this.__history.addListener("changeState", this.__onHistoryChanged,
 					this);
 
-			qx.core.Init.getApplication()
-					.__onHistoryChanged(new qx.event.type.Data()
-							.init(qx.core.Init.getApplication().__history
-									.getState()));
+			
+			// load current page 
+			var pageName = null;
+			if (this.__history.getState().match('page-*')) {
+				pageName = this.__history.getState().substr(5);
+
+			} else {
+				pageName = 'Cities';
+			}
+			var pageButton = this.__header.getPagesGroup()
+					.getPageButtonByURL(pageName);
+					
+			if (pageButton != null) {
+				// when page was loaded, app must start to load data 
+				pageButton.addListener("load_page_finished", function() {
+					// show application
+					this.debug("listener: load_page_finished()");
+					if (qx.core.Init.getApplication().getRoot().isVisible() == false) {
+						qx.core.Init.getApplication().getRoot()
+								.setVisibility("visible");
+					}
+				}, this);
+
+				this.__header.getPagesGroup().selectPageByObj(pageButton);
+			}
 
 		},
 
@@ -135,10 +130,10 @@ qx.Class.define("bus.admin.Application", {
 			this.debug("__onHistoryChanged : execute");
 			var state = new qx.type.BaseString(e.getData());
 			if (state.match('page-*')) {
-				this.__header.getPagesGroup().selectPage(state.substr(5));
+				this.__header.getPagesGroup().selectPageByURL(state.substr(5));
 
 			} else if (state == '') {
-				this.__header.getPagesGroup().selectPage('Cities');
+				this.__header.getPagesGroup().selectPageByURL('Cities');
 			}
 
 		},
@@ -174,17 +169,41 @@ qx.Class.define("bus.admin.Application", {
 						});
 				this.__pageContainer.setEnabled(false);
 				this.__header.setEnabled(false);
-				if(this.__blocker==null)
+				if (this.__blocker == null)
 					this.__blocker = new qx.bom.Blocker();
 				this.__blocker.block();
 			}
 		},
-		pause : function(ms) {
-			var date = new Date();
-			var curDate = null;
-			do {
-				curDate = new Date();
-			} while (curDate - date < ms);
+		initWidgets : function() {
+			// Document is the application root
+			var doc = this.getRoot();
+			// bus.admin.mvp.presenter.GlobalPresenter
+			var dockLayout = new qx.ui.layout.Dock();
+			var dockLayoutComposite = new qx.ui.container.Composite(dockLayout);
+			doc.add(dockLayoutComposite, {
+						edge : 0
+					});
+
+			this.__pageContainer = new qx.ui.container.Stack();
+
+			var loadingImage = new qx.ui.basic.Image("bus/admin/images/loading.gif");
+			loadingImage.setMarginTop(-33);
+			loadingImage.setMarginLeft(-33);
+			this.__loadingIndicator = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+			this.__loadingIndicator.add(loadingImage, {
+						left : "50%",
+						top : "50%"
+					});
+			this.__pageContainer.add(this.__loadingIndicator);
+
+			this.__header = new bus.admin.page.Header();
+
+			dockLayoutComposite.add(this.__header, {
+						edge : "north"
+					});
+			dockLayoutComposite.add(this.__pageContainer, {
+						edge : "center"
+					});
 		}
 	}
 });
