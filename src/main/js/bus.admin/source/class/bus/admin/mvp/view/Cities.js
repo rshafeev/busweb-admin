@@ -28,79 +28,71 @@
  */
 
 qx.Class.define("bus.admin.mvp.view.Cities", {
-	extend : bus.admin.mvp.view.AbstractPage,
+			extend : bus.admin.mvp.view.AbstractPage,
 
-	construct : function() {
-		this.base(arguments);
-		this.__initWidgets();
-		this.__initPresenter();
-		this.__initModels();
-		this.__setOptions();
-	},
-	properties : {
-		citiesModel : {
-			nullable : true
-		},
-		languagesModel : {
-			nullable : true
-		},
-		cityLeftPanel : {
-			nullable : true
-		},
-		cityMap : {
-			nullable : true
-		},
-		presenter : {
-			nullable : true
-		}
-	},
-	members : {
-		__initWidgets : function() {
-			this.setLayout(new qx.ui.layout.Dock());
+			construct : function() {
+				this.base(arguments);
 
-			// Create widgets
-			var cityMap = new bus.admin.mvp.view.cities.CityMap(this);
-			var leftPanel = new bus.admin.mvp.view.cities.CityLeftPanel(this);
-			this.setCityMap(cityMap);
-			this.setCityLeftPanel(leftPanel);
+				this.setCitiesModel(qx.core.Init.getApplication()
+						.getModelsContainer().getCitiesModel());
+				this.setLanguagesModel(qx.core.Init.getApplication()
+						.getModelsContainer().getLangsModel());
+				this.setPresenter(qx.core.Init.getApplication().getPresenter());
 
-			// Create split
-			var splitpane = new qx.ui.splitpane.Pane("horizontal");
-			splitpane.add(this.getCityLeftPanel(), 0);
-			splitpane.add(this.getCityMap(), 1)
-			this.add(splitpane, {
-						edge : "center"
-					});
+				this.__initWidgets();
+				this.__setOptions();
+			},
+			properties : {
+				citiesModel : {
+					nullable : true
+				},
+				languagesModel : {
+					nullable : true
+				},
+				cityLeftPanel : {
+					nullable : true
+				},
+				cityMap : {
+					nullable : true
+				},
+				presenter : {
+					nullable : true
+				}
+			},
+			members : {
+				initialize : function() {
+					this.getPresenter().addListenerOnce("refresh_cities",
+							function(e) {
+								this.fireEvent("init_finished");
+							}, this);
+					this.getPresenter().refreshCities();
+				},
+				__initWidgets : function() {
+					this.setLayout(new qx.ui.layout.Dock());
 
-		},
-		__initPresenter : function() {
-			var citiesPresenter = new bus.admin.mvp.presenter.CitiesPresenter(this);
-			this.setPresenter(citiesPresenter);
+					// Create widgets
+					var cityMap = new bus.admin.mvp.view.cities.CityMap(this);
+					var leftPanel = new bus.admin.mvp.view.cities.CityLeftPanel(this);
+					this.setCityMap(cityMap);
+					this.setCityLeftPanel(leftPanel);
 
-		},
-		__initModels : function() {
-			var citiesModel = new bus.admin.mvp.model.CitiesModel();
-			var languagesModel = new bus.admin.mvp.model.LanguagesModel();
-			this.setCitiesModel(citiesModel);
-			this.setLanguagesModel(languagesModel);
-		},
-		showApplication : function() {
-			if (qx.core.Init.getApplication().getRoot().isVisible() == false) {
-				qx.core.Init.getApplication().getRoot()
-						.setVisibility("visible");
+					// Create split
+					var splitpane = new qx.ui.splitpane.Pane("horizontal");
+					splitpane.add(this.getCityLeftPanel(), 0);
+					splitpane.add(this.getCityMap(), 1)
+					this.add(splitpane, {
+								edge : "center"
+							});
+
+				},
+
+				__setOptions : function() {
+					var cityMap = this.getCityMap();
+					var leftPanel = this.getCityLeftPanel();
+					cityMap.initialize();
+					leftPanel.initialize();
+
+				}
+
 			}
-		},
-
-		__setOptions : function() {
-			var cityMap = this.getCityMap();
-			var leftPanel = this.getCityLeftPanel();
-			cityMap.initialize();
-			leftPanel.initialize();
-			this.getPresenter().refreshData();
-			
-		}
-		
-		
-
-	}
-});
+		});
