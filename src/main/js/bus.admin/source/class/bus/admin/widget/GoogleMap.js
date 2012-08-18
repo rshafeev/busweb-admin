@@ -73,7 +73,7 @@ qx.Class.define("bus.admin.widget.GoogleMap", {
 
 		__onResize : function(e) {
 			if (this.getMapObject()!=null) {
-				this.debug("Mapwidget: changeAppearance()!");
+				
 				qx.html.Element.flush();
 				google.maps.event.trigger(this.getMapObject(), 'resize');
 			}

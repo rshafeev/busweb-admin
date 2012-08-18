@@ -9,6 +9,11 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 		this.__citiesPage = citiesPage;
 		this.setLayout(new qx.ui.layout.Dock());
 		this.initWidgets();
+		var presenter = citiesPage.getPresenter();
+		presenter.addListener("update_city", this.on_update_city, this);
+		presenter.addListener("insert_city", this.on_insert_city, this);
+		presenter.addListener("refresh_cities", this.on_refresh_cities, this);
+		presenter.addListener("delete_city", this.on_delete_city, this);
 	},
 	properties : {
 		googleMap : {
@@ -18,9 +23,59 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 	members : {
 		__citiesPage : null,
 		__markers : [],
+		on_delete_city : function(e) {
+			this.debug("on_update_city()");
+			var data = e.getData();
+
+			if (data == null || data.error == true) {
+				this.debug("on_delete_city() : event data has errors");
+				return;
+			}
+			this.deleteMarker(data.city_id);
+		},
+		on_update_city : function(e) {
+			this.debug("on_update_city()");
+			var data = e.getData();
+			if (data == null || data.error == true) {
+				this.debug("on_refresh_cities() : event data has errors");
+				if (data != null && data.old_city != null) {
+					this.updateMarker(data.old_city.id,
+							data.old_city.location.lat,
+							data.old_city.location.lat);
+				}
+				return;
+			}
+			this.updateMarker(data.new_city.id, data.new_city.location.lat,
+					data.new_city.location.lon);
+		},
+		on_insert_city : function(e) {
+			this.debug("on_insert_city()");
+			var data = e.getData();
+			if (data == null || data.error == true) {
+				this.debug("on_refresh_cities() : event data has errors");
+				return;
+			}
+			this.insertCityMarker(data.city.id, data.city.location.lat,
+					data.city.location.lon);
+		},
+
+		on_refresh_cities : function(e) {
+			var data = e.getData();
+			if (data == null || data.error == true) {
+				this.debug("on_refresh_cities() : event data has errors");
+			}
+			this.deleteAllMarkers();
+			for (var i = 0; i < data.models.cities.length; i++) {
+				this.insertCityMarker(data.models.cities[i].id,
+						data.models.cities[i].location.lat,
+						data.models.cities[i].location.lon);
+			}
+		},
+
 		initialize : function() {
 
 		},
+
 		initWidgets : function() {
 			// create Map Widget
 			this.setGoogleMap(new bus.admin.widget.GoogleMap());
@@ -102,7 +157,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 										scale : map.getZoom()
 									};
 									var changeDialog = new bus.admin.mvp.view.cities.CUCityForm(
-											T.__citiesPage, false, cityModel);
+											false, cityModel);
 									changeDialog.open();
 									break;
 								case 'zoom_in_click' :
@@ -119,6 +174,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 			}, this);
 
 		},
+
 		insertCityMarker : function(id, lat, lon) {
 
 			var marker = new google.maps.Marker({
@@ -135,6 +191,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 			this.__markers.push(marker);
 			this.debug("insertCityMarker");
 		},
+
 		deleteMarker : function(id) {
 			for (var i = 0; i < this.__markers.length; i++) {
 				if (this.__markers[i].get("id") == id) {
@@ -144,17 +201,20 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 				}
 			}
 		},
+
 		deleteAllMarkers : function() {
 			for (var i = 0; i < this.__markers.length; i++) {
 				this.__markers[i].setMap(null);
 			}
 			this.__markers = [];
 		},
+
 		startMoveMarker : function(id) {
 			var marker = this.getMarkerByID(id);
 			if (marker != null)
 				marker.setDraggable(true);
 		},
+
 		finishMoveMarker : function(id) {
 			var marker = this.getMarkerByID(id);
 			if (marker != null)
@@ -169,6 +229,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 			}
 			return null;
 		},
+
 		updateMarker : function(id, lat, lon) {
 			for (var i = 0; i < this.__markers.length; i++) {
 				if (this.__markers[i].get("id") == id) {
@@ -180,6 +241,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 			}
 
 		},
+
 		refreshMap : function() {
 			this.debug("refreshMap");
 			for (var i = 0; i < this.__markers.length; i++) {

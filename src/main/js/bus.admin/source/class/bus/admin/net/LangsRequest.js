@@ -19,6 +19,7 @@ qx.Class.define("bus.admin.net.LangsRequest", {
 					request.addListener("completed", completed_func, self);
 					request.addListener("failed", failed_func, self);
 					request.send();
+					return request;
 				}
 			}
 		});

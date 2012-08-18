@@ -33,20 +33,15 @@ qx.Class.define("bus.admin.mvp.view.Cities", {
 			construct : function() {
 				this.base(arguments);
 
-				this.setCitiesModel(qx.core.Init.getApplication()
-						.getModelsContainer().getCitiesModel());
-				this.setLanguagesModel(qx.core.Init.getApplication()
-						.getModelsContainer().getLangsModel());
+				this.setModelsContainer(qx.core.Init.getApplication()
+						.getModelsContainer());
 				this.setPresenter(qx.core.Init.getApplication().getPresenter());
 
 				this.__initWidgets();
 				this.__setOptions();
 			},
 			properties : {
-				citiesModel : {
-					nullable : true
-				},
-				languagesModel : {
+				modelsContainer : {
 					nullable : true
 				},
 				cityLeftPanel : {
@@ -61,11 +56,11 @@ qx.Class.define("bus.admin.mvp.view.Cities", {
 			},
 			members : {
 				initialize : function() {
-					this.getPresenter().addListenerOnce("refresh_cities",
-							function(e) {
+					var event_finish_func = qx.lang.Function.bind(
+							function(data) {
 								this.fireEvent("init_finished");
 							}, this);
-					this.getPresenter().refreshCities();
+					this.getPresenter().refreshCities(event_finish_func);
 				},
 				__initWidgets : function() {
 					this.setLayout(new qx.ui.layout.Dock());

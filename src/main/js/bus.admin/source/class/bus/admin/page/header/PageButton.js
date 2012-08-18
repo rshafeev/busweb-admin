@@ -58,6 +58,10 @@ qx.Class.define("bus.admin.page.header.PageButton", {
 				this.__page = new clazz();
 				this.__page.addListenerOnce("init_finished", function() {
 							this.fireEvent("load_page_finished");
+							// Init controls for widgets of page
+							this.__viewContainer.add(this.__page);
+							this.__viewContainer.setSelection([this.__page]);
+							this.__saveHistoryToUrl();
 						}, this);
 				this.__page.initialize();
 				// Add to page
@@ -76,11 +80,6 @@ qx.Class.define("bus.admin.page.header.PageButton", {
 							});
 
 				}
-
-				// Init controls for widgets of page
-				this.__viewContainer.add(this.__page);
-				this.__viewContainer.setSelection([this.__page]);
-				this.__saveHistoryToUrl();
 
 			}, this);
 		},

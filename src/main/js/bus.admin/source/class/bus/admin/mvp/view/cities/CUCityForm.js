@@ -4,11 +4,11 @@
 qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 	extend : qx.ui.window.Window,
 
-	construct : function(citiesPage, change_dialog, cityModel) {
+	construct : function(change_dialog, cityModel) {
 		this.base(arguments);
-		this.setChangeDialog(change_dialog);
 		this.__cityModel = cityModel;
-		this.__citiesPage = citiesPage;
+		this.setChangeDialog(change_dialog);
+
 		this.initWidgets();
 		this.__setOptions();
 	},
@@ -18,7 +18,6 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 		}
 	},
 	members : {
-		__citiesPage : null,
 		__cityModel : null,
 		btn_save : null,
 		btn_cancel : null,
@@ -45,6 +44,10 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 			}
 		},
 
+		on_cancel_click : function() {
+			this.close();
+		},
+
 		__updateCity : function() {
 			// model
 			qx.core.Init.getApplication().setWaitingWindow(true);
@@ -61,7 +64,9 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
 				var rowData = this.table_names.getTableModel()
 						.getRowDataAsMap(i);
-				var lang = this.__citiesPage.getLanguagesModel()
+				var modelsContainer = qx.core.Init.getApplication()
+						.getModelsContainer();
+				var lang = modelsContainer.getLangsModel()
 						.getLangByName(rowData.Language);
 				var stringValue = bus.admin.mvp.model.helpers.CitiesModelHelper
 						.getCityStringValueByLang(this.__cityModel, lang.id);
@@ -81,23 +86,19 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 							});
 				}
 			}
-			var citiesRequest = new bus.admin.net.CitiesRequest();
-			qx.core.Init.getApplication().setWaitingWindow(true);
-			var update_city_json = qx.lang.Json.stringify(update_city);
-			citiesRequest.updateCity(update_city_json, function(response) {
-						var result = response.getContent();
-						if (result == null || result.error != null) {
-							alert(result.error);
-						} else if (result != null) {
-							this.__citiesPage.getPresenter().updateCity(result);
-							this.close();
+			var globalPresenter = qx.core.Init.getApplication().getPresenter();
+			var event_finish_func = qx.lang.Function.bind(function(data) {
+						qx.core.Init.getApplication().setWaitingWindow(false);
+						if (data == null || data.error == true) {
+							this.debug("__update_city: request error");
+							return;
 						}
-						qx.core.Init.getApplication().setWaitingWindow(false);
-					}, function() {
-						alert("server responce error!");
-						qx.core.Init.getApplication().setWaitingWindow(false);
+						this.close();
 					}, this);
-			
+
+			globalPresenter.updateCity(this.__cityModel, update_city,
+					event_finish_func);
+
 		},
 
 		__insertCity : function() {
@@ -114,39 +115,29 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
 				var rowData = this.table_names.getTableModel()
 						.getRowDataAsMap(i);
-				var lang = this.__citiesPage.getLanguagesModel()
+				var modelsContainer = qx.core.Init.getApplication()
+						.getModelsContainer();
+				var lang = modelsContainer.getLangsModel()
 						.getLangByName(rowData.Language);
 				newCityModel.names.push({
 							lang_id : lang.id,
 							value : rowData.Name
 						});
 			}
-
-			// sent to the server
-			var request = new bus.admin.net.CitiesRequest();
-			var newCityModel_json = qx.lang.Json.stringify(newCityModel);
-			request.insertCity(newCityModel_json, function(responce) {
+			var globalPresenter = qx.core.Init.getApplication().getPresenter();
+			var event_finish_func = qx.lang.Function.bind(function(data) {
 						qx.core.Init.getApplication().setWaitingWindow(false);
-						var result = responce.getContent();
-						if (result.error != null) {
-							alert(result.error.toString());
-						} else if (result != null) {
-							var insertedCity = result;
-							this.__citiesPage.getPresenter()
-									.insertCity(insertedCity);
-							this.close();
-						} else {
-							alert("Request error!");
+						if (data == null || data.error == true) {
+							this.debug("__insert_city: request error");
+							alert(data.server_error);
+							return;
 						}
-
-					}, function() {
-						qx.core.Init.getApplication().setWaitingWindow(false);
-						alert("Request error!");
+						this.close();
 					}, this);
+			globalPresenter.insertCity(newCityModel, event_finish_func);
+
 		},
-		on_cancel_click : function() {
-			this.close();
-		},
+
 		initWidgets : function() {
 			this.setLayout(new qx.ui.layout.Canvas());
 
@@ -269,9 +260,9 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 			this.editScale.setValue(this.__cityModel.scale);
 
 			// fill table
-
-			var langs = this.__citiesPage.getLanguagesModel().getData();
-			this.debug(langs.length);
+			var modelsContainer = qx.core.Init.getApplication()
+					.getModelsContainer();
+			var langs = modelsContainer.getLangsModel().getData();
 			var rowData = [];
 			for (var i = 0; i < langs.length; i++) {
 				var name = "";

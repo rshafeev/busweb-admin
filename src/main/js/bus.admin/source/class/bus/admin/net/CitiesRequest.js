@@ -19,6 +19,7 @@ qx.Class.define("bus.admin.net.CitiesRequest", {
 					request.addListener("completed", completed_func, self);
 					request.addListener("failed", failed_func, self);
 					request.send();
+					return request;
 				},
 				updateCity : function(cityModel, completed_func, failed_func,
 						self) {
@@ -29,6 +30,7 @@ qx.Class.define("bus.admin.net.CitiesRequest", {
 					request.addListener("completed", completed_func, self);
 					request.addListener("failed", failed_func, self);
 					request.send();
+					return request;
 				},
 				insertCity : function(cityModel, completed_func, failed_func,
 						self) {
@@ -40,6 +42,7 @@ qx.Class.define("bus.admin.net.CitiesRequest", {
 					request.addListener("completed", completed_func, self);
 					request.addListener("failed", failed_func, self);
 					request.send();
+					return request;
 				},
 				deleteCity : function(city_id, completed_func, failed_func,
 						self) {
@@ -51,6 +54,7 @@ qx.Class.define("bus.admin.net.CitiesRequest", {
 					request.addListener("completed", completed_func, self);
 					request.addListener("failed", failed_func, self);
 					request.send();
+					return request;
 				}
 
 			}

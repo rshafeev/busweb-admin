@@ -4,11 +4,12 @@
 
 qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 	extend : qx.ui.container.Composite,
+	include : [bus.admin.mvp.view.cities.mix.CityLeftPanelListeners],
 	events : {
 		"load_finish" : "qx.event.type.Event"
 	},
 	construct : function(citiesPage) {
-		var presenter = citiesPage.getPresenter();
+
 		this.__citiesPage = citiesPage;
 		this.base(arguments);
 		this.setLayout(new qx.ui.layout.Canvas());
@@ -16,7 +17,6 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 		this.setMinWidth(360);
 		this.setAppearance("left-panel");
 		this.addListener("resize", this.on_resize_panel, this);
-		presenter.addListener("moveCity", this.on_move_city, this);
 		this.initWidgets();
 
 	},
@@ -65,9 +65,9 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 		on_loadDataToCityLocalizationTable : function(curr_lang, cities) {
 			var rowData = [];
 			this.debug("loadDataToCityLocalizationTable1");
-			if (cities.length != null && curr_lang != null) {
+			if (cities.length > 0 && curr_lang != null) {
 				this.debug("loadDataToCityLocalizationTable2");
-
+				this.debug(cities);
 				for (var i = 0; i < cities.length; i++) {
 					var name = bus.admin.mvp.model.helpers.CitiesModelHelper
 							.getCityNameByLang(cities[i], curr_lang.id);
@@ -77,6 +77,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 				}
 				this.citiesLocalizationTable.getTableModel().setData(rowData);
 			}
+			this.debug("loadDataToCityLocalizationTable3");
 		},
 
 		on_loadDataToCityTable : function(cities) {
@@ -110,8 +111,10 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 						.getRowDataAsMap(row);
 				var map = this.__citiesPage.getCityMap();
 				var marker = map.getMarkerByID(rowData.ID);
-				var old_city = this.__citiesPage.getCitiesModel()
-						.getCityByID(rowData.ID);
+
+				var old_city = this.__citiesPage.getModelsContainer()
+						.getCitiesModel().getCityByID(rowData.ID);
+				this.debug("on_cityTable_changeSelection(): move status");
 				var new_city = {
 					id : old_city.id,
 					location : {
@@ -122,11 +125,16 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 					name_key : old_city.name_key,
 					names : old_city.names
 				};
-
 				map.finishMoveMarker(rowData.ID);
 				qx.core.Init.getApplication().setWaitingWindow(true);
-				this.__citiesPage.getDataManager().moveCity(old_city, new_city,
-						this);
+
+				var event_finish_func = qx.lang.Function.bind(function(data) {
+							qx.core.Init.getApplication()
+									.setWaitingWindow(false);
+						}, this);
+
+				this.__citiesPage.getPresenter().updateCity(old_city, new_city,
+						event_finish_func);
 			}
 			this.save_status = "none";
 		},
@@ -152,109 +160,22 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 			}
 			return null;
 		},
-		on_refresh_cities : function(e){
-		
-		},
-		on_move_city : function(e) {
-			if (e.fire_obj == this) {
-				qx.core.Init.getApplication().setWaitingWindow(false);
-			}
-			if (e.error != null) {
-				return;
-			} else {
-				var row = this.getCitiesTableRowIndexByID(e.new_city.id);
-				if (row == null)
-					return;
-				var tableModel = this.citiesTable.getTableModel();
-				tableModel.setValue(tableModel.getColumnIndexById("Id"), row,
-						e.new_city.id);
-				//tableModel.setValue(1, row, name_ru);
-				tableModel.setValue(tableModel.getColumnIndexById("Lat"), row,
-						e.new_city.location.lat);
-				tableModel.setValue(tableModel.getColumnIndexById("Lon"), row,
-						e.new_city.location.lon);
-				tableModel.setValue(tableModel.getColumnIndexById("Scale"),
-						row, e.new_city.scale);
-
-			}
-
-		},
-		on_insertCity : function(city) {
-			var langName = bus.admin.helpers.WidgetHelper
-					.getValueFromSelectBox(this.combo_langs);
-			var lang = this.__citiesPage.getLanguagesModel()
-					.getLangByName(langName);
-			var name = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(city, lang.id);
-			var name_ru = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(city, "c_ru");
-			var tableModel = this.citiesTable.getTableModel();
-			tableModel.setRows([[city.id, name_ru, city.location.lat,
-							city.location.lon, city.scale]], tableModel
-							.getRowCount()
-							- 1);
-			tableModel = this.citiesLocalizationTable.getTableModel();
-			tableModel.setRows([[city.id, name_ru, name]], tableModel
-							.getRowCount()
-							- 1);
-
-		},
-		on_updateCity : function(old_id, city) {
-			// update citiesTable
-			var row = this.getCitiesTableRowIndexByID(old_id);
-			if (row == null)
-				return;
-			var langName = bus.admin.helpers.WidgetHelper
-					.getValueFromSelectBox(this.combo_langs);
-			var lang = this.__citiesPage.getLanguagesModel()
-					.getLangByName(langName);
-			var name = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(city, lang.id);
-			var name_ru = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(city, "c_ru");
-
-			var tableModel = this.citiesTable.getTableModel();
-			tableModel.setValue(tableModel.getColumnIndexById("Id"), row,
-					city.id);
-			tableModel.setValue(1, row, name_ru);
-			tableModel.setValue(tableModel.getColumnIndexById("Lat"), row,
-					city.location.lat);
-			tableModel.setValue(tableModel.getColumnIndexById("Lon"), row,
-					city.location.lon);
-			tableModel.setValue(tableModel.getColumnIndexById("Scale"), row,
-					city.scale);
-			// update citiesLocalizationTable
-			row = this.getCityLocalizationTableRowIndexByID(old_id);
-			if (row == null)
-				return;
-			tableModel = this.citiesLocalizationTable.getTableModel();
-			tableModel.setValue(0, row, city.id);
-			tableModel.setValue(1, row, name_ru);
-			tableModel.setValue(2, row, name);
-
-		},
-		on_deleteCity : function(city_id) {
-			var row = this.getCitiesTableRowIndexByID(city_id);
-			if (row >= 0) {
-				this.citiesTable.getTableModel().removeRows(row, 1);
-			}
-			row = this.getCityLocalizationTableRowIndexByID(city_id);
-			if (row >= 0) {
-				this.citiesLocalizationTable.getTableModel().removeRows(row, 1);
-			}
-
-		},
 		on_change_LanguageComboBox : function() {
 			this.debug("on_change_LanguageComboBox()");
 			var langName = bus.admin.helpers.WidgetHelper
 					.getValueFromSelectBox(this.combo_langs);
 			if (langName == null)
 				return;
-			var languagesModel = this.__citiesPage.getLanguagesModel();
+			var languagesModel = this.__citiesPage.getModelsContainer()
+					.getLangsModel();
+			var citiesModel = this.__citiesPage.getModelsContainer()
+					.getCitiesModel();
 			this.debug(langName);
 			var lang = languagesModel.getLangByName(langName);
-			var citiesData = this.__citiesPage.getCitiesModel().getData();
-			this.on_loadDataToCityLocalizationTable(lang, citiesData);
+
+			this
+					.on_loadDataToCityLocalizationTable(lang, citiesModel
+									.getData());
 
 		},
 		on_btn_cancel_click : function() {
@@ -310,10 +231,10 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 			if (row < 0)
 				return;
 			var rowData = this.citiesTable.getTableModel().getRowDataAsMap(row);
-			var cityModel = this.__citiesPage.getCitiesModel()
-					.getCityByID(rowData.ID);
-			var changeDialog = new bus.admin.mvp.view.cities.CUCityForm(
-					this.__citiesPage, true, cityModel);
+			var cityModel = this.__citiesPage.getModelsContainer()
+					.getCitiesModel().getCityByID(rowData.ID);
+			var changeDialog = new bus.admin.mvp.view.cities.CUCityForm(true,
+					cityModel);
 			changeDialog.open();
 		},
 
@@ -323,28 +244,22 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 			if (row < 0)
 				return;
 			var rowData = this.citiesTable.getTableModel().getRowDataAsMap(row);
-			var city_id = rowData.ID;
-			var city_id_json = city_id.toString();
-			var citiesRequest = new bus.admin.net.CitiesRequest();
+
 			qx.core.Init.getApplication().setWaitingWindow(true);
-			citiesRequest.deleteCity(city_id_json, function(response) {
-						var result = response.getContent();
-						if (result == null || result.error != null) {
-							alert(result.error.toString());
-						} else if (result.toString() == "ok") {
-							this.__citiesPage.getPresenter()
-									.deleteCity(city_id);
-						}
+			var event_finish_func = qx.lang.Function.bind(function(data) {
 						qx.core.Init.getApplication().setWaitingWindow(false);
-					}, function() {
-						qx.core.Init.getApplication().setWaitingWindow(false);
-						alert("server responce error!");
 					}, this);
+			this.__citiesPage.getPresenter().deleteCity(rowData.ID,
+					event_finish_func);
 
 		},
 
 		on_btn_refresh_click : function() {
-			this.__citiesPage.getPresenter().refreshCities();
+			qx.core.Init.getApplication().setWaitingWindow(true);
+			var event_finish_func = qx.lang.Function.bind(function(data) {
+						qx.core.Init.getApplication().setWaitingWindow(false);
+					}, this);
+			this.__citiesPage.getPresenter().refreshCities(event_finish_func);
 		},
 
 		on_cityTable_changeSelection : function(e) {
@@ -398,40 +313,29 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 			var row = data.row;
 			var rowData = this.citiesTable.getTableModel().getRowDataAsMap(row);
 
-			var currCity = this.__citiesPage.getCitiesModel()
-					.getCityByID(rowData.ID);
+			var currCity = this.__citiesPage.getModelsContainer()
+					.getCitiesModel().getCityByID(rowData.ID);
 			// prepare Model
-			var update_city = bus.admin.helpers.ObjectHelper.clone(currCity);
+			var updateCity = bus.admin.helpers.ObjectHelper.clone(currCity);
 			var lang_id = null;
 			if (data.col == 1) {
 				lang_id = "c_ru";
 			} else if (data.col == 2) {
 				var langName = bus.admin.helpers.WidgetHelper
 						.getValueFromSelectBox(this.combo_langs);
-				var lang = this.__citiesPage.getLanguagesModel()
-						.getLangByName(langName);
+				var lang = this.__citiesPage.getModelsContainer()
+						.getLangsModel().getLangByName(langName);
 				lang_id = lang.id;
 			}
 			bus.admin.mvp.model.helpers.CitiesModelHelper.updateCityName(
-					update_city, lang_id, data.value);
+					updateCity, lang_id, data.value);
 
-			// send model to the server
-			var citiesRequest = new bus.admin.net.CitiesRequest();
-			var update_city_json = qx.lang.Json.stringify(update_city);
-			qx.core.Init.getApplication().setWaitingWindow(true);
-			citiesRequest.updateCity(update_city_json, function(response) {
-						var result = response.getContent();
-						if (result == null || result.error != null) {
-							alert(result.error);
-						} else if (result != null) {
-							this.__citiesPage.getPresenter().updateCity(result);
-							// this.citiesLocalizationTable.setSelectionModel(null);
-						}
-						qx.core.Init.getApplication().setWaitingWindow(false);
-					}, function() {
-						alert("server responce error!");
+			var globalPresenter = qx.core.Init.getApplication().getPresenter();
+					qx.core.Init.getApplication().setWaitingWindow(true);
+			var event_finish_func = qx.lang.Function.bind(function(data) {
 						qx.core.Init.getApplication().setWaitingWindow(false);
 					}, this);
+			globalPresenter.updateCity(currCity, updateCity, event_finish_func);
 		},
 
 		on_resize_panel : function() {
