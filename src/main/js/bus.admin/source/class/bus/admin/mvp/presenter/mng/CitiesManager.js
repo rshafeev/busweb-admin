@@ -88,6 +88,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.CitiesManager", {
 		},
 
 		updateCity : function(old_city, new_city, event_finish_func) {
+			console.info("presenter: update_city");
 			var globalPresenter = qx.core.Init.getApplication().getPresenter();
 			var modelsContainer = qx.core.Init.getApplication()
 					.getModelsContainer();
@@ -96,6 +97,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.CitiesManager", {
 			var request = citiesRequest.updateCity(new_city_json, function(
 							response) {
 						var result = response.getContent();
+						console.info("presenter: update_city: request1");
 						if (result == null || result.error != null) {
 							var data = {
 								new_city : null,
@@ -103,6 +105,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.CitiesManager", {
 								error : true,
 								server_error : null
 							};
+							console.info("presenter: update_city: request2");
 							globalPresenter.fireDataEvent("update_city", data);
 							event_finish_func(data);
 
@@ -114,11 +117,15 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.CitiesManager", {
 								error : null,
 								server_error : null
 							};
-
+							console.info("presenter: update_city: request3");
 							globalPresenter.fireDataEvent("update_city", data);
+							console.info("presenter: update_city: request err!!!");
+							
 							event_finish_func(data);
+							
 						}
 					}, function() {
+						
 						var data = {
 							new_city : null,
 							old_city : old_city,
@@ -126,7 +133,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.CitiesManager", {
 							server_error : null
 						};
 						globalPresenter.fireDataEvent("update_city", data);
-						globalPresenter.fireDataEvent("move_city", data);
+					
 					}, this);
 			return request;
 		},

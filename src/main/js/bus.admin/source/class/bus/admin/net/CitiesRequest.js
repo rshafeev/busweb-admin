@@ -25,7 +25,9 @@ qx.Class.define("bus.admin.net.CitiesRequest", {
 						self) {
 					var request = new qx.io.remote.Request(
 							"cities/update.json", "POST", "application/json");
+					request.setAsynchronous(!this.__sync);
 					request.setParseJson(true);
+
 					request.setParameter("row_city", cityModel, true);
 					request.addListener("completed", completed_func, self);
 					request.addListener("failed", failed_func, self);

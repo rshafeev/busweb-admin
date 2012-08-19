@@ -45,7 +45,7 @@ qx.Mixin.define("bus.admin.mvp.view.cities.mix.CityLeftPanelListeners", {
 
 			var langName = bus.admin.helpers.WidgetHelper
 					.getValueFromSelectBox(this.combo_langs);
-			var lang = this.__citiesPage.getModelsContainer().getLangsModel()
+			var lang = this._citiesPage.getModelsContainer().getLangsModel()
 					.getLangByName(langName);
 			var name = bus.admin.mvp.model.helpers.CitiesModelHelper
 					.getCityNameByLang(data.city, lang.id);
@@ -63,23 +63,32 @@ qx.Mixin.define("bus.admin.mvp.view.cities.mix.CityLeftPanelListeners", {
 		},
 		on_update_city : function(e) {
 			this.debug("on_updateCity() start");
+			
+			
 			// update citiesTable
 			var data = e.getData();
 			if (data == null || data.error == true) {
-				this.debug("on_refresh_cities() : event data has errors");
+				console.error("on_refresh_cities() : event data has errors");
+				return;
 			}
+			
 			var row = this.getCitiesTableRowIndexByID(data.old_city.id);
 			if (row == null)
 				return;
 			var langName = bus.admin.helpers.WidgetHelper
 					.getValueFromSelectBox(this.combo_langs);
-			var lang = this.__citiesPage.getModelsContainer().getLangsModel()
+			var modelsContainer = qx.core.Init.getApplication()
+					.getModelsContainer();
+			var lang = this._citiesPage.getModelsContainer().getLangsModel()
 					.getLangByName(langName);
+			console.info("CityLeftPanelListeners: on_update_city() starting4...");
+			//return;		
+			
 			var name = bus.admin.mvp.model.helpers.CitiesModelHelper
 					.getCityNameByLang(data.new_city, lang.id);
 			var name_ru = bus.admin.mvp.model.helpers.CitiesModelHelper
 					.getCityNameByLang(data.new_city, "c_ru");
-
+	
 			var tableModel = this.citiesTable.getTableModel();
 			tableModel.setValue(tableModel.getColumnIndexById("Id"), row,
 					data.new_city.id);
@@ -90,6 +99,7 @@ qx.Mixin.define("bus.admin.mvp.view.cities.mix.CityLeftPanelListeners", {
 					data.new_city.location.lon);
 			tableModel.setValue(tableModel.getColumnIndexById("Scale"), row,
 					data.new_city.scale);
+
 			// update citiesLocalizationTable
 			row = this.getCityLocalizationTableRowIndexByID(data.old_city.id);
 			if (row == null)
