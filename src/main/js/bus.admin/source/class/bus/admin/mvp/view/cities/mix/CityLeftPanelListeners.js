@@ -54,11 +54,10 @@ qx.Mixin.define("bus.admin.mvp.view.cities.mix.CityLeftPanelListeners", {
 			var tableModel = this.citiesTable.getTableModel();
 			tableModel.setRows([[data.city.id, name_ru, data.city.location.lat,
 							data.city.location.lon, data.city.scale]],
-					tableModel.getRowCount() - 1);
+					tableModel.getRowCount());
 			tableModel = this.citiesLocalizationTable.getTableModel();
 			tableModel.setRows([[data.city.id, name_ru, name]], tableModel
-							.getRowCount()
-							- 1);
+							.getRowCount());
 
 		},
 		on_update_city : function(e) {

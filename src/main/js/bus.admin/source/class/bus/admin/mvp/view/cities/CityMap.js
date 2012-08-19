@@ -183,13 +183,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 					});
 			marker.setDraggable(false);
 			marker.set("id", id);
-			var T = this;
-			google.maps.event.addListener(marker, 'draggable_changed',
-					function() {
-
-					});
 			this.__markers.push(marker);
-			this.debug("insertCityMarker");
 		},
 
 		deleteMarker : function(id) {
