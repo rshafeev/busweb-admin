@@ -1,21 +1,15 @@
 /*
-  #ignore(google.maps)
-  #ignore(google.maps.*)
-  #ignore(ContextMenu)
+ * #ignore(google.maps) #ignore(google.maps.*)
  */
-qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
+qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 	extend : qx.ui.container.Composite,
 
-	construct : function(citiesPage) {
+	construct : function(routesPage) {
 		this.base(arguments);
-		this.__citiesPage = citiesPage;
+		this.__routesPage = routesPage;
 		this.setLayout(new qx.ui.layout.Dock());
 		this.initWidgets();
-		var presenter = citiesPage.getPresenter();
-		presenter.addListener("update_city", this.on_update_city, this);
-		presenter.addListener("insert_city", this.on_insert_city, this);
-		presenter.addListener("refresh_cities", this.on_refresh_cities, this);
-		presenter.addListener("delete_city", this.on_delete_city, this);
+		var presenter = routesPage.getPresenter();
 	},
 	properties : {
 		googleMap : {
@@ -23,57 +17,8 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 		}
 	},
 	members : {
-		__citiesPage : null,
+		__routesPage : null,
 		__markers : [],
-		on_delete_city : function(e) {
-			this.debug("on_update_city()");
-			var data = e.getData();
-
-			if (data == null || data.error == true) {
-				this.debug("on_delete_city() : event data has errors");
-				return;
-			}
-			this.deleteMarker(data.city_id);
-		},
-		on_update_city : function(e) {
-			this.debug("on_update_city()");
-			var data = e.getData();
-			if (data == null || data.error == true) {
-				this.debug("on_refresh_cities() : event data has errors");
-				if (data != null && data.old_city != null) {
-					this.updateMarker(data.old_city.id,
-							data.old_city.location.lat,
-							data.old_city.location.lat);
-				}
-				return;
-			}
-			this.updateMarker(data.new_city.id, data.new_city.location.lat,
-					data.new_city.location.lon);
-		},
-		on_insert_city : function(e) {
-			this.debug("on_insert_city()");
-			var data = e.getData();
-			if (data == null || data.error == true) {
-				this.debug("on_refresh_cities() : event data has errors");
-				return;
-			}
-			this.insertCityMarker(data.city.id, data.city.location.lat,
-					data.city.location.lon);
-		},
-
-		on_refresh_cities : function(e) {
-			var data = e.getData();
-			if (data == null || data.error == true) {
-				this.debug("on_refresh_cities() : event data has errors");
-				return;
-			}
-			this.deleteAllMarkers();
-			for (var i = 0; i < data.models.cities.length; i++) {
-				this.insertCityMarker(data.models.cities[i].id,
-						data.models.cities[i].location.lat,
-						data.models.cities[i].location.lon);
-			}
-		},
 
 		initialize : function() {
 
@@ -135,16 +80,16 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 				// display the ContextMenu on a Map right click
 				google.maps.event.addListener(map, "rightclick", function(
 								mouseEvent) {
-							contextMenu.show(mouseEvent.latLng);
+							//contextMenu.show(mouseEvent.latLng);
 						});
 				google.maps.event.addListener(map, "click",
 						function(mouseEvent) {
-							contextMenu.hide();
+							//contextMenu.hide();
 						});
 
 				google.maps.event.addListener(map, "dragstart", function(
 								mouseEvent) {
-							contextMenu.hide();
+							//contextMenu.hide();
 						});
 
 				google.maps.event.addListener(contextMenu,
@@ -178,7 +123,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 
 		},
 
-		insertCityMarker : function(id, lat, lon) {
+		insertMarker : function(id, lat, lon) {
 
 			var marker = new google.maps.Marker({
 						position : new google.maps.LatLng(lat, lon),

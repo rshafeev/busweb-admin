@@ -28,45 +28,60 @@
  */
 
 qx.Class.define("bus.admin.mvp.view.Routes", {
-	extend : bus.admin.mvp.view.AbstractPage,
+			extend : bus.admin.mvp.view.AbstractPage,
 
-	construct : function() {
-		this.base(arguments);
-		this.setLayout(new qx.ui.layout.Canvas());
-		var hbox = this.__hbox = new qx.ui.container.Composite(new qx.ui.layout.HBox(10));
-		this.add(hbox, {
-					top : 0
-				});
-		this.initWidgets();
+			construct : function() {
+				this.base(arguments);
+				this.__initWidgets();
+				this.__setOptions();
+				this.addListener("appear", this.on_appear, this);
+			},
+			properties : {
+				routeLeftPanel : {
+					nullable : true
+				},
+				routeMap : {
+					nullable : true
+				}
+			},
+			members : {
 
-	},
+				initialize : function() {
+					var event_finish_func = qx.lang.Function.bind(
+							function(data) {
+								this.fireEvent("init_finished");
+							}, this);
+					this.getPresenter().refreshCities(event_finish_func);
+				},
+				__initWidgets : function() {
+					this.setLayout(new qx.ui.layout.Dock());
 
-	members : {
-		__hbox : null,
-		initialize : function() {
+					// Create widgets
+					var routeMap = new bus.admin.mvp.view.routes.RouteMap(this);
+					var leftPanel = new bus.admin.mvp.view.routes.RouteLeftPanel(this);
+					this.setRouteMap(routeMap);
+					this.setRouteLeftPanel(leftPanel);
 
-			this.fireEvent("init_finished");
-		},
-		initWidgets : function() {
+					// Create split
+					var splitpane = new qx.ui.splitpane.Pane("horizontal");
+					splitpane.add(this.getRouteLeftPanel(), 0);
+					splitpane.add(this.getRouteMap(), 1)
+					this.add(splitpane, {
+								edge : "center"
+							});
 
-			// Label
-			var label = new qx.ui.basic.Label("Routes").set({
-						alignY : "middle"
-					});
+				},
 
-			this.__hbox.add(label);
+				__setOptions : function() {
+					var map = this.getRouteMap();
+					var leftPanel = this.getRouteLeftPanel();
+					map.initialize();
+					leftPanel.initialize();
+				},
 
-			// Image
-			var image = new qx.ui.basic.Atom("Image",
-					"icon/32/status/dialog-information.png");
+				on_appear : function(e) {
+					this.debug("on_appear()");
+				}
 
-			this.__hbox.add(image);
-
-			// Atom
-			var atom = new qx.ui.basic.Atom("Atom",
-					"icon/32/status/dialog-information.png");
-
-			this.__hbox.add(atom);
-		}
-	}
-});
+			}
+		});

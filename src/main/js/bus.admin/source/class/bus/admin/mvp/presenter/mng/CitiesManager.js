@@ -11,7 +11,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.CitiesManager", {
 			var globalPresenter = qx.core.Init.getApplication().getPresenter();
 			var modelsContainer = qx.core.Init.getApplication()
 					.getModelsContainer();
-			var citiesRequest = new bus.admin.net.CitiesRequest();
+			var citiesRequest = new bus.admin.net.DataRequest();
 			var city_id_json = city_id.toString();
 			var request = citiesRequest.deleteCity(city_id_json, function(
 							response) {
@@ -51,7 +51,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.CitiesManager", {
 			var globalPresenter = qx.core.Init.getApplication().getPresenter();
 			var modelsContainer = qx.core.Init.getApplication()
 					.getModelsContainer();
-			var citiesRequest = new bus.admin.net.CitiesRequest();
+			var citiesRequest = new bus.admin.net.DataRequest();
 
 			var new_city_json = qx.lang.Json.stringify(city);
 			var request = citiesRequest.insertCity(new_city_json, function(
@@ -92,7 +92,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.CitiesManager", {
 			var globalPresenter = qx.core.Init.getApplication().getPresenter();
 			var modelsContainer = qx.core.Init.getApplication()
 					.getModelsContainer();
-			var citiesRequest = new bus.admin.net.CitiesRequest();
+			var citiesRequest = new bus.admin.net.DataRequest();
 			var new_city_json = qx.lang.Json.stringify(new_city);
 			var request = citiesRequest.updateCity(new_city_json, function(
 							response) {
@@ -141,7 +141,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.CitiesManager", {
 		refreshCities : function(event_finish_func) {
 			var cities_response = null;
 			var lang_response = null;
-			var citiesRequest = new bus.admin.net.CitiesRequest();
+			var citiesRequest = new bus.admin.net.DataRequest();
 			var request = citiesRequest.getAllCities(function(responce) {
 						var cities_response = responce.getContent();
 						var result = cities_response;
@@ -150,7 +150,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.CitiesManager", {
 									event_finish_func);
 							return;
 						}
-						var langsRequest = new bus.admin.net.LangsRequest();
+						var langsRequest = new bus.admin.net.DataRequest();
 						langsRequest.getAllLanguages(function(responce) {
 									lang_response = responce.getContent();
 									var result = lang_response;

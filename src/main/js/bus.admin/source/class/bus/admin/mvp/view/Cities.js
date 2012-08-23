@@ -32,25 +32,14 @@ qx.Class.define("bus.admin.mvp.view.Cities", {
 
 			construct : function() {
 				this.base(arguments);
-
-				this.setModelsContainer(qx.core.Init.getApplication()
-						.getModelsContainer());
-				this.setPresenter(qx.core.Init.getApplication().getPresenter());
-
 				this.__initWidgets();
 				this.__setOptions();
 			},
 			properties : {
-				modelsContainer : {
-					nullable : true
-				},
 				cityLeftPanel : {
 					nullable : true
 				},
 				cityMap : {
-					nullable : true
-				},
-				presenter : {
 					nullable : true
 				}
 			},

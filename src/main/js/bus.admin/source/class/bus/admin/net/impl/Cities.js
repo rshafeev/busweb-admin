@@ -1,6 +1,6 @@
 
 
-qx.Class.define("bus.admin.net.CitiesRequest", {
+qx.Class.define("bus.admin.net.impl.Cities", {
 			extend : qx.core.Object,
 
 			construct : function(sync) {

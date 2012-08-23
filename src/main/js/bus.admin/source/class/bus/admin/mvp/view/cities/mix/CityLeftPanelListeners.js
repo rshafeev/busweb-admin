@@ -50,7 +50,7 @@ qx.Mixin.define("bus.admin.mvp.view.cities.mix.CityLeftPanelListeners", {
 			var name = bus.admin.mvp.model.helpers.CitiesModelHelper
 					.getCityNameByLang(data.city, lang.id);
 			var name_ru = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(data.city, "c_ru");
+					.getCityNameByLang(data.city, bus.admin.AppProperties.DEFAULT_LANGUAGE);
 			var tableModel = this.citiesTable.getTableModel();
 			tableModel.setRows([[data.city.id, name_ru, data.city.location.lat,
 							data.city.location.lon, data.city.scale]],
@@ -86,7 +86,7 @@ qx.Mixin.define("bus.admin.mvp.view.cities.mix.CityLeftPanelListeners", {
 			var name = bus.admin.mvp.model.helpers.CitiesModelHelper
 					.getCityNameByLang(data.new_city, lang.id);
 			var name_ru = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(data.new_city, "c_ru");
+					.getCityNameByLang(data.new_city, bus.admin.AppProperties.DEFAULT_LANGUAGE);
 	
 			var tableModel = this.citiesTable.getTableModel();
 			tableModel.setValue(tableModel.getColumnIndexById("Id"), row,

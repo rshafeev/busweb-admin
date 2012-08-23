@@ -23,9 +23,19 @@ qx.Class.define("bus.admin.mvp.view.AbstractPage", {
 			},
 			construct : function() {
 				this.base(arguments);
+				this.setModelsContainer(qx.core.Init.getApplication()
+						.getModelsContainer());
+				this.setPresenter(qx.core.Init.getApplication().getPresenter());
+			},
+			properties : {
+				modelsContainer : {
+					nullable : true
+				},
+				presenter : {
+					nullable : true
+				}
 
 			},
-
 			members : {
 				__name : null,
 

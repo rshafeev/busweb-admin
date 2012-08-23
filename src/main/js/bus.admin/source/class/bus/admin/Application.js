@@ -9,7 +9,7 @@
  ******************************************************************************/
 
 /*
-  #asset(bus/admin/images/*)
+ #asset(bus/admin/images/*)
  */
 
 /**
@@ -63,12 +63,15 @@ qx.Class.define("bus.admin.Application", {
 				qx.log.appender.Console;
 
 			}
+			//var requestObjManager = new bus.admin.net.impl.RequestObjManager();
+			var requestObjManager = new bus.admin.test.net.RequestObjManager();
+			bus.admin.net.DataRequestFactory.initialize(requestObjManager);
+			
 			this.setPresenter(new bus.admin.mvp.presenter.GlobalPresenter());
 			this.setModelsContainer(new bus.admin.mvp.model.ModelsContainer());
 			this.initWidgets();
 			this.__initBookmarkSupport();
 
-			
 		},
 
 		getThemes : function() {
@@ -91,7 +94,6 @@ qx.Class.define("bus.admin.Application", {
 			this.__history.addListener("changeState", this.__onHistoryChanged,
 					this);
 
-			
 			// load current page 
 			var pageName = null;
 			if (this.__history.getState().match('page-*')) {
@@ -102,7 +104,7 @@ qx.Class.define("bus.admin.Application", {
 			}
 			var pageButton = this.__header.getPagesGroup()
 					.getPageButtonByURL(pageName);
-					
+
 			if (pageButton != null) {
 				// when page was loaded, app must start to load data 
 				pageButton.addListener("load_page_finished", function() {

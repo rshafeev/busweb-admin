@@ -45,7 +45,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 
 			this.combo_langs.removeAll();
 			for (var i = 0; i < langs.length; i++) {
-				if (langs[i].id.toString() != "c_ru") {
+				if (langs[i].id.toString() != bus.admin.AppProperties.DEFAULT_LANGUAGE) {
 					if (defaultItem != null) {
 						this.combo_langs
 								.add(new qx.ui.form.ListItem(langs[i].name));
@@ -72,7 +72,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 					var name = bus.admin.mvp.model.helpers.CitiesModelHelper
 							.getCityNameByLang(cities[i], curr_lang.id);
 					var name_ru = bus.admin.mvp.model.helpers.CitiesModelHelper
-							.getCityNameByLang(cities[i], "c_ru");
+							.getCityNameByLang(cities[i], bus.admin.AppProperties.DEFAULT_LANGUAGE);
 					rowData.push([cities[i].id, name_ru, name]);
 				}
 				this.citiesLocalizationTable.getTableModel().setData(rowData);
@@ -86,7 +86,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 				// this.__cityMap.deleteAllMarkers();
 				for (var i = 0; i < cities.length; i++) {
 					var name = bus.admin.mvp.model.helpers.CitiesModelHelper
-							.getCityNameByLang(cities[i], "c_ru");
+							.getCityNameByLang(cities[i], bus.admin.AppProperties.DEFAULT_LANGUAGE);
 					rowData.push([cities[i].id, name, cities[i].location.lat,
 							cities[i].location.lon, cities[i].scale]);
 				}
@@ -320,7 +320,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 			var updateCity = bus.admin.helpers.ObjectHelper.clone(currCity);
 			var lang_id = null;
 			if (data.col == 1) {
-				lang_id = "c_ru";
+				lang_id = bus.admin.AppProperties.DEFAULT_LANGUAGE;
 			} else if (data.col == 2) {
 				var langName = bus.admin.helpers.WidgetHelper
 						.getValueFromSelectBox(this.combo_langs);
@@ -487,7 +487,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 
 		__createCitiesLocalizationTable : function() {
 			var tableModel = new qx.ui.table.model.Simple();
-			tableModel.setColumns(["ID", "Name(ru)", "Name(lang)"]);
+			tableModel.setColumns(["ID", "Name", "Name(lang)"]);
 			tableModel.setColumnEditable(0, false);
 			tableModel.setColumnEditable(1, true);
 			tableModel.setColumnEditable(2, true);
