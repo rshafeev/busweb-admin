@@ -1,14 +1,8 @@
 package com.pgis.bus.admin.models;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.pgis.bus.admin.controllers.CitiesController;
 import com.pgis.bus.data.geo.Location;
 import com.pgis.bus.data.orm.City;
 import com.pgis.bus.data.orm.StringValue;
@@ -83,7 +77,6 @@ public class CityModel{
 
 		for (int i = 0; i < this.names.length; i++) {
 			city.name.put(this.names[i].lang_id,this.names[i]);
-			log.debug(this.names[i].value);
 		}
 
 		return city;

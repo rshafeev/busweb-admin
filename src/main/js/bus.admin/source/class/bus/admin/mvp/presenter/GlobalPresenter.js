@@ -1,5 +1,6 @@
 qx.Class.define("bus.admin.mvp.presenter.GlobalPresenter", {
-			include : [bus.admin.mvp.presenter.mng.CitiesManager],
+			include : [bus.admin.mvp.presenter.mng.CitiesManager,
+					bus.admin.mvp.presenter.mng.StationsManager],
 			extend : qx.core.Object,
 			events : {
 
@@ -16,10 +17,21 @@ qx.Class.define("bus.admin.mvp.presenter.GlobalPresenter", {
 				 * @type String
 				 */
 				"update_city" : "qx.event.type.Data",
-				
+
 				"insert_city" : "qx.event.type.Data",
-				
-				"delete_city" : "qx.event.type.Data"
+
+				"delete_city" : "qx.event.type.Data",
+
+				/** ********************************************* */
+
+				"load_stations" : "qx.event.type.Data",
+
+				"insert_station" : "qx.event.type.Data",
+
+				"update_station" : "qx.event.type.Data",
+
+				"delete_station" : "qx.event.type.Data"
+
 			},
 			construct : function() {
 				this.base(arguments);

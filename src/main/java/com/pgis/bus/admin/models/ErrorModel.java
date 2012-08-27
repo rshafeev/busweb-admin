@@ -9,6 +9,8 @@ public class ErrorModel {
 				return "c_city_already_exist";
 			case c_sql_err:
 				return "c_sql_err";
+			default:
+				break;
 			}
 			return "Unknown error";
 		}

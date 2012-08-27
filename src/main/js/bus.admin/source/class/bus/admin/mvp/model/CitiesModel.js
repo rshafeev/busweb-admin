@@ -8,16 +8,16 @@ qx.Class.define("bus.admin.mvp.model.CitiesModel", {
 				}
 			},
 			members : {
-				insertCity : function(city){
+				insertCity : function(city) {
 					this.getData().push(city);
 				},
-				deleteCity : function(id){
-				var cities = this.getData();
+				deleteCity : function(id) {
+					var cities = this.getData();
 					if (cities == null)
 						return;
 					for (var i = 0; i < cities.length; i++) {
 						if (id == cities[i].id) {
-							cities.splice(i,1);
+							cities.splice(i, 1);
 							return;
 						}
 					}
@@ -34,7 +34,7 @@ qx.Class.define("bus.admin.mvp.model.CitiesModel", {
 					}
 					return null;
 				},
-			
+
 				getCityByID : function(id) {
 					var cities = this.getData();
 					if (cities == null)
@@ -46,6 +46,24 @@ qx.Class.define("bus.admin.mvp.model.CitiesModel", {
 					}
 					return null;
 
+				},
+
+				getCityByName : function(name, lang) {
+					var cities = this.getData();
+					if (cities == null || name == null || lang == null)
+						return null;
+					for (var i = 0; i < cities.length; i++) {
+						for (var j = 0; j < cities[i].names.length; j++) {
+							if (cities[i].names[j].lang_id.toString() == lang
+									.toString()
+									&& cities[i].names[j].value.toString() == name
+											.toString()) {
+								return cities[i];
+							}
+						}
+					}
+
+					return null;
 				}
 
 			}

@@ -12,15 +12,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
-import com.pgis.bus.admin.listeners.CustomAuthListener;
 import com.pgis.bus.admin.models.CustomUserAuthentication;
 import com.pgis.bus.data.Authenticate_enum;
-import com.pgis.bus.data.DBConnectionFactory;
 import com.pgis.bus.data.IAdminDataBaseService;
 import com.pgis.bus.data.impl.AdminDataBaseService;
-import com.pgis.bus.data.impl.DataBaseServiceException;
-import com.pgis.bus.data.orm.User;
 import com.pgis.bus.data.repositories.RepositoryException;
 
 public class CustomAuthenticationProvider implements AuthenticationProvider {
@@ -32,7 +27,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	static {
 		users.put("roman", "rar");
 		users.put("justin", "javacodegeeks1");
-		
+
 	}
 
 	@Override
@@ -48,7 +43,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		try {
 			result = db.authenticate("admin", userName, userPassword);
 		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
 			log.error(
 					"Provider could not authenticate of user(Problems with data source)",
 					e);

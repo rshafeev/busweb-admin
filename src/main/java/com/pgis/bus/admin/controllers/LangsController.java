@@ -1,22 +1,16 @@
 package com.pgis.bus.admin.controllers;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Locale;
-
 import javax.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.google.gson.Gson;
 import com.pgis.bus.data.IDataBaseService;
 import com.pgis.bus.data.impl.DataBaseService;
-
 import com.pgis.bus.data.orm.Language;
 import com.pgis.bus.data.repositories.RepositoryException;
 

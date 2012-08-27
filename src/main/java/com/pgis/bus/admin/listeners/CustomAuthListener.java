@@ -1,7 +1,5 @@
 package com.pgis.bus.admin.listeners;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -9,8 +7,7 @@ import org.springframework.security.authentication.event.AbstractAuthenticationE
 import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
 
 public class CustomAuthListener implements ApplicationListener<AbstractAuthenticationEvent> {
-	private  static final Logger log = LoggerFactory.getLogger( CustomAuthListener.class ); // 1. Объявляем переменную логгера
-	//private static final Log logger = LogFactory.getLog(CustomAuthListener.class);
+	private  static final Logger log = LoggerFactory.getLogger( CustomAuthListener.class ); 
 
 	@Override
 	public void onApplicationEvent(AbstractAuthenticationEvent event) {

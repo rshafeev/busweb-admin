@@ -3,6 +3,9 @@ qx.Interface.define("bus.admin.net.IRequestObjManager", {
 				getCitiesRequestObj : function(sync) {
 				},
 				getLangsRequestObj : function(sync) {
+				},
+				getStationsRequestObj : function(sync) {
 				}
+				
 			}
 		});

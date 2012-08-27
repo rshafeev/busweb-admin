@@ -3,19 +3,16 @@ package com.pgis.bus.admin.controllers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.pgis.bus.data.IAdminDataBaseService;
 import com.pgis.bus.data.IDataBaseService;
 import com.pgis.bus.data.impl.AdminDataBaseService;
@@ -57,6 +54,11 @@ public class CitiesController {
 		} catch (RepositoryException e) {
 			return (new Gson()).toJson(new ErrorModel(ErrorModel.err_enum.c_exception));
 		}
+		catch (JsonSyntaxException e) {
+			log.error("JsonSyntaxException exception", e);
+			return (new Gson()).toJson(new ErrorModel(
+					ErrorModel.err_enum.c_exception));
+		}
 
 	}
 
@@ -91,6 +93,7 @@ public class CitiesController {
 			log.error("update exception:", e);
 			return (new Gson()).toJson(new ErrorModel(ErrorModel.err_enum.c_exception));
 		}
+		
 
 	}
 

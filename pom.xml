@@ -184,7 +184,7 @@
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>false</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
-							<excludeArtifactIds>javax.servlet-api,javax.servlet-api,
+							<excludeArtifactIds>javax.servlet-api,javax.servlet-api,postgis-jdbc,postgresql,
 								tomcat-jsp-api,tomcat-jsp-api,tomcat-el-api,jstl,tomcat-servlet-api,tomcat-jdbc</excludeArtifactIds>
 						</configuration>
 					</execution>

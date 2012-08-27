@@ -62,6 +62,18 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 			}
 		},
 		on_change_CitiesComboBox : function(e) {
+			var map = this._routesPage.getRouteMap();
+
+			var cityName = bus.admin.helpers.WidgetHelper
+					.getValueFromSelectBox(this.combo_cities);
+			var langName = bus.admin.AppProperties.DEFAULT_LANGUAGE;
+			var city = this._routesPage.getModelsContainer().getCitiesModel()
+					.getCityByName(cityName, langName);
+
+			if (city) {
+				map.getGoogleMap().setCenter(city.location.lat,
+						city.location.lon, city.scale);
+			}
 
 		},
 		on_update_city : function(e) {

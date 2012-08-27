@@ -33,6 +33,7 @@ qx.Class.define("bus.admin.widget.GoogleMap", {
 		setCenter : function(lat, lon, scale) {
 			if (this.getMapObject()) {
 				this.getMapObject().setCenter(new google.maps.LatLng(lat, lon));
+				if(scale!=null)
 				this.getMapObject().setZoom(scale);
 				this.__lat = lat;
 				this.__lon = lon;
@@ -46,8 +47,9 @@ qx.Class.define("bus.admin.widget.GoogleMap", {
 			this.__lon = lon;
 			this.__scale = scale;
 			this.addListenerOnce("appear", this.__createMap, this);
+			this.addListener("appear", this.on_appear, this);
 
-			this.addListener("resize", this.__onResize, this);
+			this.addListener("resize", this.__on_resize, this);
 
 		},
 
@@ -71,13 +73,19 @@ qx.Class.define("bus.admin.widget.GoogleMap", {
 			this.debug('map was initialized');
 		},
 
-		__onResize : function(e) {
+		__on_resize : function(e) {
 			if (this.getMapObject()!=null) {
 				
 				qx.html.Element.flush();
 				google.maps.event.trigger(this.getMapObject(), 'resize');
 			}
+		},
+		on_appear : function(e){
+			this.debug("on_appear()");
+			this.__on_resize(null);
 		}
+		
+		
 
 	}
 

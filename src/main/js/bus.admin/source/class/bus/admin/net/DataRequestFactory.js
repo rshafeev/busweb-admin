@@ -23,6 +23,12 @@ qx.Class.define("bus.admin.net.DataRequestFactory", {
 			if (manager == null)
 				return null;
 			return manager.getLangsRequestObj(sync);
+		},
+		getStationsRequestObj : function(sync) {
+			var manager = bus.admin.net.DataRequestFactory.requestObjManager;
+			if (manager == null)
+				return null;
+			return manager.getStationsRequestObj(sync);
 		}
 
 	}

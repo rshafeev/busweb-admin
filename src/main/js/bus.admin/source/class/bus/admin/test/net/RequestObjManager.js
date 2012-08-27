@@ -14,6 +14,10 @@ qx.Class.define("bus.admin.test.net.RequestObjManager", {
 				getLangsRequestObj : function(sync) {
 					var langs = new bus.admin.test.net.Langs(sync);
 					return langs;
+				},
+				getStationsRequestObj : function(sync) {
+					var stations = new bus.admin.test.net.Stations(sync);
+					return stations;
 				}
 			}
 		});

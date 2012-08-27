@@ -443,10 +443,6 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 					"bus/admin/images/btn/view-refresh.png");
 			this.btn_refresh.setWidth(35);
 
-			/*
-			 * this.btn_delete.setEnabled(false);
-			 * this.btn_change.setEnabled(false);
-			 */
 			this.btn_save.setVisibility("hidden");
 			this.btn_cancel.setVisibility("hidden");
 

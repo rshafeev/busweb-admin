@@ -63,8 +63,8 @@ qx.Class.define("bus.admin.Application", {
 				qx.log.appender.Console;
 
 			}
-			//var requestObjManager = new bus.admin.net.impl.RequestObjManager();
-			var requestObjManager = new bus.admin.test.net.RequestObjManager();
+			var requestObjManager = new bus.admin.net.impl.RequestObjManager();
+			//var requestObjManager = new bus.admin.test.net.RequestObjManager();
 			bus.admin.net.DataRequestFactory.initialize(requestObjManager);
 			
 			this.setPresenter(new bus.admin.mvp.presenter.GlobalPresenter());
@@ -156,8 +156,8 @@ qx.Class.define("bus.admin.Application", {
 		setWaitingWindow : function(visiable) {
 			if (visiable == false) {
 				this.getRoot().remove(this.__waitingWindow);
-				this.__pageContainer.setEnabled(true);
-				this.__header.setEnabled(true);
+				//this.__pageContainer.setEnabled(true);
+				//this.__header.setEnabled(true);
 				this.__waitingWindow = null;
 				this.__blocker.unblock();
 			} else if (this.__waitingWindow == null) {
@@ -169,8 +169,6 @@ qx.Class.define("bus.admin.Application", {
 							left : "50%",
 							top : "50%"
 						});
-				this.__pageContainer.setEnabled(false);
-				this.__header.setEnabled(false);
 				if (this.__blocker == null)
 					this.__blocker = new qx.bom.Blocker();
 				this.__blocker.block();

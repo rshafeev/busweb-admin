@@ -108,17 +108,6 @@ qx.Mixin.define("bus.admin.mvp.view.cities.mix.CityLeftPanelListeners", {
 			tableModel.setValue(1, row, name_ru);
 			tableModel.setValue(2, row, name);
 			this.debug("on_updateCity() finish");
-		},
-		on_deleteCity : function(city_id) {
-			var row = this.getCitiesTableRowIndexByID(city_id);
-			if (row >= 0) {
-				this.citiesTable.getTableModel().removeRows(row, 1);
-			}
-			row = this.getCityLocalizationTableRowIndexByID(city_id);
-			if (row >= 0) {
-				this.citiesLocalizationTable.getTableModel().removeRows(row, 1);
-			}
-
 		}
 		
 	}
