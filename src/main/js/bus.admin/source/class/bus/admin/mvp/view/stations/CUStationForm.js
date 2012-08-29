@@ -40,7 +40,10 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 					return;
 				}
 			}
-
+			if (this.__getTransports().length == 0) {
+				alert("Please, select transport types(one or more).");
+				return;
+			}
 			if (this.getChangeDialog()) {
 				this.__updateStation();
 			} else {
@@ -104,8 +107,8 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 						}
 						this.close();
 					}, this);
-			globalPresenter.updateStation(this.__stationModel, updateStationModel,
-					event_finish_func);
+			globalPresenter.updateStation(this.__stationModel,
+					updateStationModel, event_finish_func);
 
 		},
 
@@ -294,11 +297,13 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 					.getModelsContainer();
 			var langs = modelsContainer.getLangsModel().getData();
 			var rowData = [];
+
 			for (var i = 0; i < langs.length; i++) {
 				var name = "";
 				if (this.getChangeDialog()) {
 					name = bus.admin.mvp.model.helpers.StationsModelHelper
-							.getStationNameByLang(this.__stationModel, langs[i].id);
+							.getStationNameByLang(this.__stationModel,
+									langs[i].id);
 				}
 				rowData.push([langs[i].name, name]);
 				this.debug(langs[i].name);
@@ -306,8 +311,8 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 			this.table_names.getTableModel().setData(rowData);
 
 			// set checks
-			for (var i = 0; i < this.__stationModel.transport_type.length; i++) {
-				var transportType = this.__stationModel.transport_type[i];
+			for (var i = 0; i < this.__stationModel.transports.length; i++) {
+				var transportType = this.__stationModel.transports[i].transport_type_id;
 				if (transportType.toString() == "c_tram")
 					this.check_tram.setValue(true);
 				if (transportType.toString() == "c_bus")

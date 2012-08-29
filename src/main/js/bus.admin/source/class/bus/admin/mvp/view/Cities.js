@@ -45,6 +45,7 @@ qx.Class.define("bus.admin.mvp.view.Cities", {
 			},
 			members : {
 				initialize : function() {
+					this.debug("initialize()");
 					var event_finish_func = qx.lang.Function.bind(
 							function(data) {
 								this.fireEvent("init_finished");

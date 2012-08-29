@@ -15,7 +15,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 						city_id : city_id,
 						transport_type_id : transport_type_id
 					};
-					// this.debug(qx.lang.Json.stringify(request_data));
+
 					var request = stationsRequest
 							.getStationsByCityAndTransportType(request_data,
 									function(response) {
@@ -27,8 +27,12 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 												city_id : null,
 												transport_type_id : null,
 												error : true,
-												server_error : result.error
+												server_error : null
 											};
+											if (result != null
+													&& result.error != null) {
+												data.server_error = result.error;
+											}
 											globalPresenter.fireDataEvent(
 													"load_stations", data);
 											event_finish_func(data);
@@ -100,7 +104,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 				},
 				updateStation : function(old_station, new_station,
 						event_finish_func) {
-					this.debug("insertCity event execute");
+					this.debug("updateStation event execute");
 					var globalPresenter = qx.core.Init.getApplication()
 							.getPresenter();
 					var stationsRequest = new bus.admin.net.DataRequest();
@@ -137,6 +141,46 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 									server_error : null
 								};
 								globalPresenter.fireDataEvent("update_station",
+										data);
+								event_finish_func(data);
+							}, this);
+					return request;
+				},
+				deleteStation : function(station_id, event_finish_func) {
+					this.debug("deleteStation event execute");
+					var globalPresenter = qx.core.Init.getApplication()
+							.getPresenter();
+					var stationsRequest = new bus.admin.net.DataRequest();
+
+					var request = stationsRequest.deleteStation(station_id,
+							function(response) {
+								var result = response.getContent();
+								if (result == null || result.error != null) {
+									var data = {
+										station_id : null,
+										error : true,
+										server_error : result.error
+									};
+									globalPresenter.fireDataEvent(
+											"delete_station", data);
+									event_finish_func(data);
+								} else {
+									var data = {
+										station_id : station_id,
+										error : false,
+										server_error : null
+									};
+									globalPresenter.fireDataEvent(
+											"delete_station", data);
+									event_finish_func(data);
+								}
+							}, function() {
+								var data = {
+									station_id : null,
+									error : true,
+									server_error : null
+								};
+								globalPresenter.fireDataEvent("delete_station",
 										data);
 								event_finish_func(data);
 							}, this);

@@ -24,21 +24,21 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 		this.setMinWidth(380);
 		this.setAppearance("left-panel");
 		this.setTransportType("c_bus");
-
-		this.addListener("resize", this.on_resize_panel, this);
+		this.setStationsModel(this._stationsPage.getStationsModel());
 		this.initWidgets();
 
 	},
 	properties : {
 		transportType : {
 			nullable : true
+		},
+		stationsModel : {
+			nullable : true
 		}
 	},
 	members : {
-		/**
-		 * data
-		 */
-		_stations : null,
+
+		_stationsPage : null,
 		/**
 		 * widgets
 		 */
@@ -54,10 +54,60 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 		btn_save : null,
 		btn_cancel : null,
 		combo_langs : null,
+		radioBus : null,
+		radioTrolley : null,
+		radioTram : null,
+		radioMetro : null,
+
 		save_status : "none",
 
 		initialize : function() {
 
+			this.addListener("resize", this.on_resize_panel, this);
+			this.__filterField.addListener("input", this.on_change_filterField,
+					this);
+			this.__stationsTable.addListener("cellDblclick",
+					this.on_stationsTable_Dblclick, this);
+			this.__stationsTable.addListener("cellClick",
+					this.on_stationsTable_click, this);
+			this.__stationsTable.getTableModel().addListener("dataChanged",
+					this.on_stationsTable_changeTableModel, this);
+
+			this.btn_save.addListener("click", this.on_btn_save_click, this);
+			this.btn_cancel
+					.addListener("click", this.on_btn_cancel_click, this);
+			this.btn_change
+					.addListener("click", this.on_btn_change_click, this);
+			this.btn_delete
+					.addListener("click", this.on_btn_delete_click, this);
+			this.btn_move.addListener("click", this.on_btn_move_click, this);
+			this.btn_refresh.addListener("click", this.on_btn_refresh_click,
+					this);
+			this.combo_cities.addListener("changeSelection",
+					this.on_change_CitiesComboBox, this);
+			this.combo_langs.addListener("changeSelection",
+					this.on_change_LanguageComboBox, this);
+
+			this.radioBus.addListener("changeValue", this.on_btn_bus_click,
+					this);
+			this.radioTrolley.addListener("changeValue",
+					this.on_btn_trolley_click, this);
+			this.radioTram.addListener("changeValue", this.on_btn_tram_click,
+					this);
+			this.radioMetro.addListener("changeValue", this.on_btn_metro_click,
+					this);
+
+		},
+		getStationsTableRowIndexByID : function(id) {
+			for (var i = 0; i < this.__stationsTable.getTableModel()
+					.getRowCount(); i++) {
+				var rowData = this.__stationsTable.getTableModel()
+						.getRowDataAsMap(i);
+				if (rowData.ID == id) {
+					return i;
+				}
+			}
+			return null;
 		},
 		getSelectableCityID : function() {
 			var cityComboItem = bus.admin.helpers.WidgetHelper
@@ -79,31 +129,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 						.getAnchorSelectionIndex();
 				if (row < 0)
 					return;
-				/*
-				 * var rowData = this.citiesTable.getTableModel()
-				 * .getRowDataAsMap(row); var map =
-				 * this._citiesPage.getCityMap(); var marker =
-				 * map.getMarkerByID(rowData.ID);
-				 * 
-				 * var old_city = this._citiesPage.getModelsContainer()
-				 * .getCitiesModel().getCityByID(rowData.ID);
-				 * this.debug("on_cityTable_changeSelection(): move status");
-				 * var new_city = { id : old_city.id, location : { lat :
-				 * marker.getPosition().lat(), lon : marker.getPosition().lng() },
-				 * scale : map.getGoogleMap().getMapObject().getZoom(), name_key :
-				 * old_city.name_key, names : old_city.names };
-				 * map.finishMoveMarker(rowData.ID);
-				 * qx.core.Init.getApplication().setWaitingWindow(true);
-				 * 
-				 * var event_finish_func = qx.lang.Function.bind(function(data) {
-				 * console .info("cityLeftPanel: on_update_city:
-				 * event_finish_func()");
-				 * qx.core.Init.getApplication().setWaitingWindow(false); },
-				 * this);
-				 * 
-				 * this._citiesPage.getPresenter().updateCity(old_city,
-				 * new_city, event_finish_func);
-				 */
+
 			}
 			this.save_status = "none";
 		},
@@ -119,18 +145,12 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 				var row = this.__stationsTable.getSelectionModel()
 						.getAnchorSelectionIndex();
 				if (row >= 0) {
-					/*
-					 * var rowData = this.citiesTable.getTableModel()
-					 * .getRowDataAsMap(row); var map =
-					 * this._citiesPage.getCityMap();
-					 * map.finishMoveMarker(rowData.ID);
-					 * map.updateMarker(rowData.ID, rowData.Lat, rowData.Lon);
-					 */
+
 				}
 			}
 			this.save_status = "none";
 		},
-		
+
 		on_btn_move_click : function() {
 
 			var row = this.__stationsTable.getSelectionModel()
@@ -165,14 +185,10 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 				return;
 			var rowData = this.__stationsTable.getTableModel()
 					.getRowDataAsMap(row);
-			var stationModel = null;
-		
-			for (var i = 0; i < this._stations.length; i++) {
-				if (rowData.ID == this._stations[i].id) {
-					stationModel = this._stations[i];
-					break;
-				}
-			}
+			if (rowData.ID < 0)
+				return;
+			var stationModel = this.getStationsModel()
+					.getStationByID(rowData.ID);
 
 			var changeStationDlg = new bus.admin.mvp.view.stations.CUStationForm(
 					true, stationModel);
@@ -181,26 +197,27 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 		},
 
 		on_btn_delete_click : function() {
+			//this.on_stationsTable_changeTableModel();
 			var row = this.__stationsTable.getSelectionModel()
 					.getAnchorSelectionIndex();
 			if (row < 0)
 				return;
-			/*
-			 * var rowData =
-			 * this.citiesTable.getTableModel().getRowDataAsMap(row);
-			 * 
-			 * qx.core.Init.getApplication().setWaitingWindow(true); var
-			 * event_finish_func = qx.lang.Function.bind(function(data) {
-			 * qx.core.Init.getApplication().setWaitingWindow(false); }, this);
-			 * this._citiesPage.getPresenter().deleteCity(rowData.ID,
-			 * event_finish_func);
-			 */
+			var rowData = this.__stationsTable.getTableModel()
+					.getRowDataAsMap(row);
+			if (rowData == null || rowData.ID < 0)
+				return;
+			qx.core.Init.getApplication().setWaitingWindow(true);
+			var finish_func = qx.lang.Function.bind(function(data) {
+						qx.core.Init.getApplication().setWaitingWindow(false);
+					}, this);
+			this._stationsPage.getPresenter().deleteStation(rowData.ID,
+					finish_func);
 
 		},
 
 		on_btn_refresh_click : function() {
-			this.refreshStations();
-		
+			this.debug("on_btn_refresh_click()");
+			this._stationsPage.refresh_stations();
 
 		},
 		on_resize_panel : function(e) {
@@ -249,7 +266,8 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			if (city) {
 				map.getGoogleMap().setCenter(city.location.lat,
 						city.location.lon, city.scale);
-				this.on_btn_refresh_click();
+				this.debug("on_change_CitiesComboBox()");
+				this._stationsPage.refresh_stations();
 			}
 
 		},
@@ -265,11 +283,10 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			this.debug(langName);
 			var lang = languagesModel.getLangByName(langName);
 
-			this.loadStationTable(this._stations, lang);
+			this.loadStationTable(this.getStationsModel().getData(), lang);
 
 		},
 		initWidgets : function() {
-
 			this.addListenerOnce("appear", function() {
 						this.on_resize_panel();
 					});
@@ -282,8 +299,6 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 
 			// table
 			this.__filterField = new qx.ui.form.TextField();
-			this.__filterField.addListener("input", this.on_change_filterField,
-					this);
 			this.__stationsTable = this.__createStationsTable();
 
 			this.add(this.__filterField, {
@@ -324,16 +339,10 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			this.btn_save.setVisibility("hidden");
 			this.btn_cancel.setVisibility("hidden");
 
-			this.btn_save.addListener("execute", this.on_btn_save_click, this);
-			this.btn_cancel.addListener("execute", this.on_btn_cancel_click,
-					this);
-			this.btn_change.addListener("execute", this.on_btn_change_click,
-					this);
-			this.btn_delete.addListener("execute", this.on_btn_delete_click,
-					this);
-			this.btn_move.addListener("execute", this.on_btn_move_click, this);
-			this.btn_refresh.addListener("execute", this.on_btn_refresh_click,
-					this);
+			this.btn_change.setEnabled(false);
+			this.btn_move.setEnabled(false);
+			this.btn_delete.setEnabled(false);
+
 			this.add(this.btn_save);
 			this.add(this.btn_cancel);
 			this.add(this.btn_change);
@@ -346,8 +355,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			this.combo_cities = new qx.ui.form.SelectBox();
 			this.combo_cities.setHeight(25);
 			this.combo_cities.setWidth(170);
-			this.combo_cities.addListener("changeSelection",
-					this.on_change_CitiesComboBox, this);
+
 			this.add(labelCity, {
 						left : 10,
 						top : 10
@@ -359,8 +367,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			var labelLang = new qx.ui.basic.Label("Language:");
 			this.combo_langs = new qx.ui.form.SelectBox();
 			this.combo_langs.setHeight(25);
-			this.combo_langs.addListener("changeSelection",
-					this.on_change_LanguageComboBox, this);
+
 			this.add(labelLang, {
 						left : 220,
 						top : 10
@@ -390,7 +397,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 				}
 			}
 			if (defaultItem != null) {
-				//this.combo_langs.setSelection([defaultItem]);
+				// this.combo_langs.setSelection([defaultItem]);
 			}
 
 		},
@@ -413,14 +420,14 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 				}
 			}
 			if (defaultItem != null) {
-				//this.combo_cities.setSelection([defaultItem]);
+				this.combo_cities.setSelection([defaultItem]);
 			}
 
 		},
 		loadStationTable : function(stations, curr_lang) {
 			var rowData = [];
 			this.debug("loadStationTable1()");
-			if (stations != null && stations.length > 0 && curr_lang != null) {
+			if (stations != null && stations.length >= 0 && curr_lang != null) {
 				this.debug("loadStationTable1()");
 				for (var i = 0; i < stations.length; i++) {
 					var name = bus.admin.mvp.model.helpers.StationsModelHelper
@@ -432,6 +439,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 				}
 				this.__stationsTable.getTableModel().setData(rowData);
 			}
+
 			this.debug("loadStationTable2()");
 		},
 		__createStationsTable : function() {
@@ -448,8 +456,6 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 					});
 			routesTable.setBackgroundColor('white');
 			routesTable.setStatusBarVisible(false);
-			routesTable.addListener("cellDblclick",
-					this.on_stationsTable_Dblclick, this);
 			routesTable.setHeight(150);
 
 			return routesTable;
@@ -458,22 +464,42 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 		__createRadioGroup : function() {
 			var radioButtonGroup = new qx.ui.form.RadioButtonGroup();
 			radioButtonGroup.setLayout(new qx.ui.layout.HBox(5));
-			var radioBus = new qx.ui.form.RadioButton("Bus");
-			var radioTrolley = new qx.ui.form.RadioButton("Trolley");
-			var radioTram = new qx.ui.form.RadioButton("Tram");
-			var radioMetro = new qx.ui.form.RadioButton("Metro");
+			this.radioBus = new qx.ui.form.RadioButton("Bus");
+			this.radioTrolley = new qx.ui.form.RadioButton("Trolley");
+			this.radioTram = new qx.ui.form.RadioButton("Tram");
+			this.radioMetro = new qx.ui.form.RadioButton("Metro");
 
-			radioBus.addListener("execute", this.on_btn_bus_click, this);
-			radioTrolley
-					.addListener("execute", this.on_btn_trolley_click, this);
-			radioTram.addListener("execute", this.on_btn_tram_click, this);
-			radioMetro.addListener("execute", this.on_btn_metro_click, this);
-
-			radioButtonGroup.add(radioBus);
-			radioButtonGroup.add(radioTrolley);
-			radioButtonGroup.add(radioTram);
-			radioButtonGroup.add(radioMetro);
+			radioButtonGroup.add(this.radioBus);
+			radioButtonGroup.add(this.radioTrolley);
+			radioButtonGroup.add(this.radioTram);
+			radioButtonGroup.add(this.radioMetro);
 			return radioButtonGroup;
+		},
+		on_stationsTable_changeTableModel : function(e) {
+			var model = this.__stationsTable.getTableModel();
+
+			if (model.getRowCount() > 0) {
+				this.btn_change.setEnabled(true);
+				this.btn_move.setEnabled(true);
+				this.btn_delete.setEnabled(true);
+			} else {
+				this.btn_change.setEnabled(false);
+				this.btn_move.setEnabled(false);
+				this.btn_delete.setEnabled(false);
+			}
+		},
+		on_stationsTable_click : function(e) {
+			var row = this.__stationsTable.getSelectionModel()
+					.getAnchorSelectionIndex();
+			if (row >= 0) {
+				this.btn_change.setEnabled(true);
+				this.btn_move.setEnabled(true);
+				this.btn_delete.setEnabled(true);
+			} else {
+				this.btn_change.setEnabled(false);
+				this.btn_move.setEnabled(false);
+				this.btn_delete.setEnabled(false);
+			}
 		},
 		on_stationsTable_Dblclick : function(e) {
 			var row = this.__stationsTable.getSelectionModel()
@@ -482,18 +508,15 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 				var rowData = this.__stationsTable.getTableModel()
 						.getRowDataAsMap(row);
 				var station_id = rowData.ID;
-				var station = null;
-				for (var i = 0; i < this._stations.length; i++) {
-					if (this._stations[i].id == station_id) {
-						station = this._stations[i];
-						break;
-					}
-				}
-				if (station != null) {
+				var stationModel = this.getStationsModel()
+						.getStationByID(rowData.ID);
+
+				if (stationModel != null) {
 					var mapWidget = this._stationsPage.getStationsMap();
 					mapWidget.selectStationMarker(station_id);
-					mapWidget.getGoogleMap().setCenter(station.location.lat,
-							station.location.lon, null);
+					mapWidget.getGoogleMap().setCenter(
+							stationModel.location.lat,
+							stationModel.location.lon, null);
 				}
 
 			}
@@ -513,36 +536,34 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 
 		},
 		on_btn_bus_click : function(e) {
-			this.setTransportType("c_bus");
-			this.on_btn_refresh_click();
-			/*
-			 * this._routesTabPage.refreshWidgets();
-			 * this._newTabPage.refreshWidgets();
-			 */
+			if (this.radioBus.getValue() == true) {
+				this.debug("on_btn_bus_click()");
+				this.setTransportType("c_bus");
+				this._stationsPage.refresh_stations();
+			}
+
 		},
 		on_btn_trolley_click : function(e) {
-			this.setTransportType("c_trolley");
-			this.on_btn_refresh_click();
-			/*
-			 * this._routesTabPage.refreshWidgets();
-			 * this._newTabPage.refreshWidgets();
-			 */
+			if (this.radioTrolley.getValue() == true) {
+				this.debug("on_btn_trolley_click()");
+				this.setTransportType("c_trolley");
+				this._stationsPage.refresh_stations();
+			}
+
 		},
 		on_btn_tram_click : function(e) {
-			this.setTransportType("c_tram");
-			this.on_btn_refresh_click();
-			/*
-			 * this._routesTabPage.refreshWidgets();
-			 * this._newTabPage.refreshWidgets();
-			 */
+			if (this.radioTram.getValue() == true) {
+				this.debug("on_btn_tram_click()");
+				this.setTransportType("c_tram");
+				this._stationsPage.refresh_stations();
+			}
 		},
 		on_btn_metro_click : function(e) {
-			this.setTransportType("c_metro");
-			this.on_btn_refresh_click();
-			/*
-			 * this._routesTabPage.refreshWidgets();
-			 * this._newTabPage.refreshWidgets();
-			 */
+			if (this.radioMetro.getValue() == true) {
+				this.debug("on_btn_metro_click()");
+				this.setTransportType("c_metro");
+				this._stationsPage.refresh_stations();
+			}
 		},
 
 		loadStationsTable : function() {
@@ -553,22 +574,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 
 			this.__stationsTable.getTableModel().setData(rowData);
 
-		},
-		
-		
-		refreshStations : function(){
-			/*qx.core.Init.getApplication().setWaitingWindow(true);
-			var loadStations_finish_func = qx.lang.Function.bind(
-					function(data) {
-						qx.core.Init.getApplication().setWaitingWindow(false);
-					}, this);
-			var city_id = this.getSelectableCityID();
-			var transport_type_id = this.getTransportType();
-			this._stationsPage.getPresenter().loadStations(city_id,
-					transport_type_id, loadStations_finish_func);*/
 		}
-		
-		
 
 	}
 });

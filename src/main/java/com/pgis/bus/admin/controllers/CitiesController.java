@@ -35,6 +35,7 @@ public class CitiesController {
 	public String get_all() {
 
 		try {
+			log.debug("get_all()");
 			// Загрузим список всех городов из БД
 			IDataBaseService db = new DataBaseService();
 			Collection<City> cities = db.getAllCities();
@@ -143,7 +144,7 @@ public class CitiesController {
 	public String delete(Integer city_id) {
 		log.debug(city_id.toString());
 		try {
-			if(city_id.intValue()<=0)
+			if(city_id==null||city_id.intValue()<=0)
 				throw new Exception("bad city_id");
 			// удалим город из БД
 			IAdminDataBaseService db = new AdminDataBaseService();

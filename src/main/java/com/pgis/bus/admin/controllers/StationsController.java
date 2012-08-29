@@ -74,7 +74,7 @@ public class StationsController {
 		}
 
 	}
-	
+
 	@ResponseBody
 	@RequestMapping(value = "update.json", method = RequestMethod.POST)
 	public String update(String row_station) {
@@ -88,7 +88,7 @@ public class StationsController {
 			IAdminDataBaseService db = new AdminDataBaseService();
 			Station station = stationModel.toStation();
 			Station updateStation = db.updateStation(station);
-			
+
 			// Отправим модель в формате GSON клиенту
 			StationModel updateStationModel = new StationModel(updateStation);
 			return (new Gson()).toJson(updateStationModel);
@@ -99,6 +99,24 @@ public class StationsController {
 		}
 
 	}
-	
+
+	@ResponseBody
+	@RequestMapping(value = "delete.json", method = RequestMethod.POST)
+	public String delete(Integer station_id) {
+		try {
+			if (station_id == null || station_id.intValue() <= 0)
+				throw new Exception("bad city_id");
+			log.debug(station_id.toString());
+			// удалим из БД
+			IAdminDataBaseService db = new AdminDataBaseService();
+			db.deleteStation(station_id);
+			return "\"ok\"";
+		} catch (Exception e) {
+			log.error("exception", e);
+			return (new Gson()).toJson(new ErrorModel(
+					ErrorModel.err_enum.c_exception));
+		}
+
+	}
 
 }

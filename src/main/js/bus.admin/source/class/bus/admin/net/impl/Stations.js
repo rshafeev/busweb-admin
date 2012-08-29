@@ -55,12 +55,11 @@ qx.Class.define("bus.admin.net.impl.Stations", {
 			return request;
 		},
 		deleteStation : function(station_id, completed_func, failed_func, self) {
-			var station_id_json = qx.lang.Json.stringify(station_id);
 			var request = new qx.io.remote.Request("stations/delete.json",
 					"POST", "application/json");
 			request.setAsynchronous(!this.__sync);
 			request.setParseJson(true);
-			request.setParameter("station_id", station_id_json, true);
+			request.setParameter("station_id", station_id, true);
 			request.addListener("completed", completed_func, self);
 			request.addListener("failed", failed_func, self);
 			request.send();

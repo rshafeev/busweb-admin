@@ -27,8 +27,9 @@ qx.Class.define("bus.admin.mvp.view.Stations", {
 
 	construct : function() {
 		this.base(arguments);
+		this.setStationsModel(new bus.admin.mvp.model.StationsModel());
 		this.__initWidgets();
-		this.__setOptions();
+
 		this.addListener("appear", this.on_appear, this);
 	},
 	properties : {
@@ -37,15 +38,18 @@ qx.Class.define("bus.admin.mvp.view.Stations", {
 		},
 		stationsMap : {
 			nullable : true
+		},
+		stationsModel : {
+			nullable : true
 		}
 	},
 	members : {
-
+		isAppearOnce : false,
 		initialize : function() {
+			this.debug("initialize()");
 			var refreshCities_finish_func = qx.lang.Function.bind(
 					function(data) {
-
-						this.fireEvent("init_finished");
+						this.refresh_stations();
 					}, this);
 			this.getPresenter().refreshCities(refreshCities_finish_func);
 
@@ -74,10 +78,43 @@ qx.Class.define("bus.admin.mvp.view.Stations", {
 			var leftPanel = this.getStationsLeftPanel();
 			map.initialize();
 			leftPanel.initialize();
+			this.fireEvent("init_finished");
 		},
 
 		on_appear : function(e) {
 			this.debug("on_appear()");
+			// isAppearOnce - если загрузка страницы выполняется впервые, то не
+			// нужно выполнять refresh данных
+			if (this.isVisible() && this.isAppearOnce == true) {
+				this.refresh_stations();
+			} else {
+				this.isAppearOnce = true;
+			}
+		},
+
+		refresh_stations : function() {
+			this.debug("refresh_stations()");
+			this.debug(this.isAppearOnce);
+			var visible = this.isVisible();
+			if (visible && this.isAppearOnce == true) {
+				qx.core.Init.getApplication().setWaitingWindow(true);
+			}
+			var loadStations_finish_func = qx.lang.Function.bind(
+					function(data) {
+
+						if (visible && this.isAppearOnce == true) {
+							qx.core.Init.getApplication()
+									.setWaitingWindow(false);
+						} else if (this.isAppearOnce == false) {
+							this.__setOptions();
+						}
+					}, this);
+			var city_id = this.getStationsLeftPanel().getSelectableCityID();
+			var transport_type_id = this.getStationsLeftPanel()
+					.getTransportType();
+			this.getPresenter().loadStations(city_id, transport_type_id,
+					loadStations_finish_func);
+
 		}
 
 	}

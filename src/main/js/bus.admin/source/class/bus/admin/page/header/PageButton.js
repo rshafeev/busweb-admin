@@ -33,7 +33,7 @@ qx.Class.define("bus.admin.page.header.PageButton", {
 		this.__viewContainer = viewContainer;
 		this.__controls = controls;
 		this.__classname = classname;
-		this.addListener("changeValue", this.__onClickButton);
+		this.addListener("click", this.__onClickButton);
 
 	},
 
@@ -43,6 +43,7 @@ qx.Class.define("bus.admin.page.header.PageButton", {
 		__controls : null,
 		__classname : null,
 		__onClickButton : function() {
+			this.debug("__onClickButton()");
 			if (this.isValue() == true
 					&& qx.core.Init.getApplication().getHistoryObj()) {
 				this.selectPage();
@@ -53,6 +54,7 @@ qx.Class.define("bus.admin.page.header.PageButton", {
 		__loadPart : function() {
 			var part = this.__classname.split(".").pop().toLowerCase();
 			qx.Part.require(part, function() {
+				this.debug("__loadPart : require(): " + this.__classname);
 				// Finally, instantiate class
 				var clazz = qx.Class.getByName(this.__classname);
 				this.__page = new clazz();
@@ -64,9 +66,7 @@ qx.Class.define("bus.admin.page.header.PageButton", {
 							this.__saveHistoryToUrl();
 						}, this);
 				this.__page.initialize();
-				// Add to page
-				// this.add(pageContent, {top: 40, edge: 0});
-
+			
 				// Hotfix for browser bug [#BUG #4666]
 				if (qx.core.Environment.get("browser.name") == "opera"
 						&& qx.core.Environment.get("browser.version") == "11.0") {
