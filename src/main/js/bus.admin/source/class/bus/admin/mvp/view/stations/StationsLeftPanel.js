@@ -45,8 +45,8 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 
 		combo_cities : null,
 		radioButtonGroup : null,
-		__stationsTable : null,
-		__filterField : null,
+		_stationsTable : null,
+		_filterField : null,
 		btn_change : null,
 		btn_delete : null,
 		btn_refresh : null,
@@ -64,13 +64,13 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 		initialize : function() {
 
 			this.addListener("resize", this.on_resize_panel, this);
-			this.__filterField.addListener("input", this.on_change_filterField,
+			this._filterField.addListener("input", this.on_change_filterField,
 					this);
-			this.__stationsTable.addListener("cellDblclick",
+			this._stationsTable.addListener("cellDblclick",
 					this.on_stationsTable_Dblclick, this);
-			this.__stationsTable.addListener("cellClick",
+			this._stationsTable.addListener("cellClick",
 					this.on_stationsTable_click, this);
-			this.__stationsTable.getTableModel().addListener("dataChanged",
+			this._stationsTable.getTableModel().addListener("dataChanged",
 					this.on_stationsTable_changeTableModel, this);
 
 			this.btn_save.addListener("click", this.on_btn_save_click, this);
@@ -99,9 +99,9 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 
 		},
 		getStationsTableRowIndexByID : function(id) {
-			for (var i = 0; i < this.__stationsTable.getTableModel()
+			for (var i = 0; i < this._stationsTable.getTableModel()
 					.getRowCount(); i++) {
-				var rowData = this.__stationsTable.getTableModel()
+				var rowData = this._stationsTable.getTableModel()
 						.getRowDataAsMap(i);
 				if (rowData.ID == id) {
 					return i;
@@ -124,8 +124,8 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			this.btn_delete.setVisibility("visible");
 			this.btn_refresh.setEnabled(true);
 			if (this.save_status.toString() == "move") {
-				this.__stationsTable.setEnabled(true);
-				var row = this.__stationsTable.getSelectionModel()
+				this._stationsTable.setEnabled(true);
+				var row = this._stationsTable.getSelectionModel()
 						.getAnchorSelectionIndex();
 				if (row < 0)
 					return;
@@ -141,8 +141,8 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			this.btn_change.setVisibility("visible");
 			this.btn_delete.setVisibility("visible");
 			if (this.save_status.toString() == "move") {
-				this.__stationsTable.setEnabled(true);
-				var row = this.__stationsTable.getSelectionModel()
+				this._stationsTable.setEnabled(true);
+				var row = this._stationsTable.getSelectionModel()
 						.getAnchorSelectionIndex();
 				if (row >= 0) {
 
@@ -153,7 +153,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 
 		on_btn_move_click : function() {
 
-			var row = this.__stationsTable.getSelectionModel()
+			var row = this._stationsTable.getSelectionModel()
 					.getAnchorSelectionIndex();
 			if (row >= 0) {
 				this.btn_save.setVisibility("visible");
@@ -162,7 +162,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 				this.btn_change.setVisibility("hidden");
 				this.btn_delete.setVisibility("hidden");
 				this.btn_refresh.setEnabled(false);
-				this.__stationsTable.setEnabled(false);
+				this._stationsTable.setEnabled(false);
 				this.save_status = "move";
 				/*
 				 * var rowData = this.citiesTable.getTableModel()
@@ -179,11 +179,11 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 
 		on_btn_change_click : function() {
 
-			var row = this.__stationsTable.getSelectionModel()
+			var row = this._stationsTable.getSelectionModel()
 					.getAnchorSelectionIndex();
 			if (row < 0)
 				return;
-			var rowData = this.__stationsTable.getTableModel()
+			var rowData = this._stationsTable.getTableModel()
 					.getRowDataAsMap(row);
 			if (rowData.ID < 0)
 				return;
@@ -198,11 +198,11 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 
 		on_btn_delete_click : function() {
 			//this.on_stationsTable_changeTableModel();
-			var row = this.__stationsTable.getSelectionModel()
+			var row = this._stationsTable.getSelectionModel()
 					.getAnchorSelectionIndex();
 			if (row < 0)
 				return;
-			var rowData = this.__stationsTable.getTableModel()
+			var rowData = this._stationsTable.getTableModel()
 					.getRowDataAsMap(row);
 			if (rowData == null || rowData.ID < 0)
 				return;
@@ -221,11 +221,11 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 
 		},
 		on_resize_panel : function(e) {
-			if (this.__stationsTable) {
-				this.__stationsTable.setWidth(this.getBounds().width
-						- this.__stationsTable.getBounds().left - 10);
-				this.__stationsTable.setHeight(this.getBounds().height
-						- this.__stationsTable.getBounds().top - 70);
+			if (this._stationsTable) {
+				this._stationsTable.setWidth(this.getBounds().width
+						- this._stationsTable.getBounds().left - 10);
+				this._stationsTable.setHeight(this.getBounds().height
+						- this._stationsTable.getBounds().top - 70);
 			}
 
 			this.btn_save.setUserBounds(this.getBounds().width - 200, this
@@ -298,14 +298,14 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 					});
 
 			// table
-			this.__filterField = new qx.ui.form.TextField();
-			this.__stationsTable = this.__createStationsTable();
+			this._filterField = new qx.ui.form.TextField();
+			this._stationsTable = this.__createStationsTable();
 
-			this.add(this.__filterField, {
+			this.add(this._filterField, {
 						left : 10,
 						top : 70
 					});
-			this.add(this.__stationsTable, {
+			this.add(this._stationsTable, {
 						left : 10,
 						top : 110
 					});
@@ -437,7 +437,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 									bus.admin.AppProperties.DEFAULT_LANGUAGE);
 					rowData.push([stations[i].id, name_default, name]);
 				}
-				this.__stationsTable.getTableModel().setData(rowData);
+				this._stationsTable.getTableModel().setData(rowData);
 			}
 
 			this.debug("loadStationTable2()");
@@ -476,7 +476,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			return radioButtonGroup;
 		},
 		on_stationsTable_changeTableModel : function(e) {
-			var model = this.__stationsTable.getTableModel();
+			var model = this._stationsTable.getTableModel();
 
 			if (model.getRowCount() > 0) {
 				this.btn_change.setEnabled(true);
@@ -489,7 +489,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			}
 		},
 		on_stationsTable_click : function(e) {
-			var row = this.__stationsTable.getSelectionModel()
+			var row = this._stationsTable.getSelectionModel()
 					.getAnchorSelectionIndex();
 			if (row >= 0) {
 				this.btn_change.setEnabled(true);
@@ -502,10 +502,10 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			}
 		},
 		on_stationsTable_Dblclick : function(e) {
-			var row = this.__stationsTable.getSelectionModel()
+			var row = this._stationsTable.getSelectionModel()
 					.getAnchorSelectionIndex();
 			if (row >= 0) {
-				var rowData = this.__stationsTable.getTableModel()
+				var rowData = this._stationsTable.getTableModel()
 						.getRowDataAsMap(row);
 				var station_id = rowData.ID;
 				var stationModel = this.getStationsModel()
@@ -522,8 +522,8 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			}
 		},
 		on_change_filterField : function(e) {
-			var fieldValue = this.__filterField.getValue();
-			var model = this.__stationsTable.getTableModel();
+			var fieldValue = this._filterField.getValue();
+			var model = this._stationsTable.getTableModel();
 
 			if (fieldValue.length > 0) {
 				this.debug("on_change_filterField(): " + fieldValue);
@@ -572,7 +572,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 				rowData.push([i, "test_" + i.toString(), "test_lang"]);
 			}
 
-			this.__stationsTable.getTableModel().setData(rowData);
+			this._stationsTable.getTableModel().setData(rowData);
 
 		}
 

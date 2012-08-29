@@ -44,7 +44,7 @@ qx.Mixin.define("bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners", {
 					.getStationNameByLang(data.new_station,
 							bus.admin.AppProperties.DEFAULT_LANGUAGE);
 
-			var tableModel = this.__stationsTable.getTableModel();
+			var tableModel = this._stationsTable.getTableModel();
 			tableModel.setValue(0, row, data.new_station.id);
 			tableModel.setValue(1, row, name_default);
 			tableModel.setValue(2, row, name);
@@ -58,7 +58,7 @@ qx.Mixin.define("bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners", {
 			}
 			var row = this.getStationsTableRowIndexByID(data.station_id);
 			if (row >= 0) {
-				this.__stationsTable.getTableModel().removeRows(row, 1);
+				this._stationsTable.getTableModel().removeRows(row, 1);
 			}
 
 		},
@@ -104,7 +104,7 @@ qx.Mixin.define("bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners", {
 					.getStationNameByLang(data.station,
 							bus.admin.AppProperties.DEFAULT_LANGUAGE);
 
-			var tableModel = this.__stationsTable.getTableModel();
+			var tableModel = this._stationsTable.getTableModel();
 			tableModel.setRows([[data.station.id, name_default, name]],
 					tableModel.getRowCount());
 
