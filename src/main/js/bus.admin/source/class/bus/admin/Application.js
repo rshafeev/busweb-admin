@@ -50,8 +50,20 @@ qx.Class.define("bus.admin.Application", {
 		 */
 		main : function() {
 
+			var localeManager = qx.locale.Manager.getInstance();
+
+			var urlModel = new bus.admin.mvp.model.URLModel();
+			urlModel.parseURL();
+			var locale = urlModel.getParameter("lang");
+			if (locale) {
+				localeManager.setLocale(locale);
+			} else {
+				localeManager.setLocale(bus.admin.AppProperties.DEFAULT_LANGUAGE);
+
+			}
 			// Call super class
 			this.base(arguments);
+			
 			this.getRoot().setVisibility("hidden");
 			// Enable logging in debug variant
 			if (qx.core.Environment.get("qx.debug")) {
@@ -61,12 +73,13 @@ qx.Class.define("bus.admin.Application", {
 				// support additional cross-browser console. Press F7 to
 				// toggle visibility
 				qx.log.appender.Console;
+				
 
 			}
 			var requestObjManager = new bus.admin.net.impl.RequestObjManager();
 			//var requestObjManager = new bus.admin.test.net.RequestObjManager();
 			bus.admin.net.DataRequestFactory.initialize(requestObjManager);
-			
+
 			this.setPresenter(new bus.admin.mvp.presenter.GlobalPresenter());
 			this.setModelsContainer(new bus.admin.mvp.model.ModelsContainer());
 			this.initWidgets();

@@ -3,6 +3,8 @@ package com.pgis.bus.admin.models;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
+import com.pgis.bus.data.models.StationModel;
 import com.pgis.bus.data.orm.Station;
 
 public class StationsModel {

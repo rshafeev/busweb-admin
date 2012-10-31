@@ -8,8 +8,6 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 				loadStations : function(city_id, transport_type_id,
 						event_finish_func) {
 					this.debug("load_stations event execute");
-					var globalPresenter = qx.core.Init.getApplication()
-							.getPresenter();
 					var stationsRequest = new bus.admin.net.DataRequest();
 					var request_data = {
 						city_id : city_id,
@@ -33,7 +31,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 													&& result.error != null) {
 												data.server_error = result.error;
 											}
-											globalPresenter.fireDataEvent(
+											this.fireDataEvent(
 													"load_stations", data);
 											event_finish_func(data);
 										} else {
@@ -44,7 +42,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 												error : null,
 												server_error : null
 											};
-											globalPresenter.fireDataEvent(
+											this.fireDataEvent(
 													"load_stations", data);
 											event_finish_func(data);
 										}
@@ -56,7 +54,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 											error : true,
 											server_error : null
 										};
-										globalPresenter.fireDataEvent(
+										this.fireDataEvent(
 												"load_stations", data);
 										event_finish_func(data);
 									}, this);
@@ -64,8 +62,6 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 				},
 				insertStation : function(station, event_finish_func) {
 					this.debug("insertCity event execute");
-					var globalPresenter = qx.core.Init.getApplication()
-							.getPresenter();
 					var stationsRequest = new bus.admin.net.DataRequest();
 
 					var request = stationsRequest.insertStation(station,
@@ -77,7 +73,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 										error : true,
 										server_error : result.error
 									};
-									globalPresenter.fireDataEvent(
+									this.fireDataEvent(
 											"insert_station", data);
 									event_finish_func(data);
 								} else {
@@ -86,7 +82,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 										error : null,
 										server_error : null
 									};
-									globalPresenter.fireDataEvent(
+									this.fireDataEvent(
 											"insert_station", data);
 									event_finish_func(data);
 								}
@@ -96,7 +92,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 									error : true,
 									server_error : null
 								};
-								globalPresenter.fireDataEvent("insert_station",
+								this.fireDataEvent("insert_station",
 										data);
 								event_finish_func(data);
 							}, this);
@@ -105,8 +101,6 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 				updateStation : function(old_station, new_station,
 						event_finish_func) {
 					this.debug("updateStation event execute");
-					var globalPresenter = qx.core.Init.getApplication()
-							.getPresenter();
 					var stationsRequest = new bus.admin.net.DataRequest();
 
 					var request = stationsRequest.updateStation(new_station,
@@ -119,7 +113,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 										error : true,
 										server_error : result.error
 									};
-									globalPresenter.fireDataEvent(
+									this.fireDataEvent(
 											"update_station", data);
 									event_finish_func(data);
 								} else {
@@ -129,7 +123,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 										error : false,
 										server_error : null
 									};
-									globalPresenter.fireDataEvent(
+									this.fireDataEvent(
 											"update_station", data);
 									event_finish_func(data);
 								}
@@ -140,7 +134,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 									error : true,
 									server_error : null
 								};
-								globalPresenter.fireDataEvent("update_station",
+								this.fireDataEvent("update_station",
 										data);
 								event_finish_func(data);
 							}, this);
@@ -148,8 +142,6 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 				},
 				deleteStation : function(station_id, event_finish_func) {
 					this.debug("deleteStation event execute");
-					var globalPresenter = qx.core.Init.getApplication()
-							.getPresenter();
 					var stationsRequest = new bus.admin.net.DataRequest();
 
 					var request = stationsRequest.deleteStation(station_id,
@@ -161,7 +153,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 										error : true,
 										server_error : result.error
 									};
-									globalPresenter.fireDataEvent(
+									this.fireDataEvent(
 											"delete_station", data);
 									event_finish_func(data);
 								} else {
@@ -170,7 +162,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 										error : false,
 										server_error : null
 									};
-									globalPresenter.fireDataEvent(
+									this.fireDataEvent(
 											"delete_station", data);
 									event_finish_func(data);
 								}
@@ -180,7 +172,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 									error : true,
 									server_error : null
 								};
-								globalPresenter.fireDataEvent("delete_station",
+								this.fireDataEvent("delete_station",
 										data);
 								event_finish_func(data);
 							}, this);

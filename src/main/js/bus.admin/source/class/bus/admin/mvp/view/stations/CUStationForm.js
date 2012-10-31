@@ -4,11 +4,11 @@
 qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 	extend : qx.ui.window.Window,
 
-	construct : function(change_dialog, stationModel) {
+	construct : function(change_dialog, stationModel,presenter) {
 		this.base(arguments);
 		this.__stationModel = stationModel;
 		this.setChangeDialog(change_dialog);
-
+		this._presenter = presenter;
 		this.initWidgets();
 		this.__setOptions();
 	},
@@ -18,6 +18,7 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 		}
 	},
 	members : {
+		_presenter : null,
 		__stationModel : null,
 		btn_save : null,
 		btn_cancel : null,
@@ -69,7 +70,6 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 				transports : this.__getTransports()
 			};
 			this.debug(qx.lang.Json.stringify(new_station));
-			var globalPresenter = qx.core.Init.getApplication().getPresenter();
 			var event_finish_func = qx.lang.Function.bind(function(data) {
 						qx.core.Init.getApplication().setWaitingWindow(false);
 						if (data == null || data.error == true) {
@@ -78,7 +78,7 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 						}
 						this.close();
 					}, this);
-			globalPresenter.insertStation(new_station, event_finish_func);
+			this._presenter.insertStation(new_station, event_finish_func);
 
 		},
 
@@ -97,7 +97,6 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 				transports : this.__getTransports()
 			};
 
-			var globalPresenter = qx.core.Init.getApplication().getPresenter();
 			var event_finish_func = qx.lang.Function.bind(function(data) {
 						qx.core.Init.getApplication().setWaitingWindow(false);
 						if (data == null || data.error == true) {
@@ -107,7 +106,7 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 						}
 						this.close();
 					}, this);
-			globalPresenter.updateStation(this.__stationModel,
+			this._presenter.updateStation(this.__stationModel,
 					updateStationModel, event_finish_func);
 
 		},
@@ -152,9 +151,8 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 			var citiesModel = qx.core.Init.getApplication()
 					.getModelsContainer().getCitiesModel();
 			var city = citiesModel.getCityByID(this.__stationModel.city_id);
-			var lang = bus.admin.AppProperties.DEFAULT_LANGUAGE;
 			var city_name = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(city, lang);
+					.getCityNameByLang(city, "c_" + qx.locale.Manager.getInstance().getLocale());
 
 			this.setLayout(new qx.ui.layout.Canvas());
 

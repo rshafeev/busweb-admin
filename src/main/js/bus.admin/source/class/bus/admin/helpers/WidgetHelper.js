@@ -17,6 +17,7 @@ qx.Class.define("bus.admin.helpers.WidgetHelper", {
 						return null;
 					return selectItem.getLabel();
 				},
+				
 				getItemFromSelectBoxByID : function(selectBox,id) {
 					if (selectBox == null)
 						return null;

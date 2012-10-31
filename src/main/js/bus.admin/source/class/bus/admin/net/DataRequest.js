@@ -14,7 +14,12 @@ qx.Class.define("bus.admin.net.DataRequest", {
 			members : {
 				__sync : false,
 				// *********************
-
+				getRoutesList : function(data,completed_func, failed_func, self){
+						var routes = bus.admin.net.DataRequestFactory
+							.getRoutesRequestObj(this.__sync);
+					return routes.getRoutesList(data,
+							completed_func, failed_func, self);
+				},
 				getStationsByCityAndTransportType : function(data,
 						completed_func, failed_func, self) {
 					var stations = bus.admin.net.DataRequestFactory

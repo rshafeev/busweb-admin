@@ -32,8 +32,10 @@ qx.Class.define("bus.admin.mvp.view.Cities", {
 
 			construct : function() {
 				this.base(arguments);
+				this.setPresenter(qx.core.Init.getApplication().getPresenter());
 				this.__initWidgets();
 				this.__setOptions();
+				
 			},
 			properties : {
 				cityLeftPanel : {

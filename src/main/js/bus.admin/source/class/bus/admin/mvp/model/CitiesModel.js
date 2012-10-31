@@ -22,17 +22,17 @@ qx.Class.define("bus.admin.mvp.model.CitiesModel", {
 						}
 					}
 				},
-				updateCity : function(city) {
+				updateCity : function(oldID, city) {
 					var cities = this.getData();
 					if (cities == null)
 						return null;
 					for (var i = 0; i < cities.length; i++) {
-						if (city.id == cities[i].id) {
+						if (oldID == cities[i].id) {
 							cities[i] = city;
 							return;
 						}
 					}
-					return null;
+					return;
 				},
 
 				getCityByID : function(id) {

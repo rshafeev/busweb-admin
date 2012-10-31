@@ -1,15 +1,21 @@
 qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 	extend : qx.ui.tabview.Page,
-	construct : function(routesLeftPanel) {
+	construct : function(routesLeftPanel, routesPage) {
 		this.base(arguments, "Routes", "icon/16/apps/utilities-notes.png");
-		this.__routesLeftPanel = routesLeftPanel;
+		this._routesLeftPanel = routesLeftPanel;
+		this._routesPage = routesPage;
 		this.setLayout(new qx.ui.layout.Canvas());
 		this.initWidgets();
+
+		var localPresenter = this._routesPage.getPresenter();
+		localPresenter.addListener("loadRoutesList", this.on_loadRoutesList,this);
+		localPresenter.addListener("loadRoute", this.on_loadRoute,this);
 
 	},
 
 	members : {
-		__routesLeftPanel : null,
+		_routesLeftPanel : null,
+		_routesPage : null,
 		__filterField : null,
 		__routesTable : null,
 		__mainContainer : null,
@@ -30,6 +36,34 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		btn_delete_station : null,
 		btn_timeTable : null,
 
+		on_loadRoutesList : function(e) {
+			var data = e.getData();
+			if (data == null || data.error == true) {
+				this.debug("on_loadRoutesList() : event data has errors");
+				return;
+			}
+			this.debug("on_loadRoutesList() :ok");
+
+			var routes = data.routes.routes;
+			var rowData = [];
+			console.log(routes);
+			if (routes == null)
+				return;
+			for (var i = 0; i < routes.length; i++) {
+				rowData.push([routes[i].id, routes[i].number, routes[i].cost]);
+			}
+			this.__routesTable.getTableModel().setData(rowData);
+			
+		},
+		on_loadRoute : function(e) {
+			var data = e.getData();
+			if (data == null || data.error == true) {
+				this.debug("on_loadRoute() : event data has errors");
+				return;
+			}
+			this.debug("on_loadRoute() :ok");
+		},
+
 		on_btn_edit : function(e) {
 
 		},
@@ -42,11 +76,9 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		},
 
 		on_btn_timeTable : function(e) {
-
 			var form = new bus.admin.mvp.view.routes.tabs.TimeForm(this.__selectRouteModel);
 			form.open();
 		},
-
 
 		initWidgets : function() {
 			this.__mainContainer = new qx.ui.container.Composite();
@@ -145,21 +177,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			}
 
 		},
-		refreshWidgets : function() {
-			var transportType = this.__routesLeftPanel.getTransportType();
-			var child = new qx.type.Array().append(this.__routeTabView
-					.getChildren()).filter(function(page) {
-						return this.__localeTabPage == page;
-					}, this);
-			this.debug(child.length);
-			if (child != null && child.length > 0
-					&& transportType.toString() != "c_metro") {
-				this.__routeTabView.remove(this.__localeTabPage);
-			} else if (child.length == 0
-					&& transportType.toString() == "c_metro") {
-				this.__routeTabView.add(this.__localeTabPage);
-			}
-		},
+		
 		__createRouteTabView : function() {
 			var tabView = new qx.ui.tabview.TabView();
 
@@ -198,12 +216,12 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this.__localeTabPage.setHeight(200);
 
 			// add pages to tabView
-			var transportType = this.__routesLeftPanel.getTransportType();
+			//var transportType = this.__routesLeftPanel.getTransportType();
 			tabView.add(this.__stationsTabPage);
 
-			if (transportType.toString() == "c_metro") {
+			/*if (transportType.toString() == "c_metro") {
 				tabView.add(this.__localeTabPage);
-			}
+			}*/
 			tabView.addListener("resize", this.on_resize_tabView, this);
 
 			return tabView;
@@ -297,7 +315,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 
 		},
 		on_resize_mainContainer : function(e) {
-			this.debug("on_resize_tabView()");
+			this.debug("on_resize_tabView()1");
 			this.debug(this.__mainContainer.getBounds().width);
 			if (this.__routesTable != null) {
 				this.__routesTable
@@ -330,6 +348,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 						.setHeight(this.__mainContainer.getBounds().height
 								- this.__routeTabView.getBounds().top - 10);
 			}
+			this.debug("on_resize_tabView()2");
 		}
 
 	}

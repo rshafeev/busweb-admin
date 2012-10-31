@@ -191,13 +191,13 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 					.getStationByID(rowData.ID);
 
 			var changeStationDlg = new bus.admin.mvp.view.stations.CUStationForm(
-					true, stationModel);
+					true, stationModel,this._stationsPage.getPresenter());
 			changeStationDlg.open();
 
 		},
 
 		on_btn_delete_click : function() {
-			//this.on_stationsTable_changeTableModel();
+			// this.on_stationsTable_changeTableModel();
 			var row = this._stationsTable.getSelectionModel()
 					.getAnchorSelectionIndex();
 			if (row < 0)
@@ -259,9 +259,10 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 
 			var cityName = bus.admin.helpers.WidgetHelper
 					.getValueFromSelectBox(this.combo_cities);
-			var langName = bus.admin.AppProperties.DEFAULT_LANGUAGE;
-			var city = this._stationsPage.getModelsContainer().getCitiesModel()
-					.getCityByName(cityName, langName);
+
+			var city = qx.core.Init.getApplication().getModelsContainer().getCitiesModel()
+					.getCityByName(cityName,
+							"c_" + qx.locale.Manager.getInstance().getLocale());
 
 			if (city) {
 				map.getGoogleMap().setCenter(city.location.lat,
@@ -277,7 +278,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 					.getValueFromSelectBox(this.combo_langs);
 			if (langName == null)
 				return;
-			var languagesModel = this._stationsPage.getModelsContainer()
+			var languagesModel = qx.core.Init.getApplication().getModelsContainer()
 					.getLangsModel();
 
 			this.debug(langName);
@@ -384,8 +385,9 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			var defaultItem = null;
 
 			this.combo_langs.removeAll();
+			var locale = "c_" + qx.locale.Manager.getInstance().getLocale();
 			for (var i = 0; i < langs.length; i++) {
-				if (langs[i].id.toString() != bus.admin.AppProperties.DEFAULT_LANGUAGE) {
+				if (langs[i].id.toString() != locale) {
 					if (defaultItem != null) {
 						this.combo_langs
 								.add(new qx.ui.form.ListItem(langs[i].name));
@@ -408,8 +410,9 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			this.combo_cities.removeAll();
 			for (var i = 0; i < cities.length; i++) {
 				var name = bus.admin.mvp.model.helpers.CitiesModelHelper
-						.getCityNameByLang(cities[i],
-								bus.admin.AppProperties.DEFAULT_LANGUAGE);
+						.getCityNameByLang(cities[i], "c_"
+										+ qx.locale.Manager.getInstance()
+												.getLocale());
 				var item = new qx.ui.form.ListItem(name);
 				item.setUserData("id", cities[i].id);
 				if (defaultItem != null) {
@@ -433,8 +436,9 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 					var name = bus.admin.mvp.model.helpers.StationsModelHelper
 							.getStationNameByLang(stations[i], curr_lang.id);
 					var name_default = bus.admin.mvp.model.helpers.StationsModelHelper
-							.getStationNameByLang(stations[i],
-									bus.admin.AppProperties.DEFAULT_LANGUAGE);
+							.getStationNameByLang(stations[i], "c_"
+											+ qx.locale.Manager.getInstance()
+													.getLocale());
 					rowData.push([stations[i].id, name_default, name]);
 				}
 				this._stationsTable.getTableModel().setData(rowData);

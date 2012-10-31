@@ -42,20 +42,22 @@ public class CitiesController {
 			// Отправим модель в формате GSON клиенту
 			ArrayList<CityModel> citiesModel = new ArrayList<CityModel>();
 			Iterator<City> i = cities.iterator();
-			while(i.hasNext()) {
+			while (i.hasNext()) {
 				City city = i.next();
 				citiesModel.add(new CityModel(city));
+
 			}
-			/* try {
-				Thread.sleep(4000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}*/
-			return (new Gson()).toJson(citiesModel);
+			/*
+			 * try { Thread.sleep(4000); } catch (InterruptedException e) {
+			 * e.printStackTrace(); }
+			 */
+			String citiesModelJson = (new Gson()).toJson(citiesModel);
+			log.debug(citiesModelJson);
+			return citiesModelJson;
 		} catch (RepositoryException e) {
-			return (new Gson()).toJson(new ErrorModel(ErrorModel.err_enum.c_exception));
-		}
-		catch (JsonSyntaxException e) {
+			return (new Gson()).toJson(new ErrorModel(
+					ErrorModel.err_enum.c_exception));
+		} catch (JsonSyntaxException e) {
 			log.error("JsonSyntaxException exception", e);
 			return (new Gson()).toJson(new ErrorModel(
 					ErrorModel.err_enum.c_exception));
@@ -73,78 +75,79 @@ public class CitiesController {
 			if (cityModel == null)
 				throw new Exception(
 						"can not convert CityModel from json string");
-			
+
 			City updateCity = cityModel.toCity();
 			if (updateCity == null)
 				throw new Exception("can not convert CityModel to City");
-			
+
 			IAdminDataBaseService db = new AdminDataBaseService();
 			Iterator<StringValue> i = updateCity.name.values().iterator();
-			while(i.hasNext()){
+			while (i.hasNext()) {
 				StringValue s = i.next();
-				City city = db.getCityByName(s.lang_id,s.value);
-				if(city!=null&&city.id!=updateCity.id){
+				City city = db.getCityByName(s.lang_id, s.value);
+				if (city != null && city.id != updateCity.id) {
 					// город с таким названием уже существует
-					return (new Gson()).toJson(new ErrorModel(ErrorModel.err_enum.c_city_already_exist));
+					return (new Gson()).toJson(new ErrorModel(
+							ErrorModel.err_enum.c_city_already_exist));
 				}
 			}
 			updateCity = db.updateCity(updateCity);
 			return (new Gson()).toJson(new CityModel(updateCity));
 		} catch (Exception e) {
 			log.error("update exception:", e);
-			return (new Gson()).toJson(new ErrorModel(ErrorModel.err_enum.c_exception));
+			return (new Gson()).toJson(new ErrorModel(
+					ErrorModel.err_enum.c_exception));
 		}
-		
 
 	}
-
 
 	@ResponseBody
 	@RequestMapping(value = "insert.json", method = RequestMethod.POST)
 	public String insert(String row_city) {
 		log.debug(row_city);
-	
+
 		try {
 			CityModel cityModel = (new Gson()).fromJson(row_city,
 					CityModel.class);
 			if (cityModel == null)
 				throw new Exception(
 						"can not convert CityModel from json string");
-			
+
 			City newCity = cityModel.toCity();
 			if (newCity == null)
 				throw new Exception("can not convert CityModel to City");
 			// добавим город в БД
 			IAdminDataBaseService db = new AdminDataBaseService();
 			Iterator<StringValue> i = newCity.name.values().iterator();
-			while(i.hasNext()){
+			while (i.hasNext()) {
 				StringValue s = i.next();
-				City city = db.getCityByName(s.lang_id,s.value);
-				if(city!=null){
+				City city = db.getCityByName(s.lang_id, s.value);
+				if (city != null) {
 					// город с таким названием уже существует
-					return (new Gson()).toJson(new ErrorModel(ErrorModel.err_enum.c_city_already_exist));
+					return (new Gson()).toJson(new ErrorModel(
+							ErrorModel.err_enum.c_city_already_exist));
 				}
 			}
 			newCity = db.insertCity(newCity);
-			
+
 			if (newCity == null)
 				throw new Exception("can not update city");
 			return (new Gson()).toJson(new CityModel(newCity));
-			
+
 		} catch (Exception e) {
 			log.error("insert exception:", e);
-			return (new Gson()).toJson(new ErrorModel(ErrorModel.err_enum.c_exception));
+			return (new Gson()).toJson(new ErrorModel(
+					ErrorModel.err_enum.c_exception));
 		}
 
 	}
 
-	
 	@ResponseBody
 	@RequestMapping(value = "delete.json", method = RequestMethod.POST)
 	public String delete(Integer city_id) {
 		log.debug(city_id.toString());
 		try {
-			if(city_id==null||city_id.intValue()<=0)
+			if (city_id == null || city_id.intValue() <= 0)
 				throw new Exception("bad city_id");
 			// удалим город из БД
 			IAdminDataBaseService db = new AdminDataBaseService();
@@ -152,12 +155,10 @@ public class CitiesController {
 			return "\"ok\"";
 		} catch (Exception e) {
 			log.error("delete exception:", e);
-			return (new Gson()).toJson(new ErrorModel(ErrorModel.err_enum.c_exception));
+			return (new Gson()).toJson(new ErrorModel(
+					ErrorModel.err_enum.c_exception));
 		}
 
 	}
-
-
-
 
 }

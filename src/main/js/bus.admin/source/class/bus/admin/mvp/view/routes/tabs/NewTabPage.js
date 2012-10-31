@@ -5,10 +5,27 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 		this.__routesLeftPanel = routesLeftPanel;
 		this.setLayout(new qx.ui.layout.Canvas());
 		this.initWidgets();
-		this.refreshWidgets();
+		this.setOptions();
+		
+		this._routeModel = {
+			city_id : null,
+			transport_type : null,
+			cost : null,
+			number : null,
+			names : null,
+			direct_stations : null,
+			
+			reverse_stations : null,
+			timetable : {
+				groups : []
+			}
+			// groups : {days,times}
+		
+		};
 	},
 
 	members : {
+		_routeModel : null,
 		__mainContainer : null,
 		__scrollContainer : null,
 
@@ -19,6 +36,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 		__page3 : null,
 		__page4 : null,
 
+		__btn_browser : null,
 		__btn_next_page1 : null,
 		__btn_next_page2 : null,
 		__btn_next_page3 : null,
@@ -33,20 +51,6 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 		__btn_cancel_page3 : null,
 		__btn_cancel_page4 : null,
 
-		refreshWidgets : function() {
-			/*
-			 * this.__page2.setEnabled(false); this.__page3.setEnabled(false);
-			 * this.__page4.setEnabled(false);
-			 */
-
-			var transportType = this.__routesLeftPanel.getTransportType();
-			if (transportType == "c_metro") {
-				this.setUndirect(true);
-			} else {
-				this.setUndirect(false);
-			}
-
-		},
 		setUndirect : function(undirect) {
 			var child = new qx.type.Array().append(this.__stepsTabView
 					.getChildren()).filter(function(page) {
@@ -59,6 +63,12 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 				this.__page4.setLabel("Step 4");
 				this.__stepsTabView.addAt(this.__page3, 2);
 			}
+		},
+		setOptions : function() {
+			this.__btn_next_page1.addListener("click",this.on_btn_next_page1,this);
+			this.__btn_next_page2.addListener("click",this.on_btn_next_page2,this);
+			this.__btn_next_page3.addListener("click",this.on_btn_next_page3,this);
+			
 		},
 		initWidgets : function() {
 			this.__mainContainer = new qx.ui.container.Composite();
@@ -99,6 +109,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 		},
 		on_resize_stepsVatView : function(e) {
 			//page 1
+			
 			if (this.__btn_next_page1) {
 				this.__btn_next_page1.setUserBounds(
 						this.__page1.getBounds().width - 260, this.__page1
@@ -114,7 +125,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 						this.__btn_cancel_page1.getBounds().width,
 						this.__btn_cancel_page1.getBounds().height);
 			}
-
+			
 			// page 2
 			if (this.__btn_next_page2) {
 				this.__btn_next_page2.setUserBounds(
@@ -162,6 +173,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 								- 30, this.__btn_back_page3.getBounds().width,
 						this.__btn_back_page3.getBounds().height);
 			}
+			return;
 		},
 		on_resize : function(e) {
 			if (this.__stepsTabView != null) {
@@ -224,7 +236,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 			this.__page3.setLayout(new qx.ui.layout.Canvas());
 			this.__page3.setWidth(250);
 			this.__page3.setHeight(200);
-			
+
 			this.__btn_cancel_page3 = new qx.ui.form.Button("Cancel");
 			this.__btn_back_page3 = new qx.ui.form.Button("Back");
 			this.__btn_next_page3 = new qx.ui.form.Button("Next");
@@ -236,8 +248,6 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 			this.__page3.add(this.__btn_back_page3);
 			this.__page3.add(this.__btn_next_page3);
 
-			
-
 			// create page4
 			this.__page4 = new qx.ui.tabview.Page("Step 4");
 			this.__page4.setLayout(new qx.ui.layout.Canvas());
@@ -246,7 +256,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 
 			tabView.add(this.__page1);
 			tabView.add(this.__page2);
-			// tabView.add(this.__page3);
+		    tabView.add(this.__page3);
 			tabView.add(this.__page4);
 
 			return tabView;

@@ -1,0 +1,50 @@
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: roma <roman.shafeyev@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 16bit\n"
+
+msgid "Bus.admin"
+msgstr ""
+
+msgid "Information"
+msgstr "Информация"
+
+msgid "Localization"
+msgstr ""
+
+msgid "Mobile"
+msgstr ""
+
+msgid "Mobile (Webkit only)"
+msgstr ""
+
+msgid "Move"
+msgstr "Переместить"
+
+msgid "c_Friday"
+msgstr "Пятница"
+
+msgid "c_Monday"
+msgstr "Понедельник"
+
+msgid "c_Saturday"
+msgstr "Суббота"
+
+msgid "c_Sunday"
+msgstr "Воскресенье"
+
+msgid "c_Thursday"
+msgstr "Четверг"
+
+msgid "c_Tuesday"
+msgstr "Вторник"
+
+msgid "c_Wednesday"
+msgstr "Среда"

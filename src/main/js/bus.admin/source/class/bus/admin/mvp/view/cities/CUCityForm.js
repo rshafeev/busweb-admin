@@ -21,6 +21,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 		__cityModel : null,
 		btn_save : null,
 		btn_cancel : null,
+		check_show : null,
 		editLat : null,
 		editLon : null,
 		editScale : null,
@@ -31,7 +32,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 				var rowData = this.table_names.getTableModel()
 						.getRowDataAsMap(i);
 
-				if (rowData.Name.toString().length <= 0) {
+				if (rowData.Name==null||rowData.Name.toString().length <= 0) {
 					alert("Please, push names for all languages");
 					return;
 				}
@@ -54,13 +55,16 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 			var update_city = {
 				id : this.__cityModel.id,
 				location : {
-					lat : this.editLat.getValue(),
-					lon : this.editLon.getValue()
+					x : this.editLat.getValue(),
+					y : this.editLon.getValue()
 				},
 				scale : this.editScale.getValue(),
+				isShow : this.check_show.getValue(),
 				name_key : this.__cityModel.name_key,
 				names : []
 			};
+			console.log("__updateCity check:");
+			console.log(this.check_show.getValue());
 			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
 				var rowData = this.table_names.getTableModel()
 						.getRowDataAsMap(i);
@@ -95,7 +99,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 						}
 						this.close();
 					}, this);
-
+			console.log(update_city);
 			globalPresenter.updateCity(this.__cityModel, update_city,
 					event_finish_func);
 
@@ -106,11 +110,12 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 			// create model
 			var newCityModel = {
 				location : {
-					lat : this.editLat.getValue(),
-					lon : this.editLon.getValue()
+					x : this.editLat.getValue(),
+					y : this.editLon.getValue()
 				},
 				scale : this.editScale.getValue(),
-				names : []
+				names : [],
+				isShow: false
 			};
 			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
 				var rowData = this.table_names.getTableModel()
@@ -147,10 +152,10 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 			var labelLat = new qx.ui.basic.Label("Lat:");
 			var labelLon = new qx.ui.basic.Label("Lon:");
 			var labelScale = new qx.ui.basic.Label("Scale(2-21):");
-			this.editLat = new qx.ui.form.TextField(this.__cityModel.location.lat
+			this.editLat = new qx.ui.form.TextField(this.__cityModel.location.x
 					.toString());
 			this.editLat.setWidth(110);
-			this.editLon = new qx.ui.form.TextField(this.__cityModel.location.lon
+			this.editLon = new qx.ui.form.TextField(this.__cityModel.location.y
 					.toString());
 			this.editLon.setWidth(110);
 
@@ -216,7 +221,15 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 						left : 240,
 						top : 10
 					});
-
+			if (this.getChangeDialog()) {
+				this.check_show = new qx.ui.form.CheckBox("Visiable");
+				positionSettings.add(this.check_show, {
+							left : 160,
+							top : 50
+						});
+				console.log(this.__cityModel.isShow);
+				this.check_show.setValue(this.__cityModel.isShow);
+			}
 			this.add(positionSettings, {
 						left : 0,
 						top : -15
@@ -254,8 +267,8 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 			}
 
 			if (this.__cityModel.location != null) {
-				this.editLat.setValue(this.__cityModel.location.lat.toString());
-				this.editLon.setValue(this.__cityModel.location.lon.toString());
+				this.editLat.setValue(this.__cityModel.location.x.toString());
+				this.editLon.setValue(this.__cityModel.location.y.toString());
 			}
 			this.editScale.setValue(this.__cityModel.scale);
 

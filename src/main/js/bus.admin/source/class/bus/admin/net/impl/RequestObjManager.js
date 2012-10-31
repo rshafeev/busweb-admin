@@ -17,6 +17,10 @@ qx.Class.define("bus.admin.net.impl.RequestObjManager", {
 				getStationsRequestObj : function(sync) {
 					var stations = new bus.admin.net.impl.Stations(sync);
 					return stations;
+				},
+				getRoutesRequestObj : function(sync) {
+					var routes = new bus.admin.net.impl.Routes(sync);
+					return routes;
 				}
 			}
 		});

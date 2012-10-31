@@ -16,7 +16,7 @@ public class AuthController {
 
 	@RequestMapping(value = "login")
 	public ModelAndView login(Integer login_error) {
-
+		
 		Authentication authentication = SecurityContextHolder.getContext()
 				.getAuthentication();
 		if (authentication instanceof CustomUserAuthentication) {

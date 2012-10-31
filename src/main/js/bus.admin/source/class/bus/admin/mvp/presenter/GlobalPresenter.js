@@ -20,17 +20,7 @@ qx.Class.define("bus.admin.mvp.presenter.GlobalPresenter", {
 
 				"insert_city" : "qx.event.type.Data",
 
-				"delete_city" : "qx.event.type.Data",
-
-				/** ********************************************* */
-
-				"load_stations" : "qx.event.type.Data",
-
-				"insert_station" : "qx.event.type.Data",
-
-				"update_station" : "qx.event.type.Data",
-
-				"delete_station" : "qx.event.type.Data"
+				"delete_city" : "qx.event.type.Data"
 
 			},
 			construct : function() {

@@ -27,6 +27,7 @@ qx.Class.define("bus.admin.mvp.view.Stations", {
 
 	construct : function() {
 		this.base(arguments);
+		this.setPresenter(new bus.admin.mvp.presenter.StationsPresenter());
 		this.setStationsModel(new bus.admin.mvp.model.StationsModel());
 		this.__initWidgets();
 
@@ -49,9 +50,11 @@ qx.Class.define("bus.admin.mvp.view.Stations", {
 			this.debug("initialize()");
 			var refreshCities_finish_func = qx.lang.Function.bind(
 					function(data) {
-						this.refresh_stations();
+						//this.refresh_stations();
+						this.fireEvent("init_finished");
 					}, this);
-			this.getPresenter().refreshCities(refreshCities_finish_func);
+			qx.core.Init.getApplication().getPresenter()
+					.refreshCities(refreshCities_finish_func);
 
 		},
 		__initWidgets : function() {

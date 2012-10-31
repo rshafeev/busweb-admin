@@ -9,7 +9,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 		this.__stationsPage = stationsPage;
 		this.setLayout(new qx.ui.layout.Dock());
 		this.initWidgets();
-		var presenter = stationsPage.getPresenter();
+		var presenter = this.__stationsPage.getPresenter();
 		presenter.addListener("load_stations", this.on_load_stations, this);
 		presenter.addListener("insert_station", this.on_insert_station, this);
 		presenter.addListener("update_station", this.on_update_station, this);
@@ -189,7 +189,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 									};
 
 									var insertStationDlg = new bus.admin.mvp.view.stations.CUStationForm(
-											false, stationsModel);
+											false, stationsModel,T.__stationsPage.getPresenter());
 									insertStationDlg.open();
 									break;
 								case 'zoom_in_click' :

@@ -42,18 +42,18 @@ qx.Mixin.define("bus.admin.mvp.view.cities.mix.CityLeftPanelListeners", {
 				this.debug("on_refresh_cities() : event data has errors");
 				return;
 			}
-
+			var locale = "c_" + qx.locale.Manager.getInstance().getLocale();
 			var langName = bus.admin.helpers.WidgetHelper
 					.getValueFromSelectBox(this.combo_langs);
-			var lang = this._citiesPage.getModelsContainer().getLangsModel()
+			var lang = qx.core.Init.getApplication().getModelsContainer().getLangsModel()
 					.getLangByName(langName);
 			var name = bus.admin.mvp.model.helpers.CitiesModelHelper
 					.getCityNameByLang(data.city, lang.id);
 			var name_ru = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(data.city, bus.admin.AppProperties.DEFAULT_LANGUAGE);
+					.getCityNameByLang(data.city, locale);
 			var tableModel = this.citiesTable.getTableModel();
-			tableModel.setRows([[data.city.id, name_ru, data.city.location.lat,
-							data.city.location.lon, data.city.scale]],
+			tableModel.setRows([[data.city.id, name_ru, data.city.location.x,
+							data.city.location.y, data.city.scale]],
 					tableModel.getRowCount());
 			tableModel = this.citiesLocalizationTable.getTableModel();
 			tableModel.setRows([[data.city.id, name_ru, name]], tableModel
@@ -78,27 +78,30 @@ qx.Mixin.define("bus.admin.mvp.view.cities.mix.CityLeftPanelListeners", {
 					.getValueFromSelectBox(this.combo_langs);
 			var modelsContainer = qx.core.Init.getApplication()
 					.getModelsContainer();
-			var lang = this._citiesPage.getModelsContainer().getLangsModel()
+			var lang = qx.core.Init.getApplication().getModelsContainer().getLangsModel()
 					.getLangByName(langName);
-			console.info("CityLeftPanelListeners: on_update_city() starting4...");
-			//return;		
 			
+			var locale = "c_" + qx.locale.Manager.getInstance().getLocale();
 			var name = bus.admin.mvp.model.helpers.CitiesModelHelper
 					.getCityNameByLang(data.new_city, lang.id);
 			var name_ru = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(data.new_city, bus.admin.AppProperties.DEFAULT_LANGUAGE);
+					.getCityNameByLang(data.new_city,locale);
 	
 			var tableModel = this.citiesTable.getTableModel();
+			console.log("on_update_city(): ");
+			console.log(data.new_city);
 			tableModel.setValue(tableModel.getColumnIndexById("Id"), row,
 					data.new_city.id);
 			tableModel.setValue(1, row, name_ru);
 			tableModel.setValue(tableModel.getColumnIndexById("Lat"), row,
-					data.new_city.location.lat);
+					data.new_city.location.x);
 			tableModel.setValue(tableModel.getColumnIndexById("Lon"), row,
-					data.new_city.location.lon);
+					data.new_city.location.y);
 			tableModel.setValue(tableModel.getColumnIndexById("Scale"), row,
 					data.new_city.scale);
-
+			tableModel.setValue(tableModel.getColumnIndexById("Visible"), row,
+					data.new_city.isShow.toString());
+					
 			// update citiesLocalizationTable
 			row = this.getCityLocalizationTableRowIndexByID(data.old_city.id);
 			if (row == null)

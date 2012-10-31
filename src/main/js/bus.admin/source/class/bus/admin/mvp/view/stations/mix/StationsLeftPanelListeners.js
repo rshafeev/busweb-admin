@@ -5,6 +5,7 @@ qx.Mixin.define("bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners", {
 		presenter.addListener("insert_city", this.on_insert_city, this);
 		presenter.addListener("delete_city", this.on_delete_city, this);
 		presenter.addListener("refresh_cities", this.on_refresh_cities, this);
+		presenter = this._stationsPage.getPresenter();
 		presenter.addListener("load_stations", this.on_load_stations, this);
 		presenter.addListener("insert_station", this.on_insert_station, this);
 		presenter.addListener("update_station", this.on_update_station, this);
@@ -30,7 +31,7 @@ qx.Mixin.define("bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners", {
 			}
 			var langName = bus.admin.helpers.WidgetHelper
 					.getValueFromSelectBox(this.combo_langs);
-			var lang = this._stationsPage.getModelsContainer().getLangsModel()
+			var lang = qx.core.Init.getApplication().getModelsContainer().getLangsModel()
 					.getLangByName(langName);
 
 			this.getStationsModel().updateStation(data.new_station);
@@ -41,8 +42,9 @@ qx.Mixin.define("bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners", {
 			var name = bus.admin.mvp.model.helpers.StationsModelHelper
 					.getStationNameByLang(data.new_station, lang.id);
 			var name_default = bus.admin.mvp.model.helpers.StationsModelHelper
-					.getStationNameByLang(data.new_station,
-							bus.admin.AppProperties.DEFAULT_LANGUAGE);
+					.getStationNameByLang(data.new_station, "c_"
+									+ qx.locale.Manager.getInstance()
+											.getLocale());
 
 			var tableModel = this._stationsTable.getTableModel();
 			tableModel.setValue(0, row, data.new_station.id);
@@ -78,7 +80,7 @@ qx.Mixin.define("bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners", {
 					.getValueFromSelectBox(this.combo_langs);
 			if (langName == null)
 				return;
-			var languagesModel = this._stationsPage.getModelsContainer()
+			var languagesModel = qx.core.Init.getApplication().getModelsContainer()
 					.getLangsModel();
 			var lang = languagesModel.getLangByName(langName);
 			this.loadStationTable(data.stations, lang);
@@ -96,13 +98,14 @@ qx.Mixin.define("bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners", {
 			this.getStationsModel().insertStation(data.station);
 			var langName = bus.admin.helpers.WidgetHelper
 					.getValueFromSelectBox(this.combo_langs);
-			var lang = this._stationsPage.getModelsContainer().getLangsModel()
+			var lang = qx.core.Init.getApplication().getModelsContainer().getLangsModel()
 					.getLangByName(langName);
 			var name = bus.admin.mvp.model.helpers.StationsModelHelper
 					.getStationNameByLang(data.station, lang.id);
 			var name_default = bus.admin.mvp.model.helpers.StationsModelHelper
-					.getStationNameByLang(data.station,
-							bus.admin.AppProperties.DEFAULT_LANGUAGE);
+					.getStationNameByLang(data.station, "c_"
+									+ qx.locale.Manager.getInstance()
+											.getLocale());
 
 			var tableModel = this._stationsTable.getTableModel();
 			tableModel.setRows([[data.station.id, name_default, name]],
@@ -142,8 +145,9 @@ qx.Mixin.define("bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners", {
 				return;
 			}
 			var name_default = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(data.city,
-							bus.admin.AppProperties.DEFAULT_LANGUAGE);
+					.getCityNameByLang(data.city, "c_"
+									+ qx.locale.Manager.getInstance()
+											.getLocale());
 			var item = new qx.ui.form.ListItem(name_default);
 			item.setUserData("id", data.city.id);
 			this.combo_cities.add(item);
@@ -158,8 +162,9 @@ qx.Mixin.define("bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners", {
 				return;
 			}
 			var name_default = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(data.new_city,
-							bus.admin.AppProperties.DEFAULT_LANGUAGE);
+					.getCityNameByLang(data.new_city, "c_"
+									+ qx.locale.Manager.getInstance()
+											.getLocale());
 			var cityComboItem = bus.admin.helpers.WidgetHelper
 					.getItemFromSelectBoxByID(this.combo_cities,
 							data.old_city.id);

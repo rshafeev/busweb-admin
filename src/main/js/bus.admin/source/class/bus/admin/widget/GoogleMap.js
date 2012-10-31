@@ -17,7 +17,7 @@ qx.Class.define("bus.admin.widget.GoogleMap", {
 	},
 
 	destruct : function() {
-		this.getMapObject.destroy();
+		this.getMapObject().destroy();
 		this.setMapObject(null);
 	},
 	properties : {

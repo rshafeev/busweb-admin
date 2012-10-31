@@ -42,13 +42,13 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 				this.debug("on_refresh_cities() : event data has errors");
 				if (data != null && data.old_city != null) {
 					this.updateMarker(data.old_city.id,
-							data.old_city.location.lat,
-							data.old_city.location.lat);
+							data.old_city.location.x,
+							data.old_city.location.y);
 				}
 				return;
 			}
-			this.updateMarker(data.new_city.id, data.new_city.location.lat,
-					data.new_city.location.lon);
+			this.updateMarker(data.new_city.id, data.new_city.location.x,
+					data.new_city.location.y);
 		},
 		on_insert_city : function(e) {
 			this.debug("on_insert_city()");
@@ -57,8 +57,8 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 				this.debug("on_refresh_cities() : event data has errors");
 				return;
 			}
-			this.insertCityMarker(data.city.id, data.city.location.lat,
-					data.city.location.lon);
+			this.insertCityMarker(data.city.id, data.city.location.x,
+					data.city.location.y);
 		},
 
 		on_refresh_cities : function(e) {
@@ -70,8 +70,8 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 			this.deleteAllMarkers();
 			for (var i = 0; i < data.models.cities.length; i++) {
 				this.insertCityMarker(data.models.cities[i].id,
-						data.models.cities[i].location.lat,
-						data.models.cities[i].location.lon);
+						data.models.cities[i].location.x,
+						data.models.cities[i].location.y);
 			}
 		},
 
@@ -154,8 +154,8 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 									T.debug("insert_city_click()");
 									var cityModel = {
 										location : {
-											lat : latLng.lat(),
-											lon : latLng.lng()
+											x : latLng.lat(),
+											y : latLng.lng()
 										},
 										scale : map.getZoom()
 									};

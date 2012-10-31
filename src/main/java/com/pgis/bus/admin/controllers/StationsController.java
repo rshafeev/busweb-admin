@@ -8,13 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.pgis.bus.data.IAdminDataBaseService;
 import com.pgis.bus.data.impl.AdminDataBaseService;
+import com.pgis.bus.data.models.StationModel;
 import com.pgis.bus.data.orm.Station;
-import com.pgis.bus.data.repositories.RepositoryException;
 import com.pgis.bus.admin.models.ErrorModel;
-import com.pgis.bus.admin.models.StationModel;
 import com.pgis.bus.admin.models.StationsModel;
 
 @Controller
@@ -39,7 +37,8 @@ public class StationsController {
 					stationsModel.getTransport_type_id());
 			// Сформируем модель
 			stationsModel.setStations(stations);
-
+			
+			log.debug(Integer.toString(stationsModel.getStations().length));
 			// Отправим модель в формате GSON клиенту
 			return (new Gson()).toJson(stationsModel);
 		} catch (Exception e) {

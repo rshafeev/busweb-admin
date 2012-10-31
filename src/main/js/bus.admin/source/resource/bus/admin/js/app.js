@@ -52,9 +52,9 @@
   function getDataFromLocation()
   {
     var uri = parseUri(location.href);
-    var theme = uri.queryKey["qx.theme"] || "qx.theme.Indigo";
+    var theme = uri.queryKey["theme"] || "qx.theme.Indigo";
     theme = theme.split(".").pop().toLowerCase();
-
+    console.log(theme);
     jsFileURL = "script/bus.admin." + theme + ".js";
     
     //<script type="text/javascript" src="script/bus.admin.js"></script>

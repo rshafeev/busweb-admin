@@ -23,18 +23,13 @@ qx.Class.define("bus.admin.mvp.view.AbstractPage", {
 			},
 			construct : function() {
 				this.base(arguments);
-				this.setModelsContainer(qx.core.Init.getApplication()
-						.getModelsContainer());
-				this.setPresenter(qx.core.Init.getApplication().getPresenter());
+				
 				this.setVisibility("hidden");
 				this.addListenerOnce("init_finished", function() {
 							this.setVisibility("visible");
 						}, this);
 			},
 			properties : {
-				modelsContainer : {
-					nullable : true
-				},
 				presenter : {
 					nullable : true
 				}

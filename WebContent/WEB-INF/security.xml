@@ -25,6 +25,8 @@
 		<intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/media/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/app" access="ROLE_USER" />
+	    <intercept-url pattern="/*.json" access="ROLE_USER" />
+		<intercept-url pattern="/**/*.json" access="ROLE_USER" />
 		<intercept-url pattern="/j_spring_security_logout"
 			access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/j_spring_security_check"
