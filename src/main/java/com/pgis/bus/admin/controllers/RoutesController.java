@@ -45,22 +45,14 @@ public class RoutesController {
 			
 			log.debug("get_all_list()");
 			log.debug(data);
-			// Загрузим список всех городов из БД
-			LoadRouteRelationOptions loadRouteRelationOptions = new LoadRouteRelationOptions();
-			loadRouteRelationOptions.setLoadStationsData(true);
-
-			LoadDirectRouteOptions loadDirectRouteOptions = new LoadDirectRouteOptions();
-			loadDirectRouteOptions.setLoadScheduleData(true);
-			loadDirectRouteOptions
-					.setLoadRouteRelationOptions(loadRouteRelationOptions);
-
+			// Загрузим список маршрутов из БД
 			LoadRouteOptions opts = new LoadRouteOptions();
 			opts.setLoadRouteNamesData(true);
-			opts.setDirectRouteOptions(loadDirectRouteOptions);
+			opts.setDirectRouteOptions(null);
 
 			// get routes
-			IRoutesRepository repository = new RoutesRepository();
-			Collection<Route> routes = repository.getRoutes(
+			IAdminDataBaseService db = new AdminDataBaseService();
+			Collection<Route> routes = db.getRoutes(
 					params.getRoute_type_id(), params.getCity_id(), opts);
 
 			// create model
@@ -87,33 +79,35 @@ public class RoutesController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "update.json", method = RequestMethod.POST)
-	public String update(String row_city) {
-		log.debug(row_city);
+	@RequestMapping(value = "get_route.json", method = RequestMethod.POST)
+	public String get(String data) {
+		log.debug(data); // <value>
 		try {
-			CityModel cityModel = (new Gson()).fromJson(row_city,
-					CityModel.class);
-			if (cityModel == null)
+			Integer routeID = (new Gson()).fromJson(data,
+					int.class);
+			if (routeID == null)
 				throw new Exception(
-						"can not convert CityModel from json string");
+						"can not convert routeID from json string");
 
-			City updateCity = cityModel.toCity();
-			if (updateCity == null)
-				throw new Exception("can not convert CityModel to City");
+			// set options
+			LoadRouteRelationOptions loadRouteRelationOptions = new LoadRouteRelationOptions();
+			loadRouteRelationOptions.setLoadStationsData(true);
+			LoadDirectRouteOptions loadDirectRouteOptions = new LoadDirectRouteOptions();
+			loadDirectRouteOptions.setLoadScheduleData(true);
+			loadDirectRouteOptions.setLoadRouteRelationOptions(loadRouteRelationOptions);
+			LoadRouteOptions opts = new LoadRouteOptions();
+			opts.setLoadRouteNamesData(true);
+			opts.setDirectRouteOptions(loadDirectRouteOptions);
 
+			// get route
 			IAdminDataBaseService db = new AdminDataBaseService();
-			Iterator<StringValue> i = updateCity.name.values().iterator();
-			while (i.hasNext()) {
-				StringValue s = i.next();
-				City city = db.getCityByName(s.lang_id, s.value);
-				if (city != null && city.id != updateCity.id) {
-					// город с таким названием уже существует
-					return (new Gson()).toJson(new ErrorModel(
-							ErrorModel.err_enum.c_city_already_exist));
-				}
-			}
-			updateCity = db.updateCity(updateCity);
-			return (new Gson()).toJson(new CityModel(updateCity));
+			Route route = db.getRoute(routeID, opts);
+
+			// send model
+			String routeModelJson = (new Gson()).toJson(route);
+			log.debug(routeModelJson);
+			return routeModelJson;
+			
 		} catch (Exception e) {
 			log.error("update exception:", e);
 			return (new Gson()).toJson(new ErrorModel(

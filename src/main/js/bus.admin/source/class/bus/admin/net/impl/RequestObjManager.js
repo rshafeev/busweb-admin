@@ -22,5 +22,6 @@ qx.Class.define("bus.admin.net.impl.RequestObjManager", {
 					var routes = new bus.admin.net.impl.Routes(sync);
 					return routes;
 				}
+				
 			}
 		});

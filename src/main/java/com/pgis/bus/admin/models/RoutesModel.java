@@ -1,6 +1,5 @@
 package com.pgis.bus.admin.models;
 
-import com.pgis.bus.data.models.StationModel;
 import com.pgis.bus.data.orm.Route;
 
 public class RoutesModel {

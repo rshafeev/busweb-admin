@@ -62,8 +62,8 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 			var new_station = {
 				city_id : this.__stationModel.city_id,
 				location : {
-					lat : this.editLat.getValue(),
-					lon : this.editLon.getValue()
+					x : this.editLat.getValue(),
+					y : this.editLon.getValue()
 				},
 				name_key : this.__stationModel.name_key,
 				names : this.__getNames(),
@@ -89,8 +89,8 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 				id : this.__stationModel.id,
 				city_id : this.__stationModel.city_id,
 				location : {
-					lat : this.editLat.getValue(),
-					lon : this.editLon.getValue()
+					x : this.editLat.getValue(),
+					y : this.editLon.getValue()
 				},
 				name_key : this.__stationModel.name_key,
 				names : this.__getNames(),
@@ -164,10 +164,10 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 			var labelLat = new qx.ui.basic.Label("Lat:");
 			var labelLon = new qx.ui.basic.Label("Lon:");
 
-			this.editLat = new qx.ui.form.TextField(this.__stationModel.location.lat
+			this.editLat = new qx.ui.form.TextField(this.__stationModel.location.x
 					.toString());
 			this.editLat.setWidth(110);
-			this.editLon = new qx.ui.form.TextField(this.__stationModel.location.lon
+			this.editLon = new qx.ui.form.TextField(this.__stationModel.location.y
 					.toString());
 			this.editLon.setWidth(110);
 
@@ -284,9 +284,9 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 			}
 
 			if (this.__stationModel.location != null) {
-				this.editLat.setValue(this.__stationModel.location.lat
+				this.editLat.setValue(this.__stationModel.location.x
 						.toString());
-				this.editLon.setValue(this.__stationModel.location.lon
+				this.editLon.setValue(this.__stationModel.location.y
 						.toString());
 			}
 

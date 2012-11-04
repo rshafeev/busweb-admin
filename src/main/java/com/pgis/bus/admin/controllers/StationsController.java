@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.gson.Gson;
 import com.pgis.bus.data.IAdminDataBaseService;
 import com.pgis.bus.data.impl.AdminDataBaseService;
-import com.pgis.bus.data.models.StationModel;
+
 import com.pgis.bus.data.orm.Station;
 import com.pgis.bus.admin.models.ErrorModel;
 import com.pgis.bus.admin.models.StationsModel;
@@ -37,7 +37,7 @@ public class StationsController {
 					stationsModel.getTransport_type_id());
 			// Сформируем модель
 			stationsModel.setStations(stations);
-			
+
 			log.debug(Integer.toString(stationsModel.getStations().length));
 			// Отправим модель в формате GSON клиенту
 			return (new Gson()).toJson(stationsModel);
@@ -55,17 +55,15 @@ public class StationsController {
 		try {
 			log.debug(row_station);
 			// Парсим полученные данные
-			StationModel stationModel = (new Gson()).fromJson(row_station,
-					StationModel.class);
+			Station stationModel = (new Gson()).fromJson(row_station,
+					Station.class);
 
 			// Добавим station в БД
 			IAdminDataBaseService db = new AdminDataBaseService();
-			Station station = stationModel.toStation();
-			Station newStation = db.insertStation(station);
+			Station newStation = db.insertStation(stationModel);
 
 			// Отправим модель в формате GSON клиенту
-			StationModel newStationModel = new StationModel(newStation);
-			return (new Gson()).toJson(newStationModel);
+			return (new Gson()).toJson(newStation);
 		} catch (Exception e) {
 			log.error("exception", e);
 			return (new Gson()).toJson(new ErrorModel(
@@ -80,17 +78,16 @@ public class StationsController {
 		try {
 			log.debug(row_station);
 			// Парсим полученные данные
-			StationModel stationModel = (new Gson()).fromJson(row_station,
-					StationModel.class);
+			Station stationModel = (new Gson()).fromJson(row_station,
+					Station.class);
 
 			// Добавим station в БД
 			IAdminDataBaseService db = new AdminDataBaseService();
-			Station station = stationModel.toStation();
-			Station updateStation = db.updateStation(station);
+			Station updateStation = db.updateStation(stationModel);
 
 			// Отправим модель в формате GSON клиенту
-			StationModel updateStationModel = new StationModel(updateStation);
-			return (new Gson()).toJson(updateStationModel);
+
+			return (new Gson()).toJson(updateStation);
 		} catch (Exception e) {
 			log.error("exception", e);
 			return (new Gson()).toJson(new ErrorModel(

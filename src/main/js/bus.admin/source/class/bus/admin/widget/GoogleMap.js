@@ -35,11 +35,10 @@ qx.Class.define("bus.admin.widget.GoogleMap", {
 				this.getMapObject().setCenter(new google.maps.LatLng(lat, lon));
 				if(scale!=null)
 				this.getMapObject().setZoom(scale);
-				this.__lat = lat;
-				this.__lon = lon;
-				this.__scale = scale;
-
-			}
+						}
+			this.__lat = lat;
+			this.__lon = lon;
+			this.__scale = scale;
 		},
 
 		init : function(lat, lon, scale) {

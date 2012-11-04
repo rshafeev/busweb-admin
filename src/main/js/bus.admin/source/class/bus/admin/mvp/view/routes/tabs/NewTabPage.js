@@ -7,25 +7,24 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 		this.initWidgets();
 		this.setOptions();
 		
-		this._routeModel = {
+		/*this._routeModel = {
 			city_id : null,
 			transport_type : null,
 			cost : null,
 			number : null,
 			names : null,
 			direct_stations : null,
-			
+
 			reverse_stations : null,
 			timetable : {
 				groups : []
 			}
 			// groups : {days,times}
 		
-		};
+		};*/
 	},
-
+	
 	members : {
-		_routeModel : null,
 		__mainContainer : null,
 		__scrollContainer : null,
 
@@ -65,10 +64,13 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 			}
 		},
 		setOptions : function() {
-			this.__btn_next_page1.addListener("click",this.on_btn_next_page1,this);
-			this.__btn_next_page2.addListener("click",this.on_btn_next_page2,this);
-			this.__btn_next_page3.addListener("click",this.on_btn_next_page3,this);
-			
+			this.__btn_next_page1.addListener("click", this.on_btn_next_page1,
+					this);
+			this.__btn_next_page2.addListener("click", this.on_btn_next_page2,
+					this);
+			this.__btn_next_page3.addListener("click", this.on_btn_next_page3,
+					this);
+
 		},
 		initWidgets : function() {
 			this.__mainContainer = new qx.ui.container.Composite();
@@ -108,8 +110,8 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 
 		},
 		on_resize_stepsVatView : function(e) {
-			//page 1
-			
+			// page 1
+
 			if (this.__btn_next_page1) {
 				this.__btn_next_page1.setUserBounds(
 						this.__page1.getBounds().width - 260, this.__page1
@@ -125,7 +127,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 						this.__btn_cancel_page1.getBounds().width,
 						this.__btn_cancel_page1.getBounds().height);
 			}
-			
+
 			// page 2
 			if (this.__btn_next_page2) {
 				this.__btn_next_page2.setUserBounds(
@@ -149,7 +151,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 								- 30, this.__btn_back_page2.getBounds().width,
 						this.__btn_back_page2.getBounds().height);
 			}
-			
+
 			// page 3
 			if (this.__btn_next_page3) {
 				this.__btn_next_page3.setUserBounds(
@@ -256,7 +258,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.NewTabPage", {
 
 			tabView.add(this.__page1);
 			tabView.add(this.__page2);
-		    tabView.add(this.__page3);
+			tabView.add(this.__page3);
 			tabView.add(this.__page4);
 
 			return tabView;

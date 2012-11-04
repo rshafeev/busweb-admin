@@ -59,6 +59,7 @@
 			<version>0.0.1 </version>
 			<scope>compile</scope>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>com.premiumgis</groupId>
 			<artifactId>busWeb</artifactId>
@@ -66,7 +67,7 @@
 			<type>war</type>
 			<scope>compile</scope>
 		</dependency>
-		
+		 -->
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jdbc</artifactId>

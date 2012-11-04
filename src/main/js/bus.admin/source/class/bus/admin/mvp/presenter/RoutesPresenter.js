@@ -4,10 +4,19 @@ qx.Class.define("bus.admin.mvp.presenter.RoutesPresenter", {
 			events : {
 				"loadRoutesList" : "qx.event.type.Data",
 
-				"loadRoute" : "qx.event.type.Data"
+				"loadRoute" : "qx.event.type.Data",
+
+				"startCreateNewRoute" : "qx.event.type.Data",
+
+				"finishCreateNewRoute" : "qx.event.type.Data"
+
 			},
-			construct : function() {
+			construct : function(_routePage) {
 				this.base(arguments);
+				this._routePage = _routePage;
+			},
+			members : {
+				_routePage : null
 			}
 
 		});

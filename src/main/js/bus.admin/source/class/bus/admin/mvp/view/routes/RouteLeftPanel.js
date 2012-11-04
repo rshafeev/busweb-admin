@@ -46,14 +46,26 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 		tabView : null,
 		btn_refresh : null,
 
+		unInitialize : function() {
+
+			this.removeListener("resize", this.on_resize_panel, this);
+			this.combo_cities.removeListener("changeSelection",
+					this.on_change_CitiesComboBox, this);
+			this.combo_route_types.removeListener("changeSelection",
+					this.on_change_RouteTypesComboBox, this);
+			this._routesTabPage.unInitialize();
+		},
+
 		initialize : function() {
-			
+
 			this.addListener("resize", this.on_resize_panel, this);
 			this.combo_cities.addListener("changeSelection",
 					this.on_change_CitiesComboBox, this);
 			this.combo_route_types.addListener("changeSelection",
 					this.on_change_RouteTypesComboBox, this);
-		//changeSelection
+			this._routesTabPage.initialize();
+			this.debug("RouteLeftPanel was initialized");
+
 		},
 		on_resize_panel : function(e) {
 			if (this.tabView) {
@@ -64,17 +76,14 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 			}
 		},
 		on_change_CitiesComboBox : function(e) {
-			var map = this._routesPage.getRouteMap();
-			var locale = "c_" + qx.locale.Manager.getInstance().getLocale();
-			var cityName = bus.admin.helpers.WidgetHelper
-					.getValueFromSelectBox(this.combo_cities);
-			var city = qx.core.Init.getApplication().getModelsContainer()
-					.getCitiesModel().getCityByName(cityName, locale);
-
-			if (city) {
-				map.getGoogleMap().setCenter(city.location.x,
-						city.location.y, city.scale);
-				this._routesPage.refresh();
+			var cityID = this.getSelectableCityID();
+			if (cityID) {
+				var city = qx.core.Init.getApplication().getModelsContainer()
+						.getCitiesModel().getCityByID(cityID);
+				var routeMap = this._routesPage.getRouteMap().getGoogleMap();
+				routeMap
+						.setCenter(city.location.x, city.location.y, city.scale);
+				this._routesPage.refreshRoutes(cityID);
 			}
 			this.combo_cities.close();
 		},
@@ -86,14 +95,15 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 				this.combo_route_types.close();
 				return null;
 			}
-			
+
 			var selectItem = selections[0];
 			this.debug("on_change_RouteTypesComboBox1");
-			if (selectItem && selectItem.getUserData("id") != null) {
+			var cityID = this.getSelectableCityID();
+			if (cityID && selectItem && selectItem.getUserData("id") != null) {
 				this.debug("on_change_RouteTypesComboBox2");
 				this.debug(selectItem.getUserData("id"));
 				this.setRouteType(selectItem.getUserData("id"));
-				this._routesPage.refresh();
+				this._routesPage.refreshRoutes(cityID);
 			}
 			this.combo_route_types.close();
 		},
@@ -153,15 +163,13 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 
 		},
 		loadCitiesToComboBox : function(cities) {
-			this.debug("on_loadLanguagesToComboBox()");
+			this.debug("on_loadCitiesToComboBox()");
 			var defaultItem = null;
-
+			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
 			this.combo_cities.removeAll();
 			for (var i = 0; i < cities.length; i++) {
 				var name = bus.admin.mvp.model.helpers.CitiesModelHelper
-						.getCityNameByLang(cities[i], "c_"
-										+ qx.locale.Manager.getInstance()
-												.getLocale());
+						.getCityNameByLang(cities[i], lang_id);
 				var item = new qx.ui.form.ListItem(name);
 				item.setUserData("id", cities[i].id);
 				if (defaultItem == null) {
@@ -209,6 +217,12 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 					}, {
 						id : "c_route_trolley",
 						text : this.tr("Trolleybus")
+					}, {
+						id : "c_route_metro",
+						text : this.tr("Metro")
+					}, {
+						id : "c_route_metro_transition",
+						text : this.tr("Metro`s transition")
 					}];
 			var defaultItem = null;
 			for (var i = 0; i < route_types.length; i++) {

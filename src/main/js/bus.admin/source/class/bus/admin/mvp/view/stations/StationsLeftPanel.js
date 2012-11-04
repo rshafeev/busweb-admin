@@ -191,7 +191,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 					.getStationByID(rowData.ID);
 
 			var changeStationDlg = new bus.admin.mvp.view.stations.CUStationForm(
-					true, stationModel,this._stationsPage.getPresenter());
+					true, stationModel, this._stationsPage.getPresenter());
 			changeStationDlg.open();
 
 		},
@@ -260,17 +260,17 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			var cityName = bus.admin.helpers.WidgetHelper
 					.getValueFromSelectBox(this.combo_cities);
 
-			var city = qx.core.Init.getApplication().getModelsContainer().getCitiesModel()
-					.getCityByName(cityName,
+			var city = qx.core.Init.getApplication().getModelsContainer()
+					.getCitiesModel().getCityByName(cityName,
 							"c_" + qx.locale.Manager.getInstance().getLocale());
 
 			if (city) {
-				map.getGoogleMap().setCenter(city.location.lat,
-						city.location.lon, city.scale);
+				map.getGoogleMap().setCenter(city.location.x, city.location.y,
+						city.scale);
 				this.debug("on_change_CitiesComboBox()");
 				this._stationsPage.refresh_stations();
 			}
-
+			this.combo_cities.close();
 		},
 		on_change_LanguageComboBox : function() {
 			this.debug("on_change_LanguageComboBox()");
@@ -278,14 +278,14 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 					.getValueFromSelectBox(this.combo_langs);
 			if (langName == null)
 				return;
-			var languagesModel = qx.core.Init.getApplication().getModelsContainer()
-					.getLangsModel();
+			var languagesModel = qx.core.Init.getApplication()
+					.getModelsContainer().getLangsModel();
 
 			this.debug(langName);
 			var lang = languagesModel.getLangByName(langName);
 
 			this.loadStationTable(this.getStationsModel().getData(), lang);
-
+			this.combo_langs.close();
 		},
 		initWidgets : function() {
 			this.addListenerOnce("appear", function() {
@@ -519,8 +519,8 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 					var mapWidget = this._stationsPage.getStationsMap();
 					mapWidget.selectStationMarker(station_id);
 					mapWidget.getGoogleMap().setCenter(
-							stationModel.location.lat,
-							stationModel.location.lon, null);
+							stationModel.location.x,
+							stationModel.location.y, null);
 				}
 
 			}

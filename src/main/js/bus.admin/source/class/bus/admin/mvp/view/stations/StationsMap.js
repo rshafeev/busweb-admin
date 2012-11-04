@@ -80,8 +80,8 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 				return;
 			}
 			this.updateStationMarker(data.new_station.id,
-					data.new_station.location.lat,
-					data.new_station.location.lon);
+					data.new_station.location.x,
+					data.new_station.location.y);
 		},
 		on_delete_station : function(e) {
 			var data = e.getData();
@@ -179,8 +179,8 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 											.getTransportType();
 									var stationsModel = {
 										location : {
-											lat : latLng.lat(),
-											lon : latLng.lng()
+											x : latLng.lat(),
+											y : latLng.lng()
 										},
 										city_id : city_id,
 										transports : [{
@@ -189,7 +189,8 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 									};
 
 									var insertStationDlg = new bus.admin.mvp.view.stations.CUStationForm(
-											false, stationsModel,T.__stationsPage.getPresenter());
+											false, stationsModel,
+											T.__stationsPage.getPresenter());
 									insertStationDlg.open();
 									break;
 								case 'zoom_in_click' :
@@ -208,11 +209,14 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 		},
 
 		insertStationMarker : function(station) {
-
+			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
+			var stationName = bus.admin.mvp.model.helpers.StationsModelHelper
+					.getStationNameByLang(station, lang_id);
 			var marker = new google.maps.Marker({
-						position : new google.maps.LatLng(station.location.lat,
-								station.location.lon),
+						position : new google.maps.LatLng(station.location.x,
+								station.location.y),
 						map : this.getGoogleMap().getMapObject(),
+						title : stationName,
 						icon : this.__stationIcon
 					});
 			marker.setDraggable(false);
@@ -221,10 +225,11 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 			var stations = this.__stationsPage.getStationsModel();
 			google.maps.event.addListener(marker, "click",
 					function(mouseEvent) {
+						
 						var id = marker.get("id");
 						var st = stations.getStationByID(id);
 						var changeStationDlg = new bus.admin.mvp.view.stations.CUStationForm(
-								true, st);
+								true, st,T.__stationsPage.getPresenter());
 						changeStationDlg.open();
 
 					});
