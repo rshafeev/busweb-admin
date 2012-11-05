@@ -29,6 +29,11 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 		var globPresenter = qx.core.Init.getApplication().getPresenter();
 		globPresenter.addListener("refresh_cities", this.on_refresh_cities,
 				this);
+		var localPresenter = this._routesPage.getPresenter();
+		localPresenter.addListener("startCreateNewRoute",
+				this.on_startCreateNewRoute, this);
+		localPresenter.addListener("finishCreateNewRoute",
+				this.on_finishCreateNewRoute, this);
 
 	},
 	properties : {
@@ -46,6 +51,9 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 		tabView : null,
 		btn_refresh : null,
 
+		/**
+		 * Отключение всех обработчиков событий
+		 */
 		unInitialize : function() {
 
 			this.removeListener("resize", this.on_resize_panel, this);
@@ -56,6 +64,10 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 			this._routesTabPage.unInitialize();
 		},
 
+		/**
+		 * инициализация виджета: добавление всех обработчиков событий данного
+		 * виджета и его child`ов
+		 */
 		initialize : function() {
 
 			this.addListener("resize", this.on_resize_panel, this);
@@ -67,6 +79,35 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 			this.debug("RouteLeftPanel was initialized");
 
 		},
+
+		/**
+		 * Обработчик вызывается при начале добавления нового маршрута
+		 * 
+		 * @param {хранит
+		 *            модель "Route"(еще не полностью заполненную)} e
+		 */
+		on_startCreateNewRoute : function(e) {
+			this.combo_cities.setEnabled(false);
+			this.combo_route_types.setEnabled(false);
+			this._newTabPage.setEnabled(false);
+			this._settingsTabPage.setEnabled(false);
+		},
+
+		/**
+		 * Обработчик вызывается при окончании процесса создания нового
+		 * маршрута: он был отредактирован пользователем, отправлен на сервер и
+		 * сохранен в БД.
+		 * 
+		 * @param {}
+		 *            e
+		 */
+		on_finishCreateNewRoute : function(e) {
+			this.combo_cities.setEnabled(true);
+			this.combo_route_types.setEnabled(true);
+			this._newTabPage.setEnabled(true);
+			this._settingsTabPage.setEnabled(true);
+		},
+
 		on_resize_panel : function(e) {
 			if (this.tabView) {
 				this.tabView.setWidth(this.getBounds().width

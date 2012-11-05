@@ -11,7 +11,10 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		localPresenter.addListener("loadRoutesList", this.on_loadRoutesList,
 				this);
 		localPresenter.addListener("loadRoute", this.on_loadRoute, this);
-
+		localPresenter.addListener("startCreateNewRoute",
+				this.on_startCreateNewRoute, this);
+		localPresenter.addListener("finishCreateNewRoute",
+				this.on_finishCreateNewRoute, this);
 	},
 
 	members : {
@@ -71,6 +74,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 				this.debug("on_loadRoute() : event data has errors");
 				return;
 			}
+			this.debug("on_loadRoute() : ok");
 			if (this.radioDirect.getValue() == true) {
 				this.on_radio_direct();
 			} else {
@@ -79,11 +83,47 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 
 		},
 
-		on_start_createNewRoute : function() {
+		/**
+		 * Обработчик вызывается при начале добавления нового маршрута
+		 * 
+		 * @param {RouteModel}
+		 *            e - (еще не полностью заполненную)
+		 */
+		on_startCreateNewRoute : function(e) {
+			this.__routesTable.setEnabled(false);
+			this.__filterField.setEnabled(false);
+			this.btn_new.setVisibility("hidden");
+			this.btn_delete.setVisibility("hidden");
+			this.btn_edit.setVisibility("hidden");
+			this.btn_move.setVisibility("hidden");
+			this.btn_cancel.setVisibility("visible");
+			this.btn_save.setVisibility("visible");
 
+			if (this.radioDirect.getValue() == true) {
+				this.on_radio_direct();
+			} else {
+				this.on_radio_reverse();
+			}
 		},
 
-		on_finish_createNewRoute : function() {
+		/**
+		 * Обработчик вызывается при окончании процесса создания нового
+		 * маршрута: он был отредактирован пользователем, отправлен на сервер и
+		 * сохранен в БД. Теперь можно сделать доступным элементы левой
+		 * панели(список городов и список типов маршрута)
+		 * 
+		 * @param {RouteModel}
+		 *            e
+		 */
+		on_finishCreateNewRoute : function(e) {
+			this.__routesTable.setEnabled(true);
+			this.__filterField.setEnabled(true);
+			this.btn_new.setVisibility("visible");
+			this.btn_delete.setVisibility("visible");
+			this.btn_edit.setVisibility("visible");
+			this.btn_move.setVisibility("visible");
+			this.btn_cancel.setVisibility("hidden");
+			this.btn_save.setVisibility("hidden");
 
 		},
 
@@ -100,13 +140,33 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		},
 
 		on_btn_edit : function(e) {
-			//bus.admin.mvp.view.cities.CURouteForm
+			// bus.admin.mvp.view.cities.CURouteForm
 		},
 
 		on_btn_move : function(e) {
 		},
 
 		on_btn_delete : function(e) {
+
+		},
+
+		on_btn_save : function(e) {
+			//validation of the Route Model
+			
+			qx.core.Init.getApplication().setWaitingWindow(true);
+			var event_finish_func = qx.lang.Function.bind(function(data) {
+						qx.core.Init.getApplication().setWaitingWindow(false);
+					}, this);
+			this._routesPage.getPresenter().finishCreateNewRoute(true,
+					event_finish_func);
+		},
+
+		on_btn_cancel : function(e) {
+			var event_finish_func = qx.lang.Function.bind(function(data) {
+
+					}, this);
+			this._routesPage.getPresenter().finishCreateNewRoute(false,
+					event_finish_func);
 
 		},
 
@@ -124,6 +184,8 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this.btn_delete.removeListener("execute", this.on_btn_delete, this);
 			this.btn_timeTable.removeListener("execute", this.on_btn_timeTable,
 					this);
+			this.btn_save.removeListener("execute", this.on_btn_save, this);
+			this.btn_cancel.removeListener("execute", this.on_btn_cancel, this);
 			this.btn_new.removeListener("execute", this.on_btn_new, this);
 		},
 		initialize : function() {
@@ -134,6 +196,8 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 					this);
 			this.btn_new.addListener("execute", this.on_btn_new, this);
 			this.btn_edit.addListener("execute", this.on_btn_edit, this);
+			this.btn_save.addListener("execute", this.on_btn_save, this);
+			this.btn_cancel.addListener("execute", this.on_btn_cancel, this);
 			this.btn_move.addListener("execute", this.on_btn_move, this);
 			this.btn_delete.addListener("execute", this.on_btn_delete, this);
 			this.btn_timeTable.addListener("execute", this.on_btn_timeTable,
@@ -156,6 +220,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this.btn_new = new qx.ui.form.Button("New...",
 					"bus/admin/images/btn/go-bottom.png");
 			this.btn_new.setWidth(105);
+
 			this.btn_edit = new qx.ui.form.Button("Edit...",
 					"bus/admin/images/btn/go-bottom.png");
 			this.btn_edit.setWidth(105);
@@ -170,10 +235,12 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this.btn_save = new qx.ui.form.Button("Save",
 					"bus/admin/images/btn/dialog-apply.png");
 			this.btn_save.setWidth(105);
+			this.btn_save.setVisibility("hidden");
 
 			this.btn_cancel = new qx.ui.form.Button("Cancel",
 					"bus/admin/images/btn/dialog-cancel.png");
 			this.btn_cancel.setWidth(105);
+			this.btn_cancel.setVisibility("hidden");
 
 			// add widgets
 			var filterLabel = new qx.ui.basic.Label("Filter:");
@@ -196,6 +263,8 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 						top : 50
 					});
 
+			this.__mainContainer.add(this.btn_save);
+			this.__mainContainer.add(this.btn_cancel);
 			this.__mainContainer.add(this.btn_new);
 			this.__mainContainer.add(this.btn_edit);
 			this.__mainContainer.add(this.btn_move);
@@ -322,8 +391,11 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		},
 
 		loadStationsTable : function(way) {
-			console.log(way);
 			var rowData = [];
+			if (way == null || way.route_relations == null) {
+				this.__stationsTable.getTableModel().setData(rowData);
+				return;
+			}
 			this.debug(way.route_relations.length);
 			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
 			for (var i = 0; i < way.route_relations.length; i++) {
@@ -411,6 +483,14 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 				this.__routesTable
 						.setWidth(this.__mainContainer.getBounds().width
 								- this.__routesTable.getBounds().left - 115);
+				this.btn_save.setUserBounds(
+						this.__mainContainer.getBounds().width - 110, 50,
+						this.btn_save.getBounds().width, this.btn_save
+								.getBounds().height);
+				this.btn_cancel.setUserBounds(
+						this.__mainContainer.getBounds().width - 110, 85,
+						this.btn_cancel.getBounds().width, this.btn_cancel
+								.getBounds().height);
 				this.btn_new.setUserBounds(
 						this.__mainContainer.getBounds().width - 110, 50,
 						this.btn_new.getBounds().width, this.btn_new
@@ -423,11 +503,6 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 						this.__mainContainer.getBounds().width - 110, 120,
 						this.btn_move.getBounds().width, this.btn_move
 								.getBounds().height);
-
-				/*this.btn_timeTable.setUserBounds(this.__mainContainer
-								.getBounds().width
-								- 110, 155, this.btn_delete.getBounds().width,
-						this.btn_delete.getBounds().height);*/
 
 				this.btn_delete.setUserBounds(
 						this.__mainContainer.getBounds().width - 110, 155,

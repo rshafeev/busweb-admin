@@ -23,11 +23,25 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.RoutesManager", {
 					event_finish_func(data);
 				},
 
-				finishCreateNewRoute : function(routeModel, event_finish_func) {
+				finishCreateNewRoute : function(isOK, event_finish_func) {
 					var data = {
-						ok : true
+						ok : isOK
 					};
 					this.fireDataEvent("finishCreateNewRoute", data);
+
+					if (isOK == false) {
+						var cloneRoute = bus.admin.helpers.ObjectHelper
+								.clone(this._routePage.getRouteModel());
+						this._routePage.setCurrRouteModel(cloneRoute);
+						var loadRouteData = {
+							route : cloneRoute,
+							error : null,
+							server_error : null
+						};
+						this.fireDataEvent("loadRoute", loadRouteData);
+					} else {
+						// send new route to the server
+					}
 					event_finish_func(data);
 				},
 

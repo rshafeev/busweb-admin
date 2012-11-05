@@ -2,12 +2,32 @@ package com.pgis.bus.admin.models;
 
 import java.util.Collection;
 
+import org.postgis.Point;
+
 import com.pgis.bus.data.orm.Station;
 
 public class StationsModel {
 	private int city_id;
 	private String transport_type_id;
 	private Station[] stations;
+	private Point ltPoint;
+	private Point rbPoint;
+
+	public Point getLtPoint() {
+		return ltPoint;
+	}
+
+	public void setLtPoint(Point ltPoint) {
+		this.ltPoint = ltPoint;
+	}
+
+	public Point getRbPoint() {
+		return rbPoint;
+	}
+
+	public void setRbPoint(Point rbPoint) {
+		this.rbPoint = rbPoint;
+	}
 
 	public int getCity_id() {
 		return city_id;

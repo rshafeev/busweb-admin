@@ -21,6 +21,7 @@ qx.Class.define("bus.admin.net.impl.RequestObjManager", {
 				getRoutesRequestObj : function(sync) {
 					var routes = new bus.admin.net.impl.Routes(sync);
 					return routes;
+					
 				}
 				
 			}

@@ -23,7 +23,7 @@ public class StationsController {
 
 	@ResponseBody
 	@RequestMapping(value = "get_all_by_city_and_transport.json", method = RequestMethod.POST)
-	public String get_stations_by_city_and_transport(String data) {
+	public String getStationsByCityAndTransport(String data) {
 		try {
 			log.debug(data);
 			// Парсим полученные данные
@@ -35,6 +35,34 @@ public class StationsController {
 			Collection<Station> stations = db.getStationsByCityAndTransport(
 					stationsModel.getCity_id(),
 					stationsModel.getTransport_type_id());
+			// Сформируем модель
+			stationsModel.setStations(stations);
+
+			log.debug(Integer.toString(stationsModel.getStations().length));
+			// Отправим модель в формате GSON клиенту
+			return (new Gson()).toJson(stationsModel);
+		} catch (Exception e) {
+			log.error("exception", e);
+			return (new Gson()).toJson(new ErrorModel(
+					ErrorModel.err_enum.c_exception));
+		}
+
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "get_all_by_city_inbox.json", method = RequestMethod.POST)
+	public String getAllByCityInBox(String data) {
+		try {
+			log.debug(data);
+			// Парсим полученные данные
+			StationsModel stationsModel = (new Gson()).fromJson(data,
+					StationsModel.class);
+
+			// Загрузим список станций
+			IAdminDataBaseService db = new AdminDataBaseService();
+			Collection<Station> stations = db.getStationsByBox(
+					stationsModel.getCity_id(), stationsModel.getLtPoint(),
+					stationsModel.getRbPoint());
 			// Сформируем модель
 			stationsModel.setStations(stations);
 

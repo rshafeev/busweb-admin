@@ -28,20 +28,38 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 		table_names : null,
 		on_save_click : function() {
 			// validation
-			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
-				var rowData = this.table_names.getTableModel()
-						.getRowDataAsMap(i);
+			var number = this.editNumber.getValue();
+			var cost = parseFloat(this.editCost.getValue());
 
-				if (rowData.Name == null || rowData.Name.toString().length <= 0) {
-					alert("Please, push names for all languages");
-					return;
-				}
+			// validation
+			if (isNaN(cost)) {
+				alert("The cost must be a number");
+				return;
 			}
-			// startCreateNewRoute
+
+			if (this.check_names.getValue() == true) {
+				for (var i = 0; i < this.table_names.getTableModel()
+						.getRowCount(); i++) {
+					var rowData = this.table_names.getTableModel()
+							.getRowDataAsMap(i);
+
+					if (rowData.Name == null
+							|| rowData.Name.toString().length <= 0) {
+						alert("Please, push names for all languages");
+						return;
+					}
+				}
+			} else if (number == null || number.toString().length <= 0) {
+				alert("Please, set a number of route");
+				return;
+
+			}
+
+			// create/edit routeModel
 			if (this.getChangeDialog()) {
 				this.__updateRoute();
 			} else {
-				this.__insertRoute();
+				this.__insertRoute(number, cost);
 			}
 		},
 
@@ -99,47 +117,38 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 						}
 						this.close();
 					}, this);
-			console.log(update_city);
 			globalPresenter.updateCity(this.__cityModel, update_city,
 					event_finish_func);
 
 		},
 
-		__insertRoute : function() {
-			qx.core.Init.getApplication().setWaitingWindow(true);
+		__insertRoute : function(number, cost) {
+
 			// create model
-			var newCityModel = {
-				location : {
-					x : this.editLat.getValue(),
-					y : this.editLon.getValue()
-				},
-				scale : this.editScale.getValue(),
-				names : [],
-				isShow : false
-			};
-			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
-				var rowData = this.table_names.getTableModel()
-						.getRowDataAsMap(i);
-				var modelsContainer = qx.core.Init.getApplication()
-						.getModelsContainer();
-				var lang = modelsContainer.getLangsModel()
-						.getLangByName(rowData.Language);
-				newCityModel.names.push({
-							lang_id : lang.id,
-							value : rowData.Name
-						});
+			this._routeModel.number = number;
+			this._routeModel.cost = cost;
+			this._routeModel.name = [];
+			if (this.check_names.getValue() == true) {
+
+				for (var i = 0; i < this.table_names.getTableModel()
+						.getRowCount(); i++) {
+					var rowData = this.table_names.getTableModel()
+							.getRowDataAsMap(i);
+					var modelsContainer = qx.core.Init.getApplication()
+							.getModelsContainer();
+					var lang = modelsContainer.getLangsModel()
+							.getLangByName(rowData.Language);
+					this._routeModel.name.push({
+								lang_id : lang.id,
+								value : rowData.Name
+							});
+				}
 			}
-			var globalPresenter = qx.core.Init.getApplication().getPresenter();
 			var event_finish_func = qx.lang.Function.bind(function(data) {
-						qx.core.Init.getApplication().setWaitingWindow(false);
-						if (data == null || data.error == true) {
-							this.debug("__insert_city: request error");
-							alert(data.server_error);
-							return;
-						}
 						this.close();
 					}, this);
-			globalPresenter.insertCity(newCityModel, event_finish_func);
+			this._routesPresenter.startCreateNewRoute(this._routeModel,
+					event_finish_func);
 
 		},
 
@@ -151,9 +160,9 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 
 			var labelNumber = new qx.ui.basic.Label("Number:");
 			var labelCost = new qx.ui.basic.Label("Cost:");
-			this.editNumber = new qx.ui.form.TextField("");
+			this.editNumber = new qx.ui.form.TextField("1");
 			this.editNumber.setWidth(130);
-			this.editCost = new qx.ui.form.TextField("");
+			this.editCost = new qx.ui.form.TextField("2.50");
 			this.editCost.setWidth(130);
 
 			this.btn_save = new qx.ui.form.Button("Save",
@@ -204,18 +213,20 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 					});
 
 			this.check_names = new qx.ui.form.CheckBox("Names");
+			this.check_names.addListener("changeValue", this.on_check_names,
+					this);
 			this.check_names.setValue(false);
-
+			this.on_check_names();
 			this.add(mainSettings, {
 						left : 0,
 						top : -15
 					});
-					
+
 			this.add(this.check_names, {
 						left : 10,
 						top : 130
 					});
-				
+
 			this.add(this.table_names, {
 						left : 10,
 						top : 150
@@ -229,6 +240,15 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 						left : 160,
 						top : 285
 					});
+
+		},
+		on_check_names : function(e) {
+			var checked = this.check_names.getValue();
+			if (checked == true) {
+				this.table_names.setEnabled(true);
+			} else {
+				this.table_names.setEnabled(false);
+			}
 
 		},
 
