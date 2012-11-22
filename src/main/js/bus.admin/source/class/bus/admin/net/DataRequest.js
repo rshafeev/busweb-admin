@@ -25,6 +25,13 @@ qx.Class.define("bus.admin.net.DataRequest", {
 					.getRoutesRequestObj(this.__sync);
 			return routes.getRoute(data, completed_func, failed_func, self);
 		},
+		insertRoute : function(routeModel, completed_func, failed_func,
+				self) {
+			var routes = bus.admin.net.DataRequestFactory
+					.getRoutesRequestObj(this.__sync);
+			return routes.insertRoute(routeModel, completed_func,
+					failed_func, self);
+		},
 		//***************
 		
 		getStationsByCityInBox : function(data, completed_func,

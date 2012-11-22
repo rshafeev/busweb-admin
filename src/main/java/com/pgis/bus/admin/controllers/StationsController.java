@@ -100,6 +100,7 @@ public class StationsController {
 
 	}
 
+	
 	@ResponseBody
 	@RequestMapping(value = "update.json", method = RequestMethod.POST)
 	public String update(String row_station) {

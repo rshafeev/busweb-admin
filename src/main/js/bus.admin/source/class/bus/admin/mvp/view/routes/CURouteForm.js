@@ -23,15 +23,21 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 		btn_save : null,
 		btn_cancel : null,
 		check_names : null,
+		check_sameDirections : null,
 		editNumber : null,
 		editCost : null,
+		editTimeA : null,
+		editTimeB : null,
+		editFrequency : null,
 		table_names : null,
 		on_save_click : function() {
+			var schedule = null;
+			var number = null;
+			var cost = null;
 			// validation
-			var number = this.editNumber.getValue();
-			var cost = parseFloat(this.editCost.getValue());
+			number = this.editNumber.getValue();
+			cost = parseFloat(this.editCost.getValue());
 
-			// validation
 			if (isNaN(cost)) {
 				alert("The cost must be a number");
 				return;
@@ -54,12 +60,24 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 				return;
 
 			}
+			if (this.getChangeDialog() == false) {
+				var timeAvalue = this.editTimeA.getValue();
+				var timeBvalue = this.editTimeB.getValue();
+				var freqValue = this.editFrequency.getValue();
+				var schedule = this._createScheduleObj(timeAvalue, timeBvalue,
+						freqValue);
+				if (schedule == null) {
+					alert("Please, set valid time and frequency");
+					return;
+				}
+			}
 
 			// create/edit routeModel
 			if (this.getChangeDialog()) {
 				this.__updateRoute();
 			} else {
-				this.__insertRoute(number, cost);
+				this.__insertRoute(number, cost, schedule,
+						this.check_sameDirections.getValue());
 			}
 		},
 
@@ -122,12 +140,26 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 
 		},
 
-		__insertRoute : function(number, cost) {
+		__insertRoute : function(number, cost, schedule, sameDirections) {
 
 			// create model
 			this._routeModel.number = number;
 			this._routeModel.cost = cost;
 			this._routeModel.name = [];
+			if (sameDirections == false) {
+				this._routeModel.directRouteWay = {
+					schedule : schedule
+				};
+
+				this._routeModel.reverseRouteWay = {
+					schedule : bus.admin.helpers.ObjectHelper.clone(schedule)
+				};
+			} else {
+				this._routeModel.directRouteWay = {
+					schedule : schedule
+				};
+				this._routeModel.reverseRouteWay = null;
+			}
 			if (this.check_names.getValue() == true) {
 
 				for (var i = 0; i < this.table_names.getTableModel()
@@ -161,9 +193,9 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 			var labelNumber = new qx.ui.basic.Label("Number:");
 			var labelCost = new qx.ui.basic.Label("Cost:");
 			this.editNumber = new qx.ui.form.TextField("1");
-			this.editNumber.setWidth(130);
+			this.editNumber.setWidth(80);
 			this.editCost = new qx.ui.form.TextField("2.50");
-			this.editCost.setWidth(130);
+			this.editCost.setWidth(80);
 
 			this.btn_save = new qx.ui.form.Button("Save",
 					"bus/admin/images/btn/dialog-apply.png");
@@ -194,7 +226,6 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 			this.table_names.setColumnWidth(0, 100);
 			this.table_names.setColumnWidth(1, 180);
 
-			// add to cantainer
 			mainSettings.add(labelNumber, {
 						left : 10,
 						top : 10
@@ -211,34 +242,92 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 						left : 70,
 						top : 50
 					});
+			// ////////
+			var timeSettings = new qx.ui.groupbox.GroupBox("Timetable");
+			timeSettings.setLayout(new qx.ui.layout.Canvas());
+			var labelTimeA = new qx.ui.basic.Label("Time(start):");
+			this.editTimeA = new qx.ui.form.TextField("06:00");
+			this.editTimeA.setWidth(80);
+
+			var labelTimeB = new qx.ui.basic.Label("Time(finish):");
+			this.editTimeB = new qx.ui.form.TextField("22:00");
+			this.editTimeB.setWidth(80);
+
+			var labelTimeB = new qx.ui.basic.Label("Time(finish):");
+			this.editTimeB = new qx.ui.form.TextField("22:00");
+			this.editTimeB.setWidth(80);
+
+			var labelFreq = new qx.ui.basic.Label("Frequency(min):");
+			this.editFrequency = new qx.ui.form.TextField("15");
+			this.editFrequency.setWidth(80);
+
+			// bus.admin.helpers.ObjectHelper.validateTime
+			timeSettings.add(labelTimeA, {
+						left : 10,
+						top : 10
+					});
+			timeSettings.add(this.editTimeA, {
+						left : 110,
+						top : 10
+					});
+			timeSettings.add(labelTimeB, {
+						left : 10,
+						top : 50
+					});
+			timeSettings.add(this.editTimeB, {
+						left : 110,
+						top : 50
+					});
+
+			timeSettings.add(labelFreq, {
+						left : 10,
+						top : 90
+					});
+			timeSettings.add(this.editFrequency, {
+						left : 110,
+						top : 90
+					});
+			// add to cantainer
 
 			this.check_names = new qx.ui.form.CheckBox("Names");
 			this.check_names.addListener("changeValue", this.on_check_names,
 					this);
 			this.check_names.setValue(false);
+
+			this.check_sameDirections = new qx.ui.form.CheckBox("Same ways");
+			this.check_sameDirections.setValue(false);
+
 			this.on_check_names();
 			this.add(mainSettings, {
 						left : 0,
-						top : -15
+						top : -10
+					});
+			this.add(timeSettings, {
+						left : 180,
+						top : -10
 					});
 
 			this.add(this.check_names, {
 						left : 10,
 						top : 130
 					});
+			this.add(this.check_sameDirections, {
+						left : 80,
+						top : 130
+					});
 
 			this.add(this.table_names, {
 						left : 10,
-						top : 150
+						top : 160
 					});
 
 			this.add(this.btn_save, {
 						left : 50,
-						top : 285
+						top : 305
 					});
 			this.add(this.btn_cancel, {
 						left : 160,
-						top : 285
+						top : 305
 					});
 
 		},
@@ -253,20 +342,21 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 		},
 
 		__setOptions : function() {
-			this.setHeight(370);
-			this.setWidth(350);
+			this.setHeight(400);
+			if (this.getChangeDialog()) {
+				this.setWidth(350);
+				this.setCaption("Change route");
+			} else {
+				this.setWidth(430);
+				this.setCaption("Insert new route");
+			}
+
 			this.setModal(true);
 			this.setAllowMaximize(false);
 			this.setShowMaximize(false);
 			this.setShowMinimize(false);
 			this.setResizable(false, false, false, false);
 			this.center();
-			if (this.getChangeDialog()) {
-				this.setCaption("Change route");
-			} else {
-
-				this.setCaption("Insert new route");
-			}
 
 			// this.editLat.setValue(this.__cityModel.location.x.toString());
 			// this.editLon.setValue(this.__cityModel.location.y.toString());
@@ -289,6 +379,44 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 			}
 			this.table_names.getTableModel().setData(rowData);
 
+		},
+
+		_createScheduleObj : function(timeValueA, timeValueB, frequency) {
+			if (bus.admin.helpers.ObjectHelper.validateTime(timeValueA) == false
+					|| bus.admin.helpers.ObjectHelper.validateTime(timeValueB) == false
+					|| frequency.toString() != parseInt(frequency).toString()) {
+				return null;
+			}
+			var secsA = bus.admin.helpers.ObjectHelper
+					.convertTimeToSeconds(timeValueA);
+			var secsB = bus.admin.helpers.ObjectHelper
+					.convertTimeToSeconds(timeValueB);
+			var frequencySecs = 60 * frequency;
+			if (frequencySecs < 0 || secsB < 0 || secsB < secsA) {
+				return null;
+			}
+			var schedule = {
+				id : null,
+				direct_route_id : null,
+				scheduleGroups : [{
+							id : null,
+							schedule_id : null,
+							days : [{
+										id : null,
+										schedule_group_id : null,
+										day_id : "c_all"
+
+									}],
+							timetables : [{
+										id : null,
+										schedule_group_id : null,
+										frequency : frequencySecs,
+										time_A : secsA,
+										time_B : secsB
+									}]
+						}]
+			};
+			return schedule;
 		}
 	}
 

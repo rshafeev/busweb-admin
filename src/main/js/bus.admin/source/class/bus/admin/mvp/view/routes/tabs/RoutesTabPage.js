@@ -15,6 +15,9 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 				this.on_startCreateNewRoute, this);
 		localPresenter.addListener("finishCreateNewRoute",
 				this.on_finishCreateNewRoute, this);
+		localPresenter.addListener("insertStationToCurrentRoute",
+				this.on_insertStationToCurrentRoute, this);
+
 	},
 
 	members : {
@@ -44,6 +47,22 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		btn_timeTable : null,
 		radioReverse : null,
 		radioDirect : null,
+
+		on_insertStationToCurrentRoute : function(e) {
+			var stationModel = e.getData();
+			if (stationModel == null || stationModel.error == true) {
+				this
+						.debug("on_insertStationToCurrentRoute() : event data has errors");
+				return;
+			}
+			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
+			var stationName = bus.admin.mvp.model.helpers.StationsModelHelper
+					.getStationNameByLang(stationModel, lang_id);
+			var rowsData = this.__stationsTable.getTableModel().getData();
+			rowsData.push([stationModel.id, stationName]);
+			this.__stationsTable.getTableModel().setData(rowsData);
+		},
+
 		on_loadRoutesList : function(e) {
 			var data = e.getData();
 			if (data == null || data.error == true) {
@@ -90,6 +109,17 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		 *            e - (еще не полностью заполненную)
 		 */
 		on_startCreateNewRoute : function(e) {
+			var routeModel = e.getData();
+			if (routeModel == null || routeModel.error == true) {
+				this.debug("on_startCreateNewRoute() : event data has errors");
+				return;
+			}
+			if (routeModel.reverseRouteWay == null) {
+				this.radioReverse.setEnabled(false);
+			} else {
+				this.radioReverse.setEnabled(true);
+			}
+
 			this.__routesTable.setEnabled(false);
 			this.__filterField.setEnabled(false);
 			this.btn_new.setVisibility("hidden");
@@ -98,12 +128,8 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this.btn_move.setVisibility("hidden");
 			this.btn_cancel.setVisibility("visible");
 			this.btn_save.setVisibility("visible");
+			this.radioDirect.setValue(true);
 
-			if (this.radioDirect.getValue() == true) {
-				this.on_radio_direct();
-			} else {
-				this.on_radio_reverse();
-			}
 		},
 
 		/**
@@ -116,6 +142,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		 *            e
 		 */
 		on_finishCreateNewRoute : function(e) {
+			this.radioReverse.setEnabled(true);
 			this.__routesTable.setEnabled(true);
 			this.__filterField.setEnabled(true);
 			this.btn_new.setVisibility("visible");
@@ -150,9 +177,39 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 
 		},
 
+		isValidNewRoute : function(route) {
+			console.log(route);
+			if (route.directRouteWay == null
+					|| route.directRouteWay.route_relations == null)
+				return false;
+
+			if (route.directRouteWay.route_relations.length <= 0) {
+				return false;
+			}
+			if (route.reverseRouteWay != null) {
+				if (route.reverseRouteWay.route_relations == null
+						|| route.reverseRouteWay.route_relations == null
+						|| route.reverseRouteWay.route_relations.length <= 0)
+					return false;
+
+			}
+
+			return true;
+		},
 		on_btn_save : function(e) {
-			//validation of the Route Model
-			
+
+			// save changes from map
+			var relations = this._routesPage.getRouteMap()
+					.getCurrentRelationsData();
+			this.updateCurrRouteWay(relations, this.radioDirect.getValue());
+
+			// validation of the Route Model
+			var route = this._routesPage.getCurrRouteModel();
+			if (this.isValidNewRoute(route) == false) {
+				alert("Please, make ways of route");
+				return;
+			}
+			// save
 			qx.core.Init.getApplication().setWaitingWindow(true);
 			var event_finish_func = qx.lang.Function.bind(function(data) {
 						qx.core.Init.getApplication().setWaitingWindow(false);
@@ -171,7 +228,16 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		},
 
 		on_btn_timeTable : function(e) {
-			var form = new bus.admin.mvp.view.routes.tabs.TimeForm(this.__selectRouteModel);
+			var routeWay = null;
+			var presenter = null;
+			if (this.radioDirect.getValue() == true) {
+				routeWay = this._routesPage.getCurrRouteModel().directRouteWay;
+			} else {
+				routeWay = this._routesPage.getCurrRouteModel().reverseRouteWay;
+			}
+
+			var form = new bus.admin.mvp.view.routes.tabs.TimeForm(routeWay,
+					presenter);
 			form.open();
 		},
 		unInitialize : function() {
@@ -312,8 +378,9 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this.radioDirect = new qx.ui.form.RadioButton("Direct");
 			this.radioReverse = new qx.ui.form.RadioButton("Reverse");
 			this.__stationsTable = this.__createStationsTable();
-			this.radioDirect.addListener("execute", this.on_radio_direct, this);
-			this.radioReverse.addListener("execute", this.on_radio_reverse,
+			this.radioDirect.addListener("changeValue", this.on_radio_direct,
+					this);
+			this.radioReverse.addListener("changeValue", this.on_radio_reverse,
 					this);
 
 			this.radioDirect.execute();
@@ -394,13 +461,15 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			var rowData = [];
 			if (way == null || way.route_relations == null) {
 				this.__stationsTable.getTableModel().setData(rowData);
+				if (this._routesPage.getRouteMap() != null)
+					this._routesPage.getRouteMap().showRouteWay(null);
 				return;
 			}
 			this.debug(way.route_relations.length);
 			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
 			for (var i = 0; i < way.route_relations.length; i++) {
 				var relation = way.route_relations[i];
-				var station_id = relation.station_b_id;
+				var station_id = relation.stationB.id;
 				var name = bus.admin.mvp.model.helpers.StationsModelHelper
 						.getStationNameByLang(relation.stationB, lang_id);
 				rowData.push([station_id, name]);
@@ -409,27 +478,73 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this._routesPage.getRouteMap().showRouteWay(way.direct);
 
 		},
+		updateCurrRouteWay : function(relations, directType) {
+			if (relations == null)
+				return;
+
+			var routeModel = this._routesPage.getCurrRouteModel();
+			if (directType == true) {
+				if (routeModel.directRouteWay == null) {
+					routeModel.directRouteWay = {
+						direct : true,
+						route_relations : relations
+					};
+				} else {
+					routeModel.directRouteWay.direct = true;
+					routeModel.directRouteWay.route_relations = relations;
+				}
+				// directRouteWay:
+			} else {
+				if (routeModel.reverseRouteWay == null) {
+					routeModel.reverseRouteWay = {
+						direct : false,
+						route_relations : relations
+					};
+				} else {
+					routeModel.reverseRouteWay.direct = false;
+					routeModel.reverseRouteWay.route_relations = relations;
+				}
+			}
+			console.log(routeModel);
+		},
 		on_radio_direct : function(e) {
+			if (this.radioDirect.getValue() == false)
+				return;
 			var route = this._routesPage.getCurrRouteModel();
+			if (this._routesPage.getStatus() != "show") {
+				var relations = this._routesPage.getRouteMap()
+						.getCurrentRelationsData();
+				this.updateCurrRouteWay(relations, false);
+			}
 			if (route == null) {
 				this.__stationsTable.getTableModel().setData([]);
+				if (this._routesPage.getRouteMap() != null)
+					this._routesPage.getRouteMap().showRouteWay(null);
 				return;
 			}
+
+			// getCurrentRelationsData
 			this.loadStationsTable(route.directRouteWay);
 		},
 
 		on_radio_reverse : function(e) {
+			if (this.radioReverse.getValue() == false)
+				return;
 			var route = this._routesPage.getCurrRouteModel();
+			if (this._routesPage.getStatus() != "show") {
+				var relations = this._routesPage.getRouteMap()
+						.getCurrentRelationsData();
+				this.updateCurrRouteWay(relations, true);
+			}
 			if (route == null) {
 				this.__stationsTable.getTableModel().setData([]);
+				if (this._routesPage.getRouteMap() != null)
+					this._routesPage.getRouteMap().showRouteWay(null);
 				return;
 			}
 			this.loadStationsTable(route.reverseRouteWay);
 		},
 
-		getCurrentRouteID : function() {
-
-		},
 		on_routesTable_click : function(e) {
 			// tget current routeID
 			this.debug("on_routesTable_click()");

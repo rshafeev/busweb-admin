@@ -4,7 +4,7 @@
 qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 	extend : qx.ui.window.Window,
 
-	construct : function(change_dialog, stationModel,presenter) {
+	construct : function(change_dialog, stationModel, presenter) {
 		this.base(arguments);
 		this.__stationModel = stationModel;
 		this.setChangeDialog(change_dialog);
@@ -60,6 +60,7 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 			// model
 			qx.core.Init.getApplication().setWaitingWindow(true);
 			var new_station = {
+				id : this.__stationModel.id,
 				city_id : this.__stationModel.city_id,
 				location : {
 					x : this.editLat.getValue(),
@@ -152,7 +153,9 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 					.getModelsContainer().getCitiesModel();
 			var city = citiesModel.getCityByID(this.__stationModel.city_id);
 			var city_name = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(city, "c_" + qx.locale.Manager.getInstance().getLocale());
+					.getCityNameByLang(city, "c_"
+									+ qx.locale.Manager.getInstance()
+											.getLocale());
 
 			this.setLayout(new qx.ui.layout.Canvas());
 
@@ -284,10 +287,10 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 			}
 
 			if (this.__stationModel.location != null) {
-				this.editLat.setValue(this.__stationModel.location.x
-						.toString());
-				this.editLon.setValue(this.__stationModel.location.y
-						.toString());
+				this.editLat
+						.setValue(this.__stationModel.location.x.toString());
+				this.editLon
+						.setValue(this.__stationModel.location.y.toString());
 			}
 
 			// fill table
