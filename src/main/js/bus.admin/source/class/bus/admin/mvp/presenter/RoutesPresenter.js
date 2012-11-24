@@ -6,8 +6,10 @@ qx.Class.define("bus.admin.mvp.presenter.RoutesPresenter", {
 				"loadRoutesList" : "qx.event.type.Data",
 
 				"loadRoute" : "qx.event.type.Data",
-				
+
 				"insertRoute" : "qx.event.type.Data",
+
+				"removeRoute" : "qx.event.type.Data",
 
 				"startCreateNewRoute" : "qx.event.type.Data",
 
@@ -23,7 +25,11 @@ qx.Class.define("bus.admin.mvp.presenter.RoutesPresenter", {
 				this._routePage = _routePage;
 			},
 			members : {
-				_routePage : null
+				_routePage : null,
+
+				getRoutePage : function() {
+					return this._routePage;
+				}
 			}
 
 		});

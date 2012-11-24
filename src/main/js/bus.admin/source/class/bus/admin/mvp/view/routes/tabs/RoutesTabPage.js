@@ -11,6 +11,8 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		localPresenter.addListener("loadRoutesList", this.on_loadRoutesList,
 				this);
 		localPresenter.addListener("loadRoute", this.on_loadRoute, this);
+		localPresenter.addListener("insertRoute", this.on_insertRoute, this);
+		localPresenter.addListener("removeRoute", this.on_removeRoute, this);
 		localPresenter.addListener("startCreateNewRoute",
 				this.on_startCreateNewRoute, this);
 		localPresenter.addListener("finishCreateNewRoute",
@@ -62,9 +64,64 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			rowsData.push([stationModel.id, stationName]);
 			this.__stationsTable.getTableModel().setData(rowsData);
 		},
+		on_insertRoute : function(e) {
+			var data = e.getData();
+			if (data == null || data.error == true) {
+				this.debug("on_insertRoute() : event data has errors");
+				return;
+			}
+			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
+			var route = data.route;
+			var name = bus.admin.mvp.model.helpers.RouteModelHelper
+					.getNameByLang(route, lang_id);
+			var name_number = (name ? name.toString() : "")
+					+ (route.number ? route.number.toString() : "");
 
+			var tableModel = this.__routesTable.getTableModel();
+			tableModel.setRows([[route.id, name_number, route.cost]],
+					tableModel.getRowCount());
+		},
+
+		on_removeRoute : function(e) {
+			var data = e.getData();
+			if (data == null || data.error == true) {
+				this.debug("on_removeRoute() : event data has errors");
+				return;
+			}
+			var row = null;
+			for (var i = 0; i < this.__routesTable.getTableModel()
+					.getRowCount(); i++) {
+				var rowData = this.__routesTable.getTableModel()
+						.getRowDataAsMap(i);
+				if (rowData.ID == data.routeID) {
+					row = i;
+					break;
+
+				}
+			}
+			if (row >= 0) {
+				this.__routesTable.getTableModel().removeRows(row, 1);
+				this.clearRouteInfo();
+			}
+		},
+
+		clearRouteInfo : function() {
+			this.radioDirect.setEnabled(false);
+			this.radioReverse.setEnabled(false);
+			this.btn_edit.setEnabled(false);
+			this.btn_move.setEnabled(false);
+			this.btn_delete.setEnabled(false);
+			this.btn_timeTable.setEnabled(false);
+			this.btn_delete_station.setEnabled(false);
+			this.__routesTable.getSelectionModel().resetSelection();
+			if (this._routesPage.getRouteMap()) {
+				this._routesPage.getRouteMap().clearMapObjects();
+			}
+			this.__stationsTable.getTableModel().setData([]);
+		},
 		on_loadRoutesList : function(e) {
 			var data = e.getData();
+			this.clearRouteInfo();
 			if (data == null || data.error == true) {
 				this.debug("on_loadRoutesList() : event data has errors");
 				return;
@@ -73,7 +130,6 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			var routes = data.routes.routes;
 			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
 			var rowData = [];
-			console.log(routes);
 			if (routes == null)
 				return;
 			for (var i = 0; i < routes.length; i++) {
@@ -84,7 +140,6 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 				rowData.push([routes[i].id, name_number, routes[i].cost]);
 			}
 			this.__routesTable.getTableModel().setData(rowData);
-			this.__stationsTable.getTableModel().setData([]);
 
 		},
 		on_loadRoute : function(e) {
@@ -99,7 +154,12 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			} else {
 				this.on_radio_reverse();
 			}
-
+			this.radioDirect.setEnabled(true);
+			this.radioReverse.setEnabled(true);
+			this.btn_timeTable.setEnabled(true);
+			this.btn_edit.setEnabled(true);
+			this.btn_move.setEnabled(true);
+			this.btn_delete.setEnabled(true);
 		},
 
 		/**
@@ -119,7 +179,11 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			} else {
 				this.radioReverse.setEnabled(true);
 			}
-
+			if (this.radioDirect.getValue() == true) {
+				this.on_radio_direct();
+			} else {
+				this.radioDirect.setValue(true);
+			}
 			this.__routesTable.setEnabled(false);
 			this.__filterField.setEnabled(false);
 			this.btn_new.setVisibility("hidden");
@@ -129,7 +193,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this.btn_cancel.setVisibility("visible");
 			this.btn_save.setVisibility("visible");
 			this.radioDirect.setValue(true);
-
+			this.btn_delete_station.setEnabled(true);
 		},
 
 		/**
@@ -151,7 +215,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this.btn_move.setVisibility("visible");
 			this.btn_cancel.setVisibility("hidden");
 			this.btn_save.setVisibility("hidden");
-
+			this.btn_delete_station.setEnabled(false);
 		},
 
 		on_btn_new : function(e) {
@@ -167,13 +231,34 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		},
 
 		on_btn_edit : function(e) {
+
 			// bus.admin.mvp.view.cities.CURouteForm
+
 		},
 
 		on_btn_move : function(e) {
 		},
 
 		on_btn_delete : function(e) {
+
+			var row = this.__routesTable.getSelectionModel()
+					.getAnchorSelectionIndex();
+			if (row < 0)
+				return;
+			var rowData = this.__routesTable.getTableModel()
+					.getRowDataAsMap(row);
+			if (confirm(this
+					.tr('Are you shue that want to delete selected route?'))) {
+				qx.core.Init.getApplication().setWaitingWindow(true);
+				var event_finish_func = qx.lang.Function.bind(function(data) {
+							qx.core.Init.getApplication()
+									.setWaitingWindow(false);
+						}, this);
+
+				this._routesPage.getPresenter().removeRoute(rowData.ID,
+						event_finish_func);
+			} else {
+			}
 
 		},
 
@@ -228,16 +313,51 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		},
 
 		on_btn_timeTable : function(e) {
+			var route = this._routesPage.getCurrRouteModel();
 			var routeWay = null;
-			var presenter = null;
+			var save_func = null;
+
 			if (this.radioDirect.getValue() == true) {
-				routeWay = this._routesPage.getCurrRouteModel().directRouteWay;
+				routeWay = route.directRouteWay;
 			} else {
-				routeWay = this._routesPage.getCurrRouteModel().reverseRouteWay;
+				routeWay = route.reverseRouteWay;
 			}
 
+			var save_func = qx.lang.Function.bind(function(schedule, isBoth) {
+				console.log(schedule);
+				if (isBoth == true) {
+					route.directRouteWay.schedule = schedule;
+					if (route.reverseRouteWay != null) {
+						route.reverseRouteWay.schedule = bus.admin.helpers.ObjectHelper
+								.clone(schedule);
+					}
+				} else {
+					routeWay.schedule = schedule;
+				}
+				if (this._routesPage.getStatus() == "show") {
+					var updateData = {
+						route : this._routesPage.getCurrRouteModel(),
+						opts : {
+							isUpdateSchedule : true,
+							isUpdateMainInfo : false,
+							isUpdateRouteRelations : false
+						}
+					};
+					qx.core.Init.getApplication().setWaitingWindow(true);
+					var event_finish_func = qx.lang.Function.bind(
+							function(data) {
+								qx.core.Init.getApplication()
+										.setWaitingWindow(false);
+							}, this);
+
+					this._routesPage.getPresenter().updateRoute(rowData.ID,
+							event_finish_func);
+				}
+
+			}, this);
+
 			var form = new bus.admin.mvp.view.routes.tabs.TimeForm(routeWay,
-					presenter);
+					save_func);
 			form.open();
 		},
 		unInitialize : function() {
@@ -388,7 +508,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this.__diRadioGroup.add(this.radioDirect);
 			this.__diRadioGroup.add(this.radioReverse);
 
-			this.btn_timeTable = new qx.ui.form.Button("Time table...",
+			this.btn_timeTable = new qx.ui.form.Button("Timetable...",
 					"bus/admin/images/btn/go-bottom.png");
 			this.btn_timeTable.setWidth(90);
 

@@ -1,11 +1,10 @@
 qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 	extend : qx.ui.window.Window,
 
-	construct : function(directRouteModel, presenter) {
+	construct : function(directRouteModel, save_func) {
 		this.base(arguments);
-		// this._timeTableModel = routeModel.timetable.groups;
-		this._directRouteModel = directRouteModel;
-		this._presenter = presenter;
+
+		this.save_func = save_func;
 		this._currSchedule = bus.admin.helpers.ObjectHelper
 				.clone(directRouteModel.schedule);
 		this.debug("TimeForm construct()");
@@ -18,13 +17,14 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 		this.dispose();
 	},
 	members : {
-		_directRouteModel : null,
+		save_func : null,
 		_currSchedule : null,
 		_presenter : null,
 		btn_add_row : null,
 		btn_del_row : null,
 		btn_save : null,
 		btn_cancel : null,
+		btn_saveBoth : null,
 		btnAddGroup : null,
 		_timeTableModel : null,
 		_day_btn_group : null,
@@ -33,41 +33,48 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 		_selected_index : null,
 		_timeTable : null,
 
-		_createScheduleObj : function(timeValueA, timeValueB, frequency) {
-			if (bus.admin.helpers.ObjectHelper.validateTime(timeValueA) == false
-					|| bus.admin.helpers.ObjectHelper.validateTime(timeValueB) == false
-					|| frequency.toString() != parseInt(frequency).toString()) {
-				return null;
+		makeScheduleObj : function() {
+			/*
+			 * 
+			 * var newScheduleGroup = { id : null, schedule_id : null, days :
+			 * [], timetables : [{ id : null, schedule_group_id : null,
+			 * frequency : defaultFreq, time_A : defaultTime_A, time_B :
+			 * defaultTime_B }] };
+			 * this._currSchedule.scheduleGroups.push(newScheduleGroup);
+			 */
+			var schedule = bus.admin.helpers.ObjectHelper
+					.clone(this._currSchedule);
+			schedule.scheduleGroups = [];
+			// fill days
+			for (var i = 0; i < this._dayGroupWidgets.length; i++) {
+				var comboDays = this._dayGroupWidgets[i].combo;
+				var items = comboDays.getChildren();
+				var days = [];
+				for (var j = 0; j < items.length; j++) {
+					var dayID = items[j].getUserData("id");
+					var day = {
+						id : null,
+						schedule_group_id : null,
+						day_id : dayID
+					};
+					days.push(day);
+				}
+				if (days.length > 0) {
+					this._currSchedule.scheduleGroups[i].days = days;
+					var group = bus.admin.helpers.ObjectHelper
+							.clone(this._currSchedule.scheduleGroups[i]);
+					schedule.scheduleGroups.push(group);
+				}
 			}
-			var secsA = bus.admin.helpers.ObjectHelper
-					.convertTimeToSeconds(timeValueA);
-			var secsB = bus.admin.helpers.ObjectHelper
-					.convertTimeToSeconds(timeValueB);
-			var frequencySecs = 60 * frequency;
-			if (frequencySecs < 0 || secsB < 0 || secsB < secsA) {
-				return null;
-			}
-			var schedule = {
-				id : null,
-				direct_route_id : null,
-				scheduleGroups : [{
-							id : null,
-							schedule_id : null,
-							days : [{
-										id : null,
-										schedule_group_id : null,
-										day_id : "c_all"
 
-									}],
-							timetables : [{
-										id : null,
-										schedule_group_id : null,
-										frequency : frequencySecs,
-										time_A : secsA,
-										time_B : secsB
-									}]
-						}]
-			};
+			if (schedule.scheduleGroups.length == 1) {
+				schedule.scheduleGroups[0].days = [{
+							id : null,
+							schedule_group_id : null,
+							day_id : "c_all"
+						}];
+			}
+
 			return schedule;
 		},
 
@@ -99,6 +106,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 
 			this._daysBoxWidget = new qx.ui.groupbox.GroupBox("Groups of days");
 			this._daysBoxWidget.setLayout(new qx.ui.layout.Canvas());
+			this._daysBoxWidget.setWidth(740);
 			this.add(this._daysBoxWidget, {
 						left : 0,
 						top : -10
@@ -112,10 +120,12 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 
 			var manage_box = new qx.ui.groupbox.GroupBox("Manage");
 			manage_box.setLayout(new qx.ui.layout.Canvas());
+			manage_box.setWidth(220);
 			this.add(manage_box, {
 						left : 0,
-						top : 155
+						top : 160
 					});
+
 			this.btnAddGroup = new qx.ui.form.Button("Add new days group",
 					"bus/admin/images/btn/go-bottom.png");
 			manage_box.add(this.btnAddGroup, {
@@ -134,6 +144,12 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 			this.btn_save.addListener("execute", this.on_save_click, this);
 			this.btn_save.setWidth(90);
 
+			this.btn_saveBoth = new qx.ui.form.Button("Save (both)",
+					"bus/admin/images/btn/dialog-apply.png");
+			this.btn_saveBoth.addListener("execute", this.on_saveBoth_click,
+					this);
+			this.btn_saveBoth.setWidth(120);
+
 			this.btn_cancel = new qx.ui.form.Button("Cancel",
 					"bus/admin/images/btn/dialog-cancel.png");
 			this.btn_cancel.addListener("execute", this.on_cancel_click, this);
@@ -141,6 +157,10 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 
 			this.add(this.btn_save, {
 						left : 550,
+						top : 390
+					});
+			this.add(this.btn_saveBoth, {
+						left : 400,
 						top : 390
 					});
 			this.add(this.btn_cancel, {
@@ -221,13 +241,12 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 			source.addListener("drop", this.combo_day_groups_drop);
 			source.addListener("dragover", this.combo_day_groups_dragover);
 
-			var T = this;
 			button.addListener("click", function(e) {
-						T.on_select_group(e, group_index);
-					});
+						this.on_select_group(e, group_index);
+					}, this);
 			source.addListener("click", function(e) {
-						T.on_select_group(e, group_index);
-					});
+						this.on_select_group(e, group_index);
+					}, this);
 
 			var dayGroupWidget = {
 				combo : source,
@@ -335,6 +354,11 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 		on_click_btnAddGroup : function(e) {
 			var groupsCount = this._currSchedule.scheduleGroups.length;
 			if (groupsCount < 7) {
+				var defaultTime_A = bus.admin.helpers.ObjectHelper
+						.convertTimeToSeconds("06:00");
+				var defaultTime_B = bus.admin.helpers.ObjectHelper
+						.convertTimeToSeconds("23:00");
+				var defaultFreq = 10 * 60;
 				var newScheduleGroup = {
 					id : null,
 					schedule_id : null,
@@ -342,15 +366,16 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 					timetables : [{
 								id : null,
 								schedule_group_id : null,
-								frequency : "10",
-								time_A : "6:00",
-								time_B : "23:00"
+								frequency : defaultFreq,
+								time_A : defaultTime_A,
+								time_B : defaultTime_B
 							}]
 				};
 				this._currSchedule.scheduleGroups.push(newScheduleGroup);
 				this.create_combo_day(groupsCount);
 			}
 		},
+
 		loadTimeTableFromModel : function(timeModel) {
 			if (timeModel == null)
 				return;
@@ -372,32 +397,35 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 			rowData.push(["", "", ""]);
 			this._timeTable.getTableModel().setData(rowData);
 		},
+
 		saveCurrentTimeTableToModel : function() {
 			var rowData = this._timeTable.getTableModel().getData();
 			var timetables = [];
 
 			for (var i = 0; i < rowData.length; i++) {
-				if (rowData[i][0] == "" || rowData[i][1] == "")
+				if (rowData[i][0].toString().length == 0
+						|| rowData[i][1].toString().length == 0)
 					continue;
 				if (bus.admin.helpers.ObjectHelper.validateTime(rowData[i][0]) == false
 						|| bus.admin.helpers.ObjectHelper
 								.validateTime(rowData[i][1]) == false) {
 					alert("Time form was wrange");
 					return false;
+					var s = "";
+					s.length
 				}
-
+				if (rowData[i][2].length == 0) {
+					this._day_btn_group
+							.setSelection([this._dayGroupWidgets[this._selected_index].btn_grp]);
+					alert("Please, fill frequancy");
+					return false;
+				}
 				var secsTime_A = bus.admin.helpers.ObjectHelper
 						.convertTimeToSeconds(rowData[i][0]);
 				var secsTime_B = bus.admin.helpers.ObjectHelper
 						.convertTimeToSeconds(rowData[i][1]);
 				var frequency = 60 * rowData[i][2];
 
-				if (frequency == "") {
-					this._day_btn_group
-							.setSelection([this._dayGroupWidgets[this._selected_index].btn_grp]);
-					alert("Please, fill frequancy");
-					return false;
-				}
 				timetables.push({
 							time_A : secsTime_A,
 							time_B : secsTime_B,
@@ -420,6 +448,8 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 					.setSelection([this._dayGroupWidgets[group_index].btn_grp]);
 			this
 					.loadTimeTableFromModel(this._currSchedule.scheduleGroups[group_index].timetables);
+			this._timeTable.resetCellFocus();
+			this._timeTable.resetSelection();
 		},
 
 		__createTimeTable : function() {
@@ -429,6 +459,9 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 			tableModel.setColumnEditable(0, true);
 			tableModel.setColumnEditable(1, true);
 			tableModel.setColumnEditable(2, true);
+			tableModel.setColumnSortable(0, false);
+			tableModel.setColumnSortable(1, false);
+			tableModel.setColumnSortable(2, false);
 
 			// table
 			var routesTable = new qx.ui.table.Table(tableModel).set({
@@ -470,13 +503,9 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 				return;
 
 			// validation
-			var value = parseFloat(data.value);
-			var x = parseInt(value);
-			var y = value - parseInt(value);
-			var reg = new RegExp("^[0-9\.]*$");
-
-			if (value < 0 || x > 24 || y > 0.6 || (x == 24 && y > 0)
-					|| !reg.test(value.toString())) {
+			var value = bus.admin.helpers.ObjectHelper
+					.convertTimeToSeconds(data.value);
+			if (bus.admin.helpers.ObjectHelper.validateTime(data.value) == false) {
 				this._timeTable.getTableModel().setValue(data.col, data.row,
 						data.oldValue);
 				return;
@@ -489,16 +518,20 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 			}
 
 			if (data.col == 0) {
-				var down_val = "";
-				var right_val = this._timeTable.getTableModel().getValue(1,
-						data.row);
-				if (data.row > 0) {
-					down_val = this._timeTable.getTableModel().getValue(0,
-							data.row - 1);
-				}
+				var down_val = -1;
+				var right_val = -1;
 
-				if ((down_val == "" || value > parseFloat(down_val))
-						&& (right_val == "" || value < parseFloat(right_val))) {
+				right_val = bus.admin.helpers.ObjectHelper
+						.convertTimeToSeconds(this._timeTable.getTableModel()
+								.getValue(1, data.row));
+				if (data.row > 0) {
+					down_val = bus.admin.helpers.ObjectHelper
+							.convertTimeToSeconds(this._timeTable
+									.getTableModel().getValue(0, data.row - 1));
+				}
+				// convertTimeToSeconds
+				if ((down_val == 0 || value > down_val)
+						&& (right_val == 0 || value < right_val)) {
 					if (data.row > 0) {
 						this._timeTable.getTableModel().setValue(1,
 								data.row - 1, data.value);
@@ -512,15 +545,17 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 
 			// copy value in the left/down cell
 			if (data.col == 1) {
-				var up_val = this._timeTable.getTableModel().getValue(1,
-						data.row + 1);
-				var left_val = this._timeTable.getTableModel().getValue(0,
-						data.row);
+				var up_val = bus.admin.helpers.ObjectHelper
+						.convertTimeToSeconds(this._timeTable.getTableModel()
+								.getValue(1, data.row + 1));
+				var left_val = bus.admin.helpers.ObjectHelper
+						.convertTimeToSeconds(this._timeTable.getTableModel()
+								.getValue(0, data.row));
 				this.debug("up_val:" + up_val);
 				this.debug("left_val:" + left_val);
 				this.debug("val:" + value);
-				if ((up_val == "" || value < parseFloat(up_val))
-						&& (left_val == "" || value > parseFloat(left_val))) {
+				if ((up_val == 0 || value < up_val)
+						&& (left_val == 0 || value > left_val)) {
 					this.debug("here!");
 					this._timeTable.getTableModel().setValue(0, data.row + 1,
 							data.value);
@@ -558,8 +593,17 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 			var result = this.saveCurrentTimeTableToModel();
 			if (result == false)
 				return;
-			this.directRouteModel.schedule = this._currSchedule;
+			this.save_func(this.makeScheduleObj(), false);
 			this.close();
+		},
+		on_saveBoth_click : function() {
+			// save timeModel from _timeTable
+			var result = this.saveCurrentTimeTableToModel();
+			if (result == false)
+				return;
+			this.save_func(this.makeScheduleObj(), true);
+			this.close();
+
 		},
 
 		on_cancel_click : function() {

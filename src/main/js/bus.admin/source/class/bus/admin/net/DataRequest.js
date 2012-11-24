@@ -25,21 +25,35 @@ qx.Class.define("bus.admin.net.DataRequest", {
 					.getRoutesRequestObj(this.__sync);
 			return routes.getRoute(data, completed_func, failed_func, self);
 		},
-		insertRoute : function(routeModel, completed_func, failed_func,
-				self) {
+		insertRoute : function(routeModel, completed_func, failed_func, self) {
 			var routes = bus.admin.net.DataRequestFactory
 					.getRoutesRequestObj(this.__sync);
-			return routes.insertRoute(routeModel, completed_func,
-					failed_func, self);
+			return routes.insertRoute(routeModel, completed_func, failed_func,
+					self);
 		},
-		//***************
-		
-		getStationsByCityInBox : function(data, completed_func,
-				failed_func, self) {
+
+		updateRoute : function(updateData, completed_func, failed_func, self) {
+			var routes = bus.admin.net.DataRequestFactory
+					.getRoutesRequestObj(this.__sync);
+			return routes.updateRoute(updateData, completed_func, failed_func,
+					self);
+		},
+
+		removeRoute : function(route_id, completed_func, failed_func, self) {
+			var routes = bus.admin.net.DataRequestFactory
+					.getRoutesRequestObj(this.__sync);
+			return routes.removeRoute(route_id, completed_func, failed_func,
+					self);
+		},
+
+		// ***************
+
+		getStationsByCityInBox : function(data, completed_func, failed_func,
+				self) {
 			var stations = bus.admin.net.DataRequestFactory
 					.getStationsRequestObj(this.__sync);
-			return stations.getStationsByCityInBox(data,
-					completed_func, failed_func, self);
+			return stations.getStationsByCityInBox(data, completed_func,
+					failed_func, self);
 		},
 		getStationsByCityAndTransportType : function(data, completed_func,
 				failed_func, self) {
@@ -99,4 +113,5 @@ qx.Class.define("bus.admin.net.DataRequest", {
 			return langs.getAllLanguages(completed_func, failed_func, self);
 		}
 	}
+
 });

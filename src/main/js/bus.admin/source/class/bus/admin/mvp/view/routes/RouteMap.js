@@ -209,7 +209,17 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 				this._routePolylines[i].setEditable(flag);
 			}
 		},
+
+		clearMapObjects : function() {
+			this.deleteAllStations("route");
+			this.deleteAllStations("added");
+			this.deleteAllStations();
+			this.deleteAllRoutePolylines();
+		},
+
 		showRouteWay : function(directType) {
+			this.clearMapObjects();
+			this.onMapDragEnd();
 			this.debug(directType);
 			var route = this._routesPage.getCurrRouteModel();
 
@@ -224,24 +234,31 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 			}
 			console.log(way);
 			console.log(this._addedStations);
-			this.deleteAllStations("route");
-			this.deleteAllStations();
-			this.deleteAllRoutePolylines();
+
 			this.refreshMap();
 			if (directType == null)
 				return;
 			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
+
+			// Create a LatLngBounds object
+			var bounds = new google.maps.LatLngBounds();
+			var map = this.getGoogleMap().getMapObject();
 			for (var i = 0; i < way.route_relations.length; i++) {
 				var relation = way.route_relations[i];
 				if (relation.stationB.id < 0) {
 					var marker = this.getMarkerByID(relation.stationB.id,
 							"added");
 					this._routeStations.push(marker);
+
 				} else {
 					this.insertStation(relation.stationB, "route");
 				}
+				bounds.extend(new google.maps.LatLng(
+						relation.stationB.location.x,
+						relation.stationB.location.y));
 
 			}
+			map.fitBounds(bounds);
 			for (var i = 1; i < way.route_relations.length; i++) {
 				var stA = way.route_relations[i - 1].stationB;
 				var stB = way.route_relations[i].stationB;
@@ -249,7 +266,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 				this.insertRoutePolyline(points, stA, stB, 'red', canChange);
 			}
 
-			this.onMapDragEnd();
+			
 		},
 
 		getPolylinePoints : function(polyline) {

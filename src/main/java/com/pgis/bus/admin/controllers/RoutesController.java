@@ -1,7 +1,6 @@
 package com.pgis.bus.admin.controllers;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,18 +15,13 @@ import com.pgis.bus.data.helpers.LoadDirectRouteOptions;
 import com.pgis.bus.data.helpers.LoadRouteOptions;
 import com.pgis.bus.data.helpers.LoadRouteRelationOptions;
 import com.pgis.bus.data.impl.AdminDataBaseService;
-
-import com.pgis.bus.data.orm.City;
+import com.pgis.bus.data.models.route.RouteModel;
 import com.pgis.bus.data.orm.Route;
-import com.pgis.bus.data.orm.StringValue;
-import com.pgis.bus.data.repositories.IRoutesRepository;
 import com.pgis.bus.data.repositories.RepositoryException;
-import com.pgis.bus.data.repositories.impl.RoutesRepository;
-
-import com.pgis.bus.admin.models.CityModel;
 import com.pgis.bus.admin.models.ErrorModel;
 import com.pgis.bus.admin.models.LoadRoutesListParams;
 import com.pgis.bus.admin.models.RoutesModel;
+import com.pgis.bus.admin.models.UpdateRouteModel;
 
 @Controller
 @RequestMapping(value = "routes/")
@@ -85,7 +79,8 @@ public class RoutesController {
 		try {
 			Integer routeID = (new Gson()).fromJson(data, int.class);
 			if (routeID == null)
-				throw new Exception("can not convert routeID from json string");
+				throw new Exception(
+						"can not convert routeID from json to string");
 
 			// set options
 			LoadRouteRelationOptions loadRouteRelationOptions = new LoadRouteRelationOptions();
@@ -122,11 +117,11 @@ public class RoutesController {
 		log.debug(data);
 
 		try {
-			
+
 			Route newRoute = (new Gson()).fromJson(data, Route.class);
 			IAdminDataBaseService db = new AdminDataBaseService();
 			db.insertRoute(newRoute);
-			
+
 			String routeModelJson = (new Gson()).toJson(newRoute);
 			log.debug(routeModelJson);
 			return routeModelJson;
@@ -141,21 +136,41 @@ public class RoutesController {
 
 	@ResponseBody
 	@RequestMapping(value = "delete.json", method = RequestMethod.POST)
-	public String delete(Integer city_id) {
-		log.debug(city_id.toString());
+	public String delete(Integer route_id) {
+		log.debug(route_id.toString());
 		try {
-			if (city_id == null || city_id.intValue() <= 0)
-				throw new Exception("bad city_id");
+			if (route_id == null || route_id.intValue() <= 0)
+				throw new Exception("bad route_id");
 			// удалим город из БД
 			IAdminDataBaseService db = new AdminDataBaseService();
-			db.deleteCity(city_id.intValue());
+			db.removeRoute(route_id.intValue());
 			return "\"ok\"";
 		} catch (Exception e) {
 			log.error("delete exception:", e);
 			return (new Gson()).toJson(new ErrorModel(
 					ErrorModel.err_enum.c_exception));
 		}
+	}
 
+	@ResponseBody
+	@RequestMapping(value = "update.json", method = RequestMethod.POST)
+	public String update(String data) {
+		log.debug(data);
+		try {
+			UpdateRouteModel updateData = (new Gson()).fromJson(data,
+					UpdateRouteModel.class);
+			IAdminDataBaseService db = new AdminDataBaseService();
+			db.updateRoute(updateData.getRoute(), updateData.getOpts());
+
+			String routeModelJson = (new Gson()).toJson(updateData);
+			log.debug(routeModelJson);
+			return routeModelJson;
+
+		} catch (Exception e) {
+			log.error("update exception:", e);
+			return (new Gson()).toJson(new ErrorModel(
+					ErrorModel.err_enum.c_exception));
+		}
 	}
 
 }

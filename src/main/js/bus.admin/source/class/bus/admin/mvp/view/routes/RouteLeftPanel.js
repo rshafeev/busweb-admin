@@ -239,8 +239,8 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 			this._newTabPage = new bus.admin.mvp.view.routes.tabs.NewTabPage(this);
 			this._settingsTabPage = new bus.admin.mvp.view.routes.tabs.SettingsTabPage(this);
 			tabView.add(this._routesTabPage);
-			tabView.add(this._newTabPage);
-			tabView.add(this._settingsTabPage);
+			//tabView.add(this._newTabPage);
+			//tabView.add(this._settingsTabPage);
 			return tabView;
 		},
 

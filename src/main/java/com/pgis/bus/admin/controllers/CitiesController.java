@@ -158,7 +158,6 @@ public class CitiesController {
 			return (new Gson()).toJson(new ErrorModel(
 					ErrorModel.err_enum.c_exception));
 		}
-
 	}
 
 }

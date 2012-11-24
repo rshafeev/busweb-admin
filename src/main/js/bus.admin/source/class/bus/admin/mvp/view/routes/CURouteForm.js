@@ -51,15 +51,30 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 
 					if (rowData.Name == null
 							|| rowData.Name.toString().length <= 0) {
-						alert("Please, push names for all languages");
+						alert(this.tr("Please, push names for all languages"));
 						return;
 					}
 				}
 			} else if (number == null || number.toString().length <= 0) {
-				alert("Please, set a number of route");
+				alert(this.tr("Please, set a number of route"));
 				return;
 
 			}
+
+			var routes = this._routesPresenter.getRoutePage()
+					.getCurrRoutesList();
+			if (routes != null) {
+				for (var i = 0; i < routes.length; i++) {
+					if (routes[i].number != null
+							&& routes[i].number.toString().length != 0
+							&& routes[i].number.toString() == number) {
+						alert(this
+								.tr("The route with this number has already exist!"));
+						return;
+					}
+				}
+			}
+			// this._routePage.getCurrRoutesList();
 			if (this.getChangeDialog() == false) {
 				var timeAvalue = this.editTimeA.getValue();
 				var timeBvalue = this.editTimeB.getValue();

@@ -75,6 +75,9 @@ qx.Class.define("bus.admin.mvp.view.Routes", {
 				currRouteModel : {
 					nullable : true
 				},
+				currRoutesList : {
+					nullable : true
+				},
 
 				/**
 				 * Статус карты: 

@@ -40,6 +40,9 @@ qx.Class.define("bus.admin.helpers.ObjectHelper", {
 				 *            в формате HH:M} value
 				 */
 				convertTimeToSeconds : function(value) {
+					if(value==null || value.toString().length == 0){
+						return 0;
+					}
 					var time = value.split(":");
 					var t = {
 						hh : time[0],
