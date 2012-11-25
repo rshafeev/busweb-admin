@@ -11,6 +11,8 @@ qx.Class.define("bus.admin.mvp.presenter.RoutesPresenter", {
 
 				"removeRoute" : "qx.event.type.Data",
 
+				"updateRoute" : "qx.event.type.Data",
+				
 				"startCreateNewRoute" : "qx.event.type.Data",
 
 				"finishCreateNewRoute" : "qx.event.type.Data",

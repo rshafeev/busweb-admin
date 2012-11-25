@@ -15,6 +15,16 @@ qx.Class.define("bus.admin.mvp.model.helpers.RouteModelHelper", {
 						}
 					}
 					return null;
+				},
+
+				getFullName : function(routeModel, lang) {
+					var name = bus.admin.mvp.model.helpers.RouteModelHelper
+							.getNameByLang(routeModel, lang);
+					var fullName = (name ? name.toString() : "")
+							+ (routeModel.number
+									? routeModel.number.toString()
+									: "");
+					return fullName;
 				}
 
 			}

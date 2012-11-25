@@ -17,32 +17,23 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.RoutesManager", {
 				event_finish_func(station);
 		},
 
-		startCreateNewRoute : function(data, event_finish_func) {
+		startCreateNewRoute : function(data, status, event_finish_func) {
 
-			var routeModel = {
-				id : null,
-				city_id : data.city_id,
-				number : data.number,
-				cost : data.cost,
-				route_type_id : data.route_type_id,
-				name : data.name,
-				directRouteWay : data.directRouteWay,
-				reverseRouteWay : data.reverseRouteWay
-			};
-			this._routePage.setStatus("edit");
-			this._routePage.setCurrRouteModel(routeModel);
-			this.fireDataEvent("startCreateNewRoute", routeModel);
+			this._routePage.setStatus(status);
+			this._routePage.setCurrRouteModel(data);
+			this.fireDataEvent("startCreateNewRoute", data);
 			event_finish_func(data);
 		},
 
 		finishCreateNewRoute : function(isOK, event_finish_func) {
-			this._routePage.setStatus("show");
+
 			var data = {
-				ok : isOK
+				error : true,
+				isOK : isOK
 			};
-			this.fireDataEvent("finishCreateNewRoute", data);
 
 			if (isOK == false) {
+				this._routePage.setStatus("show");
 				var cloneRoute = bus.admin.helpers.ObjectHelper
 						.clone(this._routePage.getRouteModel());
 				this._routePage.setCurrRouteModel(cloneRoute);
@@ -51,12 +42,43 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.RoutesManager", {
 					error : null,
 					server_error : null
 				};
+				this.fireDataEvent("finishCreateNewRoute", data);
 				this.fireDataEvent("loadRoute", loadRouteData);
 			} else {
-				// send new route to the server
-				var newRoute = bus.admin.helpers.ObjectHelper
+
+				var route = bus.admin.helpers.ObjectHelper
 						.clone(this._routePage.getCurrRouteModel());
-				this.insertRoute(newRoute, event_finish_func);
+				var event_finish_func1 = qx.lang.Function.bind(function(e) {
+							e.isOK = isOK;
+							this.fireDataEvent("finishCreateNewRoute", e);
+
+							var cloneRoute = bus.admin.helpers.ObjectHelper
+									.clone(this._routePage.getRouteModel());
+							var loadRouteData = {
+								route : cloneRoute,
+								error : null,
+								server_error : null
+							};
+							this.fireDataEvent("loadRoute", loadRouteData);
+							event_finish_func(e);
+						}, this);
+				if (this._routePage.getStatus() == "edit") {
+					var updateData = {
+						route : route,
+						opts : {
+							isUpdateSchedule : true,
+							isUpdateMainInfo : false,
+							isUpdateRouteRelations : true
+						}
+					};
+
+					this.updateRoute(updateData, event_finish_func1);
+				} else if (this._routePage.getStatus() == "new") {
+					// send new route to the server
+					this.insertRoute(route, event_finish_func1);
+				}
+
+				this._routePage.setStatus("show");
 			}
 		},
 
@@ -199,53 +221,57 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.RoutesManager", {
 
 			var request = new bus.admin.net.DataRequest();
 			var reqObj = request.updateRoute(updateData, function(response) {
-						var result = response.getContent();
-						if (result == null || result.error != null) {
-							var data = {
-								updateData : null,
-								error : true,
-								server_error : result == null
-										? null
-										: result.error
-							};
-							this.fireDataEvent("insertRoute", data);
-							event_finish_func(data);
-						} else {
-							var data = {
-								updateData : result,
-								error : null,
-								server_error : null
-							};
-							var cloneRoute = bus.admin.helpers.ObjectHelper
-									.clone(result);
-							this._routePage.setRouteModel(result);
-							this._routePage.setCurrRouteModel(cloneRoute);
-							// this._routePage.setCurrRoutesList(result.routes);
-							var routes = this._routePage.getCurrRoutesList();
-							if (routes == null) {
-								this._routePage.setCurrRoutesList([]);
-								routes = this._routePage.getCurrRoutesList();
-							} else {
-								for (var i = 0; i < routes.length; i++) {
-									if (routes[i].id = updateData.route.id) {
-										routes[i] = result.route;
-										break;
-									}
-								}
-								this._routePage.setCurrRoutesList(routes);
+				var result = response.getContent();
+				if (result == null || (result != null && result.error != null)) {
+					var data = {
+						updateData : null,
+						error : true,
+						server_error : result == null ? null : result.error
+					};
+					this.fireDataEvent("updateRoute", data);
+					event_finish_func(data);
+				} else {
+					var data = {
+						updateData : result,
+						error : null,
+						server_error : null
+					};
+					var route = result.route;
+					var cloneRoute = bus.admin.helpers.ObjectHelper
+							.clone(route);
+					if (this._routePage.getRouteModel() != null
+							&& this._routePage.getRouteModel().id == route.id) {
+						this._routePage.setRouteModel(result.route);
+					}
+					if (this._routePage.getCurrRouteModel() != null
+							&& this._routePage.getCurrRouteModel().id == route.id) {
+						this._routePage.setCurrRouteModel(cloneRoute);
+					}
+
+					var routes = this._routePage.getCurrRoutesList();
+					if (routes == null) {
+						this._routePage.setCurrRoutesList([]);
+					} else {
+						for (var i = 0; i < routes.length; i++) {
+							if (routes[i].id = route.id) {
+								routes[i] = route;
+								break;
 							}
-							this.fireDataEvent("updateRoute", data);
-							event_finish_func(data);
 						}
-					}, function() {
-						var data = {
-							updateData : null,
-							error : true,
-							server_error : null
-						};
-						this.fireDataEvent("insertRoute", data);
-						event_finish_func(data);
-					}, this);
+						this._routePage.setCurrRoutesList(routes);
+					}
+					this.fireDataEvent("updateRoute", data);
+					event_finish_func(data);
+				}
+			}, function() {
+				var data = {
+					updateData : null,
+					error : true,
+					server_error : null
+				};
+				this.fireDataEvent("updateRoute", data);
+				event_finish_func(data);
+			}, this);
 			return request;
 		},
 

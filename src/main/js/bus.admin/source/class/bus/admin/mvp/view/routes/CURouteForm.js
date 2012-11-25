@@ -11,6 +11,7 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 		this._routeModel = routeModel;
 		this.initWidgets();
 		this.__setOptions();
+
 	},
 	properties : {
 		changeDialog : {
@@ -18,6 +19,7 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 		}
 	},
 	members : {
+
 		_routesPresenter : null,
 		_routeModel : null,
 		btn_save : null,
@@ -30,6 +32,7 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 		editTimeB : null,
 		editFrequency : null,
 		table_names : null,
+
 		on_save_click : function() {
 			var schedule = null;
 			var number = null;
@@ -67,14 +70,15 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 				for (var i = 0; i < routes.length; i++) {
 					if (routes[i].number != null
 							&& routes[i].number.toString().length != 0
-							&& routes[i].number.toString() == number) {
+							&& routes[i].number.toString() == number
+							&& (this._routeModel.number == null || this._routeModel.number
+									.toString() != number)) {
 						alert(this
 								.tr("The route with this number has already exist!"));
 						return;
 					}
 				}
 			}
-			// this._routePage.getCurrRoutesList();
 			if (this.getChangeDialog() == false) {
 				var timeAvalue = this.editTimeA.getValue();
 				var timeBvalue = this.editTimeB.getValue();
@@ -89,7 +93,7 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 
 			// create/edit routeModel
 			if (this.getChangeDialog()) {
-				this.__updateRoute();
+				this.__updateRoute(number, cost);
 			} else {
 				this.__insertRoute(number, cost, schedule,
 						this.check_sameDirections.getValue());
@@ -100,58 +104,48 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 			this.close();
 		},
 
-		__updateRoute : function() {
+		__updateRoute : function(number, cost) {
 			// model
-			qx.core.Init.getApplication().setWaitingWindow(true);
-			var update_city = {
-				id : this.__cityModel.id,
-				location : {
-					x : this.editLat.getValue(),
-					y : this.editLon.getValue()
-				},
-				scale : this.editScale.getValue(),
-				isShow : this.check_show.getValue(),
-				name_key : this.__cityModel.name_key,
-				names : []
-			};
-			console.log("__updateCity check:");
-			console.log(this.check_show.getValue());
-			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
-				var rowData = this.table_names.getTableModel()
-						.getRowDataAsMap(i);
-				var modelsContainer = qx.core.Init.getApplication()
-						.getModelsContainer();
-				var lang = modelsContainer.getLangsModel()
-						.getLangByName(rowData.Language);
-				var stringValue = bus.admin.mvp.model.helpers.CitiesModelHelper
-						.getCityStringValueByLang(this.__cityModel, lang.id);
-				if (stringValue != null) {
-					update_city.names.push({
-								id : stringValue.id,
-								key_id : stringValue.key_id,
-								lang_id : lang.id,
-								value : rowData.Name
-							});
-				} else {
-					update_city.names.push({
-								id : null,
-								key_id : null,
+			var route = bus.admin.helpers.ObjectHelper.clone(this._routeModel);
+			route.number = number;
+			route.cost = cost;
+			route.name = [];
+			if (this.check_names.getValue() == true) {
+
+				for (var i = 0; i < this.table_names.getTableModel()
+						.getRowCount(); i++) {
+					var rowData = this.table_names.getTableModel()
+							.getRowDataAsMap(i);
+					var modelsContainer = qx.core.Init.getApplication()
+							.getModelsContainer();
+					var lang = modelsContainer.getLangsModel()
+							.getLangByName(rowData.Language);
+					route.name.push({
 								lang_id : lang.id,
 								value : rowData.Name
 							});
 				}
 			}
-			var globalPresenter = qx.core.Init.getApplication().getPresenter();
+			// execute presenter event
+			var updateData = {
+				route : route,
+				opts : {
+					isUpdateSchedule : false,
+					isUpdateMainInfo : true,
+					isUpdateRouteRelations : false
+				}
+			};
+
+			qx.core.Init.getApplication().setWaitingWindow(true);
 			var event_finish_func = qx.lang.Function.bind(function(data) {
 						qx.core.Init.getApplication().setWaitingWindow(false);
 						if (data == null || data.error == true) {
-							this.debug("__update_city: request error");
+							alert(this.tr("Error! Can not changed this route."));
 							return;
 						}
 						this.close();
 					}, this);
-			globalPresenter.updateCity(this.__cityModel, update_city,
-					event_finish_func);
+			this._routesPresenter.updateRoute(updateData, event_finish_func);
 
 		},
 
@@ -194,9 +188,8 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 			var event_finish_func = qx.lang.Function.bind(function(data) {
 						this.close();
 					}, this);
-			this._routesPresenter.startCreateNewRoute(this._routeModel,
+			this._routesPresenter.startCreateNewRoute(this._routeModel, "new",
 					event_finish_func);
-
 		},
 
 		initWidgets : function() {
@@ -207,7 +200,7 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 
 			var labelNumber = new qx.ui.basic.Label("Number:");
 			var labelCost = new qx.ui.basic.Label("Cost:");
-			this.editNumber = new qx.ui.form.TextField("1");
+			this.editNumber = new qx.ui.form.TextField("");
 			this.editNumber.setWidth(80);
 			this.editCost = new qx.ui.form.TextField("2.50");
 			this.editCost.setWidth(80);
@@ -257,51 +250,66 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 						left : 70,
 						top : 50
 					});
+
 			// ////////
-			var timeSettings = new qx.ui.groupbox.GroupBox("Timetable");
-			timeSettings.setLayout(new qx.ui.layout.Canvas());
-			var labelTimeA = new qx.ui.basic.Label("Time(start):");
-			this.editTimeA = new qx.ui.form.TextField("06:00");
-			this.editTimeA.setWidth(80);
 
-			var labelTimeB = new qx.ui.basic.Label("Time(finish):");
-			this.editTimeB = new qx.ui.form.TextField("22:00");
-			this.editTimeB.setWidth(80);
+			if (!this.getChangeDialog()) {
+				var timeSettings = new qx.ui.groupbox.GroupBox("Timetable");
+				timeSettings.setLayout(new qx.ui.layout.Canvas());
+				var labelTimeA = new qx.ui.basic.Label("Time(start):");
+				this.editTimeA = new qx.ui.form.TextField("06:00");
+				this.editTimeA.setWidth(80);
 
-			var labelTimeB = new qx.ui.basic.Label("Time(finish):");
-			this.editTimeB = new qx.ui.form.TextField("22:00");
-			this.editTimeB.setWidth(80);
+				var labelTimeB = new qx.ui.basic.Label("Time(finish):");
+				this.editTimeB = new qx.ui.form.TextField("22:00");
+				this.editTimeB.setWidth(80);
 
-			var labelFreq = new qx.ui.basic.Label("Frequency(min):");
-			this.editFrequency = new qx.ui.form.TextField("15");
-			this.editFrequency.setWidth(80);
+				var labelTimeB = new qx.ui.basic.Label("Time(finish):");
+				this.editTimeB = new qx.ui.form.TextField("22:00");
+				this.editTimeB.setWidth(80);
 
-			// bus.admin.helpers.ObjectHelper.validateTime
-			timeSettings.add(labelTimeA, {
-						left : 10,
-						top : 10
-					});
-			timeSettings.add(this.editTimeA, {
-						left : 110,
-						top : 10
-					});
-			timeSettings.add(labelTimeB, {
-						left : 10,
-						top : 50
-					});
-			timeSettings.add(this.editTimeB, {
-						left : 110,
-						top : 50
-					});
+				var labelFreq = new qx.ui.basic.Label("Frequency(min):");
+				this.editFrequency = new qx.ui.form.TextField("15");
+				this.editFrequency.setWidth(80);
 
-			timeSettings.add(labelFreq, {
-						left : 10,
-						top : 90
-					});
-			timeSettings.add(this.editFrequency, {
-						left : 110,
-						top : 90
-					});
+				// bus.admin.helpers.ObjectHelper.validateTime
+				timeSettings.add(labelTimeA, {
+							left : 10,
+							top : 10
+						});
+				timeSettings.add(this.editTimeA, {
+							left : 110,
+							top : 10
+						});
+				timeSettings.add(labelTimeB, {
+							left : 10,
+							top : 50
+						});
+				timeSettings.add(this.editTimeB, {
+							left : 110,
+							top : 50
+						});
+
+				timeSettings.add(labelFreq, {
+							left : 10,
+							top : 90
+						});
+				timeSettings.add(this.editFrequency, {
+							left : 110,
+							top : 90
+						});
+				this.check_sameDirections = new qx.ui.form.CheckBox("Same ways");
+				this.check_sameDirections.setValue(false);
+
+				this.add(timeSettings, {
+							left : 180,
+							top : -10
+						});
+				this.add(this.check_sameDirections, {
+							left : 80,
+							top : 130
+						});
+			}
 			// add to cantainer
 
 			this.check_names = new qx.ui.form.CheckBox("Names");
@@ -309,25 +317,14 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 					this);
 			this.check_names.setValue(false);
 
-			this.check_sameDirections = new qx.ui.form.CheckBox("Same ways");
-			this.check_sameDirections.setValue(false);
-
 			this.on_check_names();
 			this.add(mainSettings, {
 						left : 0,
 						top : -10
 					});
-			this.add(timeSettings, {
-						left : 180,
-						top : -10
-					});
 
 			this.add(this.check_names, {
 						left : 10,
-						top : 130
-					});
-			this.add(this.check_sameDirections, {
-						left : 80,
 						top : 130
 					});
 
@@ -361,6 +358,8 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 			if (this.getChangeDialog()) {
 				this.setWidth(350);
 				this.setCaption("Change route");
+				this.editCost.setValue(this._routeModel.cost.toString());
+				this.editNumber.setValue(this._routeModel.number.toString());
 			} else {
 				this.setWidth(430);
 				this.setCaption("Insert new route");
@@ -373,25 +372,25 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 			this.setResizable(false, false, false, false);
 			this.center();
 
-			// this.editLat.setValue(this.__cityModel.location.x.toString());
-			// this.editLon.setValue(this.__cityModel.location.y.toString());
-
-			// this.editScale.setValue(this.__cityModel.scale);
-
 			// fill table
 			var modelsContainer = qx.core.Init.getApplication()
 					.getModelsContainer();
 			var langs = modelsContainer.getLangsModel().getData();
 			var rowData = [];
+			var check_names = false;
+
 			for (var i = 0; i < langs.length; i++) {
 				var name = "";
 				if (this.getChangeDialog()) {
-					name = bus.admin.mvp.model.helpers.CitiesModelHelper
-							.getCityNameByLang(this.__cityModel, langs[i].id);
+					name = bus.admin.mvp.model.helpers.RouteModelHelper
+							.getNameByLang(this._routeModel, langs[i].id);
 				}
+				if (name != null && name != "")
+					check_names = true;
 				rowData.push([langs[i].name, name]);
 				this.debug(langs[i].name);
 			}
+			this.check_names.setValue(check_names);
 			this.table_names.getTableModel().setData(rowData);
 
 		},

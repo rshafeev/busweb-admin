@@ -102,6 +102,11 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 		 *            e
 		 */
 		on_finishCreateNewRoute : function(e) {
+			var data = e.getData();
+			if (data == null || data.error == true) {
+				return;
+			}
+			
 			this.combo_cities.setEnabled(true);
 			this.combo_route_types.setEnabled(true);
 			this._newTabPage.setEnabled(true);

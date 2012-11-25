@@ -155,6 +155,7 @@ public class RoutesController {
 	@ResponseBody
 	@RequestMapping(value = "update.json", method = RequestMethod.POST)
 	public String update(String data) {
+		log.debug("update.json");
 		log.debug(data);
 		try {
 			UpdateRouteModel updateData = (new Gson()).fromJson(data,

@@ -67,6 +67,8 @@ qx.Class.define("bus.admin.helpers.ObjectHelper", {
 				},
 
 				clone : function(obj) {
+					if(obj == null)
+						return null;
 					// Handle the 3 simple types, and null or undefined
 					if (null == obj || "object" != typeof obj)
 						return obj;

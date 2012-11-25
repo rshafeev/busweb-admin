@@ -1,14 +1,12 @@
 qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 	extend : qx.ui.window.Window,
 
-	construct : function(directRouteModel, save_func) {
+	construct : function(_routesPage, routeWay) {
 		this.base(arguments);
-
-		this.save_func = save_func;
+		this._routesPage = _routesPage;
+		this._routeWay = routeWay;
 		this._currSchedule = bus.admin.helpers.ObjectHelper
-				.clone(directRouteModel.schedule);
-		this.debug("TimeForm construct()");
-		console.log(this._currSchedule);
+				.clone(routeWay.schedule);
 		this._dayGroupWidgets = [];
 		this.initWidgets();
 		this.setOptions();
@@ -17,7 +15,8 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 		this.dispose();
 	},
 	members : {
-		save_func : null,
+		_routeWay : null,
+		_routesPage : null,
 		_currSchedule : null,
 		_presenter : null,
 		btn_add_row : null,
@@ -587,14 +586,49 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 			var timetableModel = this._currSchedule.scheduleGroups[this._selected_index].timetables;
 			this.loadTimeTableFromModel(timetableModel);
 		},
+		save_func : function(schedule, isBoth) {
+			var route = this._routesPage.getCurrRouteModel();
+			console.log(schedule);
+			if (isBoth == true) {
+				route.directRouteWay.schedule = schedule;
+				if (route.reverseRouteWay != null) {
+					route.reverseRouteWay.schedule = bus.admin.helpers.ObjectHelper
+							.clone(schedule);
+				}
+			} else {
+				this._routeWay.schedule = schedule;
+			}
+			if (this._routesPage.getStatus() == "show") {
+				var updateData = {
+					route : this._routesPage.getCurrRouteModel(),
+					opts : {
+						isUpdateSchedule : true,
+						isUpdateMainInfo : false,
+						isUpdateRouteRelations : false
+					}
+				};
+				qx.core.Init.getApplication().setWaitingWindow(true);
+				var event_finish_func = qx.lang.Function.bind(function(data) {
+							qx.core.Init.getApplication()
+									.setWaitingWindow(false);
+							if (data == null || data.error == true) {
+								alert("Error! The timetable was not saved");
+								return;
+							}
+							this.close();
+						}, this);
 
+				this._routesPage.getPresenter().updateRoute(updateData,
+						event_finish_func);
+			}
+		},
 		on_save_click : function() {
 			// save timeModel from _timeTable
 			var result = this.saveCurrentTimeTableToModel();
 			if (result == false)
 				return;
+
 			this.save_func(this.makeScheduleObj(), false);
-			this.close();
 		},
 		on_saveBoth_click : function() {
 			// save timeModel from _timeTable
@@ -602,7 +636,6 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 			if (result == false)
 				return;
 			this.save_func(this.makeScheduleObj(), true);
-			this.close();
 
 		},
 

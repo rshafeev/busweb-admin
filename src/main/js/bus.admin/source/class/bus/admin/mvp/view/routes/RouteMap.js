@@ -179,6 +179,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 				var marker = this.getMarkerByID(stationModel.id, "added");
 				this._routeStations.push(marker);
 			} else {
+				this.deleteStation(stationModel.id);
 				this.insertStation(stationModel, "route");
 			}
 			if (this._routeStations.length > 1) {
@@ -266,7 +267,6 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 				this.insertRoutePolyline(points, stA, stB, 'red', canChange);
 			}
 
-			
 		},
 
 		getPolylinePoints : function(polyline) {
@@ -576,12 +576,72 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 			}
 		},
 
+		/**
+		 * Поиск индекс polyline по id станции
+		 * 
+		 * @param {id
+		 *            станции} id
+		 * @param {станция
+		 *            в начале или в конце Polyline? } isBegin
+		 */
+		getPolylineIndexByStationID : function(id, isBegin) {
+			for (var i = 0; i < this._routePolylines.length; i++) {
+				var st = null;
+				if (isBegin == true) {
+					st = this._routePolylines[i].get("stationA");
+				} else {
+					st = this._routePolylines[i].get("stationB");
+				}
+				if (st.id == id) {
+					return i;
+				}
+			}
+			return -1;
+
+		},
+
 		deleteRouteStation : function(id) {
 			for (var i = 0; i < this._routeStations.length; i++) {
 				if (this._routeStations[i].get("id") == id) {
 					this._routeStations[i].setMap(null);
-					this._routeStations.slice(i, 1);
+					this._routeStations.splice(i, 1);
+
+					var polyIndexIn = this.getPolylineIndexByStationID(id,
+							false);
+					var polyIndexOut = this.getPolylineIndexByStationID(id,
+							true);
+
+					if (polyIndexIn < 0 && polyIndexOut >= 0) {
+						this._routePolylines[polyIndexOut].setMap(null);
+						this._routePolylines.splice(polyIndexOut, 1);
+						return;
+					} else if (polyIndexOut < 0 && polyIndexIn >= 0) {
+						this._routePolylines[polyIndexIn].setMap(null);
+						this._routePolylines.splice(polyIndexIn, 1);
+						return;
+					} else if (polyIndexOut < 0 && polyIndexIn < 0) {
+						return;
+					}
+					var line1 = this._routePolylines[polyIndexIn];
+					var line2 = this._routePolylines[polyIndexOut];
+					for (var j = 0; j < line2.getPath().getLength(); j++) {
+						var p = line2.getPath().getAt(j);
+						line1.getPath().push(p);
+					}
+					line1.set("stationB", line2.get("stationB"));
+					line2.setMap(null);
+					this._routePolylines.splice(polyIndexOut, 1);
 					return;
+				}
+
+			}
+		},
+		
+		deleteStation : function(id) {
+			for (var i = 0; i < this._stations.length; i++) {
+				if (this._stations[i].get("id") == id) {
+					this._stations[i].setMap(null);
+					this._stations.splice(i, 1);
 				}
 			}
 		},
