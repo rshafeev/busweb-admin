@@ -211,7 +211,7 @@
 					<workingDirectory>${basedir}/src/main/js/bus.admin</workingDirectory>
 					<arguments>
 						<argument>${basedir}/src/main/js/bus.admin/generate.py</argument>
-						<argument>build</argument>
+						<argument>build-debug</argument>
 					</arguments>
 				</configuration>
 			</plugin>
