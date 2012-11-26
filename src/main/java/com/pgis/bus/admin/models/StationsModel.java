@@ -8,7 +8,6 @@ import com.pgis.bus.data.orm.Station;
 
 public class StationsModel {
 	private int city_id;
-	private String transport_type_id;
 	private Station[] stations;
 	private Point ltPoint;
 	private Point rbPoint;
@@ -35,14 +34,6 @@ public class StationsModel {
 
 	public void setCity_id(int city_id) {
 		this.city_id = city_id;
-	}
-
-	public String getTransport_type_id() {
-		return transport_type_id;
-	}
-
-	public void setTransport_type_id(String transport_type_id) {
-		this.transport_type_id = transport_type_id;
 	}
 
 	public Station[] getStations() {

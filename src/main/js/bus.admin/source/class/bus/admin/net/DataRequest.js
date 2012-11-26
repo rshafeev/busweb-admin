@@ -55,11 +55,11 @@ qx.Class.define("bus.admin.net.DataRequest", {
 			return stations.getStationsByCityInBox(data, completed_func,
 					failed_func, self);
 		},
-		getStationsByCityAndTransportType : function(data, completed_func,
+		getStationsByCity : function(data, completed_func,
 				failed_func, self) {
 			var stations = bus.admin.net.DataRequestFactory
 					.getStationsRequestObj(this.__sync);
-			return stations.getStationsByCityAndTransportType(data,
+			return stations.getStationsByCity(data,
 					completed_func, failed_func, self);
 		},
 		insertStation : function(stationModel, completed_func, failed_func,

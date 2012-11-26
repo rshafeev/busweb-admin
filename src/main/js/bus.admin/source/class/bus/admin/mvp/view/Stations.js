@@ -27,12 +27,10 @@ qx.Class.define("bus.admin.mvp.view.Stations", {
 
 	construct : function() {
 		this.base(arguments);
-		this.isAppearOnce = false;
 		this.setPresenter(new bus.admin.mvp.presenter.StationsPresenter());
 		this.setStationsModel(new bus.admin.mvp.model.StationsModel());
-		this.__initWidgets();
-
 		this.addListener("appear", this.on_appear, this);
+		this.__initWidgets();
 	},
 	properties : {
 		stationsLeftPanel : {
@@ -46,16 +44,10 @@ qx.Class.define("bus.admin.mvp.view.Stations", {
 		}
 	},
 	members : {
-		isAppearOnce : null,
+		_is_initialized : false,
+
 		initialize : function() {
-			this.debug("initialize()");
-			var refreshCities_finish_func = qx.lang.Function.bind(
-					function(data) {
-						this.refresh_stations();
-						//this.fireEvent("init_finished");
-					}, this);
-			qx.core.Init.getApplication().getPresenter()
-					.refreshCities(refreshCities_finish_func);
+			this.loadData();
 
 		},
 		__initWidgets : function() {
@@ -77,48 +69,139 @@ qx.Class.define("bus.admin.mvp.view.Stations", {
 
 		},
 
-		__setOptions : function() {
+		on_appear : function(e) {
+			var visible = this.isVisible();
+			this.debug("visible: " + visible.toString());
+			// Если страница скрыта, отключим обработчики событий
+			if (!visible) {
+				this.__unInitChilds();
+			}
+
+			// Если страница уже была инициализирована и видима, то загрузим
+			// данные в виджеты
+			if (visible == true && this._is_initialized == true) {
+				this.loadData();
+			}
+			this._is_initialized = true;
+
+		},
+
+		__initChilds : function() {
 			var map = this.getStationsMap();
 			var leftPanel = this.getStationsLeftPanel();
 			map.initialize();
 			leftPanel.initialize();
-			this.fireEvent("init_finished");
+
 		},
 
-		on_appear : function(e) {
-			this.debug("on_appear()");
-			// isAppearOnce - если загрузка страницы выполняется впервые, то не
-			// нужно выполнять refresh данных
-			if (this.isVisible() && this.isAppearOnce == true) {
-				//this.refresh_stations();
-			} else {
-				this.isAppearOnce = true;
-			}
+		__unInitChilds : function() {
+			var map = this.getStationsMap();
+			var leftPanel = this.getStationsLeftPanel();
+
+			leftPanel.unInitialize();
+
 		},
 
-		refresh_stations : function() {
-			this.debug("refresh_stations()");
-			this.debug(this.isAppearOnce);
+		/**
+		 * Показать/Скрыть индикатор ожидания (Если страница не видима, то
+		 * индикатор не выводится)
+		 * 
+		 * @param {Показать/Скрыть}
+		 *            isShow
+		 */
+		_showWaitWindow : function(isShow) {
 			var visible = this.isVisible();
-			if (visible && this.isAppearOnce == true) {
-				qx.core.Init.getApplication().setWaitingWindow(true);
+			if (visible) {
+				qx.core.Init.getApplication().setWaitingWindow(isShow);
 			}
+		},
+
+		/**
+		 * Обновляет модель Stations и загружает ее данные в виджеты
+		 */
+		_refreshStations : function(nextFunc) {
+			// Объявим функцию, которая будет вызвана после загрузки данных
+			// с сервера
 			var loadStations_finish_func = qx.lang.Function.bind(
 					function(data) {
-
-						if (visible && this.isAppearOnce == true) {
-							qx.core.Init.getApplication()
-									.setWaitingWindow(false);
-						} else if (this.isAppearOnce == false) {
-							this.__setOptions();
-						}
+						if (nextFunc != null)
+							nextFunc(data);
 					}, this);
 			var city_id = this.getStationsLeftPanel().getSelectableCityID();
-			var transport_type_id = this.getStationsLeftPanel()
-					.getTransportType();
-			this.getPresenter().loadStations(city_id, transport_type_id,
-					loadStations_finish_func);
+			this.getPresenter().loadStations(city_id, loadStations_finish_func);
 
+		},
+
+		_refreshCities : function(nextFunc) {
+			var loadCities_finish_func = qx.lang.Function.bind(function(data) {
+						if (nextFunc != null)
+							nextFunc(data);
+					}, this);
+			qx.core.Init.getApplication().getPresenter()
+					.refreshCities(loadCities_finish_func);
+		},
+		refreshStations : function() {
+			// Отключим обработчики виджетов
+			this.__unInitChilds();
+
+			// Заблокируем окно и выведем индикатор ожидания
+			this._showWaitWindow(true);
+
+			// Функция вызывается в конце выполнения операции загрузки моделей
+			// данных
+			var finishFunc = qx.lang.Function.bind(function(data) {
+						this.__initChilds();
+						this._showWaitWindow(false);
+						if (data == null
+								|| (data != null && data.error == true)) {
+							alert(this
+									.tr("Error! Can not load stations from server. "
+											+ "Please, refresh page"));
+							return;
+						}
+					}, this);
+			this._refreshStations(finishFunc);
+		},
+
+		loadData : function() {
+			// Отключим обработчики виджетов
+			this.__unInitChilds();
+
+			// Заблокируем окно и выведем индикатор ожидания
+			this._showWaitWindow(true);
+
+			// Функция вызывается в конце выполнения операции загрузки моделей
+			// данных
+			var finishFunc = qx.lang.Function.bind(function(data) {
+						this.__initChilds();
+						this._showWaitWindow(false);
+						if (data == null
+								|| (data != null && data.error == true)) {
+							alert(this
+									.tr("Error! Can not load stations from server. "
+											+ "Please, refresh page"));
+							return;
+						}
+
+						if (this._is_initialized == false) {
+							this.fireEvent("init_finished");
+						}
+					}, this);
+
+			// Функция вызывается после загрузки списка городов
+			var refreshStationsFunc = qx.lang.Function.bind(function(data) {
+						if (data == null
+								|| (data != null && data.error == true)) {
+							this._showWaitWindow(false);
+							alert(this.tr("Error! Can not load cities from "
+									+ "server. Please, refresh page"));
+							return;
+						}
+						this._refreshStations(finishFunc);
+					}, this);
+
+			// Запускаем обновление списка городов
+			this._refreshCities(refreshStationsFunc);
 		}
 
 	}

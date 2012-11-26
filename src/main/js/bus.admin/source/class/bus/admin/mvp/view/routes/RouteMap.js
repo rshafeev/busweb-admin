@@ -113,6 +113,22 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 			this.canChangePolylines(false);
 		},
 
+		updateMarkersVisible : function(markers) {
+
+			var minZoom = 12;
+			var map = this.getGoogleMap().getMapObject();
+			if (map == null || markers == null)
+				return;
+			var zoom = map.getZoom();
+			for (var i = 0; i < markers.length; i++) {
+				if (zoom >= minZoom) {
+					if (markers[i].getMap() == null)
+						markers[i].setMap(map);
+				} else
+					markers[i].setMap(null);
+			}
+
+		},
 		on_loadStationsInBox : function(e) {
 			var data = e.getData();
 			if (data == null || data.error == true) {
@@ -124,8 +140,9 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 					+ data.stations.length.toString());
 			for (var i = 0; i < data.stations.length; i++) {
 				if (this.getMarkerByID(data.stations[i].id, "route") == null)
-					this.insertStation(data.stations[i]);
+					this.insertStation(data.stations[i], null);
 			}
+			this.updateMarkersVisible(this._addedStations);
 		},
 
 		onMapDragEnd : function(e) {
@@ -167,7 +184,8 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 				return;
 			}
 			console.log(stationModel);
-			this.insertStation(stationModel, "added");
+			this.insertStation(stationModel,
+					this.getGoogleMap().getMapObject(), "added");
 		},
 		on_insertStationToCurrentRoute : function(e) {
 			var stationModel = e.getData();
@@ -180,7 +198,8 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 				this._routeStations.push(marker);
 			} else {
 				this.deleteStation(stationModel.id);
-				this.insertStation(stationModel, "route");
+				this.insertStation(stationModel, this.getGoogleMap()
+								.getMapObject(), "route");
 			}
 			if (this._routeStations.length > 1) {
 				var points = [];
@@ -254,7 +273,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 					this._routeStations.push(marker);
 
 				} else {
-					this.insertStation(relation.stationB, "route");
+					this.insertStation(relation.stationB, map, "route");
 				}
 				bounds.extend(new google.maps.LatLng(
 						relation.stationB.location.x,
@@ -385,6 +404,15 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 							T.onMapDragEnd();
 						});
 
+				google.maps.event.addListener(map, 'idle', function() {
+							T.updateMarkersVisible(T._addedStations);
+							T.updateMarkersVisible(T._stations);
+						});
+
+				google.maps.event.addListener(map, 'zoom_changed', function() {
+							T.updateMarkersVisible(T._addedStations);
+							T.updateMarkersVisible(T._stations);
+						});
 			}, this);
 
 		},
@@ -516,14 +544,14 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 			}
 			return null;
 		},
-		insertStation : function(station, type) {
+		insertStation : function(station, map, type) {
 			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
 			var stationName = bus.admin.mvp.model.helpers.StationsModelHelper
 					.getStationNameByLang(station, lang_id);
 			var marker = new google.maps.Marker({
 						position : new google.maps.LatLng(station.location.x,
 								station.location.y),
-						map : this.getGoogleMap().getMapObject(),
+						map : map,
 						title : stationName,
 						icon : this._stationIcon
 					});
@@ -683,18 +711,18 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 
 		refreshMap : function() {
 			this.debug("refreshMap");
+			var map = this.getGoogleMap().getMapObject();
+			if (map == null)
+				return;
+			this.updateMarkersVisible(this._addedStations);
+			this.updateMarkersVisible(this._stations);
+
 			for (var i = 0; i < this._routeStations.length; i++) {
-				this._routeStations[i].setMap(this.getGoogleMap()
-						.getMapObject());
-			}
-			for (var i = 0; i < this._addedStations.length; i++) {
-				this._addedStations[i].setMap(this.getGoogleMap()
-						.getMapObject());
+				this._routeStations[i].setMap(map);
 			}
 
 			for (var i = 0; i < this._routePolylines.length; i++) {
-				this._routePolylines[i].setMap(this.getGoogleMap()
-						.getMapObject());
+				this._routePolylines[i].setMap(map);
 			}
 		}
 

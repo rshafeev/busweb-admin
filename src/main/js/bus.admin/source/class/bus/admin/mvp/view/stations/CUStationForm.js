@@ -41,10 +41,7 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 					return;
 				}
 			}
-			if (this.__getTransports().length == 0) {
-				alert("Please, select transport types(one or more).");
-				return;
-			}
+			
 			if (this.getChangeDialog()) {
 				this.__updateStation();
 			} else {
@@ -67,8 +64,7 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 					y : this.editLon.getValue()
 				},
 				name_key : this.__stationModel.name_key,
-				names : this.__getNames(),
-				transports : this.__getTransports()
+				names : this.__getNames()
 			};
 			this.debug(qx.lang.Json.stringify(new_station));
 			var event_finish_func = qx.lang.Function.bind(function(data) {
@@ -94,8 +90,7 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 					y : this.editLon.getValue()
 				},
 				name_key : this.__stationModel.name_key,
-				names : this.__getNames(),
-				transports : this.__getTransports()
+				names : this.__getNames()
 			};
 
 			var event_finish_func = qx.lang.Function.bind(function(data) {
@@ -128,26 +123,7 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 			}
 			return names;
 		},
-		__getTransports : function() {
-			var transports = [];
-			if (this.check_bus.getValue() == true)
-				transports.push({
-							transport_type_id : "c_bus"
-						});
-			if (this.check_tram.getValue() == true)
-				transports.push({
-							transport_type_id : "c_tram"
-						});
-			if (this.check_trolley.getValue() == true)
-				transports.push({
-							transport_type_id : "c_trolley"
-						});
-			if (this.check_metro.getValue() == true)
-				transports.push({
-							transport_type_id : "c_metro"
-						});
-			return transports;
-		},
+
 		initWidgets : function() {
 			var citiesModel = qx.core.Init.getApplication()
 					.getModelsContainer().getCitiesModel();
@@ -159,7 +135,7 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 
 			this.setLayout(new qx.ui.layout.Canvas());
 
-			var positionSettings = new qx.ui.groupbox.GroupBox("Location and transport");
+			var positionSettings = new qx.ui.groupbox.GroupBox("Location:");
 			positionSettings.setLayout(new qx.ui.layout.Canvas());
 
 			var labelCity = new qx.ui.basic.Label("City:");
@@ -173,11 +149,6 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 			this.editLon = new qx.ui.form.TextField(this.__stationModel.location.y
 					.toString());
 			this.editLon.setWidth(110);
-
-			this.check_bus = new qx.ui.form.CheckBox("bus");
-			this.check_trolley = new qx.ui.form.CheckBox("trolley");
-			this.check_tram = new qx.ui.form.CheckBox("tram");
-			this.check_metro = new qx.ui.form.CheckBox("metro");
 
 			this.btn_save = new qx.ui.form.Button("Save",
 					"bus/admin/images/btn/dialog-apply.png");
@@ -226,22 +197,6 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 						top : 50
 					});
 
-			positionSettings.add(this.check_bus, {
-						left : 160,
-						top : 10
-					});
-			positionSettings.add(this.check_trolley, {
-						left : 220,
-						top : 10
-					});
-			positionSettings.add(this.check_tram, {
-						left : 160,
-						top : 50
-					});
-			positionSettings.add(this.check_metro, {
-						left : 220,
-						top : 50
-					});
 			this.add(labelCity, {
 						left : 10,
 						top : 120
@@ -311,19 +266,6 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 			}
 			this.table_names.getTableModel().setData(rowData);
 
-			// set checks
-			for (var i = 0; i < this.__stationModel.transports.length; i++) {
-				var transportType = this.__stationModel.transports[i].transport_type_id;
-				if (transportType.toString() == "c_tram")
-					this.check_tram.setValue(true);
-				if (transportType.toString() == "c_bus")
-					this.check_bus.setValue(true);
-				if (transportType.toString() == "c_trolley")
-					this.check_trolley.setValue(true);
-				if (transportType.toString() == "c_metro")
-					this.check_metro.setValue(true);
-
-			}
 		}
 	}
 

@@ -23,15 +23,11 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 		this.setWidth(460);
 		this.setMinWidth(380);
 		this.setAppearance("left-panel");
-		this.setTransportType("c_bus");
 		this.setStationsModel(this._stationsPage.getStationsModel());
 		this.initWidgets();
 
 	},
 	properties : {
-		transportType : {
-			nullable : true
-		},
 		stationsModel : {
 			nullable : true
 		}
@@ -44,7 +40,6 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 		 */
 
 		combo_cities : null,
-		radioButtonGroup : null,
 		_stationsTable : null,
 		_filterField : null,
 		btn_change : null,
@@ -88,14 +83,36 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			this.combo_langs.addListener("changeSelection",
 					this.on_change_LanguageComboBox, this);
 
-			this.radioBus.addListener("changeValue", this.on_btn_bus_click,
+
+
+		},
+
+		unInitialize : function() {
+			this.removeListener("resize", this.on_resize_panel, this);
+			this._filterField.removeListener("input", this.on_change_filterField,
 					this);
-			this.radioTrolley.addListener("changeValue",
-					this.on_btn_trolley_click, this);
-			this.radioTram.addListener("changeValue", this.on_btn_tram_click,
+			this._stationsTable.removeListener("cellDblclick",
+					this.on_stationsTable_Dblclick, this);
+			this._stationsTable.removeListener("cellClick",
+					this.on_stationsTable_click, this);
+			this._stationsTable.getTableModel().removeListener("dataChanged",
+					this.on_stationsTable_changeTableModel, this);
+
+			this.btn_save.removeListener("click", this.on_btn_save_click, this);
+			this.btn_cancel
+					.removeListener("click", this.on_btn_cancel_click, this);
+			this.btn_change
+					.removeListener("click", this.on_btn_change_click, this);
+			this.btn_delete
+					.removeListener("click", this.on_btn_delete_click, this);
+			this.btn_move.removeListener("click", this.on_btn_move_click, this);
+			this.btn_refresh.removeListener("click", this.on_btn_refresh_click,
 					this);
-			this.radioMetro.addListener("changeValue", this.on_btn_metro_click,
-					this);
+			this.combo_cities.removeListener("changeSelection",
+					this.on_change_CitiesComboBox, this);
+			this.combo_langs.removeListener("changeSelection",
+					this.on_change_LanguageComboBox, this);
+
 
 		},
 		getStationsTableRowIndexByID : function(id) {
@@ -216,9 +233,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 		},
 
 		on_btn_refresh_click : function() {
-			this.debug("on_btn_refresh_click()");
-			this._stationsPage.refresh_stations();
-
+			this._stationsPage.refreshStations();
 		},
 		on_resize_panel : function(e) {
 			if (this._stationsTable) {
@@ -268,7 +283,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 				map.getGoogleMap().setCenter(city.location.x, city.location.y,
 						city.scale);
 				this.debug("on_change_CitiesComboBox()");
-				this._stationsPage.refresh_stations();
+				this._stationsPage.refreshStations();
 			}
 			this.combo_cities.close();
 		},
@@ -291,12 +306,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			this.addListenerOnce("appear", function() {
 						this.on_resize_panel();
 					});
-			// radio group
-			this.radioButtonGroup = this.__createRadioGroup();
-			this.add(this.radioButtonGroup, {
-						left : 10,
-						top : 40
-					});
+
 
 			// table
 			this._filterField = new qx.ui.form.TextField();
@@ -465,20 +475,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 			return routesTable;
 
 		},
-		__createRadioGroup : function() {
-			var radioButtonGroup = new qx.ui.form.RadioButtonGroup();
-			radioButtonGroup.setLayout(new qx.ui.layout.HBox(5));
-			this.radioBus = new qx.ui.form.RadioButton("Bus");
-			this.radioTrolley = new qx.ui.form.RadioButton("Trolley");
-			this.radioTram = new qx.ui.form.RadioButton("Tram");
-			this.radioMetro = new qx.ui.form.RadioButton("Metro");
 
-			radioButtonGroup.add(this.radioBus);
-			radioButtonGroup.add(this.radioTrolley);
-			radioButtonGroup.add(this.radioTram);
-			radioButtonGroup.add(this.radioMetro);
-			return radioButtonGroup;
-		},
 		on_stationsTable_changeTableModel : function(e) {
 			var model = this._stationsTable.getTableModel();
 
@@ -517,10 +514,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 
 				if (stationModel != null) {
 					var mapWidget = this._stationsPage.getStationsMap();
-					mapWidget.selectStationMarker(station_id);
-					mapWidget.getGoogleMap().setCenter(
-							stationModel.location.x,
-							stationModel.location.y, null);
+					mapWidget.selectStationMarker(stationModel);
 				}
 
 			}
@@ -538,36 +532,6 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsLeftPanel", {
 				model.resetHiddenRows();
 			}
 
-		},
-		on_btn_bus_click : function(e) {
-			if (this.radioBus.getValue() == true) {
-				this.debug("on_btn_bus_click()");
-				this.setTransportType("c_bus");
-				this._stationsPage.refresh_stations();
-			}
-
-		},
-		on_btn_trolley_click : function(e) {
-			if (this.radioTrolley.getValue() == true) {
-				this.debug("on_btn_trolley_click()");
-				this.setTransportType("c_trolley");
-				this._stationsPage.refresh_stations();
-			}
-
-		},
-		on_btn_tram_click : function(e) {
-			if (this.radioTram.getValue() == true) {
-				this.debug("on_btn_tram_click()");
-				this.setTransportType("c_tram");
-				this._stationsPage.refresh_stations();
-			}
-		},
-		on_btn_metro_click : function(e) {
-			if (this.radioMetro.getValue() == true) {
-				this.debug("on_btn_metro_click()");
-				this.setTransportType("c_metro");
-				this._stationsPage.refresh_stations();
-			}
 		},
 
 		loadStationsTable : function() {

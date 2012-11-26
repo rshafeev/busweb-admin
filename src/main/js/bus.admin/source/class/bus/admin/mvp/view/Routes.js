@@ -93,10 +93,10 @@ qx.Class.define("bus.admin.mvp.view.Routes", {
 			},
 			members : {
 				_is_initialized : null,
-				isAppearOnce : false,
+				
 				initialize : function() {
 
-					this.setData();
+					this.loadData();
 				},
 
 				__initWidgets : function() {
@@ -142,7 +142,7 @@ qx.Class.define("bus.admin.mvp.view.Routes", {
 						this.__unInitChilds();
 					}
 					if (visible == true && this._is_initialized == true) {
-						this.setData();
+						this.loadData();
 
 					}
 					this._is_initialized = true;
@@ -202,7 +202,7 @@ qx.Class.define("bus.admin.mvp.view.Routes", {
 							.refreshCities(loadCities_finish_func);
 				},
 
-				setData : function() {
+				loadData : function() {
 					this._refresh_cities();
 				},
 

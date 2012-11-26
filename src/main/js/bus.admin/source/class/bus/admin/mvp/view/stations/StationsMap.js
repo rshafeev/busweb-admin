@@ -28,6 +28,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 	members : {
 		__stationsPage : null,
 		__stationMarkers : [],
+		__selectedMarker : null,
 		__stationIcon : null,
 		__selectStationIcon : null,
 
@@ -53,12 +54,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 				this.debug("on_update_station() : event data has errors");
 				return;
 			}
-			var isHasTransport = bus.admin.mvp.model.helpers.StationsModelHelper
-					.isHasTransport(data.station, this.__stationsPage
-									.getStationsLeftPanel().getTransportType());
-			if (isHasTransport == false) {
-				return;
-			}
+
 			this.insertStationMarker(data.station);
 		},
 		on_update_station : function(e) {
@@ -67,21 +63,9 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 				this.debug("on_update_station() : event data has errors");
 				return;
 			}
-			var isHasTransport = bus.admin.mvp.model.helpers.StationsModelHelper
-					.isHasTransport(data.new_station, this.__stationsPage
-									.getStationsLeftPanel().getTransportType());
-			if (isHasTransport == false) {
-				var e_del = {
-					getData : function() {
-						return data.new_station.id;
-					}
-				};
-				this.on_delete_station(e_del);
-				return;
-			}
+
 			this.updateStationMarker(data.new_station.id,
-					data.new_station.location.x,
-					data.new_station.location.y);
+					data.new_station.location.x, data.new_station.location.y);
 		},
 		on_delete_station : function(e) {
 			var data = e.getData();
@@ -138,12 +122,27 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 			contextMenuOptions.menuItems = menuItems;
 
 			// create the ContextMenu object
-			var T = this;
+
 			this.getGoogleMap().addListenerOnce("appear", function() {
-				this.refreshMap();
+
 				var map = this.getGoogleMap().getMapObject();
 				var contextMenu = new ContextMenu(map, contextMenuOptions);
+
 				// display the ContextMenu on a Map right click
+				this.refreshMap();
+				var T = this;
+				google.maps.event.addListener(map, 'dragend', function() {
+							T.updateMarkerVisible();
+						});
+
+				google.maps.event.addListener(map, 'idle', function() {
+							T.updateMarkerVisible();
+						});
+
+				google.maps.event.addListener(map, 'zoom_changed', function() {
+							T.updateMarkerVisible();
+						});
+
 				google.maps.event.addListener(map, "rightclick", function(
 								mouseEvent) {
 							if (T.getState().toString() == "none") {
@@ -174,18 +173,12 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 									var city_id = T.__stationsPage
 											.getStationsLeftPanel()
 											.getSelectableCityID();
-									var transport_type = T.__stationsPage
-											.getStationsLeftPanel()
-											.getTransportType();
 									var stationsModel = {
 										location : {
 											x : latLng.lat(),
 											y : latLng.lng()
 										},
-										city_id : city_id,
-										transports : [{
-													transport_type_id : transport_type
-												}]
+										city_id : city_id
 									};
 
 									var insertStationDlg = new bus.admin.mvp.view.stations.CUStationForm(
@@ -207,7 +200,21 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 			}, this);
 
 		},
+		updateMarkerVisible : function() {
 
+			var map = this.getGoogleMap().getMapObject();
+			if (map == null)
+				return;
+			var zoom = map.getZoom();
+			for (var i = 0; i < this.__stationMarkers.length; i++) {
+				if (zoom > 13) {
+					if (this.__stationMarkers[i].getMap() == null)
+						this.__stationMarkers[i].setMap(map);
+				} else
+					this.__stationMarkers[i].setMap(null);
+			}
+
+		},
 		insertStationMarker : function(station) {
 			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
 			var stationName = bus.admin.mvp.model.helpers.StationsModelHelper
@@ -218,6 +225,7 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 						map : this.getGoogleMap().getMapObject(),
 						title : stationName,
 						icon : this.__stationIcon
+
 					});
 			marker.setDraggable(false);
 			marker.set("id", station.id);
@@ -225,26 +233,29 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 			var stations = this.__stationsPage.getStationsModel();
 			google.maps.event.addListener(marker, "click",
 					function(mouseEvent) {
-						
+
 						var id = marker.get("id");
 						var st = stations.getStationByID(id);
 						var changeStationDlg = new bus.admin.mvp.view.stations.CUStationForm(
-								true, st,T.__stationsPage.getPresenter());
+								true, st, T.__stationsPage.getPresenter());
 						changeStationDlg.open();
 
 					});
 
 			this.__stationMarkers.push(marker);
+
+			this.updateMarkerVisible();
 		},
 
 		deleteStationMarker : function(id) {
 			for (var i = 0; i < this.__stationMarkers.length; i++) {
 				if (this.__stationMarkers[i].get("id") == id) {
 					this.__stationMarkers[i].setMap(null);
-					this.__stationMarkers.slice(i, 1);
-					return;
+					this.__stationMarkers.splice(i, 1);
+					return true;
 				}
 			}
+			return false;
 		},
 
 		deleteAllStationMarkers : function() {
@@ -286,23 +297,55 @@ qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
 			}
 
 		},
-		selectStationMarker : function(id) {
-			for (var i = 0; i < this.__stationMarkers.length; i++) {
-				if (this.__stationMarkers[i].get("id") == id) {
-					this.__stationMarkers[i].setOptions({
-								icon : this.__selectStationIcon
-							});
-				} else
-					this.__stationMarkers[i].setOptions({
-								icon : this.__stationIcon
-							});
+		selectStationMarker : function(station) {
+			var r = this.deleteStationMarker(station.id);
+			this.debug("selectStationMarker()1");
+			this.debug(r);
+			if (this.__selectedMarker != null) {
+				var stationID = this.__selectedMarker.get("id");
+
+				var stationModel = this.__stationsPage.getStationsModel()
+						.getStationByID(stationID);
+				this.__selectedMarker.setMap(null);
+				this.__selectedMarker = null;
+				this.insertStationMarker(stationModel);
 			}
+			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
+			var stationName = bus.admin.mvp.model.helpers.StationsModelHelper
+					.getStationNameByLang(station, lang_id);
+			var map = this.getGoogleMap().getMapObject();
+			var marker = new google.maps.Marker({
+						position : new google.maps.LatLng(station.location.x,
+								station.location.y),
+						map : map,
+						title : stationName,
+						icon : this.__selectStationIcon
+					});
+			marker.setDraggable(false);
+			marker.set("id", station.id);
+			var T = this;
+			google.maps.event.addListener(marker, "click",
+					function(mouseEvent) {
+						var id = marker.get("id");
+						var changeStationDlg = new bus.admin.mvp.view.stations.CUStationForm(
+								true, station, T.__stationsPage.getPresenter());
+						changeStationDlg.open();
+					});
+			this.__selectedMarker = marker;
+			var zoom = 14;
+			if (zoom < map.getZoom()) {
+				zoom = map.getZoom();
+			}
+			this.getGoogleMap().setCenter(station.location.x,
+					station.location.y, zoom);
 		},
+
 		refreshMap : function() {
-			this.debug("refreshMap");
-			for (var i = 0; i < this.__stationMarkers.length; i++) {
-				this.__stationMarkers[i].setMap(this.getGoogleMap()
-						.getMapObject());
+			this.updateMarkerVisible();
+			if (this.__selectedMarker != null
+					&& this.__selectedMarker.getMap() == null) {
+				var map = this.getGoogleMap().getMapObject();
+				this.__selectedMarker.setMap(map);
 			}
 		}
 

@@ -54,17 +54,16 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 							}, this);
 
 				},
-				loadStations : function(city_id, transport_type_id,
+				loadStations : function(city_id,
 						event_finish_func) {
 					this.debug("load_stations event execute");
 					var stationsRequest = new bus.admin.net.DataRequest();
 					var request_data = {
-						city_id : city_id,
-						transport_type_id : transport_type_id
+						city_id : city_id
 					};
 
 					var request = stationsRequest
-							.getStationsByCityAndTransportType(request_data,
+							.getStationsByCity(request_data,
 									function(response) {
 										var result = response.getContent();
 										if (result == null
@@ -72,7 +71,6 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 											var data = {
 												stations : null,
 												city_id : null,
-												transport_type_id : null,
 												error : true,
 												server_error : null
 											};
@@ -87,7 +85,6 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 											var data = {
 												stations : result.stations,
 												city_id : result.city_id,
-												transport_type_id : result.transport_type_id,
 												error : null,
 												server_error : null
 											};
@@ -99,7 +96,6 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 										var data = {
 											stations : null,
 											city_id : null,
-											transport_type_id : null,
 											error : true,
 											server_error : null
 										};
@@ -109,6 +105,7 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.StationsManager", {
 									}, this);
 
 				},
+				
 				insertStation : function(station, event_finish_func) {
 					this.debug("insertCity event execute");
 					var stationsRequest = new bus.admin.net.DataRequest();

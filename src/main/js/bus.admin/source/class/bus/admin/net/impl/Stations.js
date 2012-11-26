@@ -26,12 +26,13 @@ qx.Class.define("bus.admin.net.impl.Stations", {
 			request.send();
 			return request;
 		},
-		getStationsByCityAndTransportType : function(data, completed_func,
+		
+		getStationsByCity : function(data, completed_func,
 				failed_func, self) {
 			var data_json = qx.lang.Json.stringify(data);
 			this.debug(data);
 			var request = new qx.io.remote.Request(
-					"stations/get_all_by_city_and_transport.json", "POST",
+					"stations/get_all_by_city.json", "POST",
 					"application/json");
 			request.setAsynchronous(!this.__sync);
 			request.setParseJson(true);
@@ -41,6 +42,7 @@ qx.Class.define("bus.admin.net.impl.Stations", {
 			request.send();
 			return request;
 		},
+		
 		updateStation : function(stationModel, completed_func, failed_func,
 				self) {
 			var update_station_json = qx.lang.Json.stringify(stationModel);
@@ -55,6 +57,7 @@ qx.Class.define("bus.admin.net.impl.Stations", {
 			request.send();
 			return request;
 		},
+		
 		insertStation : function(stationModel, completed_func, failed_func,
 				self) {
 			var new_station_json = qx.lang.Json.stringify(stationModel);

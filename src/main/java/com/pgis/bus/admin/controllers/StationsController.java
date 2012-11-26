@@ -22,7 +22,7 @@ public class StationsController {
 			.getLogger(StationsController.class);
 
 	@ResponseBody
-	@RequestMapping(value = "get_all_by_city_and_transport.json", method = RequestMethod.POST)
+	@RequestMapping(value = "get_all_by_city.json", method = RequestMethod.POST)
 	public String getStationsByCityAndTransport(String data) {
 		try {
 			log.debug(data);
@@ -32,9 +32,8 @@ public class StationsController {
 
 			// Загрузим список станций
 			IAdminDataBaseService db = new AdminDataBaseService();
-			Collection<Station> stations = db.getStationsByCityAndTransport(
-					stationsModel.getCity_id(),
-					stationsModel.getTransport_type_id());
+			Collection<Station> stations = db.getStationsByCity(
+					stationsModel.getCity_id());
 			// Сформируем модель
 			stationsModel.setStations(stations);
 
