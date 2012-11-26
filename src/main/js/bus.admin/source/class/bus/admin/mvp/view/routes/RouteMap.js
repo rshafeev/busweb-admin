@@ -213,7 +213,9 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 
 		clearMapObjects : function() {
 			this.deleteAllStations("route");
-			this.deleteAllStations("added");
+			if (this._routesPage.getStatus() == "show") {
+				this.deleteAllStations("added");
+			}
 			this.deleteAllStations();
 			this.deleteAllRoutePolylines();
 		},
@@ -636,7 +638,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 
 			}
 		},
-		
+
 		deleteStation : function(id) {
 			for (var i = 0; i < this._stations.length; i++) {
 				if (this._stations[i].get("id") == id) {
