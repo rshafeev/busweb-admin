@@ -310,6 +310,8 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.RoutesManager", {
 								}
 								this._routePage.setCurrRoutesList(routes);
 							}
+							this._routePage.setCurrRouteModel(null);
+							this._routePage.setRouteModel(null);
 							this.fireDataEvent("removeRoute", data);
 							event_finish_func(data);
 						}

@@ -137,7 +137,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			var row = this.getRouteTableRowByID(data.routeID);
 			if (row >= 0) {
 				this.__routesTable.getTableModel().removeRows(row, 1);
-				this.clearRouteInfo();
+				this.setStatusForWidgets(this._routesPage.getStatus());
 			}
 		},
 
@@ -270,15 +270,11 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		 *            e
 		 */
 		on_finishCreateNewRoute : function(e) {
-			var routeModel = e.getData();
-			if (routeModel != null && routeModel.isOK == false) {
-				this.setStatusForWidgets(this._routesPage.getStatus());
+			var data = e.getData();
+			if (data == null || (data.error == true && data.isOK == true)) {
 				return;
-			} else if (routeModel == null || routeModel.error == true) {
-				return;
-			} else {
-				this.setStatusForWidgets(this._routesPage.getStatus());
 			}
+			this.setStatusForWidgets(this._routesPage.getStatus());
 		},
 
 		on_btn_new : function(e) {
@@ -319,15 +315,16 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 				return;
 			var rowData = this.__routesTable.getTableModel()
 					.getRowDataAsMap(row);
+			var T = this;
 			if (confirm(this
 					.tr('Are you shue that want to delete selected route?'))) {
 				qx.core.Init.getApplication().setWaitingWindow(true);
 				var event_finish_func = qx.lang.Function.bind(function(data) {
 							qx.core.Init.getApplication()
 									.setWaitingWindow(false);
-						}, this);
+						}, T);
 
-				this._routesPage.getPresenter().removeRoute(rowData.ID,
+				T._routesPage.getPresenter().removeRoute(rowData.ID,
 						event_finish_func);
 			} else {
 			}

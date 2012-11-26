@@ -103,10 +103,10 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 		 */
 		on_finishCreateNewRoute : function(e) {
 			var data = e.getData();
-			if (data == null || data.error == true) {
+			if (data == null || (data.error == true && data.isOK == true)) {
 				return;
 			}
-			
+
 			this.combo_cities.setEnabled(true);
 			this.combo_route_types.setEnabled(true);
 			this._newTabPage.setEnabled(true);
@@ -244,8 +244,8 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 			this._newTabPage = new bus.admin.mvp.view.routes.tabs.NewTabPage(this);
 			this._settingsTabPage = new bus.admin.mvp.view.routes.tabs.SettingsTabPage(this);
 			tabView.add(this._routesTabPage);
-			//tabView.add(this._newTabPage);
-			//tabView.add(this._settingsTabPage);
+			// tabView.add(this._newTabPage);
+			// tabView.add(this._settingsTabPage);
 			return tabView;
 		},
 
