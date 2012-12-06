@@ -1,25 +1,23 @@
 package com.pgis.bus.admin.models;
 
+import com.pgis.bus.admin.helpers.ControllerException;
+import com.pgis.bus.admin.helpers.ControllerException.err_enum;
+import com.pgis.bus.data.repositories.RepositoryException;
+
 public class ErrorModel {
-	public enum err_enum {
-		c_city_already_exist, c_sql_err, c_exception;
-		public String getMessage() {
-			switch (this) {
-			case c_city_already_exist:
-				return "c_city_already_exist";
-			case c_sql_err:
-				return "c_sql_err";
-			default:
-				break;
-			}
-			return "Unknown error";
+
+	private err_enum error;
+
+	public ErrorModel(Exception e) {
+		if (e instanceof RepositoryException) {
+			this.error = (new ControllerException((RepositoryException) e))
+					.getErrorCode();
+		} else if (e instanceof ControllerException) {
+			this.error = ((ControllerException) e).getErrorCode();
+		} else {
+			this.error = err_enum.c_error_unknown;
 		}
-	}
 
-	err_enum error;
-
-	public ErrorModel(ErrorModel.err_enum err) {
-		this.error = err;
 	}
 
 	public err_enum getError() {

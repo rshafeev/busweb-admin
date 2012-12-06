@@ -40,6 +40,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 
 		__stationsTable : null,
 		__diRadioGroup : null,
+		btn_import : null,
 		btn_new : null,
 		btn_edit : null,
 		btn_move : null,
@@ -112,6 +113,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 
 		on_insertRoute : function(e) {
 			var data = e.getData();
+			this.debug("RoutesTabPage: on_insertRoute()1");
 			if (data == null || data.error == true) {
 				this.debug("on_insertRoute() : event data has errors");
 				return;
@@ -126,6 +128,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			var tableModel = this.__routesTable.getTableModel();
 			tableModel.setRows([[route.id, name_number, route.cost]],
 					tableModel.getRowCount());
+			this.debug("RoutesTabPage: on_insertRoute(). ok.");
 		},
 
 		on_removeRoute : function(e) {
@@ -190,21 +193,21 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 					this.btn_delete_station.setEnabled(false);
 					this.__stationsTable.getTableModel().setData([]);
 				}
-
 				this.__routesTable.setEnabled(true);
 				this.__filterField.setEnabled(true);
 				this.btn_new.setVisibility("visible");
+				this.btn_import.setVisibility("visible");
 				this.btn_delete.setVisibility("visible");
 				this.btn_edit.setVisibility("visible");
 				this.btn_move.setVisibility("visible");
 				this.btn_cancel.setVisibility("hidden");
 				this.btn_save.setVisibility("hidden");
 				this.btn_delete_station.setEnabled(false);
-
 			} else {
 				this.__routesTable.setEnabled(false);
 				this.__filterField.setEnabled(false);
 				this.btn_new.setVisibility("hidden");
+				this.btn_import.setVisibility("hidden");
 				this.btn_delete.setVisibility("hidden");
 				this.btn_edit.setVisibility("hidden");
 				this.btn_move.setVisibility("hidden");
@@ -270,10 +273,12 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		 *            e
 		 */
 		on_finishCreateNewRoute : function(e) {
+			this.debug("RoutesTabPage: on_finishCreateNewRoute()");
 			var data = e.getData();
 			if (data == null || (data.error == true && data.isOK == true)) {
 				return;
 			}
+			
 			this.setStatusForWidgets(this._routesPage.getStatus());
 		},
 
@@ -281,13 +286,21 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			var p = this._routesPage.getPresenter();
 			var routeModel = {
 				city_id : this._routesLeftPanel.getSelectableCityID(),
-				route_type_id : this._routesLeftPanel.getRouteType()
+				route_type_id : this._routesLeftPanel.getRouteType().id
 			};
 			var newRouteForm = new bus.admin.mvp.view.routes.CURouteForm(false,
 					routeModel, p);
 			newRouteForm.open();
 		},
-
+		
+		on_btn_import : function(e){
+			var p = this._routesPage.getPresenter();
+			var routeType = this._routesLeftPanel.getRouteType();
+			var city = this._routesPage.getCurrentCityModel();
+			var importForm = new bus.admin.mvp.view.routes.ImportRouteForm(p,routeType,city);
+			importForm.open();
+		},
+		
 		on_btn_edit : function(e) {
 			var p = this._routesPage.getPresenter();
 			var routeModel = this._routesPage.getCurrRouteModel();
@@ -427,6 +440,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this.btn_save.removeListener("execute", this.on_btn_save, this);
 			this.btn_cancel.removeListener("execute", this.on_btn_cancel, this);
 			this.btn_new.removeListener("execute", this.on_btn_new, this);
+			this.btn_import.removeListener("execute", this.on_btn_import, this);
 			this.btn_delete_station.removeListener("execute",
 					this.on_btn_deleteStation, this);
 		},
@@ -437,6 +451,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this.__filterField.addListener("input", this.on_change_filterField,
 					this);
 			this.btn_new.addListener("execute", this.on_btn_new, this);
+			this.btn_import.addListener("execute", this.on_btn_import, this);
 			this.btn_edit.addListener("execute", this.on_btn_edit, this);
 			this.btn_save.addListener("execute", this.on_btn_save, this);
 			this.btn_cancel.addListener("execute", this.on_btn_cancel, this);
@@ -465,6 +480,10 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 					"bus/admin/images/btn/go-bottom.png");
 			this.btn_new.setWidth(105);
 
+			this.btn_import = new qx.ui.form.Button("Import...",
+					"bus/admin/images/btn/go-bottom.png");
+			this.btn_import.setWidth(105);
+			
 			this.btn_edit = new qx.ui.form.Button("Edit...",
 					"bus/admin/images/btn/go-bottom.png");
 			this.btn_edit.setWidth(105);
@@ -510,6 +529,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			this.__mainContainer.add(this.btn_save);
 			this.__mainContainer.add(this.btn_cancel);
 			this.__mainContainer.add(this.btn_new);
+			this.__mainContainer.add(this.btn_import);
 			this.__mainContainer.add(this.btn_edit);
 			this.__mainContainer.add(this.btn_move);
 			this.__mainContainer.add(this.btn_delete);
@@ -788,17 +808,22 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 						this.__mainContainer.getBounds().width - 110, 50,
 						this.btn_new.getBounds().width, this.btn_new
 								.getBounds().height);
-				this.btn_edit.setUserBounds(
+				this.btn_import.setUserBounds(
 						this.__mainContainer.getBounds().width - 110, 85,
+						this.btn_import.getBounds().width, this.btn_import
+								.getBounds().height);
+				
+				this.btn_edit.setUserBounds(
+						this.__mainContainer.getBounds().width - 110, 120,
 						this.btn_edit.getBounds().width, this.btn_edit
 								.getBounds().height);
 				this.btn_move.setUserBounds(
-						this.__mainContainer.getBounds().width - 110, 120,
+						this.__mainContainer.getBounds().width - 110, 155,
 						this.btn_move.getBounds().width, this.btn_move
 								.getBounds().height);
 
 				this.btn_delete.setUserBounds(
-						this.__mainContainer.getBounds().width - 110, 155,
+						this.__mainContainer.getBounds().width - 110, 190,
 						this.btn_delete.getBounds().width, this.btn_delete
 								.getBounds().height);
 

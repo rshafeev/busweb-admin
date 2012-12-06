@@ -23,7 +23,7 @@ public class StationsController {
 
 	@ResponseBody
 	@RequestMapping(value = "get_all_by_city.json", method = RequestMethod.POST)
-	public String getStationsByCityAndTransport(String data) {
+	public String getStationsByCity(String data) {
 		try {
 			log.debug(data);
 			// Парсим полученные данные
@@ -40,10 +40,9 @@ public class StationsController {
 			log.debug(Integer.toString(stationsModel.getStations().length));
 			// Отправим модель в формате GSON клиенту
 			return (new Gson()).toJson(stationsModel);
-		} catch (Exception e) {
-			log.error("exception", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+		}catch (Exception e) {
+			log.error("getStationsByCity exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 
 	}
@@ -68,10 +67,9 @@ public class StationsController {
 			log.debug(Integer.toString(stationsModel.getStations().length));
 			// Отправим модель в формате GSON клиенту
 			return (new Gson()).toJson(stationsModel);
-		} catch (Exception e) {
-			log.error("exception", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+		}catch (Exception e) {
+			log.error("getAllByCityInBox exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 
 	}
@@ -92,9 +90,8 @@ public class StationsController {
 			// Отправим модель в формате GSON клиенту
 			return (new Gson()).toJson(newStation);
 		} catch (Exception e) {
-			log.error("exception", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+			log.error("insert exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 
 	}
@@ -117,9 +114,8 @@ public class StationsController {
 
 			return (new Gson()).toJson(updateStation);
 		} catch (Exception e) {
-			log.error("exception", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+			log.error("update exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 
 	}
@@ -135,10 +131,9 @@ public class StationsController {
 			IAdminDataBaseService db = new AdminDataBaseService();
 			db.deleteStation(station_id);
 			return "\"ok\"";
-		} catch (Exception e) {
-			log.error("exception", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+		}catch (Exception e) {
+			log.error("delete exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 
 	}

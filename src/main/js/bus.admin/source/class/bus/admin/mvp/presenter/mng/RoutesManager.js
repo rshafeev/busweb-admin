@@ -5,6 +5,91 @@ qx.Mixin.define("bus.admin.mvp.presenter.mng.RoutesManager", {
 
 	},
 	members : {
+		loadImportRoute : function(objID, event_finish_func) {
+			var request = new bus.admin.net.DataRequest();
+
+			var reqObj = request.getImportRoute(objID, function(response) {
+						var result = response.getContent();
+						if (result == null || result.error != null) {
+							var data = {
+								route : null,
+								error : true,
+								server_error : result == null
+										? null
+										: result.error
+							};
+							this.fireDataEvent("loadImportRoute", data);
+							if (event_finish_func != null)
+								event_finish_func(data);
+						} else {
+							var data = {
+								route : result,
+								error : null,
+								server_error : null
+							};
+							// currRoutesList
+							this.fireDataEvent("loadImportRoute", data);
+							if (event_finish_func != null)
+								event_finish_func(data);
+						}
+					}, function() {
+						var data = {
+							route : null,
+							error : true,
+							server_error : null
+						};
+						this.fireDataEvent("loadImportRoute", data);
+						if (event_finish_func != null)
+							event_finish_func(data);
+					}, this);
+			return request;
+		},
+
+		loadImportObjects : function(cityID, routeTypeID, event_finish_func) {
+			var request = new bus.admin.net.DataRequest();
+			var data_json = {
+				cityID : cityID,
+				routeTypeID : routeTypeID
+			};
+			var reqObj = request.getImportObjects(data_json,
+					function(response) {
+						var result = response.getContent();
+						if (result == null || result.error != null) {
+							var data = {
+								obj : null,
+								error : true,
+								server_error : result == null
+										? null
+										: result.error
+							};
+							this.fireDataEvent("loadImportObjects", data);
+							if (event_finish_func != null)
+								event_finish_func(data);
+						} else {
+							var data = {
+								obj : result,
+								error : null,
+								server_error : null
+							};
+							// currRoutesList
+							this.fireDataEvent("loadImportObjects", data);
+							if (event_finish_func != null)
+								event_finish_func(data);
+						}
+					}, function() {
+						var data = {
+							obj : null,
+							error : true,
+							server_error : null
+						};
+						this.fireDataEvent("loadImportObjects", data);
+						if (event_finish_func != null)
+							event_finish_func(data);
+					}, this);
+			return request;
+
+		},
+
 		insertStationToCurrentRoute : function(stationModel, event_finish_func) {
 			this.fireDataEvent("insertStationToCurrentRoute", stationModel);
 			if (event_finish_func != null)

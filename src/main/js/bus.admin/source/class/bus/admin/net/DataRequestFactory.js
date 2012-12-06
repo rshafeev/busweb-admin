@@ -30,11 +30,17 @@ qx.Class.define("bus.admin.net.DataRequestFactory", {
 				return null;
 			return manager.getStationsRequestObj(sync);
 		},
-		getRoutesRequestObj : function(sync){
+		getRoutesRequestObj : function(sync) {
 			var manager = bus.admin.net.DataRequestFactory.requestObjManager;
 			if (manager == null)
 				return null;
 			return manager.getRoutesRequestObj(sync);
+		},
+		getImportObjectsRequestObj : function(sync) {
+			var manager = bus.admin.net.DataRequestFactory.requestObjManager;
+			if (manager == null)
+				return null;
+			return manager.getImportObjectsRequestObj(sync);
 		}
 
 	}

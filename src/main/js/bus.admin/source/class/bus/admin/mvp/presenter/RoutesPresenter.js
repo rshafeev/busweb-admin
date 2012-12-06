@@ -19,8 +19,13 @@ qx.Class.define("bus.admin.mvp.presenter.RoutesPresenter", {
 
 				"addNewStation" : "qx.event.type.Data",
 
-				"insertStationToCurrentRoute" : "qx.event.type.Data"
-
+				"insertStationToCurrentRoute" : "qx.event.type.Data",
+				
+				"loadImportObjects" : "qx.event.type.Data",
+				
+				"loadImportRoute" : "qx.event.type.Data"
+				
+				
 			},
 			construct : function(_routePage) {
 				this.base(arguments);

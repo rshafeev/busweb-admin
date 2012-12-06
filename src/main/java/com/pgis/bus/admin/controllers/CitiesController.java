@@ -12,15 +12,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.pgis.bus.data.IAdminDataBaseService;
 import com.pgis.bus.data.IDataBaseService;
 import com.pgis.bus.data.impl.AdminDataBaseService;
 import com.pgis.bus.data.impl.DataBaseService;
 import com.pgis.bus.data.orm.City;
 import com.pgis.bus.data.orm.StringValue;
-import com.pgis.bus.data.repositories.RepositoryException;
 
+import com.pgis.bus.admin.helpers.ControllerException;
 import com.pgis.bus.admin.models.CityModel;
 import com.pgis.bus.admin.models.ErrorModel;
 
@@ -54,13 +53,9 @@ public class CitiesController {
 			String citiesModelJson = (new Gson()).toJson(citiesModel);
 			log.debug(citiesModelJson);
 			return citiesModelJson;
-		} catch (RepositoryException e) {
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
-		} catch (JsonSyntaxException e) {
-			log.error("JsonSyntaxException exception", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+		} catch (Exception e) {
+			log.error("exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 
 	}
@@ -87,16 +82,15 @@ public class CitiesController {
 				City city = db.getCityByName(s.lang_id, s.value);
 				if (city != null && city.id != updateCity.id) {
 					// город с таким названием уже существует
-					return (new Gson()).toJson(new ErrorModel(
-							ErrorModel.err_enum.c_city_already_exist));
+					throw new ControllerException(
+							ControllerException.err_enum.c_city_already_exist);
 				}
 			}
 			updateCity = db.updateCity(updateCity);
 			return (new Gson()).toJson(new CityModel(updateCity));
 		} catch (Exception e) {
-			log.error("update exception:", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+			log.error("exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 
 	}
@@ -124,20 +118,18 @@ public class CitiesController {
 				City city = db.getCityByName(s.lang_id, s.value);
 				if (city != null) {
 					// город с таким названием уже существует
-					return (new Gson()).toJson(new ErrorModel(
-							ErrorModel.err_enum.c_city_already_exist));
+					throw new ControllerException(
+							ControllerException.err_enum.c_city_already_exist);
 				}
 			}
 			newCity = db.insertCity(newCity);
-
 			if (newCity == null)
 				throw new Exception("can not update city");
-			return (new Gson()).toJson(new CityModel(newCity));
 
+			return (new Gson()).toJson(new CityModel(newCity));
 		} catch (Exception e) {
-			log.error("insert exception:", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+			log.error("exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 
 	}
@@ -148,15 +140,15 @@ public class CitiesController {
 		log.debug(city_id.toString());
 		try {
 			if (city_id == null || city_id.intValue() <= 0)
-				throw new Exception("bad city_id");
+				throw new ControllerException(
+						ControllerException.err_enum.c_city_already_exist);
 			// удалим город из БД
 			IAdminDataBaseService db = new AdminDataBaseService();
 			db.deleteCity(city_id.intValue());
 			return "\"ok\"";
 		} catch (Exception e) {
-			log.error("delete exception:", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+			log.error("exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 	}
 

@@ -36,7 +36,7 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 				var rowData = this.table_names.getTableModel()
 						.getRowDataAsMap(i);
 
-				if (rowData.Name.toString().length <= 0) {
+				if (rowData.Name==null || rowData.Name.toString().length <= 0) {
 					alert("Please, push names for all languages");
 					return;
 				}

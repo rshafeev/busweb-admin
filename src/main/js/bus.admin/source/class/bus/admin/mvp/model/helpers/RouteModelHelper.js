@@ -5,7 +5,7 @@ qx.Class.define("bus.admin.mvp.model.helpers.RouteModelHelper", {
 
 			statics : {
 				getNameByLang : function(routeModel, lang) {
-					if (routeModel == null || lang == null)
+					if (routeModel == null || lang == null|| routeModel.name == null)
 						return null;
 					for (var i = 0; i < routeModel.name.length; i++) {
 

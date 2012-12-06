@@ -19,16 +19,7 @@ qx.Mixin.define("bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners", {
 				this.debug("on_update_station() : event data has errors");
 				return;
 			}
-			var isHasTransport = bus.admin.mvp.model.helpers.StationsModelHelper
-					.isHasTransport(data.new_station, this.getTransportType());
-			if (isHasTransport == false) {
-				var e_del = {
-					getData : function() {
-						return data.new_station.id;
-					}
-				};
-				this.on_delete_station(e_del);
-			}
+			
 			var langName = bus.admin.helpers.WidgetHelper
 					.getValueFromSelectBox(this.combo_langs);
 			var lang = qx.core.Init.getApplication().getModelsContainer().getLangsModel()

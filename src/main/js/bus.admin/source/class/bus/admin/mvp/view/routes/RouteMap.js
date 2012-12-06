@@ -101,6 +101,11 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 		 *            e
 		 */
 		on_finishCreateNewRoute : function(e) {
+			this.debug("RouteMap: on_finishCreateNewRoute()");
+			var data = e.getData();
+			if (data == null || (data.error == true && data.isOK == true)) {
+				return;
+			}
 			this.deleteAllStations("route");
 			this.deleteAllStations("added");
 			this.deleteAllStations();
@@ -270,8 +275,10 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 				if (relation.stationB.id < 0) {
 					var marker = this.getMarkerByID(relation.stationB.id,
 							"added");
+					if (marker == null)
+						marker = this.insertStation(relation.stationB, map,
+								"added");
 					this._routeStations.push(marker);
-
 				} else {
 					this.insertStation(relation.stationB, map, "route");
 				}
@@ -468,18 +475,13 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 			var city_id = this._routesPage.getRouteLeftPanel()
 					.getSelectableCityID();
 			var routeType = this._routesPage.getRouteLeftPanel().getRouteType();
-			var transportType = bus.admin.mvp.model.helpers.TransportTypeHelper
-					.getTransportTypeIDByRouteType(routeType);
 			var newStationModel = {
 				id : this._nextStationID,
 				location : {
 					x : latLng.lat(),
 					y : latLng.lng()
 				},
-				city_id : city_id,
-				transports : [{
-							transport_type_id : transportType
-						}]
+				city_id : city_id
 			};
 			this._nextStationID = this._nextStationID - 1;
 			var T = this;
@@ -594,8 +596,8 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 				google.maps.event.addListener(marker, "click", function(
 								mouseEvent) {
 							var stationModel = marker.get("station");
-							for (var i = 0; i < T._routeStations; i++) {
-								if (stationModel == T._routeStations[i]) {
+							for (var i = 0; i < T._routeStations.length; i++) {
+								if (stationModel.id == T._routeStations[i].id) {
 									return;
 								}
 							}
@@ -604,6 +606,8 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 									null);
 						});
 			}
+			
+			return marker;
 		},
 
 		/**

@@ -80,10 +80,8 @@ qx.Class.define("bus.admin.mvp.view.Routes", {
 				},
 
 				/**
-				 * Статус карты: 
-				 * "show" - отображение маршрута 
-				 * "edit" - редактирование маршрута
-				 * "new"  - создание маршрута
+				 * Статус карты: "show" - отображение маршрута "edit" -
+				 * редактирование маршрута "new" - создание маршрута
 				 * 
 				 * @type String
 				 */
@@ -93,7 +91,7 @@ qx.Class.define("bus.admin.mvp.view.Routes", {
 			},
 			members : {
 				_is_initialized : null,
-				
+
 				initialize : function() {
 
 					this.loadData();
@@ -165,7 +163,10 @@ qx.Class.define("bus.admin.mvp.view.Routes", {
 								}
 							}, this);
 
-					var route_type_id = this.getRouteLeftPanel().getRouteType();
+					var route_type_id = null;
+					if (this.getRouteLeftPanel().getRouteType() != null) {
+						route_type_id = this.getRouteLeftPanel().getRouteType().id;
+					}
 					if (city_id == null || route_type_id == null) {
 						return;
 					}
@@ -211,7 +212,14 @@ qx.Class.define("bus.admin.mvp.view.Routes", {
 				},
 				on_finishCreateNewRoute : function(e) {
 
-				}
+				},
 
+				getCurrentCityModel : function() {
+					var cityID = this.getRouteLeftPanel().getSelectableCityID();
+					var city = qx.core.Init.getApplication()
+							.getModelsContainer().getCitiesModel()
+							.getCityByID(cityID);
+					return city;
+				}
 			}
 		});

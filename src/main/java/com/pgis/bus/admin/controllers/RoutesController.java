@@ -15,9 +15,7 @@ import com.pgis.bus.data.helpers.LoadDirectRouteOptions;
 import com.pgis.bus.data.helpers.LoadRouteOptions;
 import com.pgis.bus.data.helpers.LoadRouteRelationOptions;
 import com.pgis.bus.data.impl.AdminDataBaseService;
-import com.pgis.bus.data.models.route.RouteModel;
 import com.pgis.bus.data.orm.Route;
-import com.pgis.bus.data.repositories.RepositoryException;
 import com.pgis.bus.admin.models.ErrorModel;
 import com.pgis.bus.admin.models.LoadRoutesListParams;
 import com.pgis.bus.admin.models.RoutesModel;
@@ -43,6 +41,10 @@ public class RoutesController {
 			LoadRouteOptions opts = new LoadRouteOptions();
 			opts.setLoadRouteNamesData(true);
 			opts.setDirectRouteOptions(null);
+			LoadDirectRouteOptions directRouteOptions = new LoadDirectRouteOptions();
+			directRouteOptions.setLoadRouteRelationOptions(null);
+			directRouteOptions.setLoadScheduleData(true);
+			opts.setDirectRouteOptions(directRouteOptions);
 
 			// get routes
 			IAdminDataBaseService db = new AdminDataBaseService();
@@ -60,14 +62,9 @@ public class RoutesController {
 			log.debug(routesModelJson);
 			return routesModelJson;
 
-		} catch (RepositoryException e) {
-			log.error("exception", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
 		} catch (Exception e) {
-			log.error("exception", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+			log.error("get_all_list exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 
 	}
@@ -103,11 +100,9 @@ public class RoutesController {
 			return routeModelJson;
 
 		} catch (Exception e) {
-			log.error("update exception:", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+			log.error("get exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
-
 	}
 
 	@ResponseBody
@@ -127,9 +122,8 @@ public class RoutesController {
 			return routeModelJson;
 
 		} catch (Exception e) {
-			log.error("insert exception:", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+			log.error("insert exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 
 	}
@@ -146,9 +140,8 @@ public class RoutesController {
 			db.removeRoute(route_id.intValue());
 			return "\"ok\"";
 		} catch (Exception e) {
-			log.error("delete exception:", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+			log.error("delete exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 	}
 
@@ -168,9 +161,8 @@ public class RoutesController {
 			return routeModelJson;
 
 		} catch (Exception e) {
-			log.error("update exception:", e);
-			return (new Gson()).toJson(new ErrorModel(
-					ErrorModel.err_enum.c_exception));
+			log.error("update exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
 		}
 	}
 

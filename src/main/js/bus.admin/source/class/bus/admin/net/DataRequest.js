@@ -13,6 +13,19 @@ qx.Class.define("bus.admin.net.DataRequest", {
 	},
 	members : {
 		__sync : false,
+		//**********************
+		getImportObjects : function(data, completed_func, failed_func, self) {
+			var routes = bus.admin.net.DataRequestFactory
+					.getImportObjectsRequestObj(this.__sync);
+			return routes
+					.getImportObjects(data, completed_func, failed_func, self);
+		},
+		getImportRoute : function(data, completed_func, failed_func, self) {
+			var routes = bus.admin.net.DataRequestFactory
+					.getImportObjectsRequestObj(this.__sync);
+			return routes
+					.getImportRoute(data, completed_func, failed_func, self);
+		},		
 		// *********************
 		getRoutesList : function(data, completed_func, failed_func, self) {
 			var routes = bus.admin.net.DataRequestFactory

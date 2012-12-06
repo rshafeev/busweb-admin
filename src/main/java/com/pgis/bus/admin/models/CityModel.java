@@ -3,14 +3,11 @@ package com.pgis.bus.admin.models;
 import java.util.HashMap;
 
 import org.postgis.Point;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.pgis.bus.data.orm.City;
 import com.pgis.bus.data.orm.StringValue;
 
 public class CityModel {
-	private static final Logger log = LoggerFactory.getLogger(CityModel.class);
-
+	
 	int id;
 	Point location;
 	int scale;

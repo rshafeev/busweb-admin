@@ -133,6 +133,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 			}
 			this.combo_cities.close();
 		},
+		
 		on_change_RouteTypesComboBox : function(e) {
 			this.debug("on_change_RouteTypesComboBox");
 			var selections = this.combo_route_types.getSelection();
@@ -145,10 +146,10 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 			var selectItem = selections[0];
 			this.debug("on_change_RouteTypesComboBox1");
 			var cityID = this.getSelectableCityID();
-			if (cityID && selectItem && selectItem.getUserData("id") != null) {
+			if (cityID && selectItem && selectItem.getUserData("type") != null) {
 				this.debug("on_change_RouteTypesComboBox2");
-				this.debug(selectItem.getUserData("id"));
-				this.setRouteType(selectItem.getUserData("id"));
+				this.debug(selectItem.getUserData("type"));
+				this.setRouteType(selectItem.getUserData("type"));
 				this._routesPage.refreshRoutes(cityID);
 			}
 			this.combo_route_types.close();
@@ -188,8 +189,8 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 			if (combo_route_selections != null
 					&& combo_route_selections.length > 0) {
 				var selection = combo_route_selections[0];
-				var route_type_id = selection.getUserData("id");
-				this.setRouteType(route_type_id);
+				var route_type = selection.getUserData("type");
+				this.setRouteType(route_type);
 			}
 			// this.setRouteType("c_route_bus");
 			this.add(this.combo_route_types, {
@@ -206,7 +207,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 			this.btn_refresh = new qx.ui.form.Button("",
 					"bus/admin/images/btn/view-refresh.png");
 			this.btn_refresh.setWidth(35);
-
+		
 		},
 		loadCitiesToComboBox : function(cities) {
 			this.debug("on_loadCitiesToComboBox()");
@@ -275,7 +276,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteLeftPanel", {
 				var id = route_types[i].id;
 				var text = route_types[i].text;
 				var item = new qx.ui.form.ListItem(text);
-				item.setUserData("id", id);
+				item.setUserData("type", route_types[i]);
 				combo.add(item);
 				if (defaultItem == null) {
 					defaultItem = item;
