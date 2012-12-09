@@ -232,6 +232,19 @@ qx.Class.define("bus.admin.mvp.view.routes.ImportRouteForm", {
 			var rowData = this.table_obj.getTableModel().getRowDataAsMap(row);
 			var objID = rowData.ID;
 			var presenter = this._routesPresenter;
+			var routes = presenter.getRoutePage().getCurrRoutesList();
+			if (routes != null) {
+				for (var i = 0; i < routes.length; i++) {
+					if (routes[i].number != null
+							&& routes[i].number.toString().length != 0
+							&& routes[i].number.toString() == rowData.Number
+									.toString()) {
+						alert(this
+								.tr("The route with this number has already exist!"));
+						return;
+					}
+				}
+			}
 			qx.core.Init.getApplication().setWaitingWindow(true);
 			var loadImportRouteFunc = qx.lang.Function.bind(function(data) {
 						qx.core.Init.getApplication().setWaitingWindow(false);

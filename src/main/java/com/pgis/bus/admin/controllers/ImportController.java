@@ -19,6 +19,7 @@ import com.pgis.bus.data.impl.AdminDataBaseService;
 import com.pgis.bus.data.models.ImportRouteModel;
 import com.pgis.bus.data.orm.City;
 import com.pgis.bus.data.orm.ImportObject;
+import com.pgis.bus.data.orm.Route;
 import com.pgis.bus.data.repositories.RepositoryException;
 
 @Controller
@@ -45,7 +46,7 @@ public class ImportController {
 			if (city == null)
 				throw new Exception("Can not find city");
 			importModel.setCityID(city.id);
-			ImportObject obj = new ImportObject(importModel);
+			ImportObject obj = new ImportObject(cityKey, importModel);
 			db.insertImportObject(obj);
 			return "ok";
 		} catch (RepositoryException e) {
@@ -67,10 +68,16 @@ public class ImportController {
 			log.debug("get_all()");
 			// Загрузим все Import objects из БД
 			IAdminDataBaseService db = new AdminDataBaseService();
+			City city = db.getCityByID(params.getCityID());
+			if (city == null) {
+				throw new ControllerException(
+						ControllerException.err_enum.c_error_imputParams);
+			}
 			LoadImportObjectOptions opts = new LoadImportObjectOptions();
 			opts.setLoadData(false);
-			Collection<ImportObject> objs = db.getImportObjects(
-					params.getCityID(), params.getRouteTypeID(), opts);
+
+			Collection<ImportObject> objs = db.getImportObjects(city.key,
+					params.getRouteTypeID(), opts);
 			// вернем клиенту
 			return (new Gson()).toJson(objs);
 
@@ -93,8 +100,9 @@ public class ImportController {
 			LoadImportObjectOptions opts = new LoadImportObjectOptions();
 			opts.setLoadData(false);
 			ImportRouteModel importModel = db.getRouteModelForObj(objID);
+			Route newRoute = importModel.toRoute();
 			// вернем клиенту
-			return (new Gson()).toJson(importModel.toRoute());
+			return (new Gson()).toJson(newRoute);
 		} catch (Exception e) {
 			log.error("exception", e);
 			return (new Gson()).toJson(new ErrorModel(e));

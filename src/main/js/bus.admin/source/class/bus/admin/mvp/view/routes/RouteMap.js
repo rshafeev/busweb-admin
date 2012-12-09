@@ -7,6 +7,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 	construct : function(routesPage) {
 		this.base(arguments);
 		this._routesPage = routesPage;
+		this.setMinZoom(13);
 		this.setLayout(new qx.ui.layout.Dock());
 		this._nextStationID = -1;
 		this.initWidgets();
@@ -30,8 +31,10 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 	properties : {
 		googleMap : {
 			nullable : true
+		},
+		minZoom : {
+			nullable : true
 		}
-
 	},
 	members : {
 		_nextStationID : null,
@@ -120,13 +123,13 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 
 		updateMarkersVisible : function(markers) {
 
-			var minZoom = 12;
+			var minZoom = this.getMinZoom();
 			var map = this.getGoogleMap().getMapObject();
 			if (map == null || markers == null)
 				return;
 			var zoom = map.getZoom();
 			for (var i = 0; i < markers.length; i++) {
-				if (zoom >= minZoom) {
+				if (zoom > minZoom) {
 					if (markers[i].getMap() == null)
 						markers[i].setMap(map);
 				} else
@@ -135,6 +138,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 
 		},
 		on_loadStationsInBox : function(e) {
+
 			var data = e.getData();
 			if (data == null || data.error == true) {
 				this.debug("on_loadStationsInBox() : event data has errors");
@@ -156,6 +160,12 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 				var map = this.getGoogleMap().getMapObject();
 				if (map == null)
 					return;
+				this.debug(this.getMinZoom());
+				this.debug(map.getZoom());
+				if (this.getMinZoom() >= map.getZoom()) {
+					this.deleteAllStations();
+					return;
+				}
 				var city_id = this._routesPage.getRouteLeftPanel()
 						.getSelectableCityID();
 				if (city_id == null)
@@ -606,7 +616,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 									null);
 						});
 			}
-			
+
 			return marker;
 		},
 
