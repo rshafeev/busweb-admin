@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
-import com.pgis.bus.data.IAdminDataBaseService;
 import com.pgis.bus.data.IDataBaseService;
-import com.pgis.bus.data.impl.AdminDataBaseService;
 import com.pgis.bus.data.impl.DataBaseService;
 import com.pgis.bus.data.orm.City;
 import com.pgis.bus.data.orm.StringValue;
@@ -25,19 +23,18 @@ import com.pgis.bus.admin.models.ErrorModel;
 
 @Controller
 @RequestMapping(value = "cities/")
-public class CitiesController {
+public class CitiesController extends BaseController {
 	private static final Logger log = LoggerFactory
 			.getLogger(CitiesController.class);
 
 	@ResponseBody
-	@RequestMapping(value = "get_all.json", method = RequestMethod.POST)
+	@RequestMapping(value = "get_all", method = RequestMethod.POST)
 	public String get_all() {
 
 		try {
 			log.debug("get_all()");
 			// Загрузим список всех городов из БД
-			IDataBaseService db = new DataBaseService();
-			Collection<City> cities = db.getAllCities();
+			Collection<City> cities = this.getDB().Cities().getAllCities();
 			// Отправим модель в формате GSON клиенту
 			ArrayList<CityModel> citiesModel = new ArrayList<CityModel>();
 			Iterator<City> i = cities.iterator();
@@ -61,7 +58,7 @@ public class CitiesController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "update.json", method = RequestMethod.POST)
+	@RequestMapping(value = "update", method = RequestMethod.POST)
 	public String update(String row_city) {
 		log.debug(row_city);
 		try {
@@ -75,18 +72,17 @@ public class CitiesController {
 			if (updateCity == null)
 				throw new Exception("can not convert CityModel to City");
 
-			IAdminDataBaseService db = new AdminDataBaseService();
 			Iterator<StringValue> i = updateCity.name.values().iterator();
 			while (i.hasNext()) {
 				StringValue s = i.next();
-				City city = db.getCityByName(s.lang_id, s.value);
+				City city = this.getDB().Cities().getCityByName(s.lang_id, s.value);
 				if (city != null && city.id != updateCity.id) {
 					// город с таким названием уже существует
 					throw new ControllerException(
 							ControllerException.err_enum.c_city_already_exist);
 				}
 			}
-			updateCity = db.updateCity(updateCity);
+			updateCity = this.getDB().Cities().updateCity(updateCity);
 			return (new Gson()).toJson(new CityModel(updateCity));
 		} catch (Exception e) {
 			log.error("exception", e);
@@ -96,7 +92,7 @@ public class CitiesController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "insert.json", method = RequestMethod.POST)
+	@RequestMapping(value = "insert", method = RequestMethod.POST)
 	public String insert(String row_city) {
 		log.debug(row_city);
 
@@ -111,18 +107,17 @@ public class CitiesController {
 			if (newCity == null)
 				throw new Exception("can not convert CityModel to City");
 			// добавим город в БД
-			IAdminDataBaseService db = new AdminDataBaseService();
 			Iterator<StringValue> i = newCity.name.values().iterator();
 			while (i.hasNext()) {
 				StringValue s = i.next();
-				City city = db.getCityByName(s.lang_id, s.value);
+				City city = this.getDB().Cities().getCityByName(s.lang_id, s.value);
 				if (city != null) {
 					// город с таким названием уже существует
 					throw new ControllerException(
 							ControllerException.err_enum.c_city_already_exist);
 				}
 			}
-			newCity = db.insertCity(newCity);
+			newCity = this.getDB().Cities().insertCity(newCity);
 			if (newCity == null)
 				throw new Exception("can not update city");
 
@@ -135,7 +130,7 @@ public class CitiesController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "delete.json", method = RequestMethod.POST)
+	@RequestMapping(value = "delete", method = RequestMethod.POST)
 	public String delete(Integer city_id) {
 		log.debug(city_id.toString());
 		try {
@@ -143,8 +138,7 @@ public class CitiesController {
 				throw new ControllerException(
 						ControllerException.err_enum.c_city_already_exist);
 			// удалим город из БД
-			IAdminDataBaseService db = new AdminDataBaseService();
-			db.deleteCity(city_id.intValue());
+			this.getDB().Cities().deleteCity(city_id.intValue());
 			return "\"ok\"";
 		} catch (Exception e) {
 			log.error("exception", e);

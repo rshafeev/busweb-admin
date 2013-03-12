@@ -588,7 +588,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
 		},
 		save_func : function(schedule, isBoth) {
 			var route = this._routesPage.getCurrRouteModel();
-			console.log(schedule);
+			this.debug(schedule);
 			if (isBoth == true) {
 				route.directRouteWay.schedule = schedule;
 				if (route.reverseRouteWay != null) {

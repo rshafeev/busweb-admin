@@ -16,7 +16,7 @@ qx.Class.define("bus.admin.net.impl.Stations", {
 			var data_json = qx.lang.Json.stringify(data);
 			this.debug(data);
 			var request = new qx.io.remote.Request(
-					"stations/get_all_by_city_inbox.json", "POST",
+					"/stations/get_all_by_city_inbox", "POST",
 					"application/json");
 			request.setAsynchronous(!this.__sync);
 			request.setParseJson(true);
@@ -32,7 +32,7 @@ qx.Class.define("bus.admin.net.impl.Stations", {
 			var data_json = qx.lang.Json.stringify(data);
 			this.debug(data);
 			var request = new qx.io.remote.Request(
-					"stations/get_all_by_city.json", "POST",
+					"/stations/get_all_by_city", "POST",
 					"application/json");
 			request.setAsynchronous(!this.__sync);
 			request.setParseJson(true);
@@ -46,7 +46,7 @@ qx.Class.define("bus.admin.net.impl.Stations", {
 		updateStation : function(stationModel, completed_func, failed_func,
 				self) {
 			var update_station_json = qx.lang.Json.stringify(stationModel);
-			var request = new qx.io.remote.Request("stations/update.json",
+			var request = new qx.io.remote.Request("/stations/update",
 					"POST", "application/json");
 			request.setAsynchronous(!this.__sync);
 			request.setParseJson(true);
@@ -61,7 +61,7 @@ qx.Class.define("bus.admin.net.impl.Stations", {
 		insertStation : function(stationModel, completed_func, failed_func,
 				self) {
 			var new_station_json = qx.lang.Json.stringify(stationModel);
-			var request = new qx.io.remote.Request("stations/insert.json",
+			var request = new qx.io.remote.Request("/stations/insert",
 					"POST", "application/json");
 			request.setAsynchronous(!this.__sync);
 			request.setParseJson(true);
@@ -72,7 +72,7 @@ qx.Class.define("bus.admin.net.impl.Stations", {
 			return request;
 		},
 		deleteStation : function(station_id, completed_func, failed_func, self) {
-			var request = new qx.io.remote.Request("stations/delete.json",
+			var request = new qx.io.remote.Request("/stations/delete",
 					"POST", "application/json");
 			request.setAsynchronous(!this.__sync);
 			request.setParseJson(true);

@@ -24,18 +24,13 @@
 	<http access-denied-page="/login">
 		<intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/media/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/app" access="ROLE_USER" />
-	    <intercept-url pattern="/*.json" access="ROLE_USER" />
-		<intercept-url pattern="/**/*.json" access="ROLE_USER" />
 		<intercept-url pattern="/j_spring_security_logout"
 			access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/j_spring_security_check"
 			access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/**" access="ROLE_USER" />
 
-	 
-		<intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-
-		<form-login login-page="/login" default-target-url="/app"
+		<form-login login-page="/login" default-target-url="/app/index.html"
 			always-use-default-target="true" authentication-failure-url="/login?login_error=1" />
 		<logout logout-url="/j_spring_security_logout"
 			logout-success-url="/login" invalidate-session="true" />

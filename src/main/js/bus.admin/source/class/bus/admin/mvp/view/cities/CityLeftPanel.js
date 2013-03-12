@@ -9,7 +9,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 		"load_finish" : "qx.event.type.Event"
 	},
 	construct : function(citiesPage) {
-
+		this._presenter = citiesPage.getPresenter();
 		this._citiesPage = citiesPage;
 		this.base(arguments);
 		this.setLayout(new qx.ui.layout.Canvas());
@@ -22,6 +22,8 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 	},
 
 	members : {
+		_presenter : null,
+
 		_citiesPage : null,
 		citiesTable : null,
 		citiesLocalizationTable : null,
@@ -91,7 +93,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 							.getCityNameByLang(cities[i], locale);
 					rowData.push([cities[i].id, name, cities[i].location.x,
 							cities[i].location.y, cities[i].scale,cities[i].isShow.toString()]);
-					console.log(cities[i].location);
+					this.debug(cities[i].location);
 				}
 				this.citiesTable.getTableModel().setData(rowData);
 			}
@@ -238,7 +240,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityLeftPanel", {
 			var rowData = this.citiesTable.getTableModel().getRowDataAsMap(row);
 			var cityModel = qx.core.Init.getApplication().getModelsContainer()
 					.getCitiesModel().getCityByID(rowData.ID);
-			console.log(qx.core.Init.getApplication().getModelsContainer()
+			this.debug(qx.core.Init.getApplication().getModelsContainer()
 					.getCitiesModel());
 			var changeDialog = new bus.admin.mvp.view.cities.CUCityForm(true,
 					cityModel);

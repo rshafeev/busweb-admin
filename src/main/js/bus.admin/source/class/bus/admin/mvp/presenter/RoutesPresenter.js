@@ -1,7 +1,8 @@
 qx.Class.define("bus.admin.mvp.presenter.RoutesPresenter", {
-			include : [bus.admin.mvp.presenter.mng.RoutesManager,
-					bus.admin.mvp.presenter.mng.StationsManager],
+			include : [bus.admin.mvp.presenter.mix.RoutesManager,
+					bus.admin.mvp.presenter.mix.StationsManager],
 			extend : qx.core.Object,
+			
 			events : {
 				"loadRoutesList" : "qx.event.type.Data",
 
@@ -24,18 +25,28 @@ qx.Class.define("bus.admin.mvp.presenter.RoutesPresenter", {
 				"loadImportObjects" : "qx.event.type.Data",
 				
 				"loadImportRoute" : "qx.event.type.Data"
-				
-				
+			
 			},
-			construct : function(_routePage) {
+			
+			construct : function(routePage, globalPresenter) {
 				this.base(arguments);
-				this._routePage = _routePage;
+				this._routePage = routePage;
+				this._globalPresenter = globalPresenter;
 			},
+
 			members : {
 				_routePage : null,
+				_globalPresenter : null
+			},
 
-				getRoutePage : function() {
-					return this._routePage;
+			properties : {
+				
+				dataStorage :{
+					nullable : true
+				},
+
+				globalDataStorage : {
+					nullable : true
 				}
 			}
 

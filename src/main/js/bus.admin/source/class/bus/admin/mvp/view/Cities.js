@@ -27,35 +27,36 @@
  * 
  */
 
-qx.Class.define("bus.admin.mvp.view.Cities", {
-			extend : bus.admin.mvp.view.AbstractPage,
+ qx.Class.define("bus.admin.mvp.view.Cities", {
+ 	extend : bus.admin.mvp.view.AbstractPage,
 
-			construct : function() {
-				this.base(arguments);
-				this.setPresenter(qx.core.Init.getApplication().getPresenter());
-				this.__initWidgets();
-				this.__setOptions();
-				
-			},
-			properties : {
-				cityLeftPanel : {
-					nullable : true
-				},
-				cityMap : {
-					nullable : true
-				}
-			},
-			members : {
-				initialize : function() {
-					this.debug("initialize()");
-					var event_finish_func = qx.lang.Function.bind(
-							function(data) {
-								this.fireEvent("init_finished");
-							}, this);
-					this.getPresenter().refreshCities(event_finish_func);
-				},
-				__initWidgets : function() {
-					this.setLayout(new qx.ui.layout.Dock());
+ 	construct : function() {
+ 		this.base(arguments);
+ 		var presenter = new bus.admin.mvp.presenter.CitiesPresenter(); 
+ 		this.setPresenter(presenter);
+ 		this.__initWidgets();
+ 		this.__setOptions();
+
+ 	},
+ 	properties : {
+ 		cityLeftPanel : {
+ 			nullable : true
+ 		},
+ 		cityMap : {
+ 			nullable : true
+ 		}
+ 	},
+ 	members : {
+ 		initialize : function() {
+ 			var self = this;
+ 			self.debug("initialize() CitiesPage");
+ 			var callback =	function(data) {
+ 				self.fireEvent("init_finished");
+ 			};
+ 			self.getPresenter().refreshTrigger(callback);
+ 		},
+ 		__initWidgets : function() {
+ 			this.setLayout(new qx.ui.layout.Dock());
 
 					// Create widgets
 					var cityMap = new bus.admin.mvp.view.cities.CityMap(this);
@@ -68,8 +69,8 @@ qx.Class.define("bus.admin.mvp.view.Cities", {
 					splitpane.add(this.getCityLeftPanel(), 0);
 					splitpane.add(this.getCityMap(), 1)
 					this.add(splitpane, {
-								edge : "center"
-							});
+						edge : "center"
+					});
 
 				},
 

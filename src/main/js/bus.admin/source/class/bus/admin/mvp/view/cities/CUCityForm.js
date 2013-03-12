@@ -63,8 +63,8 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 				name_key : this.__cityModel.name_key,
 				names : []
 			};
-			console.log("__updateCity check:");
-			console.log(this.check_show.getValue());
+			this.debug("__updateCity check:");
+			this.debug(this.check_show.getValue());
 			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
 				var rowData = this.table_names.getTableModel()
 						.getRowDataAsMap(i);
@@ -99,7 +99,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 						}
 						this.close();
 					}, this);
-			console.log(update_city);
+			this.debug(update_city);
 			globalPresenter.updateCity(this.__cityModel, update_city,
 					event_finish_func);
 
@@ -227,7 +227,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 							left : 160,
 							top : 50
 						});
-				console.log(this.__cityModel.isShow);
+				this.debug(this.__cityModel.isShow);
 				this.check_show.setValue(this.__cityModel.isShow);
 			}
 			this.add(positionSettings, {

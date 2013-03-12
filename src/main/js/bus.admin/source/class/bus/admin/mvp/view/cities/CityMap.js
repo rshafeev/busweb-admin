@@ -14,7 +14,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 		var presenter = citiesPage.getPresenter();
 		presenter.addListener("update_city", this.on_update_city, this);
 		presenter.addListener("insert_city", this.on_insert_city, this);
-		presenter.addListener("refresh_cities", this.on_refresh_cities, this);
+		presenter.addListener("refresh", this.on_refresh, this);
 		presenter.addListener("delete_city", this.on_delete_city, this);
 	},
 	properties : {
@@ -61,17 +61,17 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 					data.city.location.y);
 		},
 
-		on_refresh_cities : function(e) {
+		on_refresh : function(e) {
 			var data = e.getData();
 			if (data == null || data.error == true) {
 				this.debug("on_refresh_cities() : event data has errors");
 				return;
 			}
 			this.deleteAllMarkers();
-			for (var i = 0; i < data.models.cities.length; i++) {
-				this.insertCityMarker(data.models.cities[i].id,
-						data.models.cities[i].location.x,
-						data.models.cities[i].location.y);
+			for (var i = 0; i < data.cities.length; i++) {
+				this.insertCityMarker(data.cities[i].id,
+						data.cities[i].location.x,
+						data.cities[i].location.y);
 			}
 		},
 

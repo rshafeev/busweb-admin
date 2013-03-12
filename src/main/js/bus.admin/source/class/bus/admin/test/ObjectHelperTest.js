@@ -6,7 +6,7 @@
 
    Authors:
 
-************************************************************************ */
+   ************************************************************************ */
 
 /**
  * This class demonstrates how to define unit tests for your application.
@@ -20,8 +20,8 @@
  * i.e. using deeper namespaces and a corresponding file structure within the 
  * <tt>test</tt> folder.
  */
-qx.Class.define("bus.admin.test.DemoTest",
-{
+ qx.Class.define("bus.admin.test.ObjectHelperTest",
+ {
   extend : qx.dev.unit.TestCase,
 
   members :
@@ -31,26 +31,16 @@ qx.Class.define("bus.admin.test.DemoTest",
       TESTS
     ---------------------------------------------------------------------------
     */
-  
+
     /**
      * Here are some simple tests
      */
-    testSimple : function()
-    {
-      this.assertEquals(4, 3+1, "This should never fail!");
-      this.assertFalse(false, "Can false be true?!");
-    },
-
-    /**
-     * Here are some more advanced tests
-     */
-    testAdvanced: function () 
-    {
-      var a = 3;
-      var b = a;
-      this.debug("debug info. ok.");
-      this.assertIdentical(a, b, "A rose by any other name is still a rose");
-      this.assertInRange(3, 1, 10, "You must be kidding, 3 can never be outside [1,10]!");
+     testSimple : function()
+     {
+      String s = "test str";
+      String copy = bus.admin.helpers.ObjectHelper.clone(s);
+      this.assertEquals(s, copy,  "This should never fail!");
     }
+
   }
 });

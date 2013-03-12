@@ -17,7 +17,7 @@ qx.Class.define("bus.admin.net.impl.Routes", {
 					var data_json = qx.lang.Json.stringify(data);
 					this.debug(data);
 					var request = new qx.io.remote.Request(
-							"routes/get_all_list.json", "POST",
+							"/routes/get_all_list", "POST",
 							"application/json");
 					request.setAsynchronous(!this.__sync);
 					request.setParseJson(true);
@@ -32,7 +32,7 @@ qx.Class.define("bus.admin.net.impl.Routes", {
 					var data_json = qx.lang.Json.stringify(data);
 					this.debug(data);
 					var request = new qx.io.remote.Request(
-							"routes/get_route.json", "POST", "application/json");
+							"/routes/get_route", "POST", "application/json");
 					request.setAsynchronous(!this.__sync);
 					request.setParseJson(true);
 					request.setParameter("data", data_json, true);
@@ -46,7 +46,7 @@ qx.Class.define("bus.admin.net.impl.Routes", {
 					var data_json = qx.lang.Json.stringify(data);
 					this.debug(data);
 					var request = new qx.io.remote.Request(
-							"routes/insert_route.json", "POST", "application/json");
+							"/routes/insert_route", "POST", "application/json");
 					request.setAsynchronous(!this.__sync);
 					request.setParseJson(true);
 					request.setParameter("data", data_json, true);
@@ -62,7 +62,7 @@ qx.Class.define("bus.admin.net.impl.Routes", {
 					var data_json = qx.lang.Json.stringify(data);
 					this.debug(data);
 					var request = new qx.io.remote.Request(
-							"routes/update.json", "POST", "application/json");
+							"/routes/update", "POST", "application/json");
 					request.setAsynchronous(!this.__sync);
 					request.setParseJson(true);
 					request.setParameter("data", data_json, true);
@@ -75,7 +75,7 @@ qx.Class.define("bus.admin.net.impl.Routes", {
 				
 				removeRoute : function(route_id, completed_func, failed_func, self) {
 					var request = new qx.io.remote.Request(
-							"routes/delete.json", "POST", "application/json");
+							"/routes/delete", "POST", "application/json");
 					request.setAsynchronous(!this.__sync);
 					request.setParseJson(true);
 					request.setParameter("route_id", route_id.toString(), true);

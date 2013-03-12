@@ -10,9 +10,9 @@ qx.Class.define("bus.admin.net.impl.ImportObjects", {
 			},
 			members : {
 				__sync : false,
-				getImportRoute : function(objID, completed_func, failed_func,
+				get : function(objID, completed_func, failed_func,
 						self) {
-					var request = new qx.io.remote.Request("import/get.json",
+					var request = new qx.io.remote.Request("/import/get",
 							"POST", "application/json");
 					request.setAsynchronous(!this.__sync);
 					request.setParseJson(true);
@@ -23,12 +23,12 @@ qx.Class.define("bus.admin.net.impl.ImportObjects", {
 					return request;
 				},
 
-				getImportObjects : function(data, completed_func, failed_func,
+				getList : function(data, completed_func, failed_func,
 						self) {
 					var data_json = qx.lang.Json.stringify(data);
 					this.debug(data);
 					var request = new qx.io.remote.Request(
-							"import/get_all.json", "POST", "application/json");
+							"/import/get_all", "POST", "application/json");
 					request.setAsynchronous(!this.__sync);
 					request.setParseJson(true);
 					request.setParameter("data", data_json, true);

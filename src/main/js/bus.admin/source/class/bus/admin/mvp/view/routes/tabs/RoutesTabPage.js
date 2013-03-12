@@ -1,3 +1,5 @@
+
+
 qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 	extend : qx.ui.tabview.Page,
 	construct : function(routesLeftPanel, routesPage) {
@@ -174,7 +176,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 					this._routesPage.getRouteMap().clearMapObjects();
 				}
 				this.debug("setStatusForWidgets()");
-				console.log(routeModel);
+				this.debug(routeModel);
 
 				if (routeModel != null) {
 					this.radioDirect.setEnabled(true);
@@ -230,6 +232,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 			if (data.route == null)
 				return;
 			this.debug("on_loadRoute() : ok");
+			console.debug(data.route);
 			if (this.radioDirect.getValue() == true) {
 				this.on_radio_direct();
 			} else {
@@ -250,6 +253,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 				this.debug("on_startCreateNewRoute() : event data has errors");
 				return;
 			}
+			console.debug(routeModel);
 			if (routeModel.reverseRouteWay == null) {
 				this.radioReverse.setEnabled(false);
 			} else {
@@ -345,7 +349,7 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 		},
 
 		isValidNewRoute : function(route) {
-			console.log(route);
+			this.debug(route);
 			if (route.directRouteWay == null
 					|| route.directRouteWay.route_relations == null)
 				return false;
@@ -663,7 +667,8 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 					this._routesPage.getRouteMap().showRouteWay(null);
 				return;
 			}
-			this.debug(way.route_relations.length);
+			this.debug("loadStationsTable()");
+			console.debug(way.route_relations);
 			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
 			for (var i = 0; i < way.route_relations.length; i++) {
 				var relation = way.route_relations[i];
@@ -703,8 +708,9 @@ qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
 					routeModel.reverseRouteWay.route_relations = relations;
 				}
 			}
-			console.log(routeModel);
+			this.debug(routeModel);
 		},
+
 		on_radio_direct : function(e) {
 			if (this.radioDirect.getValue() == false)
 				return;

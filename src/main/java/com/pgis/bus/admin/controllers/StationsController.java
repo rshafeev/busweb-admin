@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.gson.Gson;
-import com.pgis.bus.data.IAdminDataBaseService;
-import com.pgis.bus.data.impl.AdminDataBaseService;
 
 import com.pgis.bus.data.orm.Station;
 import com.pgis.bus.admin.models.ErrorModel;
@@ -17,12 +15,12 @@ import com.pgis.bus.admin.models.StationsModel;
 
 @Controller
 @RequestMapping(value = "stations/")
-public class StationsController {
+public class StationsController extends BaseController  {
 	private static final Logger log = LoggerFactory
 			.getLogger(StationsController.class);
 
 	@ResponseBody
-	@RequestMapping(value = "get_all_by_city.json", method = RequestMethod.POST)
+	@RequestMapping(value = "get_all_by_city", method = RequestMethod.POST)
 	public String getStationsByCity(String data) {
 		try {
 			log.debug(data);
@@ -31,8 +29,7 @@ public class StationsController {
 					StationsModel.class);
 
 			// Загрузим список станций
-			IAdminDataBaseService db = new AdminDataBaseService();
-			Collection<Station> stations = db.getStationsByCity(
+			Collection<Station> stations = this.getDB().Stations().getStationsByCity(
 					stationsModel.getCity_id());
 			// Сформируем модель
 			stationsModel.setStations(stations);
@@ -48,7 +45,7 @@ public class StationsController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "get_all_by_city_inbox.json", method = RequestMethod.POST)
+	@RequestMapping(value = "get_all_by_city_inbox", method = RequestMethod.POST)
 	public String getAllByCityInBox(String data) {
 		try {
 			log.debug(data);
@@ -57,8 +54,7 @@ public class StationsController {
 					StationsModel.class);
 
 			// Загрузим список станций
-			IAdminDataBaseService db = new AdminDataBaseService();
-			Collection<Station> stations = db.getStationsByBox(
+			Collection<Station> stations = this.getDB().Stations().getStationsByBox(
 					stationsModel.getCity_id(), stationsModel.getLtPoint(),
 					stationsModel.getRbPoint());
 			// Сформируем модель
@@ -75,7 +71,7 @@ public class StationsController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "insert.json", method = RequestMethod.POST)
+	@RequestMapping(value = "insert", method = RequestMethod.POST)
 	public String insert(String row_station) {
 		try {
 			log.debug(row_station);
@@ -84,8 +80,7 @@ public class StationsController {
 					Station.class);
 
 			// Добавим station в БД
-			IAdminDataBaseService db = new AdminDataBaseService();
-			Station newStation = db.insertStation(stationModel);
+			Station newStation = this.getDB().Stations().insertStation(stationModel);
 
 			// Отправим модель в формате GSON клиенту
 			return (new Gson()).toJson(newStation);
@@ -98,7 +93,7 @@ public class StationsController {
 
 	
 	@ResponseBody
-	@RequestMapping(value = "update.json", method = RequestMethod.POST)
+	@RequestMapping(value = "update", method = RequestMethod.POST)
 	public String update(String row_station) {
 		try {
 			log.debug(row_station);
@@ -107,8 +102,7 @@ public class StationsController {
 					Station.class);
 
 			// Добавим station в БД
-			IAdminDataBaseService db = new AdminDataBaseService();
-			Station updateStation = db.updateStation(stationModel);
+			Station updateStation = this.getDB().Stations().updateStation(stationModel);
 
 			// Отправим модель в формате GSON клиенту
 
@@ -121,15 +115,14 @@ public class StationsController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "delete.json", method = RequestMethod.POST)
+	@RequestMapping(value = "delete", method = RequestMethod.POST)
 	public String delete(Integer station_id) {
 		try {
 			if (station_id == null || station_id.intValue() <= 0)
 				throw new Exception("bad city_id");
 			log.debug(station_id.toString());
 			// удалим из БД
-			IAdminDataBaseService db = new AdminDataBaseService();
-			db.deleteStation(station_id);
+			this.getDB().Stations().deleteStation(station_id);
 			return "\"ok\"";
 		}catch (Exception e) {
 			log.error("delete exception", e);

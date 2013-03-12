@@ -1,10 +1,10 @@
 qx.Mixin.define("bus.admin.mvp.view.cities.mix.CityLeftPanelListeners", {
 	construct : function() {
-		var presenter = qx.core.Init.getApplication().getPresenter();
+		var presenter = this._presenter;
 		presenter.addListener("update_city", this.on_update_city, this);
 		presenter.addListener("insert_city", this.on_insert_city, this);
 		presenter.addListener("delete_city", this.on_delete_city, this);
-		presenter.addListener("refresh_cities", this.on_refresh_cities, this);
+		presenter.addListener("refresh", this.on_refresh, this);
 	},
 	members : {
 
@@ -24,14 +24,14 @@ qx.Mixin.define("bus.admin.mvp.view.cities.mix.CityLeftPanelListeners", {
 			}
 
 		},
-		on_refresh_cities : function(e) {
+		on_refresh : function(e) {
 			var data = e.getData();
 			if (data == null || data.error == true) {
 				this.debug("on_refresh_cities() : event data has errors");
 				return;
 			}
-			this.on_loadLanguagesToComboBox(data.models.langs);
-			this.on_loadDataToCityTable(data.models.cities);
+			this.on_loadLanguagesToComboBox(data.langs);
+			this.on_loadDataToCityTable(data.cities);
 		},
 
 		on_insert_city : function(e) {
@@ -88,8 +88,8 @@ qx.Mixin.define("bus.admin.mvp.view.cities.mix.CityLeftPanelListeners", {
 					.getCityNameByLang(data.new_city,locale);
 	
 			var tableModel = this.citiesTable.getTableModel();
-			console.log("on_update_city(): ");
-			console.log(data.new_city);
+			this.debug("on_update_city(): ");
+			this.debug(data.new_city);
 			tableModel.setValue(tableModel.getColumnIndexById("Id"), row,
 					data.new_city.id);
 			tableModel.setValue(1, row, name_ru);

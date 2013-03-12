@@ -198,7 +198,7 @@ qx.Class.define("bus.admin.mvp.view.routes.ImportRouteForm", {
 			// Closure to capture the file information.
 			reader.onloadend = function(evt) {
 				if (evt.target.readyState == FileReader.DONE) {
-					console.log(evt.target.result);
+					this.debug(evt.target.result);
 				}
 			};
 			// Read in the image file as a data URL.
@@ -253,7 +253,7 @@ qx.Class.define("bus.admin.mvp.view.routes.ImportRouteForm", {
 							alert("Error! Can not load import route!");
 							return;
 						}
-						console.log(data);
+						this.debug(data);
 						var startCreateNewRouteFunc = qx.lang.Function.bind(
 								function(e) {
 									this.destroy();

@@ -77,7 +77,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 			this.deleteAllStations("added");
 			this.deleteAllStations("route");
 			this.deleteAllStations();
-			console.log(this._routeStations);
+			this.debug(this._routeStations);
 			this.onMapDragEnd();
 
 			if (this._menuItems == null) {
@@ -198,7 +198,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 				this.debug("on_refresh_cities() : event data has errors");
 				return;
 			}
-			console.log(stationModel);
+			this.debug(stationModel);
 			this.insertStation(stationModel,
 					this.getGoogleMap().getMapObject(), "added");
 		},
@@ -269,8 +269,8 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 			} else if (directType == false) {
 				way = route.reverseRouteWay;
 			}
-			console.log(way);
-			console.log(this._addedStations);
+			this.debug(way);
+			this.debug(this._addedStations);
 
 			this.refreshMap();
 			if (directType == null)
@@ -310,7 +310,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 		getPolylinePoints : function(polyline) {
 			var path = polyline.getPath();
 			var points = [];
-			console.log(path);
+			this.debug(path);
 			for (var i = 0; i < path.getLength(); i++) {
 				var p = path.getAt(i);
 				var point = {
@@ -611,7 +611,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 									return;
 								}
 							}
-							console.log(stationModel);
+							this.debug(stationModel);
 							presenter.insertStationToCurrentRoute(stationModel,
 									null);
 						});

@@ -10,6 +10,7 @@ import com.pgis.bus.data.DBConnectionFactory;
 import com.pgis.bus.data.DBConnectionManager;
 
 
+
 public class BasicServiceListener implements ServletContextListener {
 	private  static final Logger log = LoggerFactory.getLogger( BasicServiceListener.class );
    
@@ -23,8 +24,7 @@ public class BasicServiceListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce)
     {
-    	
-    	DBConnectionFactory.init(new DBConnectionManager("jdbc/busPoolDB"));
+		DBConnectionFactory.init("jdbc/busPoolDB");
     	log.info("contextInitialized");
 
     }

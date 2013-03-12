@@ -1,0 +1,25 @@
+{
+	"name" : "bus.admin",
+
+	"include" : [{
+				"path" : "${QOOXDOO_PATH}/tool/data/config/application.json",
+				"block" : [
+						// need to define them locally, as the base.json versions fix qx.theme, QXTHEME, etc.
+						"source", "source-hybrid", "build"]
+			}],
+	"default-job" : "source",
+
+	"let" : {
+		"APPLICATION" : "bus.admin",
+		"QOOXDOO_PATH" : "/opt/qooxdoo",
+		"API_INCLUDE": ["${APPLICATION}.*", "qx.core.Object", "qx.event.type.Data"],
+		"API_EXCLUDE" : [ "${APPLICATION}.theme.*",
+				"${APPLICATION}.test.*", "${APPLICATION}.simulation.*", "qx.ui.*"],
+		"LOCALES" : ["en","ru"],
+		"CACHE" : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
+		"ROOT" : ".",
+		"BUILD_PATH" :"${ROOT}/../../../../WebContent/app/tests"
+
+	}
+
+}

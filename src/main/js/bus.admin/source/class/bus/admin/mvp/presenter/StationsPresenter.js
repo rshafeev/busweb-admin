@@ -1,5 +1,5 @@
 qx.Class.define("bus.admin.mvp.presenter.StationsPresenter", {
-			include : [bus.admin.mvp.presenter.mng.StationsManager],
+			include : [bus.admin.mvp.presenter.mix.StationsManager],
 			extend : qx.core.Object,
 			events : {
 
@@ -16,8 +16,19 @@ qx.Class.define("bus.admin.mvp.presenter.StationsPresenter", {
 				"delete_station" : "qx.event.type.Data"
 
 			},
-			construct : function() {
-				this.base(arguments);
-			}
 
+			construct : function(globalPresenter) {
+				this.base(arguments);
+				this._globalPresenter = globalPresenter;
+				this.setGlobalDataStorage = globalPresenter.getDataStorage();
+			},
+            members : {
+            	_dataStorage : null,
+
+               _globalPresenter : null,
+
+               getDataModel : function(key){
+                  
+               } 
+            }
 		});

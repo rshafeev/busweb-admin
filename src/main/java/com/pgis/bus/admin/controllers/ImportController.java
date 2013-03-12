@@ -13,9 +13,7 @@ import com.google.gson.Gson;
 import com.pgis.bus.admin.helpers.ControllerException;
 import com.pgis.bus.admin.models.ErrorModel;
 import com.pgis.bus.admin.models.LoadImportObjectsParams;
-import com.pgis.bus.data.IAdminDataBaseService;
 import com.pgis.bus.data.helpers.LoadImportObjectOptions;
-import com.pgis.bus.data.impl.AdminDataBaseService;
 import com.pgis.bus.data.models.ImportRouteModel;
 import com.pgis.bus.data.orm.City;
 import com.pgis.bus.data.orm.ImportObject;
@@ -24,12 +22,12 @@ import com.pgis.bus.data.repositories.RepositoryException;
 
 @Controller
 @RequestMapping(value = "import/")
-public class ImportController {
+public class ImportController extends BaseController {
 	private static final Logger log = LoggerFactory
 			.getLogger(ImportController.class);
 
 	@ResponseBody
-	@RequestMapping(value = "insert.json", method = RequestMethod.POST)
+	@RequestMapping(value = "insert", method = RequestMethod.POST)
 	public String insert(String cityKey, String importRouteModelJson) {
 		try {
 			log.debug("import.insert()");
@@ -40,14 +38,14 @@ public class ImportController {
 			if (importModel.isValid() == false) {
 				throw new Exception("ImportRouteModel is not valid");
 			}
+			
 			// Загрузим список всех городов из БД
-			IAdminDataBaseService db = new AdminDataBaseService();
-			City city = db.getCityByKey(cityKey);
+			City city = this.getDB().Cities().getCityByKey(cityKey);
 			if (city == null)
 				throw new Exception("Can not find city");
 			importModel.setCityID(city.id);
 			ImportObject obj = new ImportObject(cityKey, importModel);
-			db.insertImportObject(obj);
+			this.getDB().Import().insertObject(obj);
 			return "ok";
 		} catch (RepositoryException e) {
 			log.error("RepositoryException", e);
@@ -59,7 +57,7 @@ public class ImportController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "get_all.json", method = RequestMethod.POST)
+	@RequestMapping(value = "get_all", method = RequestMethod.POST)
 	public String getAll(String data) {
 		try {
 			LoadImportObjectsParams params = (new Gson()).fromJson(data,
@@ -67,8 +65,7 @@ public class ImportController {
 			log.debug(data);
 			log.debug("get_all()");
 			// Загрузим все Import objects из БД
-			IAdminDataBaseService db = new AdminDataBaseService();
-			City city = db.getCityByID(params.getCityID());
+			City city = this.getDB().Cities().getCityByID(params.getCityID());
 			if (city == null) {
 				throw new ControllerException(
 						ControllerException.err_enum.c_error_imputParams);
@@ -76,7 +73,7 @@ public class ImportController {
 			LoadImportObjectOptions opts = new LoadImportObjectOptions();
 			opts.setLoadData(false);
 
-			Collection<ImportObject> objs = db.getImportObjects(city.key,
+			Collection<ImportObject> objs = this.getDB().Import().getObjects(city.key,
 					params.getRouteTypeID(), opts);
 			// вернем клиенту
 			return (new Gson()).toJson(objs);
@@ -88,7 +85,7 @@ public class ImportController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "get.json", method = RequestMethod.POST)
+	@RequestMapping(value = "get", method = RequestMethod.POST)
 	public String get(int objID) {
 		try {
 			log.debug("get()");
@@ -96,10 +93,9 @@ public class ImportController {
 				throw new ControllerException(
 						ControllerException.err_enum.c_error_imputParams);
 			// Загрузим все Import objects из БД
-			IAdminDataBaseService db = new AdminDataBaseService();
 			LoadImportObjectOptions opts = new LoadImportObjectOptions();
 			opts.setLoadData(false);
-			ImportRouteModel importModel = db.getRouteModelForObj(objID);
+			ImportRouteModel importModel = this.getDB().Import().getRouteModelForObj(objID);
 			Route newRoute = importModel.toRoute();
 			// вернем клиенту
 			return (new Gson()).toJson(newRoute);

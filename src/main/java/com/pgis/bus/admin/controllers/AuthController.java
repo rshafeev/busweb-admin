@@ -21,7 +21,7 @@ public class AuthController {
 				.getAuthentication();
 		if (authentication instanceof CustomUserAuthentication) {
 			if (((CustomUserAuthentication) authentication).isAuthenticated())
-				return new ModelAndView("redirect:/app");
+				return new ModelAndView("redirect:/app/index.html");
 
 		}
 
@@ -39,4 +39,5 @@ public class AuthController {
 		return new ModelAndView("login", "model", model);
 	}
 
+	
 }

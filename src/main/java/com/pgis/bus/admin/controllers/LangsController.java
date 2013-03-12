@@ -16,12 +16,12 @@ import com.pgis.bus.data.repositories.RepositoryException;
 
 @Controller
 @RequestMapping(value = "langs/")
-public class LangsController {
+public class LangsController extends BaseController  {
 	private static final Logger log = LoggerFactory
 			.getLogger(CitiesController.class);
 
 	@ResponseBody
-	@RequestMapping(value = "get_all.json", method = RequestMethod.POST)
+	@RequestMapping(value = "get_all", method = RequestMethod.POST)
 	public String get_all(HttpServletResponse response) {
 
 		try {
@@ -29,8 +29,7 @@ public class LangsController {
 			response.setContentType(contentType);
 			response.setCharacterEncoding("utf-8");
 			// Загрузим список всех городов из БД
-			IDataBaseService db = new DataBaseService();
-			Collection<Language> langs = db.getAllLanguages();
+			Collection<Language> langs = this.getDB().Main().getAllLanguages();
 			log.debug("request: langs/get_all.json");
 			return (new Gson()).toJson(langs);
 		} catch (RepositoryException e) {

@@ -13,7 +13,7 @@ qx.Class.define("bus.admin.net.impl.Langs", {
 				__sync : false,
 				getAllLanguages : function(completed_func, failed_func, self) {
 					var request = new qx.io.remote.Request(
-							"langs/get_all.json", "POST", "application/json");
+							"/langs/get_all", "POST", "application/json");
 					request.setAsynchronous(!this.__sync);
 					request.setParseJson(true);
 					request.addListener("completed", completed_func, self);
