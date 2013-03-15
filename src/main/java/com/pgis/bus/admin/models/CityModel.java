@@ -1,29 +1,35 @@
 package com.pgis.bus.admin.models;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.postgis.Point;
 import com.pgis.bus.data.orm.City;
 import com.pgis.bus.data.orm.StringValue;
+import com.pgis.bus.net.models.Location;
 
 public class CityModel {
-	
-	int id;
-	Point location;
-	int scale;
-	int name_key;
-	boolean isShow;
-
-	StringValue[] names;
+	private int id;
+	private String key;
+	private Location location;
+	private int scale;
+	private int nameKey;
+	private boolean show;
+	private Collection<LocaleNameModel> names;
 
 	public CityModel(City city) {
-		this.location = new Point(city.lat, city.lon);
 		this.id = city.id;
+		this.location = new Location(city.lat, city.lon);
 		this.scale = city.scale;
-		this.name_key = city.name_key;
-		this.names = city.name.values().toArray(
-				new StringValue[city.name.size()]);
-		this.isShow = city.isShow;
+		this.nameKey = city.name_key;
+		this.show = city.isShow;
+		this.key = city.key;
+		this.names = new ArrayList<LocaleNameModel>();
+		for (StringValue v : city.name.values()) {
+			this.names.add(new LocaleNameModel(v));
+		}
+
 	}
 
 	public int getId() {
@@ -34,11 +40,11 @@ public class CityModel {
 		this.id = id;
 	}
 
-	public Point getLocation() {
+	public Location getLocation() {
 		return location;
 	}
 
-	public void setLocation(Point location) {
+	public void setLocation(Location location) {
 		this.location = location;
 	}
 
@@ -50,45 +56,63 @@ public class CityModel {
 		this.scale = scale;
 	}
 
-	public int getName_key() {
-		return name_key;
+	public int getNameKey() {
+		return nameKey;
 	}
 
-	public void setName_key(int name_key) {
-		this.name_key = name_key;
+	public void setNameKey(int name_key) {
+		this.nameKey = name_key;
 	}
 
-	public StringValue[] getNames() {
+	
+	
+	public boolean isShow() {
+		return show;
+	}
+
+	public void setShow(boolean show) {
+		this.show = show;
+	}
+
+	public Collection<LocaleNameModel> getNames() {
 		return names;
 	}
 
-	public void setNames(StringValue[] names) {
+	public void setNames(Collection<LocaleNameModel> names) {
 		this.names = names;
+	}
+
+	
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
 	}
 
 	public City toCity() {
 		City city = new City();
 		city.id = this.id;
-		city.lat = this.location.x;
-		city.lon = this.location.y;
-		city.name_key = this.name_key;
+		city.key = this.key;
+		city.lat = this.location.getLat();
+		city.lon = this.location.getLon();
+		city.name_key = this.nameKey;
 		city.scale = this.scale;
-		city.isShow = this.isShow;
+		city.isShow = this.show;
 		city.name = new HashMap<String, StringValue>();
-
-		for (int i = 0; i < this.names.length; i++) {
-			city.name.put(this.names[i].lang_id, this.names[i]);
+		
+		for(LocaleNameModel elem : this.names){
+			StringValue stringValue = new StringValue();
+			stringValue.id = elem.getId();
+			stringValue.key_id = this.nameKey;
+			stringValue.lang_id = elem.getLangID();
+			stringValue.value = elem.getName();
+			city.name.put(elem.getLangID(), stringValue);
 		}
 
 		return city;
 	}
-	
-	public boolean isShow() {
-		return isShow;
-	}
 
-	public void setShow(boolean isShow) {
-		this.isShow = isShow;
-	}
 
 }

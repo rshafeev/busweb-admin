@@ -10,24 +10,27 @@ qx.Mixin.define("bus.admin.mvp.presenter.mix.Cities", {
 			var dataRequest =  new bus.admin.net.DataRequest();
 			var req = dataRequest.Cities().getAll(function(responce){
 				var data = responce.getContent();
+				this.debug("_getAllCities(): received cities data");
+				console.debug(data);
+				var args ={};
 				if(data == null || data.error != null){
-					var args = {
+					args = {
 						cities : null,
 						langs : null,
 						error : true,
-						server_error : server_error
+						errorCode : data.error != undefined ? data.error.code : "req_err",
+						errorRemoteInfo :  data.error != undefined ? data.error.info : null
 					}
 				}
 				else{
-					var args = {
-						cities : cities,
-						langs : bus.admin.AppProperties.LANGUAGES,
-						error : false,
-						server_error : null
+					this.getDataStorage().getCitiesModel().fromDataModel(data);
+					args = {
+						cities :  this.getDataStorage().getCitiesModel(),
+						langs  :  this.getDataStorage().getLangsModel(),
+						error  :  false
 					};
-					this.getDataStorage().getCities().setData(data);
 				}
-				callback(data);
+				callback(args);
 			},this);
 			return req;
 		}

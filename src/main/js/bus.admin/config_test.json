@@ -7,7 +7,7 @@
 						// need to define them locally, as the base.json versions fix qx.theme, QXTHEME, etc.
 						"source", "source-hybrid", "build"]
 			}],
-	"default-job" : "source",
+	"default-job" : "test",
 
 	"let" : {
 		"APPLICATION" : "bus.admin",
@@ -20,6 +20,29 @@
 		"ROOT" : ".",
 		"BUILD_PATH" :"${ROOT}/../../../../WebContent/app/tests"
 
+	},
+
+	"jobs" : {
+         "testrunner::build-tests-script": {     	
+         },
+
+         "build-tests" : {
+         	  "let" :
+      			{
+        			"TESTRUNNER_ORIGIN" : "iframe",
+        			"TESTRUNNER_VIEW" : "testrunner.view.widget.Widget",
+        			"TESTRUNNER_MAIN_CLASS" : "testrunner.GuiApplication",
+        			"TESTRUNNER_ROOT" : "${QOOXDOO_PATH}/component/testrunner",
+        			"TEST_INCLUDE"    : "${APPLICATION}.test.*",
+        			"QXTHEME"         : "qx.theme.Modern"
+      			},
+				"=run" : ["testrunner::build-script", "testrunner::build-tests-script"],
+				"environment":
+      			{
+        			"qx.debug" : true
+      			},
+
+		},
 	}
 
 }

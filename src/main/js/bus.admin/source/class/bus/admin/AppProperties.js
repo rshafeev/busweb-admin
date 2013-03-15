@@ -18,6 +18,11 @@ qx.Class.define("bus.admin.AppProperties", {
 		{
 			"id":"c_uk",
 			"name":"Українська"
-		}]
+		}],
+
+
+		getLocale : function(){
+			return "c_" + qx.locale.Manager.getInstance().getLocale();
+		}
 	}
 });

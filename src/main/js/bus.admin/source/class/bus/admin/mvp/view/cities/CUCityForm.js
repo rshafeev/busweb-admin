@@ -1,36 +1,47 @@
 /*
  * #asset(bus/admin/images/*)
  */
-qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
-	extend : qx.ui.window.Window,
+ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
+ 	extend : qx.ui.window.Window,
 
-	construct : function(change_dialog, cityModel) {
-		this.base(arguments);
-		this.__cityModel = cityModel;
-		this.setChangeDialog(change_dialog);
+ 	construct : function(presenter, _isChangeDlg, cityModel) {
+ 		this.base(arguments);
+ 		this._isChangeDlg = _isChangeDlg;
+ 		this._cityModel = cityModel;
+ 		this._presenter = presenter;
 
-		this.initWidgets();
-		this.__setOptions();
-	},
-	properties : {
-		changeDialog : {
-			nullable : true
-		}
-	},
-	members : {
-		__cityModel : null,
-		btn_save : null,
-		btn_cancel : null,
-		check_show : null,
-		editLat : null,
-		editLon : null,
-		editScale : null,
-		table_names : null,
-		on_save_click : function() {
+ 		this.__initWidgets();
+ 		this.__setOptions();
+ 	},
+ 	properties : {
+ 		changeDialog : {
+ 			nullable : true
+ 		}
+ 	},
+ 	members : {
+
+ 		_isChangeDlg : null,
+
+
+ 		_presenter : null,
+
+
+ 		_cityModel : null,
+
+
+ 		btn_save : null,
+ 		btn_cancel : null,
+ 		check_show : null,
+ 		editLat : null,
+ 		editLon : null,
+ 		editScale : null,
+ 		table_names : null,
+
+ 		on_save_click : function() {
 			// validation
 			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
 				var rowData = this.table_names.getTableModel()
-						.getRowDataAsMap(i);
+				.getRowDataAsMap(i);
 
 				if (rowData.Name==null||rowData.Name.toString().length <= 0) {
 					alert("Please, push names for all languages");
@@ -38,7 +49,7 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 				}
 			}
 
-			if (this.getChangeDialog()) {
+			if (this._isChangeDlg == true) {
 				this.__updateCity();
 			} else {
 				this.__insertCity();
@@ -50,58 +61,37 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 		},
 
 		__updateCity : function() {
-			// model
-			qx.core.Init.getApplication().setWaitingWindow(true);
-			var update_city = {
-				id : this.__cityModel.id,
-				location : {
-					x : this.editLat.getValue(),
-					y : this.editLon.getValue()
-				},
-				scale : this.editScale.getValue(),
-				isShow : this.check_show.getValue(),
-				name_key : this.__cityModel.name_key,
-				names : []
-			};
 			this.debug("__updateCity check:");
-			this.debug(this.check_show.getValue());
+			
+			var dataStorage = this._presenter.getDataStorage();
+			// model
+			var newCityModel = this._cityModel.clone();
+			newCityModel.setLocation(this.editLat.getValue(), this.editLon.getValue());
+			newCityModel.setShow(this.check_show.getValue());
+			newCityModel.setScale(this.editScale.getValue());
 			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
 				var rowData = this.table_names.getTableModel()
-						.getRowDataAsMap(i);
+				.getRowDataAsMap(i);
 				var modelsContainer = qx.core.Init.getApplication()
-						.getModelsContainer();
-				var lang = modelsContainer.getLangsModel()
-						.getLangByName(rowData.Language);
-				var stringValue = bus.admin.mvp.model.helpers.CitiesModelHelper
-						.getCityStringValueByLang(this.__cityModel, lang.id);
-				if (stringValue != null) {
-					update_city.names.push({
-								id : stringValue.id,
-								key_id : stringValue.key_id,
-								lang_id : lang.id,
-								value : rowData.Name
-							});
-				} else {
-					update_city.names.push({
-								id : null,
-								key_id : null,
-								lang_id : lang.id,
-								value : rowData.Name
-							});
-				}
+				.getModelsContainer();
+				var lang = dataStorage.getLangsModel().getLangByName(rowData.Language);
+				newCityModel.setName(lang.getId(), rowData.Name);
 			}
-			var globalPresenter = qx.core.Init.getApplication().getPresenter();
-			var event_finish_func = qx.lang.Function.bind(function(data) {
-						qx.core.Init.getApplication().setWaitingWindow(false);
-						if (data == null || data.error == true) {
-							this.debug("__update_city: request error");
-							return;
-						}
-						this.close();
-					}, this);
-			this.debug(update_city);
-			globalPresenter.updateCity(this.__cityModel, update_city,
-					event_finish_func);
+			
+			qx.core.Init.getApplication().setWaitingWindow(true);
+			
+			var callback = qx.lang.Function.bind(function(data) {
+				qx.core.Init.getApplication().setWaitingWindow(false);
+				if (data.error == true) {
+					var msg = data.errorInfo != undefined ? this.tr("Error") + data.errorInfo : 
+					this.tr("Error! Can not update city. Please, check input data.");
+					alert(msg);
+					return;
+				}
+				this.close();
+			}, this);
+			console.debug(newCityModel);
+			this._presenter.updateCityTrigger(this._cityModel, newCityModel, callback);
 
 		},
 
@@ -119,31 +109,31 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 			};
 			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
 				var rowData = this.table_names.getTableModel()
-						.getRowDataAsMap(i);
+				.getRowDataAsMap(i);
 				var modelsContainer = qx.core.Init.getApplication()
-						.getModelsContainer();
+				.getModelsContainer();
 				var lang = modelsContainer.getLangsModel()
-						.getLangByName(rowData.Language);
+				.getLangByName(rowData.Language);
 				newCityModel.names.push({
-							lang_id : lang.id,
-							value : rowData.Name
-						});
+					lang_id : lang.id,
+					value : rowData.Name
+				});
 			}
 			var globalPresenter = qx.core.Init.getApplication().getPresenter();
 			var event_finish_func = qx.lang.Function.bind(function(data) {
-						qx.core.Init.getApplication().setWaitingWindow(false);
-						if (data == null || data.error == true) {
-							this.debug("__insert_city: request error");
-							alert(data.server_error);
-							return;
-						}
-						this.close();
-					}, this);
+				qx.core.Init.getApplication().setWaitingWindow(false);
+				if (data == null || data.error == true) {
+					this.debug("__insert_city: request error");
+					alert(data.server_error);
+					return;
+				}
+				this.close();
+			}, this);
 			globalPresenter.insertCity(newCityModel, event_finish_func);
 
 		},
 
-		initWidgets : function() {
+		__initWidgets : function() {
 			this.setLayout(new qx.ui.layout.Canvas());
 
 			var positionSettings = new qx.ui.groupbox.GroupBox("Position");
@@ -152,27 +142,29 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 			var labelLat = new qx.ui.basic.Label("Lat:");
 			var labelLon = new qx.ui.basic.Label("Lon:");
 			var labelScale = new qx.ui.basic.Label("Scale(2-21):");
-			this.editLat = new qx.ui.form.TextField(this.__cityModel.location.x
-					.toString());
+			
+			this.editLat = new qx.ui.form.TextField(this._cityModel.getLocation().getLat()
+				.toString());
+			this.editLon = new qx.ui.form.TextField(this._cityModel.getLocation().getLon()
+				.toString());
+
 			this.editLat.setWidth(110);
-			this.editLon = new qx.ui.form.TextField(this.__cityModel.location.y
-					.toString());
 			this.editLon.setWidth(110);
 
 			this.editScale = new qx.ui.form.Spinner();
 			this.editScale.set({
-						maximum : 21,
-						minimum : 2
-					});
+				maximum : 21,
+				minimum : 2
+			});
 			this.editScale.setWidth(50);
 
 			this.btn_save = new qx.ui.form.Button("Save",
-					"bus/admin/images/btn/dialog-apply.png");
+				"bus/admin/images/btn/dialog-apply.png");
 			this.btn_save.addListener("execute", this.on_save_click, this);
 			this.btn_save.setWidth(90);
 
 			this.btn_cancel = new qx.ui.form.Button("Cancel",
-					"bus/admin/images/btn/dialog-cancel.png");
+				"bus/admin/images/btn/dialog-cancel.png");
 			this.btn_cancel.addListener("execute", this.on_cancel_click, this);
 			this.btn_cancel.setWidth(90);
 
@@ -185,8 +177,8 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 
 			// table
 			this.table_names = new qx.ui.table.Table(tableModel).set({
-						decorator : null
-					});
+				decorator : null
+			});
 			this.table_names.setBackgroundColor('gray');
 
 			this.table_names.setStatusBarVisible(false);
@@ -197,56 +189,55 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 
 			// add to cantainer
 			positionSettings.add(labelLat, {
-						left : 10,
-						top : 10
-					});
+				left : 10,
+				top : 10
+			});
 			positionSettings.add(this.editLat, {
-						left : 40,
-						top : 10
-					});
+				left : 40,
+				top : 10
+			});
 			positionSettings.add(labelLon, {
-						left : 10,
-						top : 50
-					});
+				left : 10,
+				top : 50
+			});
 			positionSettings.add(this.editLon, {
-						left : 40,
-						top : 50
-					});
+				left : 40,
+				top : 50
+			});
 
 			positionSettings.add(labelScale, {
-						left : 160,
-						top : 10
-					});
+				left : 160,
+				top : 10
+			});
 			positionSettings.add(this.editScale, {
-						left : 240,
-						top : 10
-					});
-			if (this.getChangeDialog()) {
+				left : 240,
+				top : 10
+			});
+			if (this._isChangeDlg == true) {
 				this.check_show = new qx.ui.form.CheckBox("Visiable");
 				positionSettings.add(this.check_show, {
-							left : 160,
-							top : 50
-						});
-				this.debug(this.__cityModel.isShow);
-				this.check_show.setValue(this.__cityModel.isShow);
+					left : 160,
+					top : 50
+				});
+				this.check_show.setValue(this._cityModel.getShow());
 			}
 			this.add(positionSettings, {
-						left : 0,
-						top : -15
-					});
+				left : 0,
+				top : -15
+			});
 			this.add(this.table_names, {
-						left : 10,
-						top : 130
-					});
+				left : 10,
+				top : 130
+			});
 
 			this.add(this.btn_save, {
-						left : 50,
-						top : 265
-					});
+				left : 50,
+				top : 265
+			});
 			this.add(this.btn_cancel, {
-						left : 160,
-						top : 265
-					});
+				left : 160,
+				top : 265
+			});
 
 		},
 
@@ -259,34 +250,32 @@ qx.Class.define("bus.admin.mvp.view.cities.CUCityForm", {
 			this.setShowMinimize(false);
 			this.setResizable(false, false, false, false);
 			this.center();
-			if (this.getChangeDialog()) {
+			if (this._isChangeDlg == true) {
 				this.setCaption("Change city");
 			} else {
 
 				this.setCaption("Insert new city");
 			}
 
-			if (this.__cityModel.location != null) {
-				this.editLat.setValue(this.__cityModel.location.x.toString());
-				this.editLon.setValue(this.__cityModel.location.y.toString());
-			}
-			this.editScale.setValue(this.__cityModel.scale);
+			/*if (this._cityModel.location != null) {
+				this.editLat.setValue(this._cityModel.location.x.toString());
+				this.editLon.setValue(this._cityModel.location.y.toString());
+			}*/
+			this.editScale.setValue(this._cityModel.getScale());
 
 			// fill table
-			var modelsContainer = qx.core.Init.getApplication()
-					.getModelsContainer();
-			var langs = modelsContainer.getLangsModel().getData();
-			var rowData = [];
+			console.info("CUCityForm _cityModel: ", this._cityModel);
+			var langs = this._presenter.getDataStorage().getLangsModel().getLangs();
+			var rowsData = [];
 			for (var i = 0; i < langs.length; i++) {
-				var name = "";
-				if (this.getChangeDialog()) {
-					name = bus.admin.mvp.model.helpers.CitiesModelHelper
-							.getCityNameByLang(this.__cityModel, langs[i].id);
+				var cityName = "";
+				if (this._isChangeDlg == true) {
+					this.debug("lang: ", langs[i].getId());
+					cityName = this._cityModel.getName(langs[i].getId());
 				}
-				rowData.push([langs[i].name, name]);
-				this.debug(langs[i].name);
+				rowsData.push([langs[i].getName(), cityName]);
 			}
-			this.table_names.getTableModel().setData(rowData);
+			this.table_names.getTableModel().setData(rowsData);
 
 		}
 	}

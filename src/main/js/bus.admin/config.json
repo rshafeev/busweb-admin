@@ -6,168 +6,166 @@
 		"block" : [
 						// need to define them locally, as the base.json versions fix qx.theme, QXTHEME, etc.
 						"source", "source-hybrid", "build"]
-						}],
-						"default-job" : "source",
+					}],
+					"default-job" : "source",
 
-						"let" : {
-							"APPLICATION" : "bus.admin",
-							"QOOXDOO_PATH" : "/opt/qooxdoo",
-							"LOCALES" : ["en","ru"],
-							"CACHE" : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
-							"ROOT" : ".",
-							"BUILD_PATH" : "${ROOT}/../../../../WebContent/app"
+					"let" : {
+						"APPLICATION" : "bus.admin",
+						"QOOXDOO_PATH" : "/opt/qooxdoo",
+						"LOCALES" : ["en","ru"],
+						"CACHE" : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
+						"ROOT" : ".",
+						"BUILD_PATH" : "${ROOT}/../../../../WebContent/app"
 
-							},
-							"config-warnings" : {
-								"job-shadowing" : ["source", "source-hybrid", "build-resources",
-								"common", "simulation-run", "translation"],
-								"environment" : ["non-literal-keys"]
-								},
+					},
+					"config-warnings" : {
+						"job-shadowing" : ["source", "source-hybrid", "build-resources",
+						"common", "simulation-run", "translation"],
+						"environment" : ["non-literal-keys"]
+					},
 
 	// You only need to edit the remainder of this file, if you want to customize
 	// specific jobs, or add own job definitions.
 
 	"jobs" : {
-		"source" : {
+		"source" : 
+		{
 
 			"let" : {
 				"QXTHEME" : "bus.admin.theme.indigo.Theme"
+			},
+			"extend" : ["source-script"],
+			"compile-options" : {
+				"code" : {
+					"except" : ["*"]
 				},
-				"extend" : ["source-script"],
-				"compile-options" : {
-					"code" : {
-						"except" : ["*"]
-						},
-						"paths" : {
-							"file" : "source/script/${APPLICATION}.indigo.js"
-						}
-					}
-					},
+				"paths" : {
+					"file" : "source/script/${APPLICATION}.indigo.js"
+				}
+			}
+		},
 
-					"build-debug" : {
-						"let" : {
-							"QXTHEME" : "bus.admin.theme.indigo.Theme",
-							"OPTIMIZE" : []
-							},
-							"extend" : ["build-script"],
-							"compile-options" : {
-								"paths" : {
-									"file" : "./${BUILD_PATH}/script/${APPLICATION}.indigo.js"
-								}
-								},
-								"environment" : { "qx.debug" : true } 
-								},
+		"build-debug" : {
+			"let" : {
+				"QXTHEME" : "bus.admin.theme.indigo.Theme",
+				"OPTIMIZE" : []
+			},
+			"extend" : ["build-script"],
+			"compile-options" : {
+				"paths" : {
+					"file" : "./${BUILD_PATH}/script/${APPLICATION}.indigo.js"
+				}
+			},
+			"environment" : { "qx.debug" : true } 
+		},
 
-								"api" : {
-									"let" : {
-										"BUILD_PATH" : "${ROOT}/../../../../WebContent/app/apidocs",
-										"API_EXCLUDE" : ["qx.test.*", "${APPLICATION}.theme.*",
-										"${APPLICATION}.test.*", "${APPLICATION}.simulation.*"],
-									}     
-									},
+		"api" : {
+			"let" : {
+				"BUILD_PATH" : "${ROOT}/../../../../WebContent/app/apidocs",
+				"API_EXCLUDE" : ["qx.*", "qx.test.*", "${APPLICATION}.theme.*",
+				"${APPLICATION}.test.*", "${APPLICATION}.simulation.*"],
+			}     
+		},
 
 
-									"test" : {
-										"let" : {
-											"BUILD_PATH" : "${ROOT}/../../../../WebContent/app/tests"
-										}     
-										},
-										
-										"build" : {
-											"=run" : ["build-resources", "build-script-indigo", "build-files"]
+		"test" : {
+			"let" : {
+				"BUILD_PATH" : "${ROOT}/../../../../WebContent/app/tests"
+			}     
+		},
 
-											},
+		"build" : {
+			"=run" : ["build-resources", "build-script-indigo", "build-files"]
 
-											"build-files" : {
-												"let" : {
-													"QXICONTHEME" : ["Oxygen", "Tango"]
-													},
-													"include" : [
-													"qx.theme.Classic",
-													"qx.theme.Indigo"
-			/*  "qx.theme.Classic",
-			  "qx.theme.Simple",
-			  "qx.theme.Modern",
-			  "qx.theme.Indigo"*/
-			  ],
+		},
 
-			  "copy-files" : {
-			  	"target" : "${BUILD_PATH}"
-			  }
-			  },
+		"build-files" : {
+			"let" : {
+				"QXICONTHEME" : ["Oxygen", "Tango"]
+			},
+			"include" : [
+			"qx.theme.Classic",
+			"qx.theme.Indigo"
 
-			  "build-resources" : {
-			  	"let" : {
-			  		"QXICONTHEME" : ["Oxygen", "Tango"]
-			  		},
-			  		"include" : ["bus.admin.theme.indigo.Theme"],
+			],
 
-			  		"copy-resources" : {
-			  			"target" : "${BUILD_PATH}"
-			  		}
-			  		},
+			"copy-files" : {
+				"target" : "${BUILD_PATH}"
+			}
+		},
 
-			  		"build-script-indigo" : {
-			  			"let" : {
-			  				"QXTHEME" : "bus.admin.theme.indigo.Theme"
-			  				},
-			  				"extend" : ["build-script"],
-			  				"compile-options" : {
-			  					"paths" : {
-			  						"file" : "./${BUILD_PATH}/script/${APPLICATION}.indigo.js"
-			  					}
-			  				}
-			  				},
+		"build-resources" : {
+			"let" : {
+				"QXICONTHEME" : ["Oxygen", "Tango"]
+			},
+			"include" : ["bus.admin.theme.indigo.Theme"],
 
-			  				"common" : {
+			"copy-resources" : {
+				"target" : "${BUILD_PATH}"
+			}
+		},
+
+		"build-script-indigo" : {
+			"let" : {
+				"QXTHEME" : "bus.admin.theme.indigo.Theme"
+			},
+			"extend" : ["build-script"],
+			"compile-options" : {
+				"paths" : {
+					"file" : "./${BUILD_PATH}/script/${APPLICATION}.indigo.js"
+				}
+			}
+		},
+
+		"common" : {
 			/*
 			"library" : [{
 				"manifest" : "${QOOXDOO_PATH}/component/library/formdemo/Manifest.json"
-			}, {
-				"manifest" : "${QOOXDOO_PATH}/component/library/versionlabel/Manifest.json"
-			}],
-			*/
-			"environment" : {
-				"qx.nativeScrollBars" : true
-				},
-				"packages" : {
-					"parts" : {
-						"boot" : {
-							"include" : ["${QXTHEME}", "bus.admin.Application"]
+				}, {
+					"manifest" : "${QOOXDOO_PATH}/component/library/versionlabel/Manifest.json"
+					}],
+					*/
+					"environment" : {
+						"qx.nativeScrollBars" : true
+					},
+					"packages" : {
+						"parts" : {
+							"boot" : {
+								"include" : ["${QXTHEME}", "bus.admin.Application"]
 							},
 							"cities" : {
 								"include" : ["bus.admin.mvp.view.Cities"]
-								},
-								"stations" : {
-									"include" : ["bus.admin.mvp.view.Stations"]
-									},
-									"routes" : {
-										"include" : ["bus.admin.mvp.view.Routes"]
-									}
-
-								}
-							}
 							},
-
-							"simulation-run" : {
-								"environment" : {
-									"simulator.selServer" : "${SELENIUM_SERVER}",
-									"simulator.selPort" : "${SELENIUM_PORT}",
-									"simulator.testBrowser" : "${SELENIUM_BROWSER}",
-									"simulator.autHost" : "${AUT_HOST}",
-									"simulator.autPath" : "${AUT_PATH}",
-									"simulator.reportServer" : "${SIMULATOR_REPORTSERVER}",
-									"simulator.applicationLog" : true,
-									"simulator.globalErrorLogging" : true
-								}
-								},
-
-								"translation" : {
-									"translate" : {
-										"poentry-with-occurrences" : false
-									}
-								}
-
+							"stations" : {
+								"include" : ["bus.admin.mvp.view.Stations"]
+							},
+							"routes" : {
+								"include" : ["bus.admin.mvp.view.Routes"]
 							}
 
 						}
+					}
+				},
+
+				"simulation-run" : {
+					"environment" : {
+						"simulator.selServer" : "${SELENIUM_SERVER}",
+						"simulator.selPort" : "${SELENIUM_PORT}",
+						"simulator.testBrowser" : "${SELENIUM_BROWSER}",
+						"simulator.autHost" : "${AUT_HOST}",
+						"simulator.autPath" : "${AUT_PATH}",
+						"simulator.reportServer" : "${SIMULATOR_REPORTSERVER}",
+						"simulator.applicationLog" : true,
+						"simulator.globalErrorLogging" : true
+					}
+				},
+
+				"translation" : {
+					"translate" : {
+						"poentry-with-occurrences" : false
+					}
+				}
+
+			}
+
+		}

@@ -2,20 +2,22 @@
   #ignore(google.maps)
   #ignore(google.maps.*)
   #ignore(ContextMenu)
- */
-qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
-	extend : qx.ui.container.Composite,
+  */
+  qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
+  	extend : qx.ui.container.Composite,
 
-	construct : function(citiesPage) {
-		this.base(arguments);
-		this.__citiesPage = citiesPage;
-		this.setLayout(new qx.ui.layout.Dock());
-		this.initWidgets();
-		var presenter = citiesPage.getPresenter();
+  	construct : function(presenter) {
+  		this.base(arguments);
+  		this._presenter = presenter;
+  		this.setLayout(new qx.ui.layout.Dock());
+  		this.initWidgets();
+  		presenter.addListener("refresh", this._onRefresh, this);
+  		presenter.addListener("select_city", this._onSelectCity, this);
+		/*
 		presenter.addListener("update_city", this.on_update_city, this);
 		presenter.addListener("insert_city", this.on_insert_city, this);
-		presenter.addListener("refresh", this.on_refresh, this);
-		presenter.addListener("delete_city", this.on_delete_city, this);
+		
+		presenter.addListener("delete_city", this.on_delete_city, this);*/
 	},
 	properties : {
 		googleMap : {
@@ -23,63 +25,73 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 		}
 	},
 	members : {
-		__citiesPage : null,
+		_presenter : null,
 		__markers : [],
-		on_delete_city : function(e) {
-			this.debug("on_update_city()");
-			var data = e.getData();
 
-			if (data == null || data.error == true) {
-				this.debug("on_delete_city() : event data has errors");
-				return;
-			}
-			this.deleteMarker(data.city_id);
-		},
-		on_update_city : function(e) {
-			this.debug("on_update_city()");
-			var data = e.getData();
-			if (data == null || data.error == true) {
-				this.debug("on_refresh_cities() : event data has errors");
-				if (data != null && data.old_city != null) {
-					this.updateMarker(data.old_city.id,
-							data.old_city.location.x,
-							data.old_city.location.y);
-				}
-				return;
-			}
-			this.updateMarker(data.new_city.id, data.new_city.location.x,
-					data.new_city.location.y);
-		},
-		on_insert_city : function(e) {
-			this.debug("on_insert_city()");
-			var data = e.getData();
-			if (data == null || data.error == true) {
-				this.debug("on_refresh_cities() : event data has errors");
-				return;
-			}
-			this.insertCityMarker(data.city.id, data.city.location.x,
-					data.city.location.y);
-		},
+		/**
+		 * [_onRefresh description]
+		 * @param e {[type]} [description]
+		 */
+		 _onRefresh : function(e) {
+		 	this.debug("execute on_refresh() event handler");
+		 	var citiesModel = e.getData().cities;
+		 	var cities = citiesModel.getAllCities();
+		 	this.deleteAllMarkers();
+		 	for (var i = 0; i < cities.length; i++) {
+		 		this.insertCityMarker(cities[i].getId(),
+		 			cities[i].getLocation().getLat(),
+		 			cities[i].getLocation().getLon());
+		 	}
+		 },
 
-		on_refresh : function(e) {
-			var data = e.getData();
-			if (data == null || data.error == true) {
-				this.debug("on_refresh_cities() : event data has errors");
-				return;
-			}
-			this.deleteAllMarkers();
-			for (var i = 0; i < data.cities.length; i++) {
-				this.insertCityMarker(data.cities[i].id,
-						data.cities[i].location.x,
-						data.cities[i].location.y);
-			}
-		},
+		/**
+		 * [_onSelectCity description]
+		 * @param e {[type]} [description]
+		 */
+		 _onSelectCity : function(e){
+		 	this.debug("execute _onSelectCity() event handler");
+		 	var cityModel = e.getData().city;
+		 	this.getGoogleMap().setCenter(cityModel.getLocation().getLat(), 
+		 		cityModel.getLocation().getLon(),cityModel.getScale());
+		 },
 
-		initialize : function() {
+		 on_delete_city : function(e) {
+		 	this.debug("on_update_city()");
+		 	var data = e.getData();
 
-		},
+		 	if (data == null || data.error == true) {
+		 		this.debug("on_delete_city() : event data has errors");
+		 		return;
+		 	}
+		 	this.deleteMarker(data.city_id);
+		 },
+		 on_update_city : function(e) {
+		 	this.debug("on_update_city()");
+		 	var data = e.getData();
+		 	if (data == null || data.error == true) {
+		 		this.debug("on_refresh_cities() : event data has errors");
+		 		if (data != null && data.old_city != null) {
+		 			this.updateMarker(data.old_city.id,
+		 				data.old_city.location.x,
+		 				data.old_city.location.y);
+		 		}
+		 		return;
+		 	}
+		 	this.updateMarker(data.new_city.id, data.new_city.location.x,
+		 		data.new_city.location.y);
+		 },
+		 on_insert_city : function(e) {
+		 	this.debug("on_insert_city()");
+		 	var data = e.getData();
+		 	if (data == null || data.error == true) {
+		 		this.debug("on_refresh_cities() : event data has errors");
+		 		return;
+		 	}
+		 	this.insertCityMarker(data.city.id, data.city.location.x,
+		 		data.city.location.y);
+		 },
 
-		initWidgets : function() {
+		 initWidgets : function() {
 			// create Map Widget
 			this.setGoogleMap(new bus.admin.widget.GoogleMap());
 			this.getGoogleMap().init(50, 30, 5);
@@ -88,9 +100,9 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 			 * var list = new qx.ui.form.List;
 			 * list.setContextMenu(this.getContextMenu()); this.add(list);
 			 */
-			this.add(this.getGoogleMap(), {
-						edge : "center"
-					});
+			 this.add(this.getGoogleMap(), {
+			 	edge : "center"
+			 });
 
 			// create the ContextMenuOptions object
 			var contextMenuOptions = {};
@@ -102,28 +114,28 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 			// create an array of ContextMenuItem objects
 			var menuItems = [];
 			menuItems.push({
-						className : 'context_menu_item',
-						eventName : 'insert_city_click',
-						label : 'Insert city'
-					});
+				className : 'context_menu_item',
+				eventName : 'insert_city_click',
+				label : 'Insert city'
+			});
 			menuItems.push({});
 			menuItems.push({
-						className : 'context_menu_item',
-						eventName : 'zoom_in_click',
-						label : 'Zoom in'
-					});
+				className : 'context_menu_item',
+				eventName : 'zoom_in_click',
+				label : 'Zoom in'
+			});
 			menuItems.push({
-						className : 'context_menu_item',
-						eventName : 'zoom_out_click',
-						label : 'Zoom out'
-					});
+				className : 'context_menu_item',
+				eventName : 'zoom_out_click',
+				label : 'Zoom out'
+			});
 			// a menuItem with no properties will be rendered as a
 
 			menuItems.push({
-						className : 'context_menu_item',
-						eventName : 'center_map_click',
-						label : 'Center map here'
-					});
+				className : 'context_menu_item',
+				eventName : 'center_map_click',
+				label : 'Center map here'
+			});
 			contextMenuOptions.menuItems = menuItems;
 
 			// create the ContextMenu object
@@ -134,117 +146,126 @@ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
 				var contextMenu = new ContextMenu(map, contextMenuOptions);
 				// display the ContextMenu on a Map right click
 				google.maps.event.addListener(map, "rightclick", function(
-								mouseEvent) {
-							contextMenu.show(mouseEvent.latLng);
-						});
+					mouseEvent) {
+					contextMenu.show(mouseEvent.latLng);
+				});
 				google.maps.event.addListener(map, "click",
-						function(mouseEvent) {
-							contextMenu.hide();
-						});
+					function(mouseEvent) {
+						contextMenu.hide();
+					});
 
 				google.maps.event.addListener(map, "dragstart", function(
-								mouseEvent) {
-							contextMenu.hide();
-						});
+					mouseEvent) {
+					contextMenu.hide();
+				});
 
 				google.maps.event.addListener(contextMenu,
-						'menu_item_selected', function(latLng, eventName) {
-							switch (eventName) {
-								case 'insert_city_click' :
-									T.debug("insert_city_click()");
-									var cityModel = {
-										location : {
-											x : latLng.lat(),
-											y : latLng.lng()
-										},
-										scale : map.getZoom()
-									};
-									var changeDialog = new bus.admin.mvp.view.cities.CUCityForm(
-											false, cityModel);
-									changeDialog.open();
-									break;
-								case 'zoom_in_click' :
-									map.setZoom(map.getZoom() + 1);
-									break;
-								case 'zoom_out_click' :
-									map.setZoom(map.getZoom() - 1);
-									break;
-								case 'center_map_click' :
-									map.panTo(latLng);
-									break;
-							}
-						});
+					'menu_item_selected', function(latLng, eventName) {
+						switch (eventName) {
+							case 'insert_city_click' :
+							T.debug("insert_city_click()");
+							var cityModel = {
+								location : {
+									x : latLng.lat(),
+									y : latLng.lng()
+								},
+								scale : map.getZoom()
+							};
+							var changeDialog = new bus.admin.mvp.view.cities.CUCityForm(
+								false, cityModel);
+							changeDialog.open();
+							break;
+							case 'zoom_in_click' :
+							map.setZoom(map.getZoom() + 1);
+							break;
+							case 'zoom_out_click' :
+							map.setZoom(map.getZoom() - 1);
+							break;
+							case 'center_map_click' :
+							map.panTo(latLng);
+							break;
+						}
+					});
 			}, this);
 
-		},
+},
 
-		insertCityMarker : function(id, lat, lon) {
+insertCityMarker : function(id, lat, lon) {
+	var self = this;
+	var marker = new google.maps.Marker({
+		position : new google.maps.LatLng(lat, lon),
+		map : this.getGoogleMap().getMapObject()
+	});
+	marker.setDraggable(false);
+	marker.set("id", id);
 
-			var marker = new google.maps.Marker({
-						position : new google.maps.LatLng(lat, lon),
-						map : this.getGoogleMap().getMapObject()
-					});
-			marker.setDraggable(false);
-			marker.set("id", id);
-			this.__markers.push(marker);
-		},
-
-		deleteMarker : function(id) {
-			for (var i = 0; i < this.__markers.length; i++) {
-				if (this.__markers[i].get("id") == id) {
-					this.__markers[i].setMap(null);
-					this.__markers.slice(i, 1);
-					return;
-				}
-			}
-		},
-
-		deleteAllMarkers : function() {
-			for (var i = 0; i < this.__markers.length; i++) {
-				this.__markers[i].setMap(null);
-			}
-			this.__markers = [];
-		},
-
-		startMoveMarker : function(id) {
-			var marker = this.getMarkerByID(id);
-			if (marker != null)
-				marker.setDraggable(true);
-		},
-
-		finishMoveMarker : function(id) {
-			var marker = this.getMarkerByID(id);
-			if (marker != null)
-				marker.setDraggable(false);
-		},
-
-		getMarkerByID : function(id) {
-			for (var i = 0; i < this.__markers.length; i++) {
-				if (this.__markers[i].get("id") == id) {
-					return this.__markers[i];
-				}
-			}
-			return null;
-		},
-
-		updateMarker : function(id, lat, lon) {
-			for (var i = 0; i < this.__markers.length; i++) {
-				if (this.__markers[i].get("id") == id) {
-					var marker = this.__markers[i];
-
-					marker.setPosition(new google.maps.LatLng(lat, lon));
-					return;
-				}
-			}
-
-		},
-
-		refreshMap : function() {
-			this.debug("refreshMap");
-			for (var i = 0; i < this.__markers.length; i++) {
-				this.__markers[i].setMap(this.getGoogleMap().getMapObject());
-			}
+	google.maps.event.addListener(marker, "click", function(
+		mouseEvent) {
+		if(self._presenter.getDataStorage().getState() == "none"){
+			var selectedCityID = marker.get("id");
+			self._presenter.selectCityTrigger(selectedCityID, null, self);
 		}
 
+	});
+	this.__markers.push(marker);
+},
+
+deleteMarker : function(id) {
+	for (var i = 0; i < this.__markers.length; i++) {
+		if (this.__markers[i].get("id") == id) {
+			this.__markers[i].setMap(null);
+			this.__markers.slice(i, 1);
+			return;
+		}
 	}
+},
+
+deleteAllMarkers : function() {
+	for (var i = 0; i < this.__markers.length; i++) {
+		this.__markers[i].setMap(null);
+	}
+	this.__markers = [];
+},
+
+startMoveMarker : function(id) {
+	var marker = this.getMarkerByID(id);
+	if (marker != null)
+		marker.setDraggable(true);
+},
+
+finishMoveMarker : function(id) {
+	var marker = this.getMarkerByID(id);
+	if (marker != null)
+		marker.setDraggable(false);
+},
+
+getMarkerByID : function(id) {
+	for (var i = 0; i < this.__markers.length; i++) {
+		if (this.__markers[i].get("id") == id) {
+			return this.__markers[i];
+		}
+	}
+	return null;
+},
+
+updateMarker : function(id, lat, lon) {
+	for (var i = 0; i < this.__markers.length; i++) {
+		if (this.__markers[i].get("id") == id) {
+			var marker = this.__markers[i];
+
+			marker.setPosition(new google.maps.LatLng(lat, lon));
+			return;
+		}
+	}
+
+},
+
+refreshMap : function() {
+	this.debug("refreshMap");
+	for (var i = 0; i < this.__markers.length; i++) {
+		this.__markers[i].setMap(this.getGoogleMap().getMapObject());
+	}
+}
+
+}
 });
