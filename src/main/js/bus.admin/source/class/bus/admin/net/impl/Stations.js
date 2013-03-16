@@ -4,7 +4,7 @@ qx.Class.define("bus.admin.net.impl.Stations", {
 	extend : qx.core.Object,
 
 	construct : function(sync) {
-		if (sync != null) {
+		if (sync != undefined) {
 			this.__sync = sync;
 		}
 

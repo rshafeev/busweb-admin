@@ -86,19 +86,19 @@
  		   * Кнопка удаления города
  		   * @type {qx.ui.form.Button}
  		   */
- 		   __btnDelete : null,
+ 		   _btnDelete : null,
 
  		  /**
  		   * Кнопка обновления страницы
  		   * @type {qx.ui.form.Button}
  		   */ 		   
- 		   __btnRefresh : null,
+ 		   _btnRefresh : null,
 
  		  /**
  		   * Кнопка отмены изменений.
  		   * @type {qx.ui.form.Button}
  		   */
- 		   __btnCancel : null,
+ 		   _btnCancel : null,
 
 
  		  /**
@@ -289,12 +289,12 @@
  		   		rowIndex = this._tableCities.getSelectionModel().getAnchorSelectionIndex();
  		   	this.debug("rowIndex: ", rowIndex);
  		   	if(rowIndex < 0){
- 		   		this.__btnDelete.setEnabled(false);
+ 		   		this._btnDelete.setEnabled(false);
  		   		this._btnChange.setEnabled(false);
  		   		this._btnMove.setEnabled(false);
  		   	}else
  		   	{
- 		   		this.__btnDelete.setEnabled(true);
+ 		   		this._btnDelete.setEnabled(true);
  		   		this._btnChange.setEnabled(true);
  		   		this._btnMove.setEnabled(true);
  		   	}
@@ -470,21 +470,21 @@
  				.getBounds().height
  				- 65, this._btnSave.getBounds().width,
  				this._btnSave.getBounds().height);
- 			this.__btnCancel.setUserBounds(this.getBounds().width - 100, this
+ 			this._btnCancel.setUserBounds(this.getBounds().width - 100, this
  				.getBounds().height
- 				- 65, this.__btnCancel.getBounds().width,
- 				this.__btnCancel.getBounds().height);
+ 				- 65, this._btnCancel.getBounds().width,
+ 				this._btnCancel.getBounds().height);
 
  			this._btnChange.setUserBounds(this.getBounds().width - 200, this
  				.getBounds().height
  				- 65, this._btnChange.getBounds().width,
  				this._btnChange.getBounds().height);
- 			this.__btnDelete.setUserBounds(this.getBounds().width - 100, this
+ 			this._btnDelete.setUserBounds(this.getBounds().width - 100, this
  				.getBounds().height
- 				- 65, this.__btnDelete.getBounds().width,
- 				this.__btnDelete.getBounds().height);
- 			this.__btnRefresh.setUserBounds(10, this.getBounds().height - 65,
- 				this.__btnRefresh.getBounds().width, this.__btnRefresh
+ 				- 65, this._btnDelete.getBounds().width,
+ 				this._btnDelete.getBounds().height);
+ 			this._btnRefresh.setUserBounds(10, this.getBounds().height - 65,
+ 				this._btnRefresh.getBounds().width, this._btnRefresh
  				.getBounds().height);
  			this._btnMove.setUserBounds(this.getBounds().width - 300, this
  				.getBounds().height
@@ -524,7 +524,7 @@
 				this._comboLangs.setVisibility('hidden');
 				this._btnMove.setVisibility("visible");
 				this._btnChange.setVisibility("visible");
-				this.__btnDelete.setVisibility("visible");
+				this._btnDelete.setVisibility("visible");
 			}, this);
 			locButton.addListener("execute", function() {
 				this._tableCities.setVisibility('hidden');
@@ -532,7 +532,7 @@
 				this._comboLangs.setVisibility('visible');
 				this._btnMove.setVisibility("hidden");
 				this._btnChange.setVisibility("hidden");
-				this.__btnDelete.setVisibility("hidden");
+				this._btnDelete.setVisibility("hidden");
 			}, this);
 
 			this._radioBtnGroup.add(infoButton);
@@ -552,9 +552,9 @@
 			this._btnChange.addListener("execute", this._onClickBtnChange,	this);
 
 
-			this.__btnDelete = new qx.ui.form.Button("Delete",
+			this._btnDelete = new qx.ui.form.Button("Delete",
 				"bus/admin/images/btn/edit-delete.png");
-			this.__btnDelete.setWidth(90);
+			this._btnDelete.setWidth(90);
 
 			this._btnMove = new qx.ui.form.Button(this.tr("Move"),
 				"bus/admin/images/btn/go-bottom.png");
@@ -564,31 +564,31 @@
 				"bus/admin/images/btn/dialog-apply.png");
 			this._btnSave.setWidth(90);
 
-			this.__btnCancel = new qx.ui.form.Button("Cancel",
+			this._btnCancel = new qx.ui.form.Button("Cancel",
 				"bus/admin/images/btn/dialog-cancel.png");
-			this.__btnCancel.setWidth(90);
+			this._btnCancel.setWidth(90);
 
-			this.__btnRefresh = new qx.ui.form.Button("",
+			this._btnRefresh = new qx.ui.form.Button("",
 				"bus/admin/images/btn/view-refresh.png");
-			this.__btnRefresh.setWidth(35);
+			this._btnRefresh.setWidth(35);
 
 			this._btnSave.setVisibility("hidden");
-			this.__btnCancel.setVisibility("hidden");
+			this._btnCancel.setVisibility("hidden");
 
 			this._btnSave.addListener("execute", this.__onClickBtnSave, this);
-			this.__btnCancel.addListener("execute", this.__onClickBtnCancel,
+			this._btnCancel.addListener("execute", this.__onClickBtnCancel,
 				this);
 			
-			this.__btnDelete.addListener("execute", this.__onClickBtnDelete,this);
+			this._btnDelete.addListener("execute", this.__onClickBtnDelete,this);
 			this._btnMove.addListener("execute", this.__onClickBtnMove, this);
-			this.__btnRefresh.addListener("execute", this.__onClickBtnRefresh,
+			this._btnRefresh.addListener("execute", this.__onClickBtnRefresh,
 				this);
 			this.add(this._btnSave);
-			this.add(this.__btnCancel);
+			this.add(this._btnCancel);
 			this.add(this._btnChange);
-			this.add(this.__btnDelete);
+			this.add(this._btnDelete);
 			this.add(this._btnMove);
-			this.add(this.__btnRefresh);
+			this.add(this._btnRefresh);
 
 			this._comboLangs = new qx.ui.form.SelectBox();
 			this._comboLangs.setVisibility('hidden');

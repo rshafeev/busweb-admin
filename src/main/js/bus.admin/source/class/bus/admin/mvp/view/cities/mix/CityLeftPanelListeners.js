@@ -152,22 +152,22 @@
 		  	this.debug("execute _onChangeState() event handler");
 		  	if(e.getData().newState == "none" ){
 		  		this._btnSave.setVisibility("hidden");
-		  		this.btn_cancel.setVisibility("hidden");
+		  		this._btnCancel.setVisibility("hidden");
 		  		this._btnMove.setVisibility("visible");
-		  		this.btn_refresh.setEnabled(true);
+		  		this._btnRefresh.setEnabled(true);
 		  		this._btnChange.setVisibility("visible");
-		  		this.btn_delete.setVisibility("visible");
+		  		this._btnDelete.setVisibility("visible");
 		  		this._tableCities.setEnabled(true);
 		  		this._radioBtnGroup.setEnabled(true);
 		  	}
 		  	else 
 		  		if(e.getData().newState == "move"){
 		  			this._btnSave.setVisibility("visible");
-		  			this.btn_cancel.setVisibility("visible");
+		  			this._btnCancel.setVisibility("visible");
 		  			this._btnMove.setVisibility("hidden");
 		  			this._btnChange.setVisibility("hidden");
-		  			this.btn_delete.setVisibility("hidden");
-		  			this.btn_refresh.setEnabled(false);
+		  			this._btnDelete.setVisibility("hidden");
+		  			this._btnRefresh.setEnabled(false);
 		  			this._tableCities.setEnabled(false);
 		  			this._radioBtnGroup.setEnabled(false);
 		  		}
