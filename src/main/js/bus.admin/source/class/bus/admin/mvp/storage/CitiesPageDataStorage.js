@@ -10,7 +10,13 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
     this.setCitiesModel(citiesModel);
     this.setLangsModel(langsModel);
     this.setState("none");
-    
+
+    var mapCenter = {
+      centerLat : 0.0,
+      centerLon : 0.0,
+      scale     : 0
+    };
+    this.setMapCenter(mapCenter);
     // get data from locale storage
     var currNamesLangID = qx.module.Storage.getLocalItem("cities.currNamesLangID");
     var selectedCityID = qx.module.Storage.getLocalItem("cities.selectedCityID");
@@ -36,7 +42,7 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
   properties : {
               /** Показывает состояние страницы, в котором она пребывает. Возможные значения:
               none : обычное состояние. 
-              move - Была нажата кнопка "Move"
+              move - Была нажата кнопка "Move" и выполняется пользователем подбор масштаба и 
               */
               state : {
               	nullable : true,
@@ -66,6 +72,11 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
                 check : "Integer",
                 init : -1,
                 apply : "_applySelectedCityID" 
+              },
+
+
+              mapCenter : {
+                  nullable : true
               }
             },
 
@@ -78,6 +89,14 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
 
               _applySelectedCityID : function(value, old, name){
                 qx.module.Storage.setLocalItem("cities.selectedCityID", value);
+              },
+
+
+              getSelectedCity : function(){
+                var cityID = this.getSelectedCityID();
+                if(cityID <=0)
+                  return null;
+                return this.getCitiesModel().getCityByID(cityID);
               }
 
             }

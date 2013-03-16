@@ -46,22 +46,22 @@
 
  		/**
  		 * Добавляет город.
- 		 * @param  city {bus.admin.mvp.model.CityModel}  Модель города.
+ 		 * @param  cityModel {bus.admin.mvp.model.CityModel}  Модель города.
  		 */
- 		 insertCity : function(city) {
- 		 	this.getData().push(city);
+ 		 insertCity : function(cityModel) {
+ 		 	this._cities.push(cityModel);
  		 },
 
  		 /**
  		  * Удаляет город.
- 		  * @param  id {Integer}  ID города.
+ 		  * @param  cityID {Integer}  ID города.
  		  */
- 		  deleteCity : function(id) {
+ 		  removeCity : function(cityID) {
  		  	var cities = this._cities;
  		  	if (cities == null)
  		  		return;
  		  	for (var i = 0; i < cities.length; i++) {
- 		  		if (id == cities[i].getId()) {
+ 		  		if (cityID == cities[i].getId()) {
  		  			cities.splice(i, 1);
  		  			return;
  		  		}

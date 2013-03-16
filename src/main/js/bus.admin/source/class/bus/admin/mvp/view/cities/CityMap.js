@@ -1,38 +1,70 @@
-/*
-  #ignore(google.maps)
-  #ignore(google.maps.*)
-  #ignore(ContextMenu)
-  */
-  qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
-  	extend : qx.ui.container.Composite,
+/*************************************************************************
+ *
+ * Copyright:
+ * Bus.Admin-lib is copyright (c) 2012, {@link http://ways.in.ua} Inc. All Rights Reserved. 
+ *
+ * License:
+ * Bus.Admin-lib is free software, licensed under the MIT license. 
+ * See the file {@link http://api.ways.in.ua/license.txt license.txt} in this distribution for more details.
+ *
+ * Authors:
+ * Roman Shafeyev (rs@premiumgis.com)
+ *
+ *************************************************************************/
 
-  	construct : function(presenter) {
-  		this.base(arguments);
-  		this._presenter = presenter;
-  		this.setLayout(new qx.ui.layout.Dock());
-  		this.initWidgets();
-  		presenter.addListener("refresh", this._onRefresh, this);
-  		presenter.addListener("select_city", this._onSelectCity, this);
-		/*
-		presenter.addListener("update_city", this.on_update_city, this);
-		presenter.addListener("insert_city", this.on_insert_city, this);
-		
-		presenter.addListener("delete_city", this.on_delete_city, this);*/
-	},
-	properties : {
-		googleMap : {
-			nullable : true
-		}
-	},
-	members : {
-		_presenter : null,
-		__markers : [],
+/**
+ * @ignore(google.maps)
+ * @ignore(ContextMenu)
+ */
+/**
+ * Виджет карты для страницы {@link bus.admin.mvp.view.Cities Cities}
+ */
+ qx.Class.define("bus.admin.mvp.view.cities.CityMap", {
+ 	extend : qx.ui.container.Composite,
+
+ 	/**
+ 	 * [construct description]
+ 	 * @param presenter {bus.admin.mvp.presenter.CitiesPresenter}  Presenter
+ 	 */
+ 	construct : function(presenter) {
+ 		this.base(arguments);
+ 		this._presenter = presenter;
+ 		this.setLayout(new qx.ui.layout.Dock());
+ 		this.__initWidgets();
+ 		presenter.addListener("refresh", this.__onRefresh, this);
+ 		presenter.addListener("select_city", this.__onSelectCity, this);
+ 		presenter.addListener("update_city", this.__onUpdateCity, this);
+ 		presenter.addListener("insert_city", this.__onInsertCity, this);
+ 		presenter.addListener("remove_city", this.__onRemoveCity, this);
+ 	},
+
+ 	properties : {
+ 		/**
+ 		 * Виджет Google карты
+ 		 */
+ 		googleMap : {
+ 			nullable : true,
+ 			check : "bus.admin.widget.GoogleMap"
+ 		}
+ 	},
+ 	members : {
+ 		/**
+ 		 * Presenter
+ 		 * @type {bus.admin.mvp.presenter.CitiesPresenter}
+ 		 */
+ 		_presenter : null,
+
+ 		/**
+ 		 * Массив маркеров
+ 		 * @type {google.maps.Marker[]}
+ 		 */
+ 		__markers : [],
 
 		/**
-		 * [_onRefresh description]
-		 * @param e {[type]} [description]
+		 * Обработчик события {@link bus.admin.mvp.presenter.CitiesPresenter#refresh refresh}
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
 		 */
-		 _onRefresh : function(e) {
+		 __onRefresh : function(e) {
 		 	this.debug("execute on_refresh() event handler");
 		 	var citiesModel = e.getData().cities;
 		 	var cities = citiesModel.getAllCities();
@@ -44,62 +76,63 @@
 		 	}
 		 },
 
-		/**
-		 * [_onSelectCity description]
-		 * @param e {[type]} [description]
-		 */
-		 _onSelectCity : function(e){
-		 	this.debug("execute _onSelectCity() event handler");
-		 	var cityModel = e.getData().city;
-		 	this.getGoogleMap().setCenter(cityModel.getLocation().getLat(), 
-		 		cityModel.getLocation().getLon(),cityModel.getScale());
-		 },
+		 /**
+		  * Обработчик события  {@link bus.admin.mvp.presenter.CitiesPresenter#select_city select_city} вызывается при выборе пользователем города.
+		  * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		  */
+		  __onSelectCity : function(e){
+		  	this.debug("execute _onSelectCity() event handler");
+		  	var cityModel = e.getData().city;
+		  	if(cityModel == null)
+		  		return;
+		  	this.getGoogleMap().setCenter(cityModel.getLocation().getLat(), 
+		  		cityModel.getLocation().getLon(),cityModel.getScale());
+		  },
 
-		 on_delete_city : function(e) {
-		 	this.debug("on_update_city()");
-		 	var data = e.getData();
+		 /**
+		  * Обработчик события  {@link bus.admin.mvp.presenter.CitiesPresenter#update_city update_city} вызывается при изменении модели города.
+		  * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		  */
+		  __onUpdateCity : function(e) {
+		  	if(e.getData().sender == this)
+		  		return;
+		  	this.debug("execute __onUpdateCity() event handler");
+		  	var oldCityModel = e.getData().oldCity;
+		  	var newCityModel = e.getData().newCity;
+		  	this.updateMarker(oldCityModel.getId(), newCityModel.getLocation().getLat(), newCityModel.getLocation().getLon());
+		  },
 
-		 	if (data == null || data.error == true) {
-		 		this.debug("on_delete_city() : event data has errors");
-		 		return;
-		 	}
-		 	this.deleteMarker(data.city_id);
-		 },
-		 on_update_city : function(e) {
-		 	this.debug("on_update_city()");
-		 	var data = e.getData();
-		 	if (data == null || data.error == true) {
-		 		this.debug("on_refresh_cities() : event data has errors");
-		 		if (data != null && data.old_city != null) {
-		 			this.updateMarker(data.old_city.id,
-		 				data.old_city.location.x,
-		 				data.old_city.location.y);
-		 		}
-		 		return;
-		 	}
-		 	this.updateMarker(data.new_city.id, data.new_city.location.x,
-		 		data.new_city.location.y);
-		 },
-		 on_insert_city : function(e) {
-		 	this.debug("on_insert_city()");
-		 	var data = e.getData();
-		 	if (data == null || data.error == true) {
-		 		this.debug("on_refresh_cities() : event data has errors");
-		 		return;
-		 	}
-		 	this.insertCityMarker(data.city.id, data.city.location.x,
-		 		data.city.location.y);
-		 },
+		 /**
+		  * Обработчик события  {@link bus.admin.mvp.presenter.CitiesPresenter#insert_city insert_city} вызывается при добавлении нового города.
+		  * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		  */
+		  __onInsertCity : function(e) {
+		  	if(e.getData().sender == this)
+		  		return;
+		  	this.debug("execute _onInsertCity() event handler");
+		  	var city = e.getData().city;
+		  	this.insertCityMarker(city.getId(), city.getLocation().getLat(), city.getLocation().getLon());
+		  },
 
-		 initWidgets : function() {
+		 /**
+		  * Обработчик события  {@link bus.admin.mvp.presenter.CitiesPresenter#remove_city remove_city} вызывается при удалении города.
+		  * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		  */
+		  __onRemoveCity : function(e) {
+		  	if(e.getData().sender == this)
+		  		return;
+		  	this.debug("execute _onRemoveCity() event handler");
+		  	this.deleteMarker(e.getData().cityID);
+		  },
+
+		  /**
+		   * Инициализирует дочерние виджеты
+		   */
+		  __initWidgets : function() {
 			// create Map Widget
 			this.setGoogleMap(new bus.admin.widget.GoogleMap());
 			this.getGoogleMap().init(50, 30, 5);
 
-			/*
-			 * var list = new qx.ui.form.List;
-			 * list.setContextMenu(this.getContextMenu()); this.add(list);
-			 */
 			 this.add(this.getGoogleMap(), {
 			 	edge : "center"
 			 });
@@ -140,6 +173,7 @@
 
 			// create the ContextMenu object
 			var T = this;
+			var self = this;
 			this.getGoogleMap().addListenerOnce("appear", function() {
 				this.refreshMap();
 				var map = this.getGoogleMap().getMapObject();
@@ -159,21 +193,26 @@
 					contextMenu.hide();
 				});
 
+				google.maps.event.addListener(map, "dragend", function(
+					mouseEvent) {
+					var scale = map.getZoom();
+					var latLng = map.getCenter();
+					self._presenter.changeMapCenterTrigger(latLng.lat(), latLng.lng(), scale);
+					if(self._presenter.getDataStorage().getState() == "move"){
+
+					}
+				});
+
 				google.maps.event.addListener(contextMenu,
 					'menu_item_selected', function(latLng, eventName) {
 						switch (eventName) {
 							case 'insert_city_click' :
-							T.debug("insert_city_click()");
-							var cityModel = {
-								location : {
-									x : latLng.lat(),
-									y : latLng.lng()
-								},
-								scale : map.getZoom()
-							};
-							var changeDialog = new bus.admin.mvp.view.cities.CUCityForm(
-								false, cityModel);
-							changeDialog.open();
+							self.debug("insert_city_click()");
+							var cityModel = new bus.admin.mvp.model.CityModel();
+							cityModel.setLocation(latLng.lat(), latLng.lng());
+							cityModel.setScale(map.getZoom());
+							var newCityForm = new bus.admin.mvp.view.cities.CUCityForm(self._presenter,	false, cityModel);
+							newCityForm.open();
 							break;
 							case 'zoom_in_click' :
 							map.setZoom(map.getZoom() + 1);
@@ -188,84 +227,84 @@
 					});
 			}, this);
 
-},
+		},
 
-insertCityMarker : function(id, lat, lon) {
-	var self = this;
-	var marker = new google.maps.Marker({
-		position : new google.maps.LatLng(lat, lon),
-		map : this.getGoogleMap().getMapObject()
-	});
-	marker.setDraggable(false);
-	marker.set("id", id);
+		/**
+		 * Добавляет на карту маркер-город.
+		 * @param  id {Integer}   ID города.
+		 * @param  lat {Number}  Широта
+		 * @param  lon {Number}  Долгота
+		 */
+		insertCityMarker : function(id, lat, lon) {
+			var self = this;
+			var marker = new google.maps.Marker({
+				position : new google.maps.LatLng(lat, lon),
+				map : this.getGoogleMap().getMapObject()
+			});
+			marker.setDraggable(false);
+			marker.set("id", id);
 
-	google.maps.event.addListener(marker, "click", function(
-		mouseEvent) {
-		if(self._presenter.getDataStorage().getState() == "none"){
-			var selectedCityID = marker.get("id");
-			self._presenter.selectCityTrigger(selectedCityID, null, self);
+			google.maps.event.addListener(marker, "click", function(
+				mouseEvent) {
+			if(self._presenter.getDataStorage().getState() == "none"){
+				var selectedCityID = marker.get("id");
+				self._presenter.selectCityTrigger(selectedCityID, null, self);
+			}
+
+			});
+			this.__markers.push(marker);
+		},
+
+		/**
+		 * Удаляет маркер-город
+		 * @param  id {Integer}   ID города.
+		 */
+		deleteMarker : function(id) {
+			for (var i = 0; i < this.__markers.length; i++) {
+				if (this.__markers[i].get("id") == id) {
+					this.__markers[i].setMap(null);
+					this.__markers.slice(i, 1);
+					return;
+				}
+			}
+		},
+
+		
+		/**
+		 * Удаляет с карты все маркеры.
+		 */
+		deleteAllMarkers : function() {
+			for (var i = 0; i < this.__markers.length; i++) {
+				this.__markers[i].setMap(null);
+			}
+		this.__markers = [];
+		},
+
+		/**
+		 * Обновляет местоположение маркера-города на карте 
+		 * @param  id {Integer}  ID города
+		 * @param  lat {Number}  Широта
+		 * @param  lon {Number}  Долгота
+		 */
+		updateMarker : function(id, lat, lon) {
+			for (var i = 0; i < this.__markers.length; i++) {
+				if (this.__markers[i].get("id") == id) {
+					var marker = this.__markers[i];
+					marker.setPosition(new google.maps.LatLng(lat, lon));
+					return;
+				}
+			}
+		},
+
+		/**
+		 * Обновляет элементы карты
+		 */
+		refreshMap : function() {
+			this.debug("refreshMap");
+			for (var i = 0; i < this.__markers.length; i++) {
+				this.__markers[i].setMap(this.getGoogleMap().getMapObject());
+			}
 		}
-
-	});
-	this.__markers.push(marker);
-},
-
-deleteMarker : function(id) {
-	for (var i = 0; i < this.__markers.length; i++) {
-		if (this.__markers[i].get("id") == id) {
-			this.__markers[i].setMap(null);
-			this.__markers.slice(i, 1);
-			return;
-		}
-	}
-},
-
-deleteAllMarkers : function() {
-	for (var i = 0; i < this.__markers.length; i++) {
-		this.__markers[i].setMap(null);
-	}
-	this.__markers = [];
-},
-
-startMoveMarker : function(id) {
-	var marker = this.getMarkerByID(id);
-	if (marker != null)
-		marker.setDraggable(true);
-},
-
-finishMoveMarker : function(id) {
-	var marker = this.getMarkerByID(id);
-	if (marker != null)
-		marker.setDraggable(false);
-},
-
-getMarkerByID : function(id) {
-	for (var i = 0; i < this.__markers.length; i++) {
-		if (this.__markers[i].get("id") == id) {
-			return this.__markers[i];
-		}
-	}
-	return null;
-},
-
-updateMarker : function(id, lat, lon) {
-	for (var i = 0; i < this.__markers.length; i++) {
-		if (this.__markers[i].get("id") == id) {
-			var marker = this.__markers[i];
-
-			marker.setPosition(new google.maps.LatLng(lat, lon));
-			return;
-		}
-	}
-
-},
-
-refreshMap : function() {
-	this.debug("refreshMap");
-	for (var i = 0; i < this.__markers.length; i++) {
-		this.__markers[i].setMap(this.getGoogleMap().getMapObject());
-	}
-}
 
 }
 });

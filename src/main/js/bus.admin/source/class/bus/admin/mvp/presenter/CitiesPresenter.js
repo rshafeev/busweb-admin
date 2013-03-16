@@ -21,8 +21,6 @@
  */
  qx.Class.define("bus.admin.mvp.presenter.CitiesPresenter", 
  {
-
- 	include : [bus.admin.mvp.presenter.mix.Cities],
  	extend : qx.core.Object,
  	events : {
 
@@ -36,6 +34,7 @@
  		 * <li> error           Наличие ошибки при выполнении события, Boolean. </li>
  		 * <li> errorCode       Код ошибки, String. </li>
  		 * <li> errorRemoteInfo Описание ошибки с сервера, String. </li>
+ 		 * <li> sender          Объект, который вызвал триггер, Object </li>
  		 * <ul>
  		 * </pre>
  		 */
@@ -47,6 +46,7 @@
  		 * <pre>
  		 * <ul>
  		 * <li> langID          Код языка,  {@link bus.admin.mvp.model.LanguagesModel LanguagesModel}</li>
+ 		 * <li> sender          Объект, который вызвал триггер, Object </li>
  		 * <ul>
  		 * </pre>
  		 */
@@ -58,6 +58,7 @@
  		 * <pre>
  		 * <ul>
  		 * <li> city  Выбранный город, {@link bus.admin.mvp.model.CitiesModel CitiesModel}</li>
+ 		 * <li> sender          Объект, который вызвал триггер, Object </li>
  		 * <ul>
  		 * </pre>
  		 */		 
@@ -65,15 +66,78 @@
 
 
  		 /**
- 		  * Событие наступает при изменении модели города.
- 		  */
- 		  "update_city" : "qx.event.type.Data",
+ 		 * Событие наступает при изменении модели города.
+  		 * <br><br>Свойства возвращаемого объекта: <br> 		 
+ 		 * <pre>
+ 		 * <ul>
+ 		 * <li> oldCity         Старая модель города, {@link bus.admin.mvp.model.CityModel CityModel}. </li>
+ 		 * <li> newCity         Обновленная модель города,  {@link bus.admin.mvp.model.CityModel CityModel}. </li>
+ 		 * <li> error           Наличие ошибки при выполнении события, Boolean. </li>
+ 		 * <li> errorCode       Код ошибки, String. </li>
+ 		 * <li> errorRemoteInfo Описание ошибки с сервера, String. </li>
+ 		 * <li> sender          Объект, который вызвал триггер, Object </li>
+ 		 * <ul>
+ 		 * </pre>
+ 		 */
+ 		 "update_city" : "qx.event.type.Data",
 
- 		  "insert_city" : "qx.event.type.Data",
+ 		 /**
+ 		 * Событие наступает при изменении модели города.
+  		 * <br><br>Свойства возвращаемого объекта: <br> 		 
+ 		 * <pre>
+ 		 * <ul>
+ 		 * <li> city            Модель нового города,  {@link bus.admin.mvp.model.CityModel CityModel}. </li>
+ 		 * <li> error           Наличие ошибки при выполнении события, Boolean. </li>
+ 		 * <li> errorCode       Код ошибки, String. </li>
+ 		 * <li> errorRemoteInfo Описание ошибки с сервера, String. </li>
+ 		 * <li> sender          Объект, который вызвал триггер, Object </li>
+ 		 * <ul>
+ 		 * </pre>
+ 		 */
+ 		 "insert_city" : "qx.event.type.Data",
 
- 		  "delete_city" : "qx.event.type.Data"
+ 		 /**
+ 		 * Событие наступает при удалении города.
+  		 * <br><br>Свойства возвращаемого объекта: <br> 		 
+ 		 * <pre>
+ 		 * <ul>
+ 		 * <li> cityID          ID города, который был удален,  {@link bus.admin.mvp.model.CityModel CityModel}. </li>
+ 		 * <li> error           Наличие ошибки при выполнении события, Boolean. </li>
+ 		 * <li> errorCode       Код ошибки, String. </li>
+ 		 * <li> errorRemoteInfo Описание ошибки с сервера, String. </li>
+ 		 * <li> sender          Объект, который вызвал триггер, Object </li>
+ 		 * <ul>
+ 		 * </pre>
+ 		 */
+ 		 "remove_city" : "qx.event.type.Data",
 
+ 		/**
+ 		 * Событие наступает при изменении состояния страницы. Например, при нажатии на кнопку Move или Save/Cancel.
+  		 * <br><br>Свойства возвращаемого объекта: <br> 		 
+ 		 * <pre>
+ 		 * <ul>
+ 		 * <li> oldState  Старое состояние,  String. </li>
+ 		 * <li> newState  Новое состояние, String. </li>
+ 		 * <li> sender    Объект, который вызвал триггер, Object </li>
+ 		 * <ul>
+ 		 * </pre>
+ 		 */
+ 		 "change_state" : "qx.event.type.Data",
 
+ 		 /**
+ 		 * Событие наступает при изменении центральной точки или масштаба карты 
+  		 * <br><br>Свойства возвращаемого объекта: <br> 		 
+ 		 * <pre>
+ 		 * <ul>
+ 		 * <li> lat    Широта,  Number. </li>
+ 		 * <li> lon    Долгота, Number. </li>
+ 		 * <li> scale  Масштаб, Integer. </li>
+ 		 * <li> sender Объект, который вызвал триггер, Object </li>
+ 		 * <ul>
+ 		 * </pre>
+ 		 */
+
+ 		 "change_map_center" : "qx.event.type.Data"
 
  		},
 
@@ -86,7 +150,7 @@
  		properties : {
  		/**
  		 * Хранилище данных страницы Cities
- 		 * @type { bus.admin.mvp.storage.CitiesPageDataStorage}
+ 		 * @type {bus.admin.mvp.storage.CitiesPageDataStorage}
  		 */
  		 dataStorage : {
  		 	deferredInit : true
@@ -95,9 +159,14 @@
 
  		members : {
 
- 			refreshTrigger : function(callback){
- 				this.debug("execute refreshTrigger()");
- 				var cities_callback = qx.lang.Function.bind(function(data) {
+ 			/**
+ 			 * Триггер вызывается для обновления данных на странице
+ 			 * @param  callback {Function}  callback функция
+ 			 * @param  sender {Object}      Объект, который вызвал триггер
+ 			 */
+ 			 refreshTrigger : function(callback, sender){
+ 			 	this.debug("execute refreshTrigger()");
+ 			 	var cities_callback = qx.lang.Function.bind(function(e) {
  					/**
  					 * Если выбранный город не сущестует в обновленном списке городов, тогда уберем выбранный город
  					 */
@@ -106,206 +175,278 @@
  					 	this.getDataStorage().setSelectedCityID(-1);
  					 	selectedCityID = -1;
  					 }
- 					 if(data.error == false)
- 					 	this.fireDataEvent("refresh", data);
+ 					 e.sender = sender;
+ 					 if(e.error == false){
+ 					 	this.fireDataEvent("refresh", e);
+ 					 }
  					 if(callback!= undefined)
- 					 	callback(data);
+ 					 	callback(e);
  					 
  					 if(selectedCityID > 0 ){
  					 	this.selectCityTrigger(selectedCityID);
  					 }
 
  					}, this);
- 				this._getAllCities(cities_callback);
- 			},
+ 			 	this._getAllCities(cities_callback);
+ 			 },
 
- 			comboLangsSelectionItemTrigger : function(langID, callback){
- 				this.getDataStorage().setCurrNamesLangID(langID);
- 				var data = {
- 					cities : this.getDataStorage().getCitiesModel(),
- 					langID : langID
- 				};
- 				this.fireDataEvent("select_comboLangs", data);
- 				if(callback!= undefined)
- 					callback(data);
- 			},
+ 			/**
+ 			 * Вызывается для изменения языка локализации. (Срабатывает при изменении языка в выпадающем списке языков на вкладке Localization) 
+ 			 * @param  langID {String} Код языка      
+ 			 * @param  callback {Function}  callback функция
+ 			 * @param  sender {Object}      Объект, который вызвал триггер
+ 			 */
+ 			 comboLangsSelectionItemTrigger : function(langID, callback, sender){
+ 			 	this.getDataStorage().setCurrNamesLangID(langID);
+ 			 	var args = {
+ 			 		cities : this.getDataStorage().getCitiesModel(),
+ 			 		langID : langID,
+ 			 		sender : sender
+ 			 	};
+ 			 	this.fireDataEvent("select_comboLangs", args);
+ 			 	if(callback!= undefined)
+ 			 		callback(args);
+ 			 },
 
- 			selectCityTrigger : function(cityID, callback, sender){
- 				this.debug("execute selectCityTrigger()");
- 				this.debug("cityID: ", cityID);
- 				this.getDataStorage().setSelectedCityID(cityID);
- 				var data = {
- 					city : this.getDataStorage().getCitiesModel().getCityByID(cityID),
- 					sender : sender
- 				};
- 				this.fireDataEvent("select_city", data);
- 				if(callback!= undefined)
- 					callback(data);			
- 			},
+ 			/**
+ 			 * Вызывается для выбора текущего города.
+ 			 * @param  cityID {Integer} ID города
+ 			 * @param  callback {Function}  callback функция
+ 			 * @param  sender {Object}      Объект, который вызвал триггер
+ 			 */
+ 			 selectCityTrigger : function(cityID, callback, sender){
+ 			 	this.debug("execute selectCityTrigger()");
+ 			 	this.debug("cityID: ", cityID);
+ 			 	this.getDataStorage().setSelectedCityID(cityID);
+ 			 	var args = {
+ 			 		city : this.getDataStorage().getCitiesModel().getCityByID(cityID),
+ 			 		sender : sender
+ 			 	};
+ 			 	this.fireDataEvent("select_city", args);
+ 			 	if(callback!= undefined)
+ 			 		callback(args);			
+ 			 },
 
- 			updateCityTrigger : function(oldCityModel, newCityModel, callback){
- 				var dataRequest =  new bus.admin.net.DataRequest();
- 				
- 				var req = dataRequest.Cities().update(newCityModel, function(responce){
- 					var data = responce.getContent();
- 					this.debug("Cities: update(): received cities data");
- 					console.debug(data);
- 					var args ={};
- 					if(data == null || data.error != null)
- 					{
- 						args = {
- 							oldCity : oldCityModel,
- 							newCity : null,
- 							error : true,
- 							errorCode : data.error != undefined ? data.error.code : "req_err",
- 							errorRemoteInfo :  data.error != undefined ? data.error.info : null
- 						}
- 					}
- 					else
- 					{
- 						var cityModel = new bus.admin.mvp.model.CityModel(data);
- 						this.getDataStorage().getCitiesModel().updateCity(oldCityModel.getId(),cityModel);
- 						args = {
- 							oldCity   : oldCityModel,
- 							newCity   : cityModel,
- 							error     :  false
- 						};
- 						this.fireDataEvent("update_city", args);
- 					}
- 					if(callback != undefined)
- 					callback(args);
- 				},this);
- 			}
- 		/*
+ 			/**
+ 			 * Триггер обновляет данные города. 
+ 			 * @param  oldCityModel {bus.admin.mvp.model.CityModel} Старая модель города
+ 			 * @param  newCityModel {bus.admin.mvp.model.CityModel} Новая модель города
+ 			 * @param  callback {Function}  callback функция
+ 			 * @param  sender {Object}      Объект, который вызвал триггер
+ 			 */
+ 			 updateCityTrigger : function(oldCityModel, newCityModel, callback, sender){
+ 			 	var dataRequest =  new bus.admin.net.DataRequest();
 
- 		insertCityTrigger : function(city, event_finish_func) {
- 			this.debug("insertCity event execute");
+ 			 	dataRequest.Cities().update(newCityModel, function(responce){
+ 			 		var data = responce.getContent();
+ 			 		this.debug("Cities: update(): received cities data");
+ 			 		console.debug(data);
+ 			 		var args ={};
+ 			 		if(data == null || data.error != null)
+ 			 		{
+ 			 			args = {
+ 			 				oldCity : oldCityModel,
+ 			 				newCity : null,
+ 			 				error : true,
+ 			 				errorCode : data.error != undefined ? data.error.code : "req_err",
+ 			 				errorRemoteInfo :  data.error != undefined ? data.error.info : null,
+ 			 				sender : sender
+ 			 			}
+ 			 		}
+ 			 		else
+ 			 		{
+ 			 			var cityModel = new bus.admin.mvp.model.CityModel(data);
+ 			 			this.getDataStorage().getCitiesModel().updateCity(oldCityModel.getId(),cityModel);
+ 			 			args = {
+ 			 				oldCity   : oldCityModel,
+ 			 				newCity   : cityModel,
+ 			 				error     :  false,
+ 			 				sender    : sender
+ 			 			};
+ 			 			this.fireDataEvent("update_city", args);
+ 			 		}
+ 			 		if(callback != undefined)
+ 			 			callback(args);
+ 			 	},this);
+ 			 },
 
- 			var modelsContainer = qx.core.Init.getApplication()
- 			.getModelsContainer();
- 			var citiesRequest = new bus.admin.net.DataRequest();
+ 			/**
+ 			 * Добавляет новый город.
+ 			 * @param  newCityModel {bus.admin.mvp.model.CityModel} Новая модель города
+ 			 * @param  callback {Function}  callback функция
+ 			 * @param  sender {Object}      Объект, который вызвал триггер
+ 			 */
+ 			 insertCityTrigger : function(newCityModel, callback, sender){
+ 			 	var dataRequest =  new bus.admin.net.DataRequest();
 
- 			var new_city_json = qx.lang.Json.stringify(city);
- 			var request = citiesRequest.insertCity(new_city_json, function(
- 				response) {
- 				var result = response.getContent();
- 				if (result == null || result.error != null) {
- 					var data = {
- 						city : result,
- 						error : true,
- 						server_error : result.error
- 					};
- 					this.fireDataEvent("insert_city", data);
- 					event_finish_func(data);
- 				} else {
- 					var data = {
- 						city : result,
- 						error : null,
- 						server_error : null
- 					};
- 					modelsContainer.getCitiesModel().insertCity(result);
- 					this.fireDataEvent("insert_city", data);
- 					event_finish_func(data);
- 				}
- 			}, function() {
- 				var data = {
- 					city : null,
- 					error : true,
- 					server_error : null
- 				};
- 				this.fireDataEvent("insert_city", data);
- 				event_finish_func(data);
- 			}, this);
- 			return request;
- 		},
+ 			 	dataRequest.Cities().insert(newCityModel, function(responce){
+ 			 		var data = responce.getContent();
+ 			 		this.debug("Cities: insert(): received cities data");
+ 			 		console.debug(data);
+ 			 		var args ={};
+ 			 		if(data == null || data.error != null)
+ 			 		{
+ 			 			args = {
+ 			 				city : newCityModel,
+ 			 				error : true,
+ 			 				errorCode : data.error != undefined ? data.error.code : "req_err",
+ 			 				errorRemoteInfo :  data.error != undefined ? data.error.info : null,
+ 			 				sender : sender
+ 			 			}
+ 			 		}
+ 			 		else
+ 			 		{
+ 			 			var cityModel = new bus.admin.mvp.model.CityModel(data);
+ 			 			this.getDataStorage().getCitiesModel().insertCity(cityModel);
+ 			 			args = {
+ 			 				city      : cityModel,
+ 			 				error     : false,
+ 			 				sender    : sender
+ 			 			};
+ 			 			this.fireDataEvent("insert_city", args);
+ 			 		}
+ 			 		if(callback != undefined)
+ 			 			callback(args);
+ 			 	},this);
+ 			 },
 
- 		updateCityTrigger : function(old_city, new_city, event_finish_func) {
+ 			/**
+ 			 * Удаляет город.
+ 			 * @param  cityID {Integer} ID города
+ 			 * @param  callback {Function}  callback функция
+ 			 * @param  sender {Object}      Объект, который вызвал триггер
+ 			 */
+ 			 removeCityTrigger : function(cityID, callback, sender){
+ 			 	var dataRequest =  new bus.admin.net.DataRequest();
+ 			 	dataRequest.Cities().remove(cityID, function(responce)	{
+ 			 		var data = responce.getContent();
+ 			 		this.debug("Cities: remove(): received cities data");
+ 			 		console.debug(data);
+ 			 		var args ={};
+ 			 		if(data == null || data.error != null)
+ 			 		{
+ 			 			args = {
+ 			 				cityID  : cityID,
+ 			 				error : true,
+ 			 				errorCode : data.error != undefined ? data.error.code : "req_err",
+ 			 				errorRemoteInfo :  data.error != undefined ? data.error.info : null,
+ 			 				sender : sender
+ 			 			}
+ 			 		}
+ 			 		else	{
+ 			 			this.getDataStorage().getCitiesModel().removeCity(cityID);
+ 			 			if(this.getDataStorage().getSelectedCityID() == cityID)	{
+ 			 				this.getDataStorage().setSelectedCityID(-1);
+ 			 				var args = {
+ 			 					city : null,
+ 			 					sender : sender
+ 			 				};
+ 			 				this.fireDataEvent("select_city", args);
+ 			 			}
+ 			 			args = {
+ 			 				cityID      : cityID,
+ 			 				error       : false,
+ 			 				sender      : sender
+ 			 			};
+ 			 			this.fireDataEvent("remove_city", args);
+ 			 		}
+ 			 		if(callback != undefined)
+ 			 			callback(args);
+ 			 	},this);
 
- 			var modelsContainer = qx.core.Init.getApplication()
- 			.getModelsContainer();
- 			var citiesRequest = new bus.admin.net.DataRequest();
- 			var new_city_json = qx.lang.Json.stringify(new_city);
- 			var request = citiesRequest.updateCity(new_city_json, function(
- 				response) {
- 				var result = response.getContent();
- 				if (result == null || result.error != null) {
- 					var data = {
- 						new_city : null,
- 						old_city : old_city,
- 						error : true,
- 						server_error : null
- 					};
- 					this.fireDataEvent("update_city", data);
- 					event_finish_func(data);
+},
 
- 				} else {
- 					modelsContainer.getCitiesModel().updateCity(old_city.id,result);
- 					var data = {
- 						new_city : result,
- 						old_city : old_city,
- 						error : null,
- 						server_error : null
- 					};
- 					this.fireDataEvent("update_city", data);
- 					event_finish_func(data);
+			/**
+			 * Меняет состояние страницы.
+			 * @param  state {String}       Состояние страницы. Возможные значения: ["none", "move"].
+ 			 * @param  callback {Function}  callback функция
+ 			 * @param  sender {Object}      Объект, который вызвал триггер
+ 			 */
+ 			 changeStateTrigger : function(state, callback, sender){
+ 			 	var args  = {
+ 			 		oldState  : this.getDataStorage().getState(),
+ 			 		newState  : state,
+ 			 		sender    : sender
+ 			 	};
+ 			 	this.getDataStorage().setState(state);
+ 			 	this.fireDataEvent("change_state", args);
+ 			 	if(callback != undefined){
+ 			 		callback(args);
+ 			 	}
+ 			 	if(state == "move"){
+ 			 		var cityModel = this.getDataStorage().getSelectedCity();
+ 			 		if(cityModel != null){
+ 			 			var args = {
+ 			 				city : cityModel,
+ 			 				sender : this
+ 			 			};
+ 			 			this.fireDataEvent("select_city", args);
+ 			 		}
 
- 				}
- 			}, function() {
+ 			 	}
+ 			 },
 
- 				var data = {
- 					new_city : null,
- 					old_city : old_city,
- 					error : true,
- 					server_error : null
- 				};
- 				this.fireDataEvent("update_city", data);
+			 /**
+			  * Триггер для изменения центральной точки карты или текущего масштаба.
+			  * @param  lat {Number}         Широта центральной точки
+			  * @param  lon {Number}         Долгота центральной точки
+			  * @param  scale {Integer}      Масштаб карты
+			  * @param  callback {Function}  Callback функция
+			  * @param  sender {Object}      Объект, который вызвал триггер
+			  */
+			  changeMapCenterTrigger : function(lat, lon, scale, callback, sender){
+			  	this.getDataStorage().setMapCenter({
+			  		lat : lat,
+			  		lon : lon,
+			  		scale : scale
+			  	});
 
- 			}, this);
- 			return request;
- 		},
+			  	var args = {
+			  		lat : lat,
+			  		lon : lon,
+			  		scale : scale,
+			  		sender : sender
+			  	};
+			  	if(callback != undefined)
+			  		callback(args);
+			  	this.fireDataEvent("change_map_center", args);
+			  },
 
- 		deleteCityTrigger : function(city_id, event_finish_func) {
- 			this.debug("execute deleteCityTrigger()");
- 			var dataStorage = this.getDataStorage();
- 			var citiesRequest = new bus.admin.net.DataRequest();
- 			var city_id_json = city_id.toString();
- 			var request = citiesRequest.deleteCity(city_id_json, function(
- 				response) {
- 				var result = response.getContent();
- 				if (result == null || result.error != null) {
- 					var data = {
- 						city_id : null,
- 						error : true,
- 						server_error : result.error
- 					};
- 					this.fireDataEvent("delete_city", data);
- 					event_finish_func(data);
- 				} else {
- 					var data = {
- 						city_id : city_id,
- 						error : null,
- 						server_error : null
- 					};
- 					modelsContainer.getCities().deleteCity(city_id);
- 					this.fireDataEvent("delete_city", data);
- 					event_finish_func(data);
- 				}
- 			}, function() {
- 				var data = {
- 					city_id : null,
- 					error : true,
- 					server_error : null
- 				};
- 				this.fireDataEvent("delete_city", data);
- 				event_finish_func(data);
- 			}, this);
- 			return request;
+			  /**
+			   * Запрашивает у сервера данные о городах, затем по ним формирует модель городов и языков
+			   * и записывает их  в локальное хранилище DataStorage.
+			   * @param  callback {Function}  Callback функция
+			   */
+			  _getAllCities : function(callback) {
+			  	var dataRequest =  new bus.admin.net.DataRequest();
+			  	var req = dataRequest.Cities().getAll(function(responce){
+			  		var data = responce.getContent();
+			  		this.debug("_getAllCities(): received cities data");
+			  		console.debug(data);
+			  		var args ={};
+			  		if(data == null || data.error != null){
+			  			args = {
+			  				cities : null,
+			  				langs : null,
+			  				error : true,
+			  				errorCode : data.error != undefined ? data.error.code : "req_err",
+			  				errorRemoteInfo :  data.error != undefined ? data.error.info : null
+			  			}
+			  		}
+			  		else{
+			  			this.getDataStorage().getCitiesModel().fromDataModel(data);
+			  			args = {
+			  				cities :  this.getDataStorage().getCitiesModel(),
+			  				langs  :  this.getDataStorage().getLangsModel(),
+			  				error  :  false
+			  			};
+			  		}
+			  		callback(args);
+			  	},this);
+			  }
 
- 		}
-
- 		*/
- 	}
+			}
 
 
- }
- );
+		}
+		);

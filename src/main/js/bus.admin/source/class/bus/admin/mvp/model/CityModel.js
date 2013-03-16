@@ -177,10 +177,19 @@
  		  	this.__names = dataModel.names;
  		  },
 
+ 		  /**
+ 		   * Возвращает местоположение города.
+ 		   * @return {Object} Местоположение города. Объект имеет функции getLat() и getLon().
+ 		   */
  		  getLocation : function(){
  		  	return this.__location;
  		  },
 
+ 		  /**
+ 		   * Устанавливает местоположение города.
+ 		   * @param lat {Number}  Широта
+ 		   * @param lon {Number}  Долгота
+ 		   */
  		  setLocation : function(lat, lon){
  		  	var loc = {
  		  		lat : lat,
@@ -189,6 +198,10 @@
  		  	this.__location = qx.data.marshal.Json.createModel(loc);
  		  },
 
+ 		  /**
+ 		   * Клонирует текущий объект.
+ 		   * @return {bus.admin.mvp.model.CityModel} Копия объекта.
+ 		   */
  		  clone : function(){
  		  	var copy = new bus.admin.mvp.model.CityModel(this.toDataModel());
  		  	return copy;

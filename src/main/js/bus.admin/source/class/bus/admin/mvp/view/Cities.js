@@ -1,32 +1,26 @@
-/*******************************************************************************
- * 
- * qooxdoo - the new era of web development
- * 
- * http://qooxdoo.org
- * 
- * Copyright: 2004-2010 1&1 Internet AG, Germany, http://www.1und1.de
- * 
- * License: LGPL: http://www.gnu.org/licenses/lgpl.html EPL:
- * http://www.eclipse.org/org/documents/epl-v10.php See the LICENSE file in the
- * project's top-level directory for details.
- * 
- * Authors: Tristan Koch (tristankoch)
- * 
- ******************************************************************************/
+/*************************************************************************
+ *
+ * Copyright:
+ * Bus.Admin-lib is copyright (c) 2012, {@link http://ways.in.ua} Inc. All Rights Reserved. 
+ *
+ * License:
+ * Bus.Admin-lib is free software, licensed under the MIT license. 
+ * See the file {@link http://api.ways.in.ua/license.txt license.txt} in this distribution for more details.
+ *
+ * Authors:
+ * Roman Shafeyev (rs@premiumgis.com)
+ *
+ *************************************************************************/
 
-/*******************************************************************************
+/**
  * 
  * #asset(qx/icon/${qx.icontheme}/32/status/dialog-information.png)
  * 
- ******************************************************************************/
-
-/**
- * Demonstrates qx.ui.basic(...):
- * 
- * Label, Image, Atom
- * 
  */
 
+/**
+ * Страница "Cities".
+ */
  qx.Class.define("bus.admin.mvp.view.Cities", {
  	extend : bus.admin.mvp.view.AbstractPage,
 
@@ -34,18 +28,31 @@
  		this.base(arguments);
  		var presenter = new bus.admin.mvp.presenter.CitiesPresenter(); 
  		this.setPresenter(presenter);
- 		this._createWidgets();
+ 		this.__createWidgets();
 
  	},
  	properties : {
+ 		/**
+ 		 * Левая панель страницы
+ 		 * @type {bus.admin.mvp.view.cities.CityLeftPanel}
+ 		 */
  		cityLeftPanel : {
  			nullable : true
  		},
+
+ 		/**
+ 		 * Виджет карты
+ 		 * @type {bus.admin.mvp.view.cities.CityMap}
+ 		 */
  		cityMap : {
  			nullable : true
  		}
  	},
  	members : {
+ 		
+ 		/**
+ 		 * Функция инициализации страницы
+ 		 */
  		initialize : function() {
  			var self = this;
  			self.debug("initialize() CitiesPage");
@@ -55,7 +62,11 @@
  			self.getPresenter().refreshTrigger(callback);
  		},
 
- 		_createWidgets : function() {
+ 		/**
+ 		 * Создает виджеты на странице
+ 		 * @return {[type]} [description]
+ 		 */
+ 		__createWidgets : function() {
  			this.setLayout(new qx.ui.layout.Dock());
 
 			// Create widgets

@@ -29,6 +29,7 @@ qx.Class.define("bus.admin.page.Header", {
 				this.setAppearance("app-header");
 
 				// Build select-box
+				/*
 				var select = new qx.ui.form.SelectBox("Theme");
 				qx.core.Init.getApplication().getThemes().forEach(
 						function(theme) {
@@ -69,6 +70,7 @@ qx.Class.define("bus.admin.page.Header", {
 											.getUserData("value"));
 							window.location = urlModel.getURL();
 						});
+				*/
 				// ////////////
 
 				// EVIL HACK
@@ -93,7 +95,6 @@ qx.Class.define("bus.admin.page.Header", {
 				this.add(new qx.ui.core.Spacer, {
 							flex : 1
 						});
-				this.add(select);
 				this.add(new qx.ui.core.Spacer, {
 							width : "2%"
 						});
