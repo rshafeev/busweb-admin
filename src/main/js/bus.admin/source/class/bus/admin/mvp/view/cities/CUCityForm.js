@@ -42,10 +42,10 @@
 
  		/**
  		 * Тип окна. True - диалоговое окно для редактирования ранее созданного города.
- 		 * False - диалоговое окнго создания нового города.
+ 		 * False - диалоговое окно создания нового города.
  		 * @type {Boolean}
  		 */
- 		 __isChangeDlg : null,
+ 		 __isChangeDlg : false,
 
 
  		/**
@@ -146,18 +146,16 @@
 			newCityModel.setShow(this.__checkShow.getValue());
 			newCityModel.setScale(this.__editScale.getValue());
 			for (var i = 0; i < this.__tableNames.getTableModel().getRowCount(); i++) {
-				var rowData = this.__tableNames.getTableModel()
-				.getRowDataAsMap(i);
+				var rowData = this.__tableNames.getTableModel().getRowDataAsMap(i);
 				var lang = dataStorage.getLangsModel().getLangByName(rowData.Language);
 				newCityModel.setName(lang.getId(), rowData.Name);
 			}
 			
 			qx.core.Init.getApplication().setWaitingWindow(true);
-			
 			var callback = qx.lang.Function.bind(function(data) {
 				qx.core.Init.getApplication().setWaitingWindow(false);
 				if (data.error == true) {
-					var msg = data.errorInfo != undefined ? this.tr("Error") + data.errorInfo : 
+					var msg = data.errorInfo != undefined ? this.tr("Error! ") + data.errorInfo : 
 					this.tr("Error! Can not update city. Please, check input data.");
 					bus.admin.widget.MsgDlg.info(msg);
 					return;

@@ -37,6 +37,16 @@
  		 _cities : null,
 
  		/**
+ 		 * Возвращает количество городов  моделе
+ 		 * @return {Integer} Количество городов
+ 		 */
+ 		size : function(){
+ 			if(this._cities == undefined)
+ 				return 0;
+ 			return this._cities.length;
+ 		},
+
+ 		/**
  		 * Возвращает все города.
  		 * @return {bus.admin.mvp.model.CityModel[]} Массив моделей городов.
  		 */

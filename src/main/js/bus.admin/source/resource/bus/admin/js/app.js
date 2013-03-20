@@ -58,12 +58,17 @@
     
   }
 
-  function loadScript()
+  function loadScript() 
   {
+    
+    var contextPath = "/";
+    if(GlobalOptions != undefined)
+      contextPath =  GlobalOptions().contextPath;
+    console.info(contextPath + "app/" + jsFileURL);
     var head = document.getElementsByTagName("head")[0];
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src = applicationPath + jsFileURL;
+    script.src = contextPath  + jsFileURL;
     head.appendChild(script);
   }
 

@@ -1,14 +1,22 @@
-/*******************************************************************************
- * 
+/*************************************************************************
+ *
  * Copyright:
- * 
+ * Bus.Admin-lib is copyright (c) 2012, {@link http://ways.in.ua} Inc. All Rights Reserved. 
+ *
  * License:
- * 
+ * Bus.Admin-lib is free software, licensed under the MIT license. 
+ * See the file {@link http://api.ways.in.ua/license.txt|license.txt} in this distribution for more details.
+ *
  * Authors:
- * 
- ******************************************************************************/
+ * Roman Shafeyev (rs@premiumgis.com)
+ *
+ *************************************************************************/
 
-/*
+/**
+ * @ignore(GlobalOptions)
+ */
+
+/**
  #asset(bus/admin/images/*)
  #asset(bus/admin/css/app.css)
  #asset(bus/admin/css/ContextMenu.css)
@@ -52,22 +60,22 @@
 		 * 
 		 * @lint ignoreDeprecated(alert)
 		 */
-		 main : function() {
 
-		 	var localeManager = qx.locale.Manager.getInstance();
-		 	var urlModel = new bus.admin.mvp.model.URLModel();
-		 	urlModel.parseURL();
-		 	var locale = urlModel.getParameter("lang");
-		 	if (locale) {
-		 		localeManager.setLocale(locale);
-		 	} else {
-		 		localeManager.setLocale(bus.admin.AppProperties.DEFAULT_LANGUAGE);
-
+		 _setGlobalOptions : function(){
+		 	var globalOptions = GlobalOptions();
+		 	if(globalOptions!= undefined){
+		 		bus.admin.AppProperties.ContextPath = globalOptions.contextPath;
+		 		bus.admin.AppProperties.LOCALE_LANGUAGE = globalOptions.lang;
+		 		console.debug("Global options: ", globalOptions );
 		 	}
+
+		 },
+
+		 main : function() {
 			// Call super class
 			this.base(arguments);
 			this.getRoot().setVisibility("hidden");
-	
+
 			// Enable logging in debug variant
 			if (qx.core.Environment.get("qx.debug") == true) {
 				// support native logging capabilities, e.g. Firebug for
@@ -84,6 +92,22 @@
 				console.debug = function(){}
 				qx.log.Logger.setLevel("error");
 			}
+
+			this._setGlobalOptions();
+
+			var localeManager = qx.locale.Manager.getInstance();
+			localeManager.setLocale(bus.admin.AppProperties.LOCALE_LANGUAGE);
+			/*
+			var urlModel = new bus.admin.mvp.model.URLModel();
+			urlModel.parseURL();
+			var locale = urlModel.getParameter("lang");
+			if (locale) {
+				localeManager.setLocale(locale);
+			} else {
+				
+
+			}
+			*/
 			this.initWidgets();
 			this.__initBookmarkSupport();
 

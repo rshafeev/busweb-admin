@@ -30,7 +30,7 @@
 			access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/**" access="ROLE_USER" />
 
-		<form-login login-page="/login" default-target-url="/app/index.html"
+		<form-login login-page="/login" default-target-url="/"
 			always-use-default-target="true" authentication-failure-url="/login?login_error=1" />
 		<logout logout-url="/j_spring_security_logout"
 			logout-success-url="/login" invalidate-session="true" />

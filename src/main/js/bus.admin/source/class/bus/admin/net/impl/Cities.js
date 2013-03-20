@@ -30,8 +30,8 @@ qx.Class.define("bus.admin.net.impl.Cities", {
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		getAll : function(callback, self) {
-			var request = new qx.io.remote.Request(
-				"/cities/get_all", "POST", "application/json");
+		 	var contextPath = bus.admin.AppProperties.ContextPath;
+			var request = new qx.io.remote.Request(contextPath + "cities/get_all", "POST", "application/json");
 			request.setParseJson(true);
 			request.addListener("completed", callback, self);
 			request.addListener("failed", callback, self);
@@ -47,9 +47,9 @@ qx.Class.define("bus.admin.net.impl.Cities", {
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		update : function(cityModel, callback,	self) {
+		 	var contextPath = bus.admin.AppProperties.ContextPath;
 			var cityJson = qx.lang.Json.stringify(cityModel.toDataModel()); 
-			var request = new qx.io.remote.Request(
-				"/cities/update", "POST", "application/json");
+			var request = new qx.io.remote.Request(contextPath + "cities/update", "POST", "application/json");
 			request.setParseJson(true);
 			request.setParameter("row_city", cityJson, true);
 			request.addListener("completed", callback, self);
@@ -66,9 +66,9 @@ qx.Class.define("bus.admin.net.impl.Cities", {
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		insert : function(cityModel, callback, self) {
+		 	var contextPath = bus.admin.AppProperties.ContextPath;
 			var cityJson = qx.lang.Json.stringify(cityModel.toDataModel()); 
-			var request = new qx.io.remote.Request(
-				"/cities/insert", "POST", "application/json");
+			var request = new qx.io.remote.Request(contextPath +  "cities/insert", "POST", "application/json");
 			request.setParseJson(true);
 			request.setParameter("row_city", cityJson, true);
 			request.addListener("completed", callback, self);
@@ -85,8 +85,8 @@ qx.Class.define("bus.admin.net.impl.Cities", {
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		remove : function(cityID, callback, self) {
-			var request = new qx.io.remote.Request(
-				"/cities/delete", "POST", "application/json");
+		 	var contextPath = bus.admin.AppProperties.ContextPath;
+			var request = new qx.io.remote.Request(contextPath +  "cities/delete", "POST", "application/json");
 			request.setParseJson(true);
 			request.setParameter("city_id", cityID, true);
 			request.addListener("completed", callback, self);

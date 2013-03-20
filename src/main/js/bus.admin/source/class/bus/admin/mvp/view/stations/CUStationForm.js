@@ -1,164 +1,206 @@
+/*************************************************************************
+ *
+ * Copyright:
+ * Bus.Admin-lib is copyright (c) 2012, {@link http://ways.in.ua} Inc. All Rights Reserved. 
+ *
+ * License:
+ * Bus.Admin-lib is free software, licensed under the MIT license. 
+ * See the file {@link http://api.ways.in.ua/license.txt license.txt} in this distribution for more details.
+ *
+ * Authors:
+ * Roman Shafeyev (rs@premiumgis.com)
+ *
+ *************************************************************************/
+
 /*
  * #asset(bus/admin/images/*)
  */
-qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
-	extend : qx.ui.window.Window,
 
-	construct : function(change_dialog, stationModel, presenter) {
-		this.base(arguments);
-		this.__stationModel = stationModel;
-		this.setChangeDialog(change_dialog);
-		this._presenter = presenter;
-		this.initWidgets();
-		this.__setOptions();
-	},
-	properties : {
-		changeDialog : {
-			nullable : true
-		}
-	},
-	members : {
-		_presenter : null,
-		__stationModel : null,
-		btn_save : null,
-		btn_cancel : null,
-		editLat : null,
-		editLon : null,
-		check_trolley : null,
-		check_tram : null,
-		check_metro : null,
-		check_bus : null,
+/**
+ * Диалоговое окно для создания/ редактироания станции.
+ */
+ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
+ 	extend : qx.ui.window.Window,
 
-		table_names : null,
-		on_save_click : function() {
+ 	construct : function(presenter, isChangeDlg, stationModel) {
+ 		this.base(arguments);
+ 		this.__stationModel = stationModel;
+ 		this.__isChangeDlg = isChangeDlg;
+ 		this.__presenter = presenter;
+
+ 		this.__initWidgets();
+ 		this.__setOptions();
+ 	},
+
+ 	members : {
+ 		/**
+ 		 * Тип окна. True - диалоговое окно для редактирования ранее созданной остановки.
+ 		 * False - диалоговое окно создания новой остановки.
+ 		 * @type {Boolean}
+ 		 */
+ 		 __isChangeDlg : false,
+
+
+ 		/**
+ 		 * Presenter
+ 		 * @type {bus.admin.mvp.presenter.StationsPresenter}
+ 		 */
+ 		 __presenter : null,
+
+ 		/**
+ 		 * Модель станции.
+ 		 * @type {bus.admin.mvp.model.StationModel}
+ 		 */
+ 		 __stationModel : null,
+
+ 		/**
+ 		 * Кнопка сохранения изменений с дальнейшим закрытием окна.
+ 		 * @type {qx.ui.form.Button}
+ 		 */
+ 		 __btnSave : null,
+
+ 		/**
+ 		 * Кнопка закрытия окна без внесения изменений в модель остановки.
+ 		 * @type {qx.ui.form.Button}
+ 		 */
+ 		 __btnCancel : null,
+
+ 		/**
+ 		 * Поле для ввода широты местоположения остановки. 
+ 		 * @type {qx.ui.form.TextField}
+ 		 */
+ 		 __editLat : null,
+
+ 		/**
+ 		 * Поле для ввода долготы местоположения остановки. 
+ 		 * @type {qx.ui.form.TextField}
+ 		 */		
+ 		 __editLon : null,
+
+ 		/**
+ 		 * Таблица для редактирования назания станции для разных языков.
+ 		 * @type {qx.ui.table.Table}
+ 		 */
+ 		 __tableNames : null,
+
+ 		/**
+ 		 * Обработчик события нажатия на кнопку btnSave
+ 		 */
+ 		 __onClickBtnSave : function() {
 			// validation
-			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
-				var rowData = this.table_names.getTableModel()
-						.getRowDataAsMap(i);
+			for (var i = 0; i < this.__tableNames.getTableModel().getRowCount(); i++) {
+				var rowData = this.__tableNames.getTableModel()
+				.getRowDataAsMap(i);
 
 				if (rowData.Name==null || rowData.Name.toString().length <= 0) {
-					alert("Please, push names for all languages");
+					bus.admin.widget.MsgDlg.info(this.tr("Please, push names for all languages"));
 					return;
 				}
 			}
 			
-			if (this.getChangeDialog()) {
+			if (this.__isChangeDlg) {
 				this.__updateStation();
 			} else {
 				this.__insertStation();
 			}
 		},
 
-		on_cancel_click : function() {
-			this.close();
-		},
+		/**
+		 * Обработчик события нажатия на кнопку btnCancel
+		 */
+		 __onClickBtnCancel : function() {
+		 	this.close();
+		 },
 
-		__insertStation : function() {
-			// model
-			qx.core.Init.getApplication().setWaitingWindow(true);
-			var new_station = {
-				id : this.__stationModel.id,
-				city_id : this.__stationModel.city_id,
-				location : {
-					x : this.editLat.getValue(),
-					y : this.editLon.getValue()
-				},
-				name_key : this.__stationModel.name_key,
-				names : this.__getNames()
-			};
-			this.debug(qx.lang.Json.stringify(new_station));
-			var event_finish_func = qx.lang.Function.bind(function(data) {
-						qx.core.Init.getApplication().setWaitingWindow(false);
-						if (data == null || data.error == true) {
-							this.debug("__insertStation: request error");
-							return;
-						}
-						this.close();
-					}, this);
-			this._presenter.insertStation(new_station, event_finish_func);
-
-		},
-
-		__updateStation : function() {
-			qx.core.Init.getApplication().setWaitingWindow(true);
-			// create model
-			var updateStationModel = {
-				id : this.__stationModel.id,
-				city_id : this.__stationModel.city_id,
-				location : {
-					x : this.editLat.getValue(),
-					y : this.editLon.getValue()
-				},
-				name_key : this.__stationModel.name_key,
-				names : this.__getNames()
-			};
-
-			var event_finish_func = qx.lang.Function.bind(function(data) {
-						qx.core.Init.getApplication().setWaitingWindow(false);
-						if (data == null || data.error == true) {
-							this.debug("__updateStation: request error");
-							alert(data.server_error);
-							return;
-						}
-						this.close();
-					}, this);
-			this._presenter.updateStation(this.__stationModel,
-					updateStationModel, event_finish_func);
-
-		},
-
-		__getNames : function() {
-			var names = [];
-			for (var i = 0; i < this.table_names.getTableModel().getRowCount(); i++) {
-				var rowData = this.table_names.getTableModel()
-						.getRowDataAsMap(i);
-				var modelsContainer = qx.core.Init.getApplication()
-						.getModelsContainer();
-				var lang = modelsContainer.getLangsModel()
-						.getLangByName(rowData.Language);
-				names.push({
-							lang_id : lang.id,
-							value : rowData.Name
-						});
+		/**
+		 *  Функция формирует новую модель станции с учетом введенных в форму данных и вызывает у презентера триггер insertStationTrigger.
+		 */
+		 __insertStation : function() {
+		 	var dataStorage = this.__presenter.getDataStorage();
+		 	var newStationModel = this.__stationModel;
+		 	newStationModel.setLocation(this.__editLat.getValue(), this.__editLon.getValue());
+			
+			for (var i = 0; i < this.__tableNames.getTableModel().getRowCount(); i++) {
+				var rowData = this.__tableNames.getTableModel().getRowDataAsMap(i);
+				var lang = dataStorage.getLangsModel().getLangByName(rowData.Language);
+				newStationModel.setName(lang.getId(), rowData.Name);
 			}
-			return names;
+			
+			qx.core.Init.getApplication().setWaitingWindow(true);
+			var callback = qx.lang.Function.bind(function(data) {
+				qx.core.Init.getApplication().setWaitingWindow(false);
+				if (data.error == true) {
+					var msg = data.errorInfo != undefined ? this.tr("Error! ") + data.errorInfo : 
+					this.tr("Error! Can not insert new station. Please, check input data.");
+					bus.admin.widget.MsgDlg.info(msg);
+					return;
+				}
+				this.close();
+			}, this);
+			console.debug(newStationModel);
+			this.__presenter.insertStationTrigger(newStationModel, callback, this);
+
 		},
 
-		initWidgets : function() {
-			var citiesModel = qx.core.Init.getApplication()
-					.getModelsContainer().getCitiesModel();
-			var city = citiesModel.getCityByID(this.__stationModel.city_id);
-			var city_name = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(city, "c_"
-									+ qx.locale.Manager.getInstance()
-											.getLocale());
+		/**
+		 * Функция формирует новую модель станции с учетом введенных в форму данных и вызывает у презентера триггер updateStationTrigger .
+		 */
+		 __updateStation : function() {
+		 	var dataStorage = this.__presenter.getDataStorage();
+		 	var newStationModel = this.__stationModel.clone();
+		 	newStationModel.setLocation(this.__editLat.getValue(), this.__editLon.getValue());
+			
+			for (var i = 0; i < this.__tableNames.getTableModel().getRowCount(); i++) {
+				var rowData = this.__tableNames.getTableModel().getRowDataAsMap(i);
+				var lang = dataStorage.getLangsModel().getLangByName(rowData.Language);
+				newStationModel.setName(lang.getId(), rowData.Name);
+			}
+			
+			qx.core.Init.getApplication().setWaitingWindow(true);
+			var callback = qx.lang.Function.bind(function(data) {
+				qx.core.Init.getApplication().setWaitingWindow(false);
+				if (data.error == true) {
+					var msg = data.errorInfo != undefined ? this.tr("Error! ") + data.errorInfo : 
+					this.tr("Error! Can not update station. Please, check input data.");
+					bus.admin.widget.MsgDlg.info(msg);
+					return;
+				}
+				this.close();
+			}, this);
+			console.debug(newStationModel);
+			this.__presenter.updateStationTrigger(this.__stationModel, newStationModel, callback, this);
 
-			this.setLayout(new qx.ui.layout.Canvas());
+		},
 
-			var positionSettings = new qx.ui.groupbox.GroupBox("Location:");
-			positionSettings.setLayout(new qx.ui.layout.Canvas());
+		/**
+		 * Функция создает все дочерние виджеты и размещает их на форме
+		 */		
+		 __initWidgets : function() {
+		 	var city = this.__presenter.getDataStorage().getSelectedCity();
+		 	var cityName = city.getName(bus.admin.AppProperties.getLocale());
 
-			var labelCity = new qx.ui.basic.Label("City:");
-			var labelCityName = new qx.ui.basic.Label(city_name);
-			var labelLat = new qx.ui.basic.Label("Lat:");
-			var labelLon = new qx.ui.basic.Label("Lon:");
+		 	this.setLayout(new qx.ui.layout.Canvas());
 
-			this.editLat = new qx.ui.form.TextField(this.__stationModel.location.x
-					.toString());
-			this.editLat.setWidth(110);
-			this.editLon = new qx.ui.form.TextField(this.__stationModel.location.y
-					.toString());
-			this.editLon.setWidth(110);
+		 	var positionSettings = new qx.ui.groupbox.GroupBox(this.tr("Location:"));
+		 	positionSettings.setLayout(new qx.ui.layout.Canvas());
 
-			this.btn_save = new qx.ui.form.Button("Save",
-					"bus/admin/images/btn/dialog-apply.png");
-			this.btn_save.addListener("execute", this.on_save_click, this);
-			this.btn_save.setWidth(90);
+		 	var labelCity = new qx.ui.basic.Label(this.tr("City:"));
+		 	var labelCityName = new qx.ui.basic.Label(cityName);
+		 	var labelLat = new qx.ui.basic.Label(this.tr("Lat:"));
+		 	var labelLon = new qx.ui.basic.Label(this.tr("Lon:"));
 
-			this.btn_cancel = new qx.ui.form.Button("Cancel",
-					"bus/admin/images/btn/dialog-cancel.png");
-			this.btn_cancel.addListener("execute", this.on_cancel_click, this);
-			this.btn_cancel.setWidth(90);
+		 	this.__editLat = new qx.ui.form.TextField();
+		 	this.__editLat.setWidth(110);
+		 	this.__editLon = new qx.ui.form.TextField();
+		 	this.__editLon.setWidth(110);
+
+		 	this.__btnSave = new qx.ui.form.Button(this.tr("Save"), "bus/admin/images/btn/dialog-apply.png");
+		 	this.__btnSave.addListener("execute", this.__onClickBtnSave, this);
+		 	this.__btnSave.setWidth(90);
+
+		 	this.__btnCancel = new qx.ui.form.Button(this.tr("Cancel"), "bus/admin/images/btn/dialog-cancel.png");
+		 	this.__btnCancel.addListener("execute", this.__onClickBtnCancel, this);
+		 	this.__btnCancel.setWidth(90);
 
 			// names table
 
@@ -168,103 +210,99 @@ qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
 			tableModel.setColumnEditable(1, true);
 
 			// table
-			this.table_names = new qx.ui.table.Table(tableModel).set({
-						decorator : null
-					});
-			this.table_names.setBackgroundColor('gray');
+			this.__tableNames = new qx.ui.table.Table(tableModel).set({
+				decorator : null
+			});
+			this.__tableNames.setBackgroundColor('gray');
 
-			this.table_names.setStatusBarVisible(false);
-			this.table_names.setWidth(300);
-			this.table_names.setHeight(120);
-			this.table_names.setColumnWidth(0, 100);
-			this.table_names.setColumnWidth(1, 180);
+			this.__tableNames.setStatusBarVisible(false);
+			this.__tableNames.setWidth(300);
+			this.__tableNames.setHeight(120);
+			this.__tableNames.setColumnWidth(0, 100);
+			this.__tableNames.setColumnWidth(1, 180);
 
 			// add to cantainer
 			positionSettings.add(labelLat, {
-						left : 10,
-						top : 10
-					});
-			positionSettings.add(this.editLat, {
-						left : 40,
-						top : 10
-					});
+				left : 10,
+				top : 10
+			});
+			positionSettings.add(this.__editLat, {
+				left : 40,
+				top : 10
+			});
 			positionSettings.add(labelLon, {
-						left : 10,
-						top : 50
-					});
-			positionSettings.add(this.editLon, {
-						left : 40,
-						top : 50
-					});
+				left : 10,
+				top : 50
+			});
+			positionSettings.add(this.__editLon, {
+				left : 40,
+				top : 50
+			});
 
 			this.add(labelCity, {
-						left : 10,
-						top : 120
-					});
+				left : 10,
+				top : 120
+			});
 			this.add(labelCityName, {
-						left : 40,
-						top : 120
-					});
+				left : 40,
+				top : 120
+			});
 			this.add(positionSettings, {
-						left : 0,
-						top : -15
-					});
-			this.add(this.table_names, {
-						left : 10,
-						top : 140
-					});
+				left : 0,
+				top : -15
+			});
+			this.add(this.__tableNames, {
+				left : 10,
+				top : 140
+			});
 
-			this.add(this.btn_save, {
-						left : 50,
-						top : 265
-					});
-			this.add(this.btn_cancel, {
-						left : 160,
-						top : 265
-					});
+			this.add(this.__btnSave, {
+				left : 50,
+				top : 265
+			});
+			this.add(this.__btnCancel, {
+				left : 160,
+				top : 265
+			});
 
 		},
 
-		__setOptions : function() {
-			this.setHeight(350);
-			this.setWidth(350);
-			this.setModal(true);
-			this.setAllowMaximize(false);
-			this.setShowMaximize(false);
-			this.setShowMinimize(false);
-			this.setResizable(false, false, false, false);
-			this.center();
-			if (this.getChangeDialog()) {
-				this.setCaption("Change station");
-			} else {
 
-				this.setCaption("Insert new station");
-			}
+		/**
+		 * Задает настройки формы и ее дочерним виджетам. Тажке заполняет виджеты данными.
+		 */
+		 __setOptions : function() {
+		 	this.setHeight(350);
+		 	this.setWidth(350);
+		 	this.setModal(true);
+		 	this.setAllowMaximize(false);
+		 	this.setShowMaximize(false);
+		 	this.setShowMinimize(false);
+		 	this.setResizable(false, false, false, false);
+		 	this.center();
+		 	var station = this.__stationModel;
+		 	if (this.__isChangeDlg) {
+		 		this.setCaption(this.tr("Change station"));
+		 	} else {
 
-			if (this.__stationModel.location != null) {
-				this.editLat
-						.setValue(this.__stationModel.location.x.toString());
-				this.editLon
-						.setValue(this.__stationModel.location.y.toString());
-			}
+		 		this.setCaption(this.tr("Insert new station"));
+		 	}
+
+		 	this.__editLat.setValue(station.getLocation().getLat().toString());
+		 	this.__editLon.setValue(station.getLocation().getLon().toString());
 
 			// fill table
-			var modelsContainer = qx.core.Init.getApplication()
-					.getModelsContainer();
-			var langs = modelsContainer.getLangsModel().getData();
-			var rowData = [];
-
+			var langs = this.__presenter.getDataStorage().getLangsModel().getLangs();
+			var rowsData = [];
 			for (var i = 0; i < langs.length; i++) {
-				var name = "";
-				if (this.getChangeDialog()) {
-					name = bus.admin.mvp.model.helpers.StationsModelHelper
-							.getStationNameByLang(this.__stationModel,
-									langs[i].id);
+				var stationName = "";
+				if (this.__isChangeDlg == true) {
+					this.debug("lang: ", langs[i].getId());
+					stationName = station.getName(langs[i].getId());
 				}
-				rowData.push([langs[i].name, name]);
-				this.debug(langs[i].name);
+				rowsData.push([langs[i].getName(), stationName]);
 			}
-			this.table_names.getTableModel().setData(rowData);
+			this.__tableNames.getTableModel().setData(rowsData);
 
 		}
 	}

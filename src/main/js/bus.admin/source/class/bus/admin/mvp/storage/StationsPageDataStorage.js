@@ -1,4 +1,4 @@
-qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
+qx.Class.define("bus.admin.mvp.storage.StationsPageDataStorage", {
 	extend : qx.core.Object,
 
 	construct : function() {
@@ -18,9 +18,10 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
     };
     this.setMapCenter(mapCenter);
     // get data from locale storage
-    var currNamesLangID = qx.module.Storage.getLocalItem("cities.currNamesLangID");
-    var selectedCityID = qx.module.Storage.getLocalItem("cities.selectedCityID");
-    
+    var currNamesLangID = qx.module.Storage.getLocalItem("stations.currNamesLangID");
+    var selectedCityID = qx.module.Storage.getLocalItem("stations.selectedCityID");
+    console.debug(selectedCityID);
+
     if(selectedCityID != undefined)
       this.setSelectedCityID(selectedCityID);
 
@@ -28,21 +29,14 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
       this.setCurrNamesLangID(currNamesLangID);
     }
     else{
+      this.setCurrNamesLangID( bus.admin.AppProperties.getLocale());
       var locale = bus.admin.AppProperties.getLocale();
-      for(var i=0;i < langsModel.getLangs().length; i++){
-        var langID = langsModel.getLangs()[i].getId();
-        if(langID.toString() != locale.toString()){
-          this.setCurrNamesLangID(langID);
-          break;
-        }
-      }
     }
   },
 
   properties : {
               /** Показывает состояние страницы, в котором она пребывает. Возможные значения:
-              none : обычное состояние. 
-              move - Была нажата кнопка "Move" и выполняется пользователем подбор масштаба и 
+                none : обычное состояние. 
               */
               state : {
               	nullable : true,
@@ -54,7 +48,8 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
                * @type {bus.admin.mvp.model.CitiesModel}
                */
               citiesModel : {
-              	nullable : true
+              	nullable : true,
+                check : "bus.admin.mvp.model.CitiesModel"
               },
 
               /**
@@ -62,11 +57,12 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
                * @type {bus.admin.mvp.model.LanguagesModel}
                */
               langsModel : {
-                nullable : true
+                nullable : true,
+                check : "bus.admin.mvp.model.LanguagesModel"
               },
 
               /**
-               * ID языка, в котором отображаются названия городов в таблице _tableCityNames
+               * ID языка, в котором отображаются названия станций в таблице 
                * @type {String}
                */
                currNamesLangID : {
@@ -75,7 +71,7 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
               },
 
               /**
-               * ID города, который был выбран пользователей в таблице _tableCities
+               * ID города, который был выбран пользователем из выпадющего списка
                */
                selectedCityID : {
                 check : "Integer",
@@ -88,19 +84,39 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
                * @type {Object}
                */
               mapCenter : {
-                  nullable : true
+                nullable : true
+              },
+
+
+              /**
+               * Список станций для выбранного города и языка
+               * @type {bus.admin.mvp.model.StationsListModel}
+               */
+              stationsListModel : {
+                nullable : true,
+                check : "bus.admin.mvp.model.StationsListModel"
+              },
+
+              /**
+               * Выбранная станция
+               * @type {bus.admin.mvp.model.StationModel}
+               */
+              selectedStationModel : {
+                nullable : true,
+                check : "bus.admin.mvp.model.StationModel"
               }
+
             },
 
 
             members : {
 
               _applyCurrNamesLangID : function(value, old, name){
-                qx.module.Storage.setLocalItem("cities.currNamesLangID", value);
+                qx.module.Storage.setLocalItem("stations.currNamesLangID", value);
               },
 
               _applySelectedCityID : function(value, old, name){
-                qx.module.Storage.setLocalItem("cities.selectedCityID", value);
+                qx.module.Storage.setLocalItem("stations.selectedCityID", value);
               },
 
 

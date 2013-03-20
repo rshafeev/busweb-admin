@@ -15,44 +15,64 @@
 /**
  * Класс-родитель для всех страниц
  */
-qx.Class.define("bus.admin.mvp.view.AbstractPage", {
-			type : "abstract",
+ qx.Class.define("bus.admin.mvp.view.AbstractPage", {
+ 	type : "abstract",
 
-			extend : qx.ui.container.Composite,
+ 	extend : qx.ui.container.Composite,
 
-			events : {
+ 	events : {
 				/**
 				 * Событие наступает после завершения загрузки страницы
 				 */
-				"init_finished" : "qx.event.type.Event"
-			},
-			construct : function() {
-				this.base(arguments);
-				
-				this.setVisibility("hidden");
-				this.addListenerOnce("init_finished", function() {
-							this.setVisibility("visible");
-						}, this);
-			},
-			properties : {
+				 "init_finished" : "qx.event.type.Event"
+				},
+				construct : function() {
+					this.base(arguments);
+					this.addListener("appear", this.__onAppear, this);
+					this.setVisibility("hidden");
+					this.addListenerOnce("init_finished", function() {
+						this.setVisibility("visible");
+					}, this);
+				},
+				properties : {
 				/**
 				 * Presenter страницы
 				 * @type {Object}
 				 */
-				presenter : {
-					nullable : true
-				},
+				 presenter : {
+				 	nullable : true
+				 },
 
 				/**
 				 * Название страницы
 				 * @type {String}
 				 */
-				name : {
-					nullable : true
+				 name : {
+				 	nullable : true
+				 }
+
+				},
+				members : {
+
+					__firstShow : true,
+
+					__onAppear : function(e) {
+						var visible = this.isVisible();
+						this.debug("visible: " + visible.toString());
+						if(visible == true && this.__firstShow == false){
+							qx.core.Init.getApplication().setWaitingWindow(true);
+							var callback = qx.lang.Function.bind(function(data) {
+								qx.core.Init.getApplication().setWaitingWindow(false);
+								if (data.error == true) {
+									var msg = data.errorInfo != undefined ? this.tr("Error! ") + data.errorInfo : 
+									this.tr("Error! Can not refresh page. Please, try again.");
+									bus.admin.widget.MsgDlg.info(msg);
+									return;
+								}
+							}, this);
+							this.getPresenter().refreshTrigger(callback);
+						}
+						this.__firstShow = false;
+					}
 				}
-
-			},
-			members : {
-
-			}
-		});
+			});

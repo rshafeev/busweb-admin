@@ -11,7 +11,9 @@ import com.google.gson.Gson;
 
 import com.pgis.bus.data.orm.Station;
 import com.pgis.bus.admin.models.ErrorModel;
-import com.pgis.bus.admin.models.StationsModel;
+import com.pgis.bus.admin.models.StationModel;
+import com.pgis.bus.admin.models.StationsBoxModel;
+import com.pgis.bus.admin.models.StationsListModel;
 
 @Controller
 @RequestMapping(value = "stations/")
@@ -20,49 +22,64 @@ public class StationsController extends BaseController  {
 			.getLogger(StationsController.class);
 
 	@ResponseBody
-	@RequestMapping(value = "get_all_by_city", method = RequestMethod.POST)
-	public String getStationsByCity(String data) {
+	@RequestMapping(value = "getStationsList", method = RequestMethod.POST)
+	public String getStationsList(Integer cityID, String langID) {
 		try {
-			log.debug(data);
-			// Парсим полученные данные
-			StationsModel stationsModel = (new Gson()).fromJson(data,
-					StationsModel.class);
+			log.debug("execute getStationsList()");
+			log.debug("cityID: " + cityID);
+			log.debug("langID: " + langID);
+			if(cityID == null)
+				throw new Exception("can not read cityID parameter.");
+			Collection<Station> stationsList = super.getDB().Stations().getStationsList(cityID, langID);
+			StationsListModel model = new StationsListModel(stationsList, langID);
 
-			// Загрузим список станций
-			Collection<Station> stations = this.getDB().Stations().getStationsByCity(
-					stationsModel.getCity_id());
-			// Сформируем модель
-			stationsModel.setStations(stations);
-
-			log.debug(Integer.toString(stationsModel.getStations().length));
 			// Отправим модель в формате GSON клиенту
-			return (new Gson()).toJson(stationsModel);
+			return (new Gson()).toJson(model);
 		}catch (Exception e) {
 			log.error("getStationsByCity exception", e);
 			return (new Gson()).toJson(new ErrorModel(e));
 		}
 
 	}
-
+	
 	@ResponseBody
-	@RequestMapping(value = "get_all_by_city_inbox", method = RequestMethod.POST)
-	public String getAllByCityInBox(String data) {
+	@RequestMapping(value = "getStationsFromBox", method = RequestMethod.POST)
+	public String getStationsFromBox(String data) {
 		try {
 			log.debug(data);
 			// Парсим полученные данные
-			StationsModel stationsModel = (new Gson()).fromJson(data,
-					StationsModel.class);
+			StationsBoxModel model = (new Gson()).fromJson(data,
+					StationsBoxModel.class);
 
 			// Загрузим список станций
-			Collection<Station> stations = this.getDB().Stations().getStationsByBox(
-					stationsModel.getCity_id(), stationsModel.getLtPoint(),
-					stationsModel.getRbPoint());
+			Collection<Station> stations = this.getDB().Stations().getStationsFromBox(
+					model.getCityID(), model.getLtPoint(),
+					model.getRbPoint(), model.getLangID());
 			// Сформируем модель
-			stationsModel.setStations(stations);
+			model.setStations(stations);
 
-			log.debug(Integer.toString(stationsModel.getStations().length));
+			log.debug(Integer.toString(model.getStations().size()));
 			// Отправим модель в формате GSON клиенту
-			return (new Gson()).toJson(stationsModel);
+			return (new Gson()).toJson(model);
+		}catch (Exception e) {
+			log.error("getAllByCityInBox exception", e);
+			return (new Gson()).toJson(new ErrorModel(e));
+		}
+
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "get", method = RequestMethod.POST)
+	public String get(Integer stationID) {
+		try {
+			log.debug("get()");
+			if(stationID == null){
+				throw new Exception("stationID was failed");
+			}
+			Station st = this.getDB().Stations().getStation(stationID);
+			StationModel model = new StationModel(st);
+			// Отправим модель в формате GSON клиенту
+			return (new Gson()).toJson(model);
 		}catch (Exception e) {
 			log.error("getAllByCityInBox exception", e);
 			return (new Gson()).toJson(new ErrorModel(e));
@@ -76,14 +93,14 @@ public class StationsController extends BaseController  {
 		try {
 			log.debug(row_station);
 			// Парсим полученные данные
-			Station stationModel = (new Gson()).fromJson(row_station,
-					Station.class);
+			StationModel st = (new Gson()).fromJson(row_station,
+					StationModel.class);
 
 			// Добавим station в БД
-			Station newStation = this.getDB().Stations().insertStation(stationModel);
-
+			Station newStation = this.getDB().Stations().insertStation(st.toStation());
+			StationModel model = new StationModel(newStation);
 			// Отправим модель в формате GSON клиенту
-			return (new Gson()).toJson(newStation);
+			return (new Gson()).toJson(model);
 		} catch (Exception e) {
 			log.error("insert exception", e);
 			return (new Gson()).toJson(new ErrorModel(e));
@@ -98,15 +115,15 @@ public class StationsController extends BaseController  {
 		try {
 			log.debug(row_station);
 			// Парсим полученные данные
-			Station stationModel = (new Gson()).fromJson(row_station,
-					Station.class);
+			StationModel st = (new Gson()).fromJson(row_station,
+					StationModel.class);
 
 			// Добавим station в БД
-			Station updateStation = this.getDB().Stations().updateStation(stationModel);
+			Station updateStation = this.getDB().Stations().updateStation(st.toStation());
 
 			// Отправим модель в формате GSON клиенту
-
-			return (new Gson()).toJson(updateStation);
+			StationModel model = new StationModel(updateStation);
+			return (new Gson()).toJson(model);
 		} catch (Exception e) {
 			log.error("update exception", e);
 			return (new Gson()).toJson(new ErrorModel(e));
@@ -115,14 +132,14 @@ public class StationsController extends BaseController  {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "delete", method = RequestMethod.POST)
-	public String delete(Integer station_id) {
+	@RequestMapping(value = "remove", method = RequestMethod.POST)
+	public String delete(Integer stationID) {
 		try {
-			if (station_id == null || station_id.intValue() <= 0)
+			if (stationID == null || stationID.intValue() <= 0)
 				throw new Exception("bad city_id");
-			log.debug(station_id.toString());
+			log.debug(stationID.toString());
 			// удалим из БД
-			this.getDB().Stations().deleteStation(station_id);
+			this.getDB().Stations().deleteStation(stationID);
 			return "\"ok\"";
 		}catch (Exception e) {
 			log.error("delete exception", e);

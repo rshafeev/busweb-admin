@@ -18,86 +18,41 @@
  * The Application's header
  */
 
-qx.Class.define("bus.admin.page.Header", {
-			extend : qx.ui.container.Composite,
+ qx.Class.define("bus.admin.page.Header", {
+ 	extend : qx.ui.container.Composite,
 
 			/**
 			 * @lint ignoreUndefined(qxc)
 			 */
-			construct : function() {
-				this.base(arguments, new qx.ui.layout.HBox());
-				this.setAppearance("app-header");
-
-				// Build select-box
-				/*
-				var select = new qx.ui.form.SelectBox("Theme");
-				qx.core.Init.getApplication().getThemes().forEach(
-						function(theme) {
-							var name = qx.Bootstrap.getKeys(theme)[0];
-							var item = new qx.ui.form.ListItem(name + " Theme");
-							item.setUserData("value", theme[name]);
-							select.add(item);
-
-							var value = theme[name];
-							if (value == qx.core.Environment.get("theme")) {
-								select.setSelection([item]);
-							}
-						});
-
-				select.setFont("default");
-
-				// Find current theme from URL search param
-				var currentThemeItem = select.getSelectables().filter(
-						function(item) {
-							if (window.location.search) {
-								return window.location.search.match(item
-										.getUserData("value"));
-							}
-						})[0];
-
-				// Set current theme
-				if (currentThemeItem) {
-					select.setSelection([currentThemeItem]);
-				}
-
-				select.setTextColor("black");
-
-				select.addListener("changeSelection", function(evt) {
-							var selected = evt.getData()[0];
-							var urlModel = new bus.admin.mvp.model.URLModel();
-							urlModel.parseURL();
-							urlModel.setParameter("theme", selected
-											.getUserData("value"));
-							window.location = urlModel.getURL();
-						});
-				*/
-				// ////////////
+			 construct : function() {
+			 	this.base(arguments, new qx.ui.layout.HBox());
+			 	this.setAppearance("app-header");
 
 				// EVIL HACK
 				this.addListener("appear", function() {
-							var el = this.getContentElement();
-							el.setStyle("top",
-									(parseInt(el.getStyle("top")) + 1) + "px");
-						}, this);
+					var el = this.getContentElement();
+					el.setStyle("top",
+						(parseInt(el.getStyle("top")) + 1) + "px");
+				}, this);
 				// /////////
 
 				this.__pagesGroup = new bus.admin.page.header.PagesGroup();
 
-				this.add(new qx.ui.basic.Label(this.tr("Bus.admin")));
+				this.add(new qx.ui.basic.Label(this.tr("CityWays Admin Tool")));
 				this.add(new qx.ui.core.Spacer(30));
 
 				this.add(this.__pagesGroup);
 
 				this.add(new qx.ui.core.Spacer(), {
-							flex : 1
-						});
+					flex : 1
+				});
 
 				this.add(new qx.ui.core.Spacer, {
-							flex : 1
-						});
+					flex : 1
+				});
 				this.add(new qx.ui.core.Spacer, {
-							width : "2%"
-						});
+					width : "2%"
+				});
 				this._createLocaleBox();
 			},
 
@@ -121,7 +76,9 @@ qx.Class.define("bus.admin.page.Header", {
 					var item1 = new qx.ui.form.ListItem("English");
 					var item2 = new qx.ui.form.ListItem("Русский");
 					item1.setUserData("value", "en");
+					item1.setUserData("fullValue", "en_US");
 					item2.setUserData("value", "ru");
+					item2.setUserData("fullValue", "rus_RU");
 
 					select.add(item1);
 					select.add(item2);
@@ -130,6 +87,7 @@ qx.Class.define("bus.admin.page.Header", {
 
 					select.setFont("default");
 					select.setTextColor("black");
+					select.setMaxHeight(25);
 
 					var locale = qx.locale.Manager.getInstance().getLocale();
 					for (var i = 0; i < items.length; i++) {
@@ -140,15 +98,26 @@ qx.Class.define("bus.admin.page.Header", {
 					}
 
 					select.addListener("changeSelection", function(evt) {
-								var selected = evt.getData()[0];
-								var locale = selected.getUserData("value");
-								var urlModel = new bus.admin.mvp.model.URLModel();
-								urlModel.parseURL();
-								urlModel.setParameter("lang", locale);
-								window.location = urlModel.getURL();
+						var selected = evt.getData()[0];
+						var locale = selected.getUserData("value");
+						var urlModel = new bus.admin.mvp.model.URLModel();
+						urlModel.parseURL();
 
-							}, this);
+						urlModel.setParameter("lang", selected.getUserData("fullValue"));
+						window.location = urlModel.getURL();
+
+					}, this);
 					this.add(select);
+
+					var btnLogout = new qx.ui.basic.Label("logout");
+					btnLogout.addListener("click", function(evt) {
+						window.location = bus.admin.AppProperties.ContextPath + "j_spring_security_logout";
+					}, this);	
+					this.add(new qx.ui.core.Spacer(10));
+					btnLogout.setCursor("pointer");
+					btnLogout.setFont("default");
+					btnLogout.setAppearance("app-header-label");
+					this.add(btnLogout);		
 				},
 				// property apply
 				_applyMode : function(value) {
@@ -166,22 +135,22 @@ qx.Class.define("bus.admin.page.Header", {
 				 *            {boolean}
 				 *            <code>true</true> if the button should be enabled.
 				 */
-				setEnabledMode : function(mode, value) {
-					for (var i = 0; i < this.__buttons.length; i++) {
-						if (this.__buttons[i].getModel() == mode) {
-							var button = this.__buttons[i];
-							break;
-						}
-					};
+				 setEnabledMode : function(mode, value) {
+				 	for (var i = 0; i < this.__buttons.length; i++) {
+				 		if (this.__buttons[i].getModel() == mode) {
+				 			var button = this.__buttons[i];
+				 			break;
+				 		}
+				 	};
 
-					var label = value ? this.tr("Mobile") : this
-							.tr("Mobile (Webkit only)");
-					button.setEnabled(value);
-					button.setLabel(label);
-				},
+				 	var label = value ? this.tr("Mobile") : this
+				 	.tr("Mobile (Webkit only)");
+				 	button.setEnabled(value);
+				 	button.setLabel(label);
+				 },
 
-				getPagesGroup : function() {
-					return this.__pagesGroup;
+				 getPagesGroup : function() {
+				 	return this.__pagesGroup;
+				 }
 				}
-			}
-		});
+			});

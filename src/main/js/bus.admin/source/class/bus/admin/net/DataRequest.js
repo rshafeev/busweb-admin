@@ -15,31 +15,48 @@
 /**
  * Класс имитирует удаленный вызов функции на сервере. 
  */
-qx.Class.define("bus.admin.net.DataRequest", {
-	extend : qx.core.Object,
+ qx.Class.define("bus.admin.net.DataRequest", {
+ 	extend : qx.core.Object,
 
-	construct : function() {
-		
-	},
-	members : {
+ 	construct : function() {
+
+ 	},
+ 	members : {
 		/**
-		 * Позволяет удаленно работать с городами.
+		 * Позволяет удаленно работать с городами
 		 * @type {bus.admin.net.impl.Cities}
 		 */
-		__cities : null,
+		 __cities : null,
+
+		/**
+		 * Позволяет удаленно работать  со станциями
+		 * @type {bus.admin.net.impl.Stations}
+		 */
+		 __stations : null,
 
 		/**
 		 * Возвращает объект для удаленной работы с городами
 		 * @return {bus.admin.net.impl.Cities} 
 		 */
-		Cities : function(){
-			if(this.__cities == null){
-				this.__cities = new bus.admin.net.impl.Cities();
-			}
-			return this.__cities;
+		 Cities : function(){
+		 	if(this.__cities == null){
+		 		this.__cities = new bus.admin.net.impl.Cities();
+		 	}
+		 	return this.__cities;
+		 },
+
+		/**
+		 * Возвращает объект для удаленной работы со станциями
+		 * @return {bus.admin.net.impl.Stations} 
+		 */
+		 Stations : function(){
+		 	if(this.__stations == null){
+		 		this.__stations = new bus.admin.net.impl.Stations();
+		 	}
+		 	return this.__stations;	
+		 }
+
+
 		}
 
-
-	}
-
-});
+	});

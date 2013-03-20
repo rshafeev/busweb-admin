@@ -16,6 +16,7 @@
  * @ignore(google.maps)
  * @ignore(ContextMenu)
  */
+
 /**
  * Виджет карты для страницы {@link bus.admin.mvp.view.Cities Cities}
  */

@@ -4,8 +4,10 @@ qx.Class.define("bus.admin.AppProperties", {
 	type : "static",
 
 	statics : {
-		DEFAULT_LANGUAGE : "en",
+		LOCALE_LANGUAGE : "en",
 
+		ContextPath : "/",
+		
 		LANGUAGES : 
 		[{
 			"id":"c_en",

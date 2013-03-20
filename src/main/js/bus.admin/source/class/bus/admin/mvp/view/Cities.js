@@ -13,9 +13,7 @@
  *************************************************************************/
 
 /**
- * 
  * #asset(qx/icon/${qx.icontheme}/32/status/dialog-information.png)
- * 
  */
 
 /**
@@ -28,7 +26,7 @@
  		this.base(arguments);
  		var presenter = new bus.admin.mvp.presenter.CitiesPresenter(); 
  		this.setPresenter(presenter);
- 		this.__createWidgets();
+ 		this.__initWidgets();
 
  	},
  	properties : {
@@ -64,9 +62,8 @@
 
  		/**
  		 * Создает виджеты на странице
- 		 * @return {[type]} [description]
  		 */
- 		__createWidgets : function() {
+ 		__initWidgets : function() {
  			this.setLayout(new qx.ui.layout.Dock());
 
 			// Create widgets

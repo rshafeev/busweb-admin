@@ -1,169 +1,100 @@
+
+
 qx.Mixin.define("bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners", {
 	construct : function() {
-		var presenter = qx.core.Init.getApplication().getPresenter();
-		presenter.addListener("update_city", this.on_update_city, this);
-		presenter.addListener("insert_city", this.on_insert_city, this);
-		presenter.addListener("delete_city", this.on_delete_city, this);
-		presenter.addListener("refresh_cities", this.on_refresh_cities, this);
-		presenter = this._stationsPage.getPresenter();
-		presenter.addListener("load_stations", this.on_load_stations, this);
-		presenter.addListener("insert_station", this.on_insert_station, this);
-		presenter.addListener("update_station", this.on_update_station, this);
-		presenter.addListener("delete_station", this.on_delete_station, this);
+		var presenter = this._presenter;
+		presenter.addListener("refresh", this._onRefresh, this);
+		presenter.addListener("load_stations_list", this._onLoadStationsList, this);
+		presenter.addListener("select_station", this._onSelectStation, this);
+		presenter.addListener("insert_station", this._onInsertStation, this);
+		presenter.addListener("update_station", this._onUpdateStation, this);
+		presenter.addListener("remove_station", this._onRemoveStation, this);
+
 	},
 	members : {
-		on_update_station : function(e) {
-			this.debug("on_update_station()");
-			var data = e.getData();
-			if (data == null || data.error == true) {
-				this.debug("on_update_station() : event data has errors");
-				return;
-			}
-			
-			var langName = bus.admin.helpers.WidgetHelper
-					.getValueFromSelectBox(this.combo_langs);
-			var lang = qx.core.Init.getApplication().getModelsContainer().getLangsModel()
-					.getLangByName(langName);
 
-			this.getStationsModel().updateStation(data.new_station);
+		/**
+		 * Обработчик события {@link bus.admin.mvp.presenter.StationsPresenter#refresh refresh}
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 _onRefresh : function(e) {
+		 	this.debug("execute _onRefresh() event handler");
+		 	var data = this._presenter.getDataStorage();
+		 	var citiesModel = data.getCitiesModel();
+		 	var selectedCityID = data.getSelectedCityID();
+		 	var langsModel = data.getLangsModel();
+		 	var currNamesLangID = data.getCurrNamesLangID();
+		 	this._fillComboLangs(langsModel, currNamesLangID);
+		 	this._fillComboCities(citiesModel, selectedCityID);
+		 },
 
-			var row = this.getStationsTableRowIndexByID(data.old_station.id);
-			if (row == null)
-				return;
-			var name = bus.admin.mvp.model.helpers.StationsModelHelper
-					.getStationNameByLang(data.new_station, lang.id);
-			var name_default = bus.admin.mvp.model.helpers.StationsModelHelper
-					.getStationNameByLang(data.new_station, "c_"
-									+ qx.locale.Manager.getInstance()
-											.getLocale());
+		/**
+		 * Обработчик события {@link bus.admin.mvp.presenter.StationsPresenter#load_stations_list load_stations_list}
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 _onLoadStationsList : function(e){
+		 	this.debug("execute _onLoadStationsList() event handler");
+		 	this._fillTableStations(e.getData().stList);
+		 },
 
-			var tableModel = this._stationsTable.getTableModel();
-			tableModel.setValue(0, row, data.new_station.id);
-			tableModel.setValue(1, row, name_default);
-			tableModel.setValue(2, row, name);
-		},
-		on_delete_station : function(e) {
-			this.debug("on_delete_station()");
-			var data = e.getData();
-			if (data == null || data.error == true) {
-				this.debug("load_stations() : event data has errors");
-				return;
-			}
-			var row = this.getStationsTableRowIndexByID(data.station_id);
-			if (row >= 0) {
-				this._stationsTable.getTableModel().removeRows(row, 1);
-			}
+		/**
+		 * Обработчик события {@link bus.admin.mvp.presenter.StationsPresenter#select_station select_station}
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 _onSelectStation : function(e){
+		 	if (e.getData().station != undefined ) {
+		 		this._btnChange.setEnabled(true);
+		 		this._btnDelete.setEnabled(true);
+		 	} else {
+		 		this._btnChange.setEnabled(false);
+		 		this._btnDelete.setEnabled(false);
+		 	}
+		 },
 
-		},
-		on_load_stations : function(e) {
-			this.debug("on_load_stations()");
-			var data = e.getData();
-			if (data == null || data.error == true) {
-				this.debug("load_stations() : event data has errors");
-				return;
-			}
-
-			// refresh stationsModel
-
-			this.getStationsModel().setData(data.stations);
-
-			var langName = bus.admin.helpers.WidgetHelper
-					.getValueFromSelectBox(this.combo_langs);
-			if (langName == null)
-				return;
-			var languagesModel = qx.core.Init.getApplication().getModelsContainer()
-					.getLangsModel();
-			var lang = languagesModel.getLangByName(langName);
-			this.loadStationTable(data.stations, lang);
+		/**
+		 * Обработчик события {@link bus.admin.mvp.presenter.StationsPresenter#insert_station insert_station}
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		_onInsertStation : function(e) {
+			this.debug("execute _onInsertStation() event handler");
+			var station = e.getData().station;
+			var langID = this._presenter.getDataStorage().getCurrNamesLangID();
+			var tableModel = this._tableStations.getTableModel();
+			tableModel.setRows([[station.getId(), station.getName(langID)]], tableModel.getRowCount());
 
 		},
 
-		on_insert_station : function(e) {
-			this.debug("on_insert_station()");
-			var data = e.getData();
+		/**
+		 * Обработчик события {@link bus.admin.mvp.presenter.StationsPresenter#update_station update_station}
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 _onUpdateStation : function(e) {
+		 	this.debug("execute _onInsertStation() event handler");
+		 	var newStation = e.getData().newStation;
+		 	var langID = this._presenter.getDataStorage().getCurrNamesLangID();
+		 	var rowIndex = this._getTableRowIndexByStationID(newStation.getId());
+		 	if(rowIndex < 0)
+		 		return;
 
-			if (data == null || data.error == true) {
-				this.debug("on_insert_station() : event data has errors");
-				return;
-			}
-			this.getStationsModel().insertStation(data.station);
-			var langName = bus.admin.helpers.WidgetHelper
-					.getValueFromSelectBox(this.combo_langs);
-			var lang = qx.core.Init.getApplication().getModelsContainer().getLangsModel()
-					.getLangByName(langName);
-			var name = bus.admin.mvp.model.helpers.StationsModelHelper
-					.getStationNameByLang(data.station, lang.id);
-			var name_default = bus.admin.mvp.model.helpers.StationsModelHelper
-					.getStationNameByLang(data.station, "c_"
-									+ qx.locale.Manager.getInstance()
-											.getLocale());
+		 	var tableModel = this._tableStations.getTableModel();
+		 	tableModel.setValue(0, rowIndex, newStation.getId());
+		 	tableModel.setValue(1, rowIndex, newStation.getName(langID));
 
-			var tableModel = this._stationsTable.getTableModel();
-			tableModel.setRows([[data.station.id, name_default, name]],
-					tableModel.getRowCount());
+		 },
 
-		},
+		/**
+		 * Обработчик события {@link bus.admin.mvp.presenter.StationsPresenter#remove_station remove_station}
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 _onRemoveStation : function(e) {
+		 	this.debug("execute _onRemoveStation() event handler");
+		 	var rowIndex = this._getTableRowIndexByStationID(e.getData().stationID);
+		 	if(rowIndex < 0)
+		 		return;
+		 	this._tableStations.getTableModel().removeRows(rowIndex, 1);
 
-		// *****************************************
-		on_delete_city : function(e) {
-			var data = e.getData();
-			if (data == null || data.error == true) {
-				this.debug("on_delete_city() : event data has errors");
-				return;
-			}
-			var cityComboItem = bus.admin.helpers.WidgetHelper
-					.getItemFromSelectBoxByID(this.combo_cities, data.city_id);
-			if (cityComboItem != null) {
-				this.combo_cities.remove(cityComboItem);
-			}
-		},
-		on_refresh_cities : function(e) {
-			var data = e.getData();
-			if (data == null || data.error == true) {
-				this.debug("on_refresh_cities() : event data has errors");
-				return;
-			}
-			this.loadLanguagesToComboBox(data.models.langs);
-			this.loadCitiesToComboBox(data.models.cities);
-		},
+		 }
 
-		on_insert_city : function(e) {
-			this.debug("on_insert_city()");
-			var data = e.getData();
-
-			if (data == null || data.error == true) {
-				this.debug("on_refresh_cities() : event data has errors");
-				return;
-			}
-			var name_default = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(data.city, "c_"
-									+ qx.locale.Manager.getInstance()
-											.getLocale());
-			var item = new qx.ui.form.ListItem(name_default);
-			item.setUserData("id", data.city.id);
-			this.combo_cities.add(item);
-
-		},
-		on_update_city : function(e) {
-			this.debug("on_insert_city()");
-			var data = e.getData();
-
-			if (data == null || data.error == true) {
-				this.debug("on_refresh_cities() : event data has errors");
-				return;
-			}
-			var name_default = bus.admin.mvp.model.helpers.CitiesModelHelper
-					.getCityNameByLang(data.new_city, "c_"
-									+ qx.locale.Manager.getInstance()
-											.getLocale());
-			var cityComboItem = bus.admin.helpers.WidgetHelper
-					.getItemFromSelectBoxByID(this.combo_cities,
-							data.old_city.id);
-			if (cityComboItem != null) {
-				cityComboItem.setLabel(name_default);
-
-			}
-		}
 
 	}
 });

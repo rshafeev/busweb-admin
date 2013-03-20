@@ -15,7 +15,7 @@
 						"LOCALES" : ["en","ru"],
 						"CACHE" : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
 						"ROOT" : ".",
-						"BUILD_PATH" : "${ROOT}/../../../../WebContent/app"
+						"BUILD_PATH" : "${ROOT}/../../../../WebContent"
 
 					},
 					"config-warnings" : {

@@ -322,7 +322,7 @@
  		 __onClickBtnMove : function(e) {
  		 	var rowIndex = this._tableCities.getSelectionModel().getAnchorSelectionIndex();
  		 	if (rowIndex >= 0) {
- 		 		//bus.admin.widget.MsgDlg.info(this.tr("Please, fix map scale and position for selected city"));
+ 		 		bus.admin.widget.MsgDlg.info(this.tr("Please, fix map scale and position for selected city"));
  		 		this._presenter.changeStateTrigger("move");
  		 	}
 
