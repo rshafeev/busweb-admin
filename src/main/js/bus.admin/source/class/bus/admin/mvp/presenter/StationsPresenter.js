@@ -401,11 +401,11 @@ this._getAllCities(cities_callback);
 
  			 },
  			/**
- 			 * [loadStationsListTrigger description]
- 			 * @param  {[type]}   cityID   [description]
- 			 * @param  {[type]}   langID   [description]
- 			 * @param  {Function} callback [description]
- 			 * @param  {[type]}   sender   [description]
+ 			 * Триггер выполняет загрузку списка станций. (Вызывает событие load_stations_list)
+ 			 * @param  cityID {Integer}     ID города
+ 			 * @param  langID {String}      ID языка
+ 			 * @param  callback {Function}  callback функция
+ 			 * @param  sender {Object}      Объект, который вызвал триггер
  			 */
  			 loadStationsListTrigger : function(cityID, langID, callback, sender){
  			 	var dataRequest =  new bus.admin.net.DataRequest();
@@ -430,7 +430,7 @@ this._getAllCities(cities_callback);
  			 		}
  			 		else
  			 		{
- 			 			var stationsListModel = new bus.admin.mvp.model.StationsListModel(data);
+ 			 			var stationsListModel = new bus.admin.mvp.model.StationsListModel(data.stationsList);
  			 			this.getDataStorage().setSelectedCityID(cityID);
  			 			this.getDataStorage().setCurrNamesLangID(langID);
  			 			this.getDataStorage().setStationsListModel(stationsListModel);
@@ -450,7 +450,7 @@ this._getAllCities(cities_callback);
 
 
 			/**
-			 * [selectstationTrigger description]
+			 * Задает выбранную станцию.
 			  * @param  stationID {Integer}    ID остановки
 			  * @param  callback {Function}   Callback функиця
 			 *  @param  sender {Object}      Объект, который вызвал триггер

@@ -11,6 +11,10 @@
  * Roman Shafeyev (rs@premiumgis.com)
  *
  *************************************************************************/
+/**
+ #asset(bus/admin/css/ContextMenu.css)
+ #asset(bus/admin/js/ContextMenu.js)
+ */
 
 /**
  * @ignore(google.maps)
@@ -23,6 +27,9 @@
  qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
  	extend : qx.ui.container.Composite,
 
+ 	/**
+     * @param  presenter   {bus.admin.mvp.presenter.StationsPresenter}  Presenter   
+ 	 */
  	construct : function(presenter) {
  		this.__presenter = presenter;
  		this.base(arguments);
@@ -39,22 +46,47 @@
 
 	},
 	properties : {
+		/**
+ 		 * Виджет Google карты
+ 		 */
 		googleMap : {
-			nullable : true
+			nullable : true,
+			check : "bus.admin.widget.GoogleMap"
 		},
+
+		/**
+		 * Минимальный масштаб, при котором отображаются станции на карте. Если масштаб карты будет меньше данного значения,
+		 * то станции будут убраны с карты.
+		 * @type {Object}
+		 */
 		minZoom : {
 			init : 13,
 			check : "Integer"
 		}
 	},
 	members : {
-		
+ 		/**
+ 		 * Presenter
+ 		 * @type {bus.admin.mvp.presenter.StationsPresenter}
+ 		 */		
 		__presenter : null,
 
+ 		/**
+ 		 * Словарь маркеров, соотв. станциям.
+ 		 * @type {Object}
+ 		 */	
 		__stationMarkers : null,
 
+		/**
+		 * Иконка станции
+		 * @type {google.maps.MarkerImage}
+		 */
 		__stationIcon : null,
 
+		/**
+		 * Иконка выбранной станции
+		 * @type {google.maps.MarkerImage}
+		 */
 		__selectStationIcon : null,
 
 		/**
@@ -126,7 +158,7 @@
 		 /**
 		  * Выделяет остановку на карте.
 		  * @param  station {bus.admin.mvp.model.StationModel}  Модель станции
-		  * @return {[type]}         [description]
+		  * @param  prevStation {bus.admin.mvp.model.StationModel}  Предыдущая выделенная станция
 		  */
 		  __selectStation : function(station, prevStation){
 		  	this.debug("execute selectStation()");
@@ -228,6 +260,7 @@
 		 * @param  stID {Integer}  ID остановки
 		 * @param  stLocation {Object}  местоположение. Объект имеет функции getLat() и getLon()
 		 * @param  stName {String} Назание остановки   
+		 * @return {google.maps.Marker} Googl макрер, внешний класс google.maps.Marker.
 		 */
 		 insertStation : function(stID, stLocation, stName) {
 		 	var marker = this.__stationMarkers[stID];
@@ -278,13 +311,13 @@
 
 	    /**
 		 * Создает контекстное меню карты. Функцию можно вызывать только после отрисовки (когда наступит событие appear) виджета карты.
-		 * @param  map {bus.admin.widget.GoogleMap}  Виджет карты
-	     * @return {ContextMenu} Контекстное меню
+		 * @param  mapWidget {bus.admin.widget.GoogleMap}  Виджет карты
+	     * @return {ContextMenu} Контекстное меню, внешний класс ContextMenu
 	     */
 	     __createMapContextMenu : function(mapWidget){
 	     	var map = mapWidget.getMapObject();
 	     	if(map == null)
-	     		return;
+	     		return null;
 	     	var contextMenuOptions = {};
 	     	contextMenuOptions.classNames = {
 	     		menu : 'context_menu',

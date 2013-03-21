@@ -22,7 +22,6 @@
 qx.Class.define("bus.admin.page.header.PageButton", {
 	extend : qx.ui.form.RadioButton,
 
-	include : bus.admin.MControls,
 	events : {
 		"load_page_finished" : "qx.event.type.Event"
 	},

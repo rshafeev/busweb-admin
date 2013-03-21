@@ -1,7 +1,22 @@
-/**
- * Wraps an OpenLayers Map in an qooxdoo Widget.
+/*************************************************************************
  *
- * @author Rui Lopes (ruilopes.com)
+ * Copyright:
+ * Bus.Admin-lib is copyright (c) 2012, {@link http://ways.in.ua} Inc. All Rights Reserved. 
+ *
+ * License:
+ * Bus.Admin-lib is free software, licensed under the MIT license. 
+ * See the file {@link http://api.ways.in.ua/license.txt|license.txt} in this distribution for more details.
+ *
+ * Authors:
+ * Roman Shafeyev (rs@premiumgis.com)
+ *
+ *************************************************************************/
+/**
+ * @ignore(OpenLayers)
+ */
+
+/**
+ * Виджет OpenLayers карты
  */
 qx.Class.define("bus.admin.widget.OpenLayersMap",
 {
@@ -24,20 +39,28 @@ qx.Class.define("bus.admin.widget.OpenLayersMap",
  
   members :
   {
+    /**
+     * OpenStreet карта
+     * @type {OpenLayers.Map}
+     */
     __map : null,
 
+    /**
+     * Возвращает  OpenStreet карту
+     * @return {OpenLayers.Map}  OpenStreet карта
+     */
     getMap : function()
     {
       return this.__map;
     },
 
+    /**
+     * Функция создает OpenLayers карту
+     */
     __createMap : function()
     {
       if (this.__map)
           return;
-
-      // TODO instead of setting the id, we could just pass the DOM node
-      //      (el.getDomElement) into the OpenLayers.Map constructor.
 
       var mapDomId = "OpenLayersMap" + this.toHashCode();
 
@@ -78,6 +101,13 @@ qx.Class.define("bus.admin.widget.OpenLayersMap",
       this.setCenter(50,36,13);
       // TODO raise some kind of "map ready" event
     },
+
+    /**
+     * Центрирует карту и задает масштаб
+     * @param lat {Number}    Широта
+     * @param lon {Number}    Долгота
+     * @param scale {Integer}  Масштаб
+     */
     setCenter : function(lat,lon,scale){
 		if(this.__map){
 				this.__map.setCenter(new OpenLayers.LonLat(lon,lat).transform(
@@ -85,27 +115,20 @@ qx.Class.define("bus.admin.widget.OpenLayersMap",
 								this.__map.getProjectionObject()), scale);
 		}
 	},
-    __onResize : function(e)
+
+    /**
+     * Обработчик события вызывается при изменении размеров карты.
+     */
+    __onResize : function()
     {
-      // TODO unfortunately, this is called when this widget is resized...
-      //      not when the Element returned by getContentElement is resized...
-      //      so figure out how to known when the DOM node is actually
-      //      resized and call updateMapSize in there. maybe the Element class
-      //      raises events?
       if (this.__map){
       	qx.html.Element.flush();
         this.__map.updateSize();
       }
       this.debug("__onResize");
-    },
-    
-    __refresh : function(){
-      if (this.__map){
-        // this.__map.destroy();
-         
-      }
-    
     }
+    
+    
    
   }
 });

@@ -140,7 +140,7 @@
 
 		/**
 		 * Удаляет станцию. В ответе от сервера содержится инфрмация об успешности операции.
-		 * @param  stationModel {bus.admin.mvp.model.StationModel}  Модель станции.
+		 * @param  stationID {Integer}  ID станции.
 		 * @param  callback {Function}  Функция вызывается после получения ответа сервера. Аргументом функции является объект типа {@link qx.io.remote.Response}.
 		 * @param  self      {Object} Объект this для callback функции
 		 * @return {qx.io.remote.Request}  Объект управления запросом.

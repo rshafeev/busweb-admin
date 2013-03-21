@@ -22,6 +22,11 @@
  qx.Class.define("bus.admin.mvp.view.stations.CUStationForm", {
  	extend : qx.ui.window.Window,
 
+ 	/**
+ 	 * @param  presenter   {bus.admin.mvp.presenter.StationsPresenter}  Presenter   
+ 	 * @param  isChangeDlg {Boolean}  Тип окна. True - диалоговое окно для редактирования ранее созданной станции. False - диалоговое окнго создания новой станции.
+ 	 * @param  stationModel   {bus.admin.mvp.model.StationModel}     Модель станции.
+ 	 */
  	construct : function(presenter, isChangeDlg, stationModel) {
  		this.base(arguments);
  		this.__stationModel = stationModel;

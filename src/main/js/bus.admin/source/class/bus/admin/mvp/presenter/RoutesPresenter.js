@@ -1,6 +1,5 @@
 qx.Class.define("bus.admin.mvp.presenter.RoutesPresenter", {
-			include : [bus.admin.mvp.presenter.mix.RoutesManager,
-					bus.admin.mvp.presenter.mix.StationsManager],
+			include : [bus.admin.mvp.presenter.mix.RoutesManager],
 			extend : qx.core.Object,
 			
 			events : {

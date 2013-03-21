@@ -28,6 +28,10 @@
  	include : [bus.admin.mvp.view.stations.mix.StationsLeftPanelListeners],
  	events : {
  	},
+
+ 	/**
+     * @param  presenter   {bus.admin.mvp.presenter.StationsPresenter}  Presenter   
+ 	 */
  	construct : function(presenter) {
  		this._presenter = presenter;
  		this.base(arguments);
@@ -160,7 +164,7 @@
  		 * Обработчик события нажатия на кнопку "Refresh"
  		 * @param e {qx.event.type.Event} Объект события.
  		 */
- 		 __onClickBtnRefresh : function() {
+ 		 __onClickBtnRefresh : function(e) {
  		 	this.debug("execute __onClickBtnRefresh() event handler");
  		 	qx.core.Init.getApplication().setWaitingWindow(true);
  		 	var callback = qx.lang.Function.bind(function(data) {
@@ -255,7 +259,7 @@
  		 * Обработчик события нажатия кнопки "Change"
  		 * @param e {qx.event.type.Event} Объект события.
  		 */
- 		 __onClickBtnChange : function() {
+ 		 __onClickBtnChange : function(e) {
  		 	var rowIndex = this._tableStations.getSelectionModel().getAnchorSelectionIndex();
  		 	if(rowIndex < 0)
  		 		return;
@@ -271,7 +275,10 @@
  		 	this._presenter.getStation(rowData.ID, callback);
  		 },
 
-
+ 		/**
+ 		 * Обработчик события выделения строки в таблице станций
+ 		 * @param e {qx.event.type.Event} Объект события.
+ 		 */
  		 __onChangeSelectionTableStations : function(e) {
  		 	var model = this._tableStations.getTableModel();
  		 	if (model.getRowCount() <= 0) {
@@ -284,6 +291,10 @@
  		 	}
  		 },
 
+ 		/**
+ 		 * Обработчик нажатия кнопки Enter после ввода данных в поле фильтрации станций.
+ 		 * @param e {qx.event.type.Event} Объект события.
+ 		 */
  		 __onChangeFilterField : function(e) {
  		 	var fieldValue = this._filterField.getValue();
  		 	var model = this._tableStations.getTableModel();
@@ -313,8 +324,11 @@
 		 	return -1;
 		 },
 
-
-		 __onClickBtnDelete : function() {
+ 		/**
+ 		 * Обработчик события нажатия кнопки "Delete"
+ 		 * @param e {qx.event.type.Event} Объект события.
+ 		 */
+		 __onClickBtnDelete : function(e) {
 		 	this.debug("execute __onClickBtnDelete() event handler");
 			var rowIndex = this._tableStations.getSelectionModel().getAnchorSelectionIndex();
 			if (rowIndex < 0)
@@ -337,7 +351,7 @@
  		/**
  		 * Обработчик события вызывается при изменении размеров панели.
  		 */
- 		 __onResize : function(e) {
+ 		 __onResize : function() {
  		 	if (this._tableStations) {
  		 		this._tableStations.setWidth(this.getBounds().width
  		 			- this._tableStations.getBounds().left - 10);
@@ -437,6 +451,7 @@
 
 		/**
 		 * Создает таблицу остановок
+		 * @return {qx.ui.table.Table} Таблица для отображения списка остановок
 		 */
 		 __createStationsTable : function() {
 			// table model

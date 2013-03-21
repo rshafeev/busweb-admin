@@ -19,9 +19,7 @@
 /**
  #asset(bus/admin/images/*)
  #asset(bus/admin/css/app.css)
- #asset(bus/admin/css/ContextMenu.css)
  #asset(bus/admin/js/app.js)
- #asset(bus/admin/js/ContextMenu.js)
  */
 
 /**
@@ -37,15 +35,10 @@
 	 */
 
 	 properties : {
-	 	presenter : {
-	 		nullable : true
-	 	},
-	 	modelsContainer : {
-	 		nullable : true
-	 	}
 
 	 },
 	 members : {
+
 	 	__header : null,
 	 	__tabs : null,
 	 	__scroll : null,
@@ -54,13 +47,11 @@
 	 	__loadingIndicator : null,
 	 	__waitingWindow : null,
 	 	__blocker : null,
-		/**
-		 * This method contains the initial application code and gets called
-		 * during startup of the application
-		 * 
-		 * @lint ignoreDeprecated(alert)
-		 */
 
+
+	 	/**
+	 	 * Задает такие опции приложения, как локаль, ContextPath. Эти данные берутся из нешней функции  GlobalOptions()
+	 	 */
 		 _setGlobalOptions : function(){
 		 	var globalOptions = GlobalOptions();
 		 	if(globalOptions!= undefined){
@@ -71,6 +62,9 @@
 
 		 },
 
+		 /**
+		  * Main функция
+		  */
 		 main : function() {
 			// Call super class
 			this.base(arguments);
@@ -97,28 +91,9 @@
 
 			var localeManager = qx.locale.Manager.getInstance();
 			localeManager.setLocale(bus.admin.AppProperties.LOCALE_LANGUAGE);
-			/*
-			var urlModel = new bus.admin.mvp.model.URLModel();
-			urlModel.parseURL();
-			var locale = urlModel.getParameter("lang");
-			if (locale) {
-				localeManager.setLocale(locale);
-			} else {
-				
-
-			}
-			*/
-			this.initWidgets();
+			this.__initWidgets();
 			this.__initBookmarkSupport();
 
-		},
-
-		getThemes : function() {
-			return ([{
-				"Indigo" : "qx.theme.Indigo"
-			}, {
-				"Simple" : "qx.theme.Simple"
-			}]);
 		},
 
 		// ***************************************************
@@ -160,13 +135,6 @@
 
 		},
 
-		/**
-		 * Handler for changes of the history.
-		 * 
-		 * @param e
-		 *            {qx.event.type.Data} Data event containing the history
-		 *            changes.
-		 */
 		 __onHistoryChanged : function(e) {
 		 	this.debug("__onHistoryChanged : execute");
 		 	var state = new qx.type.BaseString(e.getData());
@@ -213,7 +181,8 @@
 				this.__blocker.block();
 			}
 		},
-		initWidgets : function() {
+
+		__initWidgets : function() {
 			// Document is the application root
 			var doc = this.getRoot();
 			// bus.admin.mvp.presenter.GlobalPresenter

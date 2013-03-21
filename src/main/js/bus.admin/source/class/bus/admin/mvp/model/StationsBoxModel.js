@@ -14,7 +14,8 @@
 
 /**
  * Модель хранит набор моделей остановок, которые находятся в заданном кадрате. Каждая модель хранит id, название и местоположение остановки.
- * <code>
+ * Пример:
+ * <pre class="javascript">
  * var dataModel = [
  * {
  * 	  id : 1,
@@ -40,7 +41,7 @@
  * this.debug(st.getName());			   // print ст. Университет
  * this.debug(st.getLocation().getLat());  // print 51.00
  * this.debug(st.getLocation().getLon());  // print 37.333
- * </code>
+ * </pre>
  */
  qx.Class.define("bus.admin.mvp.model.StationsBoxModel", {
  	extend : Object,
@@ -61,11 +62,36 @@
 
  	 	__stations : null,
 
-
+ 	 	/**
+ 	 	 * Возвращает массив объектов, каждый из которых является моделью станции. Каждая модель имеет следующие функции структуру:
+  		 * <br>
+ 		 * <pre>
+ 		 * <ul>
+ 		 * <li> getId(), getId()              ID станции, Integer. </li>
+ 		 * <li> getName(), setName()          Название, String. </li>
+ 		 * <li> getLocation(), setLocation()  Местоположение станции. Возвращаемый обект имеет функции getLat() и getLon(), Obejct. </li>
+ 		 * <ul>
+ 		 * </pre>
+ 	 	 * @return {Oject[]} Массив станций.
+ 	 	 */
  	 	getAll : function(){
  	 		return this.__stations;
  	 	},
-
+ 		
+ 		/**
+ 		  * Формирует модель из JS объекта. <br>
+ 		  * Как правило, объект  dataModel получают путем десериализации JSON строки, полученной от сервера. Объект dataModel является массивом объектов,
+ 		  * каждый из которых должен иметь следующие свойства:
+ 		  * <br>
+ 		  * <pre>
+ 		  * <ul>
+ 		  * <li> id          ID станции, Integer</li>
+ 		  * <li> location    Местоположение, Object</li>
+ 		  * <li> name        Название станции, String </li>
+ 		  * <ul>
+ 		  * </pre>
+ 		  * @param  dataModel {Object[]}  JS объект.
+ 		  */
  	 	fromDataModel : function(dataModel){
  	 		this.__stations = [];
  	 		for(var i = 0; i < dataModel.length; i++){
@@ -73,6 +99,11 @@
  	 		}
  	 	},
 
+ 	 	/**
+ 	 	 * Возвращает модель станции по ID
+ 	 	 * @param  stationID {Integer}  ID станции
+ 	 	 * @return {Object}   Модель станции
+ 	 	 */
  	 	getStationByID : function(stationID){
  	 		if(this.__stations == null)
  	 			return null;

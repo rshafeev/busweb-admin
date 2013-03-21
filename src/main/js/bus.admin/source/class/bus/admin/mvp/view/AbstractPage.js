@@ -53,9 +53,16 @@
 
 				},
 				members : {
-
+					/**
+					 * Равняется истине до тех пор, пока не произойдет первое отображение виджета данной страницы
+					 * @type {Boolean}
+					 */
 					__firstShow : true,
 
+ 					/**
+ 		 			 * Обработчик события вызывается при появлении виджета данной страницы.
+ 		 			 * @param e {qx.event.type.Event} Объект события.
+ 		 			 */
 					__onAppear : function(e) {
 						var visible = this.isVisible();
 						this.debug("visible: " + visible.toString());

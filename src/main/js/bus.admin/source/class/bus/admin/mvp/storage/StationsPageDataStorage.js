@@ -1,3 +1,20 @@
+/*************************************************************************
+ *
+ * Copyright:
+ * Bus.Admin-lib is copyright (c) 2012, {@link http://ways.in.ua} Inc. All Rights Reserved. 
+ *
+ * License:
+ * Bus.Admin-lib is free software, licensed under the MIT license. 
+ * See the file {@link http://api.ways.in.ua/license.txt|license.txt} in this distribution for more details.
+ *
+ * Authors:
+ * Roman Shafeyev (rs@premiumgis.com)
+ *
+ *************************************************************************/
+ 
+/**
+ * Хранилище данных страницы {@link bus.admin.view.Stations Stations}
+ */
 qx.Class.define("bus.admin.mvp.storage.StationsPageDataStorage", {
 	extend : qx.core.Object,
 
@@ -111,15 +128,30 @@ qx.Class.define("bus.admin.mvp.storage.StationsPageDataStorage", {
 
             members : {
 
+              /**
+               * Вызывается при изменении свойства bus.admin.mvp.storage.CitiesPageDataStorage#currNamesLangID.
+               * @param  value {Object}  Новое значение свойства
+               * @param  old {Object}    Предыдущее значение свойства
+               * @param  name {String}   Название свойства
+               */
               _applyCurrNamesLangID : function(value, old, name){
                 qx.module.Storage.setLocalItem("stations.currNamesLangID", value);
               },
 
+              /**
+               * Вызывается при изменении свойства bus.admin.mvp.storage.CitiesPageDataStorage#selectedCityID.
+               * @param  value {Object}  Новое значение свойства
+               * @param  old {Object}    Предыдущее значение свойства
+               * @param  name {String}   Название свойства
+               */
               _applySelectedCityID : function(value, old, name){
                 qx.module.Storage.setLocalItem("stations.selectedCityID", value);
               },
 
-
+              /**
+               * Возвращает выбранный пользоателем город.
+               * @return {bus.admin.mvp.model.CyModel} Модель города.
+               */
               getSelectedCity : function(){
                 var cityID = this.getSelectedCityID();
                 if(cityID <=0)

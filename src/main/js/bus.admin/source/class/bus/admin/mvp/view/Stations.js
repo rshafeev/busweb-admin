@@ -28,9 +28,18 @@
  		this.__initWidgets();
  	},
  	properties : {
+ 		/**
+ 		 * Левая панель страницы
+ 		 * @type {bus.admin.mvp.view.stations.StationsLeftPanel}
+ 		 */
  		stationsLeftPanel : {
  			nullable : true
  		},
+
+  		/**
+ 		 * Виджет карты
+ 		 * @type {bus.admin.mvp.view.stations.StationsMap}
+ 		 */		
  		stationsMap : {
  			nullable : true
  		}

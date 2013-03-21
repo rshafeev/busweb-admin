@@ -61,7 +61,7 @@
 
 		"api" : {
 			"let" : {
-				"BUILD_PATH" : "${ROOT}/../../../../WebContent/app/apidocs",
+				"BUILD_PATH" : "${ROOT}/../../../../WebContent/apidocs",
 				"API_EXCLUDE" : ["qx.*", "qx.test.*", "${APPLICATION}.theme.*",
 				"${APPLICATION}.test.*", "${APPLICATION}.simulation.*"],
 			}     
@@ -70,7 +70,7 @@
 
 		"test" : {
 			"let" : {
-				"BUILD_PATH" : "${ROOT}/../../../../WebContent/app/tests"
+				"BUILD_PATH" : "${ROOT}/../../../../WebContent/tests"
 			}     
 		},
 

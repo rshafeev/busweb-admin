@@ -5,7 +5,7 @@
  *
  * License:
  * Bus.Admin-lib is free software, licensed under the MIT license. 
- * See the file {@link http://api.ways.in.ua/license.txt license.txt} in this distribution for more details.
+ * See the file {@link http://api.ways.in.ua/license.txt|license.txt} in this distribution for more details.
  *
  * Authors:
  * Roman Shafeyev (rs@premiumgis.com)
@@ -24,44 +24,66 @@ qx.Class.define("bus.admin.widget.GoogleMap", {
 
 	construct : function() {
 		this.base(arguments);
+		this.__center = {};
 	},
 
 	destruct : function() {
 		this.getMapObject().destroy();
 		this.setMapObject(null);
+		this.__center = null;
 	},
 	properties : {
+		/**
+		 * Google карта
+		 * @type {google.maps.Map}
+		 */
 		mapObject : {
 			nullable : true
 		}
 	},
 	members : {
-		__lat : null,
-		__lon : null,
-		__scale : null,
+		/**
+		 * Центральная точка карты
+		 * @type {Object}
+		 */
+		__center : null,
 
+		/**
+		 * Центрирует карту и задает масштаб
+		 * @param lat {Number}    Широта
+		 * @param lon {Number}    Долгота
+		 * @param scale {Integer}  Масштаб
+		 */
 		setCenter : function(lat, lon, scale) {
 			if (this.getMapObject()) {
 				this.getMapObject().setCenter(new google.maps.LatLng(lat, lon));
 				if(scale!=null)
 				this.getMapObject().setZoom(scale);
 						}
-			this.__lat = lat;
-			this.__lon = lon;
-			this.__scale = scale;
+			this.__center.lat = lat;
+			this.__center.lon = lon;
+			this.__center.scale = scale;
 		},
 
+		/**
+		 * инициализация виджета
+		 * @param lat {Number}    Широта центральной точки
+		 * @param lon {Number}    Долгота центральной точки
+		 * @param scale {Integer}  Масштаб
+		 */
 		init : function(lat, lon, scale) {
-			this.__lat = lat;
-			this.__lon = lon;
-			this.__scale = scale;
+			this.__center.lat = lat;
+			this.__center.lon = lon;
+			this.__center.scale = scale;
 			this.addListenerOnce("appear", this.__createMap, this);
-			this.addListener("appear", this.on_appear, this);
-
-			this.addListener("resize", this.__on_resize, this);
+			this.addListener("appear", this.__onAppear, this);
+			this.addListener("resize", this.__onResize, this);
 
 		},
 
+		/**
+		 * Создание google карты
+		 */
 		__createMap : function() {
 			var map = new google.maps.Map(this.getContentElement()
 							.getDomElement(), {
@@ -78,20 +100,27 @@ qx.Class.define("bus.admin.widget.GoogleMap", {
 			map.setOptions({draggableCursor:'crosshair'});
 						
 			this.setMapObject(map);
-			this.setCenter(this.__lat, this.__lon, this.__scale);
+			this.setCenter(this.__center.lat, this.__center.lon, this.__center.scale);
 			this.debug('map was initialized');
 		},
 
-		__on_resize : function(e) {
+ 		/**
+ 		 * Обработчик события вызывается при изменении размеров карты.
+ 		 */
+		__onResize : function() {
 			if (this.getMapObject()!=null) {
 				
 				qx.html.Element.flush();
 				google.maps.event.trigger(this.getMapObject(), 'resize');
 			}
 		},
-		on_appear : function(e){
-			this.debug("on_appear()");
-			this.__on_resize(null);
+
+		/**
+		 * Обработчик события вызывается при появлении карты.
+		 */
+		__onAppear : function(){
+			this.debug("__onAppear()");
+			this.__onResize();
 		}
 		
 		

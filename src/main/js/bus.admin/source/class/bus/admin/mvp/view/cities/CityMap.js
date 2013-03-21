@@ -11,6 +11,10 @@
  * Roman Shafeyev (rs@premiumgis.com)
  *
  *************************************************************************/
+/**
+ #asset(bus/admin/css/ContextMenu.css)
+ #asset(bus/admin/js/ContextMenu.js)
+ */
 
 /**
  * @ignore(google.maps)
