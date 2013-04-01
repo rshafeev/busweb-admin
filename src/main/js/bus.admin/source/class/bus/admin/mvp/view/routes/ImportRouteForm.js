@@ -1,31 +1,52 @@
+/*************************************************************************
+ *
+ * Copyright:
+ * Bus.Admin-lib is copyright (c) 2012, {@link http://ways.in.ua} Inc. All Rights Reserved. 
+ *
+ * License:
+ * Bus.Admin-lib is free software, licensed under the MIT license. 
+ * See the file {@link http://api.ways.in.ua/license.txt license.txt} in this distribution for more details.
+ *
+ * Authors:
+ * Roman Shafeyev (rs@premiumgis.com)
+ *
+ *************************************************************************/
 
-
+/**
+ * Окно для импортироавния маршрутов с файла.
+ */
 qx.Class.define("bus.admin.mvp.view.routes.ImportRouteForm", {
 	extend : qx.ui.window.Window,
 
-	construct : function(routesPresenter, routeType, cityModel) {
+	/**
+	 * @param  presenter {bus.admin.mvp.presenter.RoutesPresenter}  [description]
+	 * @param  routeType {String}  Тип маршрута
+	 * @param  cityModel {bus.admin.mvp.model.CityModel}  Город.
+	 */
+	construct : function(presenter, routeType, cityModel) {
 		this.base(arguments);
-		this._routesPresenter = routesPresenter;
+		this.__presenter = routesPresenter;
 		this._cityModel = cityModel;
 		this._routeType = routeType;
 		this._initWidgets();
 		this._setOptions();
 
-		this._routesPresenter.addListener("loadImportObjects",
+		this.__presenter.addListener("loadImportObjects",
 				this.on_loadImportObjects, this);
 	},
+	
 	destruct : function() {
 		this.debug("destruct()");
-		this._routesPresenter.removeListener("loadImportObjects",
+		this.__presenter.removeListener("loadImportObjects",
 				this.on_loadImportObjects, this);
-		this._routesPresenter = null;
+		this.__presenter = null;
 		this._cityModel = null;
 		this._routeType = null;
 		this.dispose();
 	},
 
 	members : {
-		_routesPresenter : null,
+		__presenter : null,
 		_routeType : null,
 		_cityModel : null,
 		btn_insert : null,
@@ -183,7 +204,7 @@ qx.Class.define("bus.admin.mvp.view.routes.ImportRouteForm", {
 							this.destroy();
 						}
 					}, this);
-			this._routesPresenter.loadImportObjects(this._cityModel.id,
+			this.__presenter.loadImportObjects(this._cityModel.id,
 					this._routeType.id, event_finish_func);
 
 		},
@@ -231,7 +252,7 @@ qx.Class.define("bus.admin.mvp.view.routes.ImportRouteForm", {
 				return;
 			var rowData = this.table_obj.getTableModel().getRowDataAsMap(row);
 			var objID = rowData.ID;
-			var presenter = this._routesPresenter;
+			var presenter = this.__presenter;
 			var routes = presenter.getRoutePage().getCurrRoutesList();
 			if (routes != null) {
 				for (var i = 0; i < routes.length; i++) {

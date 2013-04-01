@@ -50,6 +50,24 @@ qx.Class.define("bus.admin.AppProperties", {
 		}],
 
 		/**
+		 * Типы маршрутов.
+		 * @type {Object[]}
+		 */
+		RouteTypes : [{
+				id : "c_route_bus",
+				text : this.tr("Bus")
+			}, {
+				id : "c_route_tram",
+				text : this.tr("Tram")
+			}, {
+				id : "c_route_trolley",
+				text : this.tr("Trolleybus")
+			}, {
+				id : "c_route_metro",
+				text : this.tr("Metro")
+			}],
+
+		/**
 		 * Возвращает ID языка для текущей локали
 		 * @return {String} ID языка. Возможные значения: "c_en", "c_ru", "c_uk"
 		 */

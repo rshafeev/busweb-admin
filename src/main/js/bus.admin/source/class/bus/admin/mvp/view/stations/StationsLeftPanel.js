@@ -12,12 +12,12 @@
  *
  *************************************************************************/
 
-/*
- * #asset(qx/icon/${qx.icontheme}/16/apps/utilities-terminal.png)
- * #asset(qx/icon/${qx.icontheme}/32/apps/utilities-terminal.png)
- * #asset(qx/icon/${qx.icontheme}/16/apps/utilities-notes.png)
- * #asset(qx/icon/${qx.icontheme}/16/apps/utilities-calculator.png)
- * #asset(qx/icon/${qx.icontheme}/16/apps/utilities-help.png)
+/**
+ #asset(qx/icon/${qx.icontheme}/16/apps/utilities-terminal.png)
+ #asset(qx/icon/${qx.icontheme}/32/apps/utilities-terminal.png)
+ #asset(qx/icon/${qx.icontheme}/16/apps/utilities-notes.png)
+ #asset(qx/icon/${qx.icontheme}/16/apps/utilities-calculator.png)
+ #asset(qx/icon/${qx.icontheme}/16/apps/utilities-help.png)
  */
 
 /**
@@ -31,15 +31,15 @@
 
  	/**
      * @param  presenter   {bus.admin.mvp.presenter.StationsPresenter}  Presenter   
- 	 */
- 	construct : function(presenter) {
- 		this._presenter = presenter;
- 		this.base(arguments);
- 		this.__initWidgets();
- 		this.__setOptions();
- 	},
+     */
+     construct : function(presenter) {
+     	this._presenter = presenter;
+     	this.base(arguments);
+     	this.__initWidgets();
+     	this.__setOptions();
+     },
 
- 	members : {
+     members : {
 
   		/**
  		 * Presenter представления
@@ -328,25 +328,25 @@
  		 * Обработчик события нажатия кнопки "Delete"
  		 * @param e {qx.event.type.Event} Объект события.
  		 */
-		 __onClickBtnDelete : function(e) {
-		 	this.debug("execute __onClickBtnDelete() event handler");
-			var rowIndex = this._tableStations.getSelectionModel().getAnchorSelectionIndex();
-			if (rowIndex < 0)
-				return;
-			var rowData = this._tableStations.getTableModel().getRowDataAsMap(rowIndex);
-			qx.core.Init.getApplication().setWaitingWindow(true);
-			var callback = qx.lang.Function.bind(function(data) {
-				qx.core.Init.getApplication().setWaitingWindow(false);
-				if (data.error == true) {
-					var msg = data.errorInfo != undefined ? this.tr("Error! ") + data.errorInfo : 
-					this.tr("Error! Can not delete the station. Other objects depends of it.");
-					bus.admin.widget.MsgDlg.info(msg);
-					return;
-				}
-			}, this);
-			this._presenter.removeStationTrigger(rowData.ID, callback);
+ 		 __onClickBtnDelete : function(e) {
+ 		 	this.debug("execute __onClickBtnDelete() event handler");
+ 		 	var rowIndex = this._tableStations.getSelectionModel().getAnchorSelectionIndex();
+ 		 	if (rowIndex < 0)
+ 		 		return;
+ 		 	var rowData = this._tableStations.getTableModel().getRowDataAsMap(rowIndex);
+ 		 	qx.core.Init.getApplication().setWaitingWindow(true);
+ 		 	var callback = qx.lang.Function.bind(function(data) {
+ 		 		qx.core.Init.getApplication().setWaitingWindow(false);
+ 		 		if (data.error == true) {
+ 		 			var msg = data.errorInfo != undefined ? this.tr("Error! ") + data.errorInfo : 
+ 		 			this.tr("Error! Can not delete the station. Other objects depends of it.");
+ 		 			bus.admin.widget.MsgDlg.info(msg);
+ 		 			return;
+ 		 		}
+ 		 	}, this);
+ 		 	this._presenter.removeStationTrigger(rowData.ID, callback);
 
-		},
+ 		 },
 
  		/**
  		 * Обработчик события вызывается при изменении размеров панели.

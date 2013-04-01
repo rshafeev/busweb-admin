@@ -1,27 +1,65 @@
-/*
- * #asset(bus/admin/images/*)
+/*************************************************************************
+ *
+ * Copyright:
+ * Bus.Admin-lib is copyright (c) 2012, {@link http://ways.in.ua} Inc. All Rights Reserved. 
+ *
+ * License:
+ * Bus.Admin-lib is free software, licensed under the MIT license. 
+ * See the file {@link http://api.ways.in.ua/license.txt license.txt} in this distribution for more details.
+ *
+ * Authors:
+ * Roman Shafeyev (rs@premiumgis.com)
+ *
+ *************************************************************************/
+
+/**
+ #asset(bus/admin/images/*)
+ */
+
+/**
+ * Диалоговое окно для создания/ редактироания маршрута.
  */
 qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 	extend : qx.ui.window.Window,
 
-	construct : function(change_dialog, routeModel, routesPresenter) {
+ 	/**
+ 	 * @param  presenter   {bus.admin.mvp.presenter.RoutesPresenter}  Presenter   
+ 	 * @param  isChangeDlg {Boolean}  Тип окна. True - диалоговое окно для редактирования ранее созданного маршрута. False - диалоговое окнго создания нового маршрута.
+ 	 * @param  routeModel  {bus.admin.mvp.model.RouteModel}     Модель маршрута.
+ 	 */
+	construct : function(presenter, isChangeDlg, routeModel) {
 		this.base(arguments);
-		this.setChangeDialog(change_dialog);
-		this._routesPresenter = routesPresenter;
-		this._routeModel = routeModel;
+ 		this.__routeModel = routeModel;
+ 		this.__isChangeDlg = isChangeDlg;
+ 		this.__presenter = presenter;
 		this.initWidgets();
 		this.__setOptions();
 
 	},
-	properties : {
-		changeDialog : {
-			nullable : true
-		}
-	},
+
 	members : {
 
-		_routesPresenter : null,
-		_routeModel : null,
+ 		/**
+ 		 * Тип окна. True - диалоговое окно для редактирования ранее созданной остановки.
+ 		 * False - диалоговое окно создания новой остановки.
+ 		 * @type {Boolean}
+ 		 */
+ 		 __isChangeDlg : false,
+
+ 		/**
+ 		 * Presenter
+ 		 * @type {bus.admin.mvp.presenter.RoutesPresenter}
+ 		 */
+ 		 __presenter : null,
+
+ 		/**
+ 		 * Модель станции.
+ 		 * @type {bus.admin.mvp.model.RouteModel}
+ 		 */
+ 		 __routeModel : null,
+
+
+
 		btn_save : null,
 		btn_cancel : null,
 		check_names : null,
@@ -71,7 +109,7 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 					if (routes[i].number != null
 							&& routes[i].number.toString().length != 0
 							&& routes[i].number.toString() == number
-							&& (this._routeModel.number == null || this._routeModel.number
+							&& (this.__routeModel.number == null || this.__routeModel.number
 									.toString() != number)) {
 						alert(this
 								.tr("The route with this number has already exist!"));
@@ -106,7 +144,7 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 
 		__updateRoute : function(number, cost) {
 			// model
-			var route = bus.admin.helpers.ObjectHelper.clone(this._routeModel);
+			var route = bus.admin.helpers.ObjectHelper.clone(this.__routeModel);
 			route.number = number;
 			route.cost = cost;
 			route.name = [];
@@ -152,22 +190,22 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 		__insertRoute : function(number, cost, schedule, sameDirections) {
 
 			// create model
-			this._routeModel.number = number;
-			this._routeModel.cost = cost;
-			this._routeModel.name = [];
+			this.__routeModel.number = number;
+			this.__routeModel.cost = cost;
+			this.__routeModel.name = [];
 			if (sameDirections == false) {
-				this._routeModel.directRouteWay = {
+				this.__routeModel.directRouteWay = {
 					schedule : schedule
 				};
 
-				this._routeModel.reverseRouteWay = {
+				this.__routeModel.reverseRouteWay = {
 					schedule : bus.admin.helpers.ObjectHelper.clone(schedule)
 				};
 			} else {
-				this._routeModel.directRouteWay = {
+				this.__routeModel.directRouteWay = {
 					schedule : schedule
 				};
-				this._routeModel.reverseRouteWay = null;
+				this.__routeModel.reverseRouteWay = null;
 			}
 			if (this.check_names.getValue() == true) {
 
@@ -179,7 +217,7 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 							.getModelsContainer();
 					var lang = modelsContainer.getLangsModel()
 							.getLangByName(rowData.Language);
-					this._routeModel.name.push({
+					this.__routeModel.name.push({
 								lang_id : lang.id,
 								value : rowData.Name
 							});
@@ -188,7 +226,7 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 			var event_finish_func = qx.lang.Function.bind(function(data) {
 						this.close();
 					}, this);
-			this._routesPresenter.startCreateNewRoute(this._routeModel, "new",
+			this._routesPresenter.startCreateNewRoute(this.__routeModel, "new",
 					event_finish_func);
 		},
 
@@ -358,8 +396,8 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 			if (this.getChangeDialog()) {
 				this.setWidth(350);
 				this.setCaption("Change route");
-				this.editCost.setValue(this._routeModel.cost.toString());
-				this.editNumber.setValue(this._routeModel.number.toString());
+				this.editCost.setValue(this.__routeModel.cost.toString());
+				this.editNumber.setValue(this.__routeModel.number.toString());
 			} else {
 				this.setWidth(430);
 				this.setCaption("Insert new route");
@@ -383,7 +421,7 @@ qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
 				var name = "";
 				if (this.getChangeDialog()) {
 					name = bus.admin.mvp.model.helpers.RouteModelHelper
-							.getNameByLang(this._routeModel, langs[i].id);
+							.getNameByLang(this.__routeModel, langs[i].id);
 				}
 				if (name != null && name != "")
 					check_names = true;

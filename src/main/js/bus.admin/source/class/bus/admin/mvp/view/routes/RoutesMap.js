@@ -11,6 +11,10 @@
  * Roman Shafeyev (rs@premiumgis.com)
  *
  *************************************************************************/
+/**
+ #asset(bus/admin/css/ContextMenu.css)
+ #asset(bus/admin/js/ContextMenu.js)
+ */
 
 /**
  * @ignore(google.maps)
@@ -18,23 +22,23 @@
  */
 
 /**
- * Виджет карты для страницы {@link bus.admin.mvp.view.Stations Stations}
+ * Виджет карты для страницы {@link bus.admin.mvp.view.Routes Routes}
  */
-qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
+qx.Class.define("bus.admin.mvp.view.routes.RoutesMap", {
 	extend : qx.ui.container.Composite,
 
-	construct : function(routesPage) {
+ 	/**
+     * @param  presenter   {bus.admin.mvp.presenter.RoutesPresenter}  Presenter   
+ 	 */
+	construct : function(presenter) {
+		this.__presenter = presenter;
 		this.base(arguments);
-		this._routesPage = routesPage;
-		this.setMinZoom(13);
-		this.setLayout(new qx.ui.layout.Dock());
 		this._nextStationID = -1;
-		this.initWidgets();
+		this.__initWidgets();
 
-		var globPresenter = qx.core.Init.getApplication().getPresenter();
+		/*
 		globPresenter.addListener("refresh_cities", this.on_refresh_cities,
 				this);
-		var localPresenter = routesPage.getPresenter();
 		localPresenter.addListener("startCreateNewRoute",
 				this.on_startCreateNewRoute, this);
 		localPresenter.addListener("finishCreateNewRoute",
@@ -45,21 +49,39 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 				this.on_insertStationToCurrentRoute, this);
 		localPresenter
 				.addListener("addNewStation", this.on_addNewStation, this);
+		*/
 
 	},
 	properties : {
+		/**
+ 		 * Виджет Google карты
+ 		 */
 		googleMap : {
-			nullable : true
+			nullable : true,
+			check : "bus.admin.widget.GoogleMap"
 		},
+
+		/**
+		 * Минимальный масштаб, при котором отображаются станции на карте. Если масштаб карты будет меньше данного значения,
+		 * то станции будут убраны с карты.
+		 * @type {Object}
+		 */
 		minZoom : {
-			nullable : true
+			init : 13,
+			check : "Integer"
 		}
 	},
 	members : {
+ 		/**
+ 		 * Presenter
+ 		 * @type {bus.admin.mvp.presenter.RoutesPresenter}
+ 		 */		
+		__presenter : null,
+
+
 		_nextStationID : null,
 		_menuItems : null,
 		_contextMenu : null,
-		_routesPage : null,
 
 		_stations : [],
 		_addedStations : [],
@@ -85,9 +107,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 		},
 		/**
 		 * Обработчик вызывается при начале добавления нового маршрута
-		 * 
-		 * @param {RouteModel}
-		 *            e - (еще не полностью заполненную)
+		 * @param e {RouteModel}(еще не полностью заполненную)
 		 */
 		on_startCreateNewRoute : function(e) {
 
@@ -118,9 +138,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 		 * маршрута: он был отредактирован пользователем, отправлен на сервер и
 		 * сохранен в БД. Теперь можно сделать доступным элементы левой
 		 * панели(список городов и список типов маршрута)
-		 * 
-		 * @param {RouteModel}
-		 *            e
+		 * @param e {RouteModel}
 		 */
 		on_finishCreateNewRoute : function(e) {
 			this.debug("RouteMap: on_finishCreateNewRoute()");
@@ -156,6 +174,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 			}
 
 		},
+
 		on_loadStationsInBox : function(e) {
 
 			var data = e.getData();
@@ -291,7 +310,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 			this.debug(way);
 			this.debug(this._addedStations);
 
-			this.refreshMap();
+			this.refresh();
 			if (directType == null)
 				return;
 			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
@@ -369,11 +388,9 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 			}
 			return relations;
 		},
-		initialize : function() {
 
-		},
-
-		initWidgets : function() {
+		__initWidgets : function() {
+			this.setLayout(new qx.ui.layout.Dock());
 			this._routeStationIcon = new google.maps.MarkerImage('resource/bus/admin/images/map/stop_selected.png');
 			this._stationIcon = new google.maps.MarkerImage('resource/bus/admin/images/map/stop.png');
 			this._addedStationIcon = new google.maps.MarkerImage('resource/bus/admin/images/map/stop_new.png');
@@ -416,7 +433,7 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 			this.getGoogleMap().addListenerOnce("appear", function() {
 				var map = this.getGoogleMap().getMapObject();
 				var T = this;
-				this.refreshMap();
+				this.refresh();
 				this._contextMenu = this._updateContextMenu(this._menuItems,
 						this._contextMenu);
 
@@ -742,8 +759,8 @@ qx.Class.define("bus.admin.mvp.view.routes.RouteMap", {
 			}
 		},
 
-		refreshMap : function() {
-			this.debug("refreshMap");
+		refresh : function() {
+			this.debug("refresh");
 			var map = this.getGoogleMap().getMapObject();
 			if (map == null)
 				return;
