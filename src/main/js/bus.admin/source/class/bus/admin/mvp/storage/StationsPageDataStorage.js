@@ -27,13 +27,7 @@ qx.Class.define("bus.admin.mvp.storage.StationsPageDataStorage", {
     this.setCitiesModel(citiesModel);
     this.setLangsModel(langsModel);
     this.setState("none");
-
-    var mapCenter = {
-      centerLat : 0.0,
-      centerLon : 0.0,
-      scale     : 0
-    };
-    this.setMapCenter(mapCenter);
+    this.setMapCenter(null);
     // get data from locale storage
     var currNamesLangID = qx.module.Storage.getLocalItem("stations.currNamesLangID");
     var selectedCityID = qx.module.Storage.getLocalItem("stations.selectedCityID");

@@ -204,7 +204,7 @@
  		 		}
  		 	}, this);
  		 	this._presenter.loadStationsListTrigger(cityID, langID, callback, this);
- 		 	this._presenter.selectCityTrigger(cityID);
+ 		 	this._presenter.selectCityTrigger(cityID, true);
  		 	this._comboCities.close();
 
  		 },
@@ -251,7 +251,7 @@
  		 	.getAnchorSelectionIndex();
  		 	if (rowIndex >= 0) {
  		 		var rowData = this._tableStations.getTableModel().getRowDataAsMap(rowIndex);
- 		 		this._presenter.selectStationTrigger(rowData.ID);
+ 		 		this._presenter.selectStationTrigger(rowData.ID, true);
  		 	}
  		 },
 
@@ -282,7 +282,7 @@
  		 __onChangeSelectionTableStations : function(e) {
  		 	var model = this._tableStations.getTableModel();
  		 	if (model.getRowCount() <= 0) {
- 		 		this._presenter.selectStationTrigger(-1);
+ 		 		this._presenter.selectStationTrigger(-1, false);
  		 		this._btnChange.setEnabled(false);
  		 		this._btnDelete.setEnabled(false);
  		 	}else{

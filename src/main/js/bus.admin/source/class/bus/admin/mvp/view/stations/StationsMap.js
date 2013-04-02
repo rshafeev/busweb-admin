@@ -29,65 +29,77 @@
 
  	/**
      * @param  presenter   {bus.admin.mvp.presenter.StationsPresenter}  Presenter   
- 	 */
- 	construct : function(presenter) {
- 		this.__presenter = presenter;
- 		this.base(arguments);
- 		this.setLayout(new qx.ui.layout.Dock());
- 		this.__initWidgets();
- 		this.__stationMarkers = {};
- 		presenter.addListener("select_city", this.__onSelectCity, this);
- 		presenter.addListener("load_stations_list", this.__onLoadStationsList, this);
- 		presenter.addListener("select_station", this.__onSelectStation, this);
- 		presenter.addListener("insert_station", this.__onInsertStation, this);
- 		presenter.addListener("update_station", this.__onUpdateStation, this);
- 		presenter.addListener("remove_station", this.__onRemoveStation, this);
+     */
+     construct : function(presenter) {
+     	this.__presenter = presenter;
+     	this.base(arguments);
+     	this.setLayout(new qx.ui.layout.Dock());
+     	this.__initWidgets();
+     	this.__stationMarkers = {};
+     	presenter.addListener("select_city", this.__onSelectCity, this);
+     	presenter.addListener("load_stations_list", this.__onLoadStationsList, this);
+     	presenter.addListener("select_station", this.__onSelectStation, this);
+     	presenter.addListener("insert_station", this.__onInsertStation, this);
+     	presenter.addListener("update_station", this.__onUpdateStation, this);
+     	presenter.addListener("remove_station", this.__onRemoveStation, this);
+     	presenter.addListener("change_map_center", this.__onChangeMapCenter, this);
 
-
-	},
-	properties : {
+     },
+     properties : {
 		/**
  		 * Виджет Google карты
  		 */
-		googleMap : {
-			nullable : true,
-			check : "bus.admin.widget.GoogleMap"
-		},
+ 		 googleMap : {
+ 		 	nullable : true,
+ 		 	check : "bus.admin.widget.GoogleMap"
+ 		 },
 
 		/**
 		 * Минимальный масштаб, при котором отображаются станции на карте. Если масштаб карты будет меньше данного значения,
 		 * то станции будут убраны с карты.
 		 * @type {Object}
 		 */
-		minZoom : {
-			init : 13,
-			check : "Integer"
-		}
-	},
-	members : {
+		 minZoom : {
+		 	init : 13,
+		 	check : "Integer"
+		 }
+		},
+		members : {
  		/**
  		 * Presenter
  		 * @type {bus.admin.mvp.presenter.StationsPresenter}
  		 */		
-		__presenter : null,
+ 		 __presenter : null,
 
  		/**
  		 * Словарь маркеров, соотв. станциям.
  		 * @type {Object}
  		 */	
-		__stationMarkers : null,
+ 		 __stationMarkers : null,
 
 		/**
 		 * Иконка станции
 		 * @type {google.maps.MarkerImage}
 		 */
-		__stationIcon : null,
+		 __stationIcon : null,
 
 		/**
 		 * Иконка выбранной станции
 		 * @type {google.maps.MarkerImage}
 		 */
-		__selectStationIcon : null,
+		 __selectStationIcon : null,
+
+		 /**
+		  * Обработчик события  {@link bus.admin.mvp.presenter.StationsPresenter#change_map_center change_map_center} вызывается при цизменении центральной точки карты.
+		  * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		  */
+		  __onChangeMapCenter : function(e){
+		  	this.debug("execute __onChangeMapCenter() event handler");
+		  	console.debug(e.getData());
+		  	if(e.getData().sender != this){
+		  		this.getGoogleMap().setCenter(e.getData().lat, e.getData().lon, e.getData().scale);  		
+		  	}
+		  },
 
 		/**
 		 * Обработчик события  {@link bus.admin.mvp.presenter.StationsPresenter#select_city select_city} вызывается при выборе пользователем города.
@@ -98,8 +110,10 @@
 		 	var cityModel = e.getData().city;
 		 	if(cityModel == null)
 		 		return;
-		 	this.getGoogleMap().setCenter(cityModel.getLocation().getLat(), 
-		 		cityModel.getLocation().getLon(),cityModel.getScale());
+		 	if(e.getData().centering_map == true){
+		 		this.getGoogleMap().setCenter(cityModel.getLocation().getLat(), 
+		 			cityModel.getLocation().getLon(),cityModel.getScale());
+		 	}
 
 		 },
 
@@ -119,7 +133,8 @@
 		 */
 		 __onSelectStation : function(e){
 		 	this.debug("execute __onSelectStation() event handler");
-		 	this.__selectStation(e.getData().station, e.getData().prevStation);
+		 	console.debug(e.getData());
+		 	this.__selectStation(e.getData().station, e.getData().prevStation, e.getData().centering_map);
 
 		 },
 
@@ -159,8 +174,9 @@
 		  * Выделяет остановку на карте.
 		  * @param  station {bus.admin.mvp.model.StationModel}  Модель станции
 		  * @param  prevStation {bus.admin.mvp.model.StationModel}  Предыдущая выделенная станция
+		  * @param  centering_map {Boolean} Нужно ли центрировать карту
 		  */
-		  __selectStation : function(station, prevStation){
+		  __selectStation : function(station, prevStation, centering_map){
 		  	this.debug("execute selectStation()");
 		  	if(station == null && prevStation != undefined)
 		  	{
@@ -186,7 +202,10 @@
 		  		var map = this.getGoogleMap().getMapObject();
 		  		if(map!= null && map.getZoom() > zoom)
 		  			zoom = map.getZoom();
-		  		this.getGoogleMap().setCenter(station.getLocation().getLat(), station.getLocation().getLon(), zoom);
+		  		if(centering_map == true){
+		  			this.getGoogleMap().setCenter(station.getLocation().getLat(), station.getLocation().getLon(), zoom);
+		  		}
+
 		  	}
 		  },
 
@@ -299,7 +318,7 @@
 		 /**
 		 * Удаляет остановку с карты.
 		 * @param  stID {Integer}  ID остановки
-		  */
+		 */
 		 removeStation : function(stID) {
 		 	var marker = this.__stationMarkers[stID];
 		 	if(marker != undefined)
@@ -363,6 +382,9 @@
 	     	var self = this;
 	     	google.maps.event.addListener(map, 'dragend', function() {
 	     		self.__loadStationsFromBox();
+	     		var scale = map.getZoom();
+	     		var latLng = map.getCenter();
+	     		self.__presenter.changeMapCenterTrigger(latLng.lat(), latLng.lng(), scale, null, self);
 	     	});
 	     	google.maps.event.addListener(map, 'idle', function() {
 	     		self.__loadStationsFromBox();
@@ -371,6 +393,9 @@
 	     	google.maps.event.addListener(map, 'zoom_changed', function() {
 	     		self.__loadStationsFromBox();
 	     		self.__refreshMarkersVisibility();
+	     		var scale = map.getZoom();
+	     		var latLng = map.getCenter();
+	     		self.__presenter.changeMapCenterTrigger(latLng.lat(), latLng.lng(), scale, null, self);
 	     	});
 	     	google.maps.event.addListener(map, "rightclick", function(
 	     		mouseEvent) {

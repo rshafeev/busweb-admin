@@ -61,8 +61,9 @@
  		 * <pre>
  		 * <ul>
  		 * <li> city   Выбранный город, {@link bus.admin.mvp.model.CitiesModel CitiesModel}</li>
+  		 * <li> centering_map   Центрирование карты, Boolean  </li>
  		 * <li> sender Объект, который вызвал триггер, Object </li>
- 		 * <ul>
+  		 * <ul>
  		 * </pre>
  		 */		 
  		 "select_city" : "qx.event.type.Data",
@@ -74,6 +75,7 @@
  		 * <pre>
  		 * <ul>
  		 * <li> station         Выбранная остановка, {@link bus.admin.mvp.model.StationModel StationModel}</li>
+  		 * <li> centering_map   Центрирование карты, Boolean  </li>
  		 * <li> error           Наличие ошибки при выполнении события, Boolean. </li>
  		 * <li> errorCode       Код ошибки, String. </li>
  		 * <li> errorRemoteInfo Описание ошибки с сервера, String. </li>
@@ -127,7 +129,21 @@
  		 * <ul>
  		 * </pre>
  		 */
- 		 "remove_station" : "qx.event.type.Data"
+ 		 "remove_station" : "qx.event.type.Data",
+
+ 		 /**
+ 		 * Событие наступает при изменении центральной точки или масштаба карты 
+  		 * <br><br>Свойства возвращаемого объекта: <br> 		 
+ 		 * <pre>
+ 		 * <ul>
+ 		 * <li> lat    Широта,  Number. </li>
+ 		 * <li> lon    Долгота, Number. </li>
+ 		 * <li> scale  Масштаб, Integer. </li>
+ 		 * <li> sender Объект, который вызвал триггер, Object </li>
+ 		 * <ul>
+ 		 * </pre>
+ 		 */
+ 		 "change_map_center" : "qx.event.type.Data" 		 
 
  		},
 
@@ -195,7 +211,7 @@
  			 			callback(args);
  			 	},this);
 
-			},
+},
 
 
  			/**
@@ -239,7 +255,7 @@
  			 			callback(args);
  			 	},this);
 
-			},
+},
 
  			/**
  			 * Триггер удаляет остановку. 
@@ -274,19 +290,19 @@
  			 			if(this.getDataStorage().getSelectedStationModel() != undefined && 
  			 				this.getDataStorage().getSelectedStationModel().getId() == stationID){
  			 				this.selectStationTrigger(-1);
- 			 			}	
- 			 			args = {
- 			 				stationID   : stationID,
- 			 				error       :  false,
- 			 				sender      : sender
- 			 			};
- 			 			this.fireDataEvent("remove_station", args);
- 			 		}
- 			 		if(callback != undefined)
- 			 			callback(args);
- 			 	},this);
+ 			 		}	
+ 			 		args = {
+ 			 			stationID   : stationID,
+ 			 			error       :  false,
+ 			 			sender      : sender
+ 			 		};
+ 			 		this.fireDataEvent("remove_station", args);
+ 			 	}
+ 			 	if(callback != undefined)
+ 			 		callback(args);
+ 			 },this);
 
-			},
+},
 
  		   /**
  			* Триггер вызывается для обновления данных на странице
@@ -319,13 +335,18 @@
 
  					 if(callback!= undefined)
  					 	callback(e);
- 					 
+
+ 					 var isCenteringMap = (this.getDataStorage().getMapCenter() == undefined);
  					 if(this.getDataStorage().getSelectedCityID() > 0)
  					 {
  					 	var cityID = this.getDataStorage().getSelectedCityID();
  					 	var langID = this.getDataStorage().getCurrNamesLangID();
  					 	this.loadStationsListTrigger(cityID, langID);
- 					 	this.selectCityTrigger(cityID);
+ 					 	this.selectCityTrigger(cityID,isCenteringMap);
+ 					 }
+ 					 if(isCenteringMap == false){
+ 					 	var mapCenter = this.getDataStorage().getMapCenter();
+ 					 	this.changeMapCenterTrigger(mapCenter.lat, mapCenter.lon, mapCenter.scale);
  					 }
 
  					}, 
@@ -337,15 +358,17 @@ this._getAllCities(cities_callback);
  			/**
  			 * Вызывается для выбора текущего города.
  			 * @param  cityID {Integer} ID города
+ 			 * @param  centering_map {Boolean} Нужно ли центрировать карту
  			 * @param  callback {Function}  callback функция
  			 * @param  sender {Object}      Объект, который вызвал триггер
  			 */
- 			 selectCityTrigger : function(cityID, callback, sender){
+ 			 selectCityTrigger : function(cityID, centering_map, callback, sender){
  			 	this.debug("execute selectCityTrigger()");
  			 	this.debug("cityID: ", cityID);
  			 	this.getDataStorage().setSelectedCityID(cityID);
  			 	var args = {
  			 		city : this.getDataStorage().getCitiesModel().getCityByID(cityID),
+ 			 		centering_map : centering_map,
  			 		sender : sender
  			 	};
  			 	this.fireDataEvent("select_city", args);
@@ -451,16 +474,19 @@ this._getAllCities(cities_callback);
 
 			/**
 			 * Задает выбранную станцию.
-			  * @param  stationID {Integer}    ID остановки
-			  * @param  callback {Function}   Callback функиця
-			 *  @param  sender {Object}      Объект, который вызвал триггер
+			 * @param  stationID {Integer}    ID остановки
+ 			 * @param  centering_map {Boolean} Нужно ли центрировать карту
+			 * @param  callback {Function}   Callback функиця
+			 * @param  sender {Object}      Объект, который вызвал триггер
 			 */
-			 selectStationTrigger : function(stationID, callback, sender){
+			 selectStationTrigger : function(stationID, centering_map, callback, sender){
 			 	if(stationID <= 0){
 			 		var prevStation = this.getDataStorage().getSelectedStationModel();
 			 		var args = {
 			 			prevStation : prevStation,
 			 			station : null,
+			 			centering_map : centering_map,
+			 			sender : sender,
 			 			error  : false
 			 		};
 			 		this.getDataStorage().setSelectedStationModel(null);
@@ -474,6 +500,7 @@ this._getAllCities(cities_callback);
 			 			args.prevStation = prevStation.clone();
 			 		else
 			 			args.prevStation = null;
+			 		args.centering_map = centering_map;
 			 		if(args.error == false){
 			 			self.getDataStorage().setSelectedStationModel(args.station);
 			 			self.fireDataEvent("select_station", args);
@@ -519,6 +546,32 @@ this._getAllCities(cities_callback);
 			  	},this);
 			  },
 
+			 /**
+			  * Триггер для изменения центральной точки карты или текущего масштаба.
+			  * @param  lat {Number}         Широта центральной точки
+			  * @param  lon {Number}         Долгота центральной точки
+			  * @param  scale {Integer}      Масштаб карты
+			  * @param  callback {Function}  Callback функция
+			  * @param  sender {Object}      Объект, который вызвал триггер
+			  */
+			  changeMapCenterTrigger : function(lat, lon, scale, callback, sender){
+			  	this.getDataStorage().setMapCenter({
+			  		lat : lat,
+			  		lon : lon,
+			  		scale : scale
+			  	});
+
+			  	var args = {
+			  		lat : lat,
+			  		lon : lon,
+			  		scale : scale,
+			  		sender : sender
+			  	};
+			  	this.fireDataEvent("change_map_center", args);
+			  	if(callback != undefined)
+			  		callback(args);
+			  },
+
 
  		   /**
 			* Запрашивает у сервера данные о городах, затем по ним формирует модель городов и языков
@@ -552,5 +605,8 @@ this._getAllCities(cities_callback);
 					callback(args);
 				},this);
 			}
+
+
+
 		}
 	});

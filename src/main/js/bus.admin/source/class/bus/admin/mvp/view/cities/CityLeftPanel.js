@@ -311,7 +311,7 @@
  		 	if (selectedRow >= 0) {
  		 		var rowsData = this._tableCities.getTableModel().getData();
  		 		var selectedCityID = rowsData[selectedRow][0];
- 		 		this._presenter.selectCityTrigger(selectedCityID, null, this);
+ 		 		this._presenter.selectCityTrigger(selectedCityID, true, null, this);
  		 	}
  		 },
 
@@ -385,7 +385,7 @@
  		 */
  		 __onClickBtnCancel : function(e) {
  		 	this._presenter.changeStateTrigger("none");
- 		 	this._presenter.selectCityTrigger(this._presenter.getDataStorage().getSelectedCityID());
+ 		 	this._presenter.selectCityTrigger(this._presenter.getDataStorage().getSelectedCityID(), true);
  		 },
 
  		/**

@@ -57,9 +57,10 @@
  		 * <br><br>Свойства возвращаемого объекта: <br> 		 
  		 * <pre>
  		 * <ul>
- 		 * <li> city  Выбранный город, {@link bus.admin.mvp.model.CitiesModel CitiesModel}</li>
+ 		 * <li> city            Выбранный город, {@link bus.admin.mvp.model.CitiesModel CitiesModel}</li>
  		 * <li> sender          Объект, который вызвал триггер, Object </li>
- 		 * <ul>
+ 		 * <li> centering_map   Центрирование карты, Boolean  </li>
+ 		 * <ul> 
  		 * </pre>
  		 */		 
  		 "select_city" : "qx.event.type.Data",
@@ -136,7 +137,6 @@
  		 * <ul>
  		 * </pre>
  		 */
-
  		 "change_map_center" : "qx.event.type.Data"
 
  		},
@@ -182,8 +182,13 @@
  					 if(callback!= undefined)
  					 	callback(e);
  					 
+ 					 var isCenteringMap = (this.getDataStorage().getMapCenter() == undefined);
  					 if(selectedCityID > 0 ){
- 					 	this.selectCityTrigger(selectedCityID);
+ 					 	this.selectCityTrigger(selectedCityID, isCenteringMap);
+ 					 }
+ 					 if(isCenteringMap == false){
+ 					 	var mapCenter = this.getDataStorage().getMapCenter();
+ 					 	this.changeMapCenterTrigger(mapCenter.lat, mapCenter.lon, mapCenter.scale);
  					 }
 
  					}, this);
@@ -211,15 +216,17 @@
  			/**
  			 * Вызывается для выбора текущего города.
  			 * @param  cityID {Integer} ID города
+ 			 * @param  centering_map {Boolean} Нужно ли центрировать карту
  			 * @param  callback {Function}  callback функция
  			 * @param  sender {Object}      Объект, который вызвал триггер
  			 */
- 			 selectCityTrigger : function(cityID, callback, sender){
+ 			 selectCityTrigger : function(cityID, centering_map, callback, sender){
  			 	this.debug("execute selectCityTrigger()");
  			 	this.debug("cityID: ", cityID);
  			 	this.getDataStorage().setSelectedCityID(cityID);
  			 	var args = {
  			 		city : this.getDataStorage().getCitiesModel().getCityByID(cityID),
+ 			 		centering_map : centering_map,
  			 		sender : sender
  			 	};
  			 	this.fireDataEvent("select_city", args);
@@ -407,9 +414,9 @@
 			  		scale : scale,
 			  		sender : sender
 			  	};
+			  	this.fireDataEvent("change_map_center", args);
 			  	if(callback != undefined)
 			  		callback(args);
-			  	this.fireDataEvent("change_map_center", args);
 			  },
 
 			  /**
