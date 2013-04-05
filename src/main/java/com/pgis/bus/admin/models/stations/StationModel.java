@@ -1,4 +1,4 @@
-package com.pgis.bus.admin.models;
+package com.pgis.bus.admin.models.stations;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import org.postgis.Point;
 
+import com.pgis.bus.admin.models.LocaleNameModel;
 import com.pgis.bus.data.orm.Station;
 import com.pgis.bus.data.orm.StringValue;
 import com.pgis.bus.net.models.Location;

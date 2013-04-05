@@ -11,9 +11,9 @@ import com.google.gson.Gson;
 
 import com.pgis.bus.data.orm.Station;
 import com.pgis.bus.admin.models.ErrorModel;
-import com.pgis.bus.admin.models.StationModel;
-import com.pgis.bus.admin.models.StationsBoxModel;
-import com.pgis.bus.admin.models.StationsListModel;
+import com.pgis.bus.admin.models.stations.StationModel;
+import com.pgis.bus.admin.models.stations.StationsBoxModel;
+import com.pgis.bus.admin.models.stations.StationsListModel;
 
 @Controller
 @RequestMapping(value = "stations/")

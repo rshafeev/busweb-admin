@@ -35,6 +35,12 @@
 		 __stations : null,
 
 		/**
+		 * Позволяет удаленно работать  с маршрутами
+		 * @type {bus.admin.net.impl.Routes}
+		 */
+		 __routes : null,
+
+		/**
 		 * Возвращает объект для удаленной работы с городами
 		 * @return {bus.admin.net.impl.Cities} 
 		 */
@@ -54,6 +60,17 @@
 		 		this.__stations = new bus.admin.net.impl.Stations();
 		 	}
 		 	return this.__stations;	
+		 },
+
+		/**
+		 * Возвращает объект для удаленной работы с маршрутами
+		 * @return {bus.admin.net.impl.Routes} 
+		 */
+		 Routes : function(){
+		 	if(this.__routes == null){
+		 		this.__routes = new bus.admin.net.impl.Routes();
+		 	}
+		 	return this.__routes;	
 		 }
 
 

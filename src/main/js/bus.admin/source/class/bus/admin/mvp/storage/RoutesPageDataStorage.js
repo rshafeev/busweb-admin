@@ -26,28 +26,18 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
     langsModel.fromDataModel(bus.admin.AppProperties.LANGUAGES);
     this.setCitiesModel(citiesModel);
     this.setLangsModel(langsModel);
-    this.setState("none");
+    this.setRouteTypes(bus.admin.AppProperties.RouteTypes);
 
-    var mapCenter = {
-      centerLat : 0.0,
-      centerLon : 0.0,
-      scale     : 0
-    };
-    this.setMapCenter(mapCenter);
     // get data from locale storage
-    var currNamesLangID = qx.module.Storage.getLocalItem("routes.currNamesLangID");
     var selectedCityID = qx.module.Storage.getLocalItem("routes.selectedCityID");
+    var selectedRouteTypeID = qx.module.Storage.getLocalItem("routes.selectedRouteTypeID");
 
     if(selectedCityID != undefined)
       this.setSelectedCityID(selectedCityID);
 
-    if(currNamesLangID != undefined){
-      this.setCurrNamesLangID(currNamesLangID);
-    }
-    else{
-      this.setCurrNamesLangID( bus.admin.AppProperties.getLocale());
-      var locale = bus.admin.AppProperties.getLocale();
-    }
+    if(selectedRouteTypeID != undefined)
+      this.setSelectedRouteTypeID(selectedRouteTypeID);
+
   },
 
   properties : {
@@ -55,7 +45,7 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
                 none : обычное состояние. 
               */
               state : {
-              	nullable : true,
+              	init : "none",
               	check : "String"
               },
 
@@ -77,6 +67,15 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
                 check : "bus.admin.mvp.model.LanguagesModel"
               },
 
+              /**
+               * Хранит список маршрутов
+               * @type {bus.admin.mvp.model.RoutesListModel}
+               */
+              routesListModel : {
+                nullable : true,
+                check : "bus.admin.mvp.model.RoutesListModel"
+              },
+
 
               /**
                * ID города, который был выбран пользователем из выпадющего списка
@@ -93,6 +92,20 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
                */
               mapCenter : {
                 nullable : true
+              },
+
+              /**
+               * Массив типов маршрутов. Каждый элемент имеет поле id и name. 
+               * @type {Object[]}
+               */
+              routeTypes : {
+                nullable : true
+              },
+
+              selectedRouteTypeID: {
+                check : "String",
+                init : "c_route_bus",
+                apply : "_applySelectedRouteTypeID" 
               }
 
 
@@ -101,24 +114,25 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
 
             members : {
 
-              /**
-               * Вызывается при изменении свойства bus.admin.mvp.storage.CitiesPageDataStorage#currNamesLangID.
-               * @param  value {Object}  Новое значение свойства
-               * @param  old {Object}    Предыдущее значение свойства
-               * @param  name {String}   Название свойства
-               */
-              _applyCurrNamesLangID : function(value, old, name){
-                qx.module.Storage.setLocalItem("routes.currNamesLangID", value);
-              },
 
               /**
-               * Вызывается при изменении свойства bus.admin.mvp.storage.CitiesPageDataStorage#selectedCityID.
+               * Вызывается при изменении свойства bus.admin.mvp.storage.RoutesPageDataStorage#selectedCityID.
                * @param  value {Object}  Новое значение свойства
                * @param  old {Object}    Предыдущее значение свойства
                * @param  name {String}   Название свойства
                */
               _applySelectedCityID : function(value, old, name){
                 qx.module.Storage.setLocalItem("routes.selectedCityID", value);
+              },
+
+              /**
+               * Вызывается при изменении свойства bus.admin.mvp.storage.RoutesPageDataStorage#selectedRouteType.
+               * @param  value {Object}  Новое значение свойства
+               * @param  old {Object}    Предыдущее значение свойства
+               * @param  name {String}   Название свойства
+               */
+              _applySelectedRouteTypeID : function(value, old, name){
+                qx.module.Storage.setLocalItem("routes.selectedRouteTypeID", value);
               },
 
               /**

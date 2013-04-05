@@ -55,16 +55,16 @@ qx.Class.define("bus.admin.AppProperties", {
 		 */
 		RouteTypes : [{
 				id : "c_route_bus",
-				text : qx.locale.Manager.tr("Bus")
+				name : qx.locale.Manager.tr("Bus")
 			}, {
 				id : "c_route_tram",
-				text : qx.locale.Manager.tr("Tram")
+				name : qx.locale.Manager.tr("Tram")
 			}, {
 				id : "c_route_trolley",
-				text : qx.locale.Manager.tr("Trolleybus")
+				name : qx.locale.Manager.tr("Trolleybus")
 			}, {
 				id : "c_route_metro",
-				text : qx.locale.Manager.tr("Metro")
+				name : qx.locale.Manager.tr("Metro")
 			}],
 
 		/**

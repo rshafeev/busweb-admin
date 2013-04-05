@@ -1,5 +1,5 @@
 
-qx.Class.define("bus.admin.mvp.view.routes.tabs.TimeForm", {
+qx.Class.define("bus.admin.mvp.view.routes.TimeForm", {
 	extend : qx.ui.window.Window,
 
 	construct : function(_routesPage, routeWay) {

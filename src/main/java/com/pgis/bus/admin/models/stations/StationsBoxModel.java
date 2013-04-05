@@ -1,4 +1,4 @@
-package com.pgis.bus.admin.models;
+package com.pgis.bus.admin.models.stations;
 
 import java.util.ArrayList;
 import java.util.Collection;

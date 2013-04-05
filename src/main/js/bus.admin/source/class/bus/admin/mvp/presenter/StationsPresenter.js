@@ -41,7 +41,7 @@
  		 "refresh"     : "qx.event.type.Data",
 
 	   /**
- 		 * Событие наступает после загрузки страницы или после нажатия на кнопку "Refresh".
+ 		 * Событие наступает после изменения текущего города или языка названий станций. (Также при обновлении страницы).
  		 * <br><br>Свойства возвращаемого объекта: <br> 		 
  		 * <pre>
  		 * <ul>
@@ -349,10 +349,10 @@
  					 	this.changeMapCenterTrigger(mapCenter.lat, mapCenter.lon, mapCenter.scale);
  					 }
 
- 					}, 
- 					this);
-this._getAllCities(cities_callback);
-},
+ 					}, this);
+        // Загрузим список городов 
+        this._getAllCities(cities_callback);
+      },
 
 
  			/**
@@ -466,10 +466,12 @@ this._getAllCities(cities_callback);
  			 			};
  			 			this.fireDataEvent("load_stations_list", args);
  			 		}
- 			 		if(callback != undefined)
- 			 			callback(args);
- 			 	},this);
-},
+          //
+          if(callback != undefined)
+            callback(args);
+        }, this);
+       //
+     },
 
 
 			/**
@@ -574,39 +576,42 @@ this._getAllCities(cities_callback);
 
 
  		   /**
-			* Запрашивает у сервера данные о городах, затем по ним формирует модель городов и языков
-			* и записывает их  в локальное хранилище DataStorage.
-			* @param  callback {Function}  Callback функция
-			*/
-			_getAllCities : function(callback) {
-				var dataRequest =  new bus.admin.net.DataRequest();
-				var req = dataRequest.Cities().getAll(function(responce){
-					var data = responce.getContent();
-					this.debug("_getAllCities(): received cities data");
-					console.debug(data);
-					var args ={};
-					if(data == null || data.error != null){
-						args = {
-							cities : null,
-							langs : null,
-							error : true,
-							errorCode : data.error != undefined ? data.error.code : "req_err",
-							errorRemoteInfo :  data.error != undefined ? data.error.info : null
-						}
-					}
-					else{
-						this.getDataStorage().getCitiesModel().fromDataModel(data);
-						args = {
-							cities :  this.getDataStorage().getCitiesModel(),
-							langs  :  this.getDataStorage().getLangsModel(),
-							error  :  false
-						};
-					}
-					callback(args);
-				},this);
-			}
+			  * Запрашивает у сервера данные о городах, затем по ним формирует модель городов и языков
+			  * и записывает их  в локальное хранилище DataStorage.
+			  * @param  callback {Function}  Callback функция
+			  */
+       _getAllCities : function(callback) {
+          // Создадим запрос серверу
+          var dataRequest =  new bus.admin.net.DataRequest();
+          var req = dataRequest.Cities().getAll(function(responce){
+           var data = responce.getContent();
+           this.debug("_getAllCities(): received cities data");
+           console.debug(data);
+           var args ={};
+           if(data == null || data.error != null)
+           {
+            args = {
+             cities : null,
+             langs : null,
+             error : true,
+             errorCode : data.error != undefined ? data.error.code : "req_err",
+             errorRemoteInfo :  data.error != undefined ? data.error.info : null
+           };
+         }
+         else
+         {
+          this.getDataStorage().getCitiesModel().fromDataModel(data);
+          args = {
+           cities :  this.getDataStorage().getCitiesModel(),
+           langs  :  this.getDataStorage().getLangsModel(),
+           error  :  false
+         };
+       }
+       callback(args);
+     },this);
+        }
 
 
 
-		}
-	});
+      }
+    });

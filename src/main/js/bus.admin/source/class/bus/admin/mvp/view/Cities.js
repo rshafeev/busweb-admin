@@ -13,10 +13,6 @@
  *************************************************************************/
 
 /**
- * #asset(qx/icon/${qx.icontheme}/32/status/dialog-information.png)
- */
-
-/**
  * Страница "Cities".
  */
  qx.Class.define("bus.admin.mvp.view.Cities", {

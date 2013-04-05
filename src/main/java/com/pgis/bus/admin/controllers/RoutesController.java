@@ -15,9 +15,8 @@ import com.pgis.bus.data.helpers.LoadRouteOptions;
 import com.pgis.bus.data.helpers.LoadRouteRelationOptions;
 import com.pgis.bus.data.orm.Route;
 import com.pgis.bus.admin.models.ErrorModel;
-import com.pgis.bus.admin.models.LoadRoutesListParams;
-import com.pgis.bus.admin.models.RoutesModel;
 import com.pgis.bus.admin.models.UpdateRouteModel;
+import com.pgis.bus.admin.models.routes.RoutesListModel;
 
 @Controller
 @RequestMapping(value = "routes/")
@@ -26,15 +25,16 @@ public class RoutesController extends BaseController {
 			.getLogger(RoutesController.class);
 
 	@ResponseBody
-	@RequestMapping(value = "get_all_list", method = RequestMethod.POST)
-	public String get_all_list(String data) {
+	@RequestMapping(value = "getRoutesList", method = RequestMethod.POST)
+	public String getRoutesList(Integer cityID, String routeTypeID, String langID) {
 		//
 		try {
-			LoadRoutesListParams params = (new Gson()).fromJson(data,
-					LoadRoutesListParams.class);
-
-			log.debug("get_all_list()");
-			log.debug(data);
+			log.debug("getRoutesList()");
+			log.debug("cityID:" + cityID);
+			log.debug("routeTypeID:" + routeTypeID);
+			log.debug("langID:" + langID);
+			
+			
 			// Загрузим список маршрутов из БД
 			LoadRouteOptions opts = new LoadRouteOptions();
 			opts.setLoadRouteNamesData(true);
@@ -43,19 +43,12 @@ public class RoutesController extends BaseController {
 			directRouteOptions.setLoadRouteRelationOptions(null);
 			directRouteOptions.setLoadScheduleData(true);
 			opts.setDirectRouteOptions(directRouteOptions);
-
 			// get routes
-			Collection<Route> routes = this.getDB().Routes().getRoutes(params.getRoute_type_id(),
-					params.getCity_id(), opts);
-
+			Collection<Route> routes = this.getDB().Routes().getRoutes(routeTypeID, cityID, langID);
 			// create model
-			RoutesModel routesModel = new RoutesModel();
-			routesModel.setCity_id(params.getCity_id());
-			routesModel.setRoute_type_id(params.getRoute_type_id());
-			routesModel.setRoutes(routes.toArray(new Route[routes.size()]));
-
+			RoutesListModel model = new RoutesListModel(routes, langID);
 			// send model
-			String routesModelJson = (new Gson()).toJson(routesModel);
+			String routesModelJson = (new Gson()).toJson(model);
 			return routesModelJson;
 
 		} catch (Exception e) {
