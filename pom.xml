@@ -184,7 +184,7 @@
 					<executions>
 						<execution>
 							<id>build-jsapp</id>
-							<phase>package</phase>
+							<phase>verify</phase>
 							<configuration>
 								<executable>python</executable>
 								<workingDirectory>${basedir}/src/main/js/bus.admin</workingDirectory>
@@ -199,7 +199,7 @@
 						</execution>
 						<execution>
 							<id>build-apidocs</id>
-							<phase>package</phase>
+							<phase>verify</phase>
 							<configuration>
 								<executable>python</executable>
 								<workingDirectory>${basedir}/src/main/js/bus.admin</workingDirectory>
@@ -214,7 +214,7 @@
 						</execution>
 						<execution>
 							<id>build-testrunner</id>
-							<phase>package</phase>
+							<phase>verify</phase>
 							<configuration>
 								<executable>python</executable>
 								<workingDirectory>${basedir}/src/main/js/bus.admin/</workingDirectory>

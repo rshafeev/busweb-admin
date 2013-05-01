@@ -13,9 +13,9 @@
  *************************************************************************/
 
 /**
- * Модель остановки.
+ * Модель маршрута.
  */
- qx.Class.define("bus.admin.mvp.model.StationModel", {
+ qx.Class.define("bus.admin.mvp.model.RouteModel", {
  	extend : Object,
 
  	/**
@@ -40,7 +40,7 @@
  	 	 },
 
  	 	/**
- 	 	 * ID остановки
+ 	 	 * ID города
  	 	 */
  	 	 cityID : {
  	 	 	init : 0,
@@ -48,68 +48,90 @@
  	 	 },
 
  	 	/**
+ 	 	 *  Тип маршрута. Возможные значения: "metro", "bus", "trolley", "tram" и др.
+ 	 	 */
+ 	 	 routeTypeID : {
+ 	 	 	init : "",
+ 	 	 	check : "String"
+ 	 	 },
+
+
+ 	 	 cost : {
+ 	 	 	init : 0.0,
+ 	 	 	check : "Number"
+ 	 	 },
+
+ 	 	/**
  	 	 * Ключ строковых констант названий остановки.
  	 	 */
- 	 	 nameKey : {
+ 	 	 numberKey : {
  	 	 	init : 0,
  	 	 	check : "Integer"
+ 	 	 },
+
+
+ 	 	 directWay :{
+ 	 	 	init : null,
+ 	 	 	check : "bus.admin.mvp.model.route.RouteWayModel"
+ 	 	 },
+
+ 	 	 reverseWay :{
+ 	 	 	init : null,
+ 	 	 	check : "bus.admin.mvp.model.route.RouteWayModel"
  	 	 }
+
+
 
  	 	},
  	 	members : 
  	 	{
 
  	 	/**
- 	 	 * Местоположение 
- 	 	 */
- 	 	 __location : null,
-
- 	 	/**
- 	 	 * Массив названий для всех языков
+ 	 	 * Массив номеров маршрутов для всех языков
  	 	 * @type {Object}
  	 	 */
- 	 	 __names : null,
+ 	 	 __number : null,
 
  	 	/**
- 	 	 * Задает название остановки.
+ 	 	 * Задает номер маршрута в зависимости от языка.
  	 	 * @param langID {String} Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
- 	 	 * @param name {String}   Новое название города. 
+ 	 	 * @param number {String} Номер маршрута. 
  	 	 */
- 	 	 setName : function(langID, name){
- 	 	 	if(this.__names != null)
+ 	 	 setNumber : function(langID, number){
+ 	 	 	if(this.__number != null)
  	 	 	{
- 	 	 		for(var i=0;i < this.__names.length; i++){
- 	 	 			if(this.__names[i].lang == langID){
- 	 	 				this.__names[i].value = name;
+ 	 	 		for(var i=0;i < this.__number.length; i++){
+ 	 	 			if(this.__number[i].langID == langID){
+ 	 	 				this.__number[i].value = number;
  	 	 				return;
  	 	 			}
  	 	 		}
  	 	 	}
  	 	 	
- 	 	 	if(this.__names == null)
- 	 	 		this.__names = [];
- 	 	 	this.__names.push({
+ 	 	 	if(this.__number == null)
+ 	 	 		this.__number = [];
+ 	 	 	this.__number.push({
  	 	 		id : null,
- 	 	 		lang : langID,
- 	 	 		value : name
+ 	 	 		langID : langID,
+ 	 	 		value : number
  	 	 	}
  	 	 	);
 
  	 	 },
 
 		/**
-		 * Возвращает назание остановки в зависимости от языка
+		 * Возвращает номер маршрута в зависимости от языка.
 		 * @param  langID {String}  Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
 		 * @return {String|null} Название города.  
 		 */
-		 getName : function(langID) {
-		 	var names = this.__names;
-		 	if(names == null)
+		 getNumber : function(langID) {
+		 	var numb = this.__number;
+		 	if(numb == null)
 		 		return null;
-		 	for (var i = 0; i < names.length; i++) {
-		 		if (names[i].lang.toString() == langID.toString()) 
+		 	for (var i = 0; i < numb.length; i++) {
+		 		if (numb[i].langID.toString() == langID.toString()) 
 		 		{
-		 			return names[i].value;
+		 			return numb[i].value;
 		 		}
 		 	}
 		 	return null;
@@ -123,13 +145,13 @@
  		 toDataModel : function(){
  		 	var dataModel = {
  		 		id : this.getId(),
- 		 		nameKey : this.getNameKey(),
- 		 		names : this.__names,
  		 		cityID : this.getCityID(),
- 		 		location : {
- 		 			lat : this.getLocation().getLat(),
- 		 			lon : this.getLocation().getLon()
- 		 		}
+ 		 		routeTypeID : this.getRouteTypeID(),
+ 		 		cost : this.getCost(),
+ 		 		numberKey : this.getNumberKey(),
+ 		 		number : this.__number,
+ 		 		directWay : this.getDirectWay().toDataModel(),
+ 		 		reverseWay : this.getReverseWay().toDataModel() 		 		
  		 	}
  		 	return dataModel;
  		 },
@@ -149,11 +171,13 @@
  		  * @param  dataModel {Object}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
- 		  	this.setLocation(dataModel.location.lat, dataModel.location.lon);
  		  	this.setId(dataModel.id);
  		  	this.setCityID(dataModel.cityID);
- 		  	this.setNameKey(dataModel.nameKey);
- 		  	this.__names = dataModel.names;
+ 		  	this.setNumberKey(dataModel.numberKey);
+ 		  	this.setCost(dataModel.cost);
+ 		  	
+ 		  	this.__number = dataModel.number;
+
  		  },
 
  		  /**

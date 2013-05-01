@@ -87,13 +87,13 @@
 		  * Обработчик события  {@link bus.admin.mvp.presenter.CitiesPresenter#change_map_center change_map_center} вызывается при цизменении центральной точки карты.
 		  * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
 		  */
-		 __onChangeMapCenter : function(e){
+		  __onChangeMapCenter : function(e){
 		  	this.debug("execute __onChangeMapCenter() event handler");
 		  	console.debug(e.getData());
 		  	if(e.getData().sender != this){
-				this.getGoogleMap().setCenter(e.getData().lat, e.getData().lon, e.getData().scale);  		
+		  		this.getGoogleMap().setCenter(e.getData().lat, e.getData().lon, e.getData().scale);  		
 		  	}
-		 },
+		  },
 
 		 /**
 		  * Обработчик события  {@link bus.admin.mvp.presenter.CitiesPresenter#select_city select_city} вызывается при выборе пользователем города.
@@ -218,10 +218,14 @@
 					mouseEvent) {
 					var scale = map.getZoom();
 					var latLng = map.getCenter();
-					self._presenter.changeMapCenterTrigger(latLng.lat(), latLng.lng(), scale, null, this);
+					self._presenter.changeMapCenterTrigger(latLng.lat(), latLng.lng(), scale, null, self);
 
 				});
-
+				google.maps.event.addListener(map, 'zoom_changed', function() {
+					var scale = map.getZoom();
+					var latLng = map.getCenter();
+					self._presenter.changeMapCenterTrigger(latLng.lat(), latLng.lng(), scale, null, self);
+				});
 				google.maps.event.addListener(contextMenu,
 					'menu_item_selected', function(latLng, eventName) {
 						switch (eventName) {

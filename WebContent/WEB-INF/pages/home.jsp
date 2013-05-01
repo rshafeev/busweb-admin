@@ -9,7 +9,7 @@
 
 <html>
 <head>
-<title>bus.admin</title>
+<title>CityWays Admin Tool</title>
 <script type="text/javascript">   
     function GlobalOptions(){
     	var options = {

@@ -75,7 +75,8 @@
  		 * <pre>
  		 * <ul>
  		 * <li> station         Выбранная остановка, {@link bus.admin.mvp.model.StationModel StationModel}</li>
-  		 * <li> centering_map   Центрирование карты, Boolean  </li>
+  	 * <li> prevStation     Предыдущая выбранная остановка, {@link bus.admin.mvp.model.StationModel StationModel}</li>
+     * <li> centering_map   Центрирование карты, Boolean  </li>
  		 * <li> error           Наличие ошибки при выполнении события, Boolean. </li>
  		 * <li> errorCode       Код ошибки, String. </li>
  		 * <li> errorRemoteInfo Описание ошибки с сервера, String. </li>

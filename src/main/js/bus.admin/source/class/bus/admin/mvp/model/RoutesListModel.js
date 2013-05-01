@@ -41,7 +41,7 @@
  	 {
  	 	/**
  	 	 * Список маршрутов
- 	 	 * @type {Object}
+ 	 	 * @type {bus.admin.mvp.model.RouteInfoModel[]}
  	 	 */
  	 	__routesList : null,
 
@@ -56,7 +56,7 @@
  		 * <li> Number  getCost(),   setCost(val)   Стоимость проезда.</li>
  		 * <ul>
  		 * </pre>
- 	 	 * @return {Oject[]} Массив моделей маршрутов.
+ 	 	 * @return {bus.admin.mvp.model.RouteInfoModel[]} Массив моделей маршрутов.
  	 	 */
  	 	getAll : function(){
  	 		return this.__routesList;
@@ -79,14 +79,14 @@
  	 	fromDataModel : function(dataModel){
  	 		this.__routesList = [];
  	 		for(var i = 0; i < dataModel.length; i++){
- 	 			this.__routesList.push(qx.data.marshal.Json.createModel(dataModel[i]));
+ 	 			this.__routesList.push(new bus.admin.mvp.model.RouteInfoModel(dataModel[i]));
  	 		}
  	 	},
 
  	 	/**
  	 	 * Возвращает модель маршрута по ID
  	 	 * @param  routeID {Integer}  ID маршрута
- 	 	 * @return {Object}   Модель маршрута
+ 	 	 * @return {bus.admin.mvp.model.RouteInfoModel}   Модель маршрута
  	 	 */
  	 	getRouteInfoByID : function(routeID){
  	 		if(this.__routesList == null)
@@ -100,20 +100,13 @@
  	 	},
 
  	 	/**
- 	 	 * Формирут модель маршрута из входных параметров и добавляет в список.
- 	 	 * @param  routeID {Integer}  ID маршрута
- 	 	 * @param  routeNumber {String} Номер маршрута
- 	 	 * @param  routeNumber {Number} Стоимость проезда
+ 	 	 * Добавляет маршрут в список.
+ 	 	 * @param  routeInfo {bus.admin.mvp.model.RouteInfoModel}  Информация о маршруте
  	 	 */
- 	 	insert : function(routeID, routeNumber, routeCost){
- 	 		var model = {
- 	 			id : routeID,
- 	 			number : routeNumber,
- 	 			cost : routeCost
- 	 		};
+ 	 	insert : function(routeInfo){
  	 		if(this.__routesList == undefined)
  	 			this.__routesList = [];
- 	 		this.__routesList.push(qx.data.marshal.Json.createModel(model));
+ 	 		this.__routesList.push(routeInfo);
  	 	},
 
  	 	/**

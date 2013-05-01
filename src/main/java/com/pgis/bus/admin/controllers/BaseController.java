@@ -1,25 +1,68 @@
 package com.pgis.bus.admin.controllers;
 
+import java.util.Locale;
+
+import org.springframework.context.i18n.LocaleContextHolder;
+
 import com.pgis.bus.data.DBConnectionFactory;
-import com.pgis.bus.data.IDataBaseService;
-import com.pgis.bus.data.impl.DataBaseService;
+import com.pgis.bus.data.service.IDataBaseService;
+import com.pgis.bus.data.service.IDataModelsService;
+import com.pgis.bus.data.service.impl.DataBaseService;
+import com.pgis.bus.data.service.impl.DataModelsService;
 
 public abstract class BaseController {
 
-	private IDataBaseService db;
+	private IDataBaseService dbService;
+	private IDataModelsService modelsService;
+	private boolean externDbService;
+	private boolean externModelsService;
+
 	public BaseController() {
 		super();
+		this.externDbService = false;
+		this.externModelsService = false;
 	}
 
-	public BaseController(IDataBaseService db) {
+	public BaseController(IDataBaseService dbService, IDataModelsService modelsService) {
 		super();
-		this.db = db;
+		this.dbService = dbService;
+		this.modelsService = modelsService;
+		this.externDbService = true;
+		this.externModelsService = true;
 	}
-	
-	public IDataBaseService getDB(){
-		if(db == null)
-			db = new DataBaseService(DBConnectionFactory.getConnectionManager());
-		return db;
+
+	public IDataBaseService getDbService() {
+		if (dbService == null) {
+			try {
+				dbService = new DataBaseService(DBConnectionFactory.getConnectionManager());
+			} catch (Exception e) {
+			}
+		}
+		return dbService;
+	}
+
+	public IDataModelsService getModelsService() {
+		if (modelsService == null) {
+			Locale locale = LocaleContextHolder.getLocale();
+			try {
+				modelsService = new DataModelsService(locale, DBConnectionFactory.getConnectionManager());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+		return modelsService;
+	}
+
+	public void disposeDataServices() {
+		if (dbService != null && externDbService == false) {
+			dbService.dispose();
+			dbService = null;
+		}
+		if (modelsService != null && externModelsService == false) {
+			modelsService.dispose();
+			modelsService = null;
+		}
 	}
 
 }

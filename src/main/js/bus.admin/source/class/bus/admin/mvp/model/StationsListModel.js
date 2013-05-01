@@ -70,6 +70,9 @@
  	 	fromDataModel : function(dataModel){
  	 		this.__stationsList = [];
  	 		for(var i = 0; i < dataModel.length; i++){
+ 	 			if(dataModel[i].name == undefined){
+ 	 				dataModel[i].name = "";
+ 	 			}
  	 			this.__stationsList.push(qx.data.marshal.Json.createModel(dataModel[i]));
  	 		}
  	 	},

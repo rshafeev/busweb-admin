@@ -37,15 +37,15 @@ qx.Class.define("bus.admin.AppProperties", {
 		 */
 		LANGUAGES : 
 		[{
-			"id":"c_en",
+			"id":"en",
 			"name":"English"
 		},
 		{
-			"id":"c_ru",
+			"id":"ru",
 			"name":"Русский"
 		},
 		{
-			"id":"c_uk",
+			"id":"uk",
 			"name":"Українська"
 		}],
 
@@ -54,16 +54,16 @@ qx.Class.define("bus.admin.AppProperties", {
 		 * @type {Object[]}
 		 */
 		RouteTypes : [{
-				id : "c_route_bus",
+				id : "bus",
 				name : qx.locale.Manager.tr("Bus")
 			}, {
-				id : "c_route_tram",
+				id : "tram",
 				name : qx.locale.Manager.tr("Tram")
 			}, {
-				id : "c_route_trolley",
+				id : "trolley",
 				name : qx.locale.Manager.tr("Trolleybus")
 			}, {
-				id : "c_route_metro",
+				id : "metro",
 				name : qx.locale.Manager.tr("Metro")
 			}],
 
@@ -72,7 +72,7 @@ qx.Class.define("bus.admin.AppProperties", {
 		 * @return {String} ID языка. Возможные значения: "c_en", "c_ru", "c_uk"
 		 */
 		getLocale : function(){
-			return "c_" + qx.locale.Manager.getInstance().getLocale();
+			return qx.locale.Manager.getInstance().getLocale();
 		}
 	}
 });

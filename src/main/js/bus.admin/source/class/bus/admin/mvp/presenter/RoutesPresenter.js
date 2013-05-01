@@ -68,7 +68,24 @@
        * <ul>
        * </pre>
        */        
-       "select_city" : "qx.event.type.Data"
+       "select_city" : "qx.event.type.Data",
+
+      /**
+       * Событие наступает после выбора маршрута в таблице.
+       * <br><br>Свойства возвращаемого объекта: <br>      
+       * <pre>
+       * <ul>
+       * <li> route           Выбранный маршрут, {@link bus.admin.mvp.model.RouteModel RouteModel} </li>
+       * <li> prevRoute       Предыдущий выбранный маршрут, {@link bus.admin.mvp.model.RouteModel RouteModel} </li>
+       * <li> centering_map   Центрирование карты, Boolean  </li>
+       * <li> error           Наличие ошибки при выполнении события, Boolean. </li>
+       * <li> errorCode       Код ошибки, String. </li>
+       * <li> errorRemoteInfo Описание ошибки с сервера, String. </li>
+       * <li> sender          Объект, который вызвал триггер, Object </li>
+       * <ul>
+       * </pre>
+       */    
+       "select_route" : "qx.event.type.Data"
 
  		/*
  		 "loadRoutesList" : "qx.event.type.Data",
@@ -233,6 +250,86 @@
        if(callback!= undefined)
          callback(args);               
      },
+
+      /**
+       * Задает выбранный маршрут.
+       * @param  stationID {Integer}    ID остановки
+       * @param  centering_map {Boolean} Нужно ли центрировать карту
+       * @param  callback {Function}   Callback функиця
+       * @param  sender {Object}      Объект, который вызвал триггер
+       */
+       selectRouteTrigger : function(routeID, centering_map, callback, sender){
+        if(stationID <= 0){
+          var prevRoute = this.getDataStorage().getSelectedRoute();
+          var args = {
+            prevRoute : prevRoute,
+            route : null,
+            centering_map : centering_map,
+            sender : sender,
+            error  : false
+          };
+          this.getDataStorage().setSelectedRoute(null);
+          this.fireDataEvent("select_route", args);
+          if(callback != undefined)
+            callback(args);
+          return;
+        }
+        var self  = this;
+        var rt_callback = function(args){
+          var prevRoute = self.getDataStorage().getSelectedRoute();
+          if(prevStation != undefined)
+            args.prevRoute = prevRoute.clone();
+          else
+            args.prevRoute = null;
+          args.centering_map = centering_map;
+          if(args.error == false){
+            self.getDataStorage().setSelectedRoute(args.route);
+            self.fireDataEvent("select_route", args);
+          }
+          if(callback != undefined)
+            callback(args);
+        }
+        this.getRoute(routeID, rt_callback);
+      },
+
+       /**
+        * Ассинхронная функция. Возвращает модель маршрута.
+        * @param  routeID {Integer}    ID маршрута
+        * @param  callback {Function}   Callback функиця. В функцию передается объект, который имеет следующую структуру: 
+        * {
+        *   route : {bus.admin.mvp.model.RouteModel}, 
+        *   error : {Boolean}
+        * }
+        */
+        getRoute : function(routeID, callback){
+          var dataRequest =  new bus.admin.net.DataRequest();
+          dataRequest.Routes().get(routeID, function(responce){
+            var data = responce.getContent();
+            this.debug("Routes: get(): received route`s data");
+            console.debug(data);
+            var args ={};
+
+            if(data == null || data.error != null)
+            {
+              args = {
+                route : null,
+                error  : true,
+                errorCode : data.error != undefined ? data.error.code : "req_err",
+                errorRemoteInfo :  data.error != undefined ? data.error.info : null
+              };
+            }
+            else
+            {
+              var routeModel = new bus.admin.mvp.model.RouteModel(data);
+              args = {
+                route : routeModel,
+                error  :  false
+              };
+            }
+            if(callback != undefined)
+              callback(args);
+          },this);
+        },
 
  		 /**
 			* Запрашивает у сервера данные о городах, затем по ним формирует модель городов и языков

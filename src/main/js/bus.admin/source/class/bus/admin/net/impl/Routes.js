@@ -48,7 +48,27 @@ qx.Class.define("bus.admin.net.impl.Routes", {
 		 	request.addListener("failed", callback, self);
 		 	request.send();
 		 	return request;
-		 }
+		 },
+
+ 		/**
+ 		 * Возвращает полную информацию о маршруте. 
+ 		 * @param  routeID {Integer}   ID маршрута
+		 * @param  callback  {Function}  Функция вызывается после получения ответа сервера. 
+		 *                               Аргументом функции является объект типа {@link qx.io.remote.Response}.
+		 * @param  self      {Object} Объект this для callback функции
+		 * @return {qx.io.remote.Request}  Объект управления запросом.
+		 */
+		 get : function(routeID, callback, self){
+		 	var contextPath = bus.admin.AppProperties.ContextPath;
+		 	var request = new qx.io.remote.Request(contextPath +  "routes/get", "POST", "application/json");
+		 	request.setAsynchronous(!this.__sync);
+		 	request.setParseJson(true);
+		 	request.setParameter("routeID", routeID, true);
+		 	request.addListener("completed", callback, self);
+		 	request.addListener("failed", callback, self);
+		 	request.send();
+		 	return request;		
+		 }		 
 
 		 /*
 		 getRoute : function(data, completed_func, failed_func, self) {

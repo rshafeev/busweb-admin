@@ -95,8 +95,8 @@
  	 	 	if(this.__names != null)
  	 	 	{
  	 	 		for(var i=0;i < this.__names.length; i++){
- 	 	 			if(this.__names[i].langID == langID){
- 	 	 				this.__names[i].name = name;
+ 	 	 			if(this.__names[i].lang == langID){
+ 	 	 				this.__names[i].value = name;
  	 	 				return;
  	 	 			}
  	 	 		}
@@ -106,8 +106,8 @@
  	 	 		this.__names = [];
  	 	 	this.__names.push({
  	 	 		id : null,
- 	 	 		langID : langID,
- 	 	 		name : name
+ 	 	 		lang : langID,
+ 	 	 		value : name
  	 	 	}
  	 	 	);
 
@@ -123,9 +123,9 @@
 		 	if(names == null)
 		 		return null;
 		 	for (var i = 0; i < names.length; i++) {
-		 		if (names[i].langID.toString() == langID.toString()) 
+		 		if (names[i].lang.toString() == langID.toString()) 
 		 		{
-		 			return names[i].name;
+		 			return names[i].value;
 		 		}
 		 	}
 		 	return null;
