@@ -14,6 +14,7 @@ import com.pgis.bus.data.orm.Route;
 import com.pgis.bus.data.orm.type.LangEnum;
 import com.pgis.bus.data.service.IDataBaseService;
 import com.pgis.bus.data.service.IDataModelsService;
+import com.pgis.bus.net.models.LangEnumModel;
 import com.pgis.bus.net.models.route.RoutesListModel;
 
 @Controller
@@ -30,7 +31,7 @@ public class RoutesController extends BaseController {
 			log.debug("routeTypeID:" + routeTypeID);
 			log.debug("langID:" + langID);
 			IDataModelsService modelsService = super.getModelsService();
-			modelsService.setLocale(LangEnum.valueOf(langID));
+			modelsService.setLocale(LangEnum.valueOf(LangEnumModel.valueOf(langID)));
 			// get routes and create model
 			RoutesListModel model = modelsService.Routes().getRoutesList(cityID, routeTypeID);
 			// send model

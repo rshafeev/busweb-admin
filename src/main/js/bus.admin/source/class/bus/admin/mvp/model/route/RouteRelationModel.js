@@ -146,15 +146,13 @@
  		 toDataModel : function(){
  		 	var dataModel = {
  		 		id : this.getId(),
- 		 		key : this.getKey(),
- 		 		show : this.getShow(),
- 		 		nameKey : this.getNameKey(),
- 		 		scale : this.getScale(),
- 		 		names : this.__names,
- 		 		location : {
- 		 			lat : this.getLocation().getLat(),
- 		 			lon : this.getLocation().getLon()
- 		 		}
+ 		 		routeWayID: this.getRouteWayID(),
+ 		 		index: this.getIndex(),
+ 		 		distance: this.getDistance(),
+ 		 		move: this.getMove().toDataModel(),
+ 		 		geom: this.getGeom().toDataModel(),
+ 		 		currStation: this.GetCurrStation().toDataModel()
+
  		 	}
  		 	return dataModel;
  		 },
@@ -165,52 +163,33 @@
  		  * следующие свойства:
  		  * <pre>
  		  * <ul>
- 		  * <li> id          ID города, Integer</li>
- 		  * <li> location    Местоположение, Object</li>
- 		  * <li> scale       Масштаб, Integer. </li>
- 		  * <li> names       Названия города на разных языках, Object[] </li>
- 		  * <li> isShow      Видимость города, String </li>
+ 		  * <li> id           ID дуги, Integer</li>
+ 		  * <li> routeWayID   ID пути, Integer</li>
+ 		  * <li> index        Порядковый номер дуги, Integer. </li>
+ 		  * <li> distance     Расстояние, Number </li>
+ 		  * <li> move         Время движения, Object </li>
+ 		  * <li> geom         Геоточки, Number[][] </li>
+ 		  * <li> currStation  Текущая станция, Object </li>
  		  * <ul>
  		  * </pre>
  		  * @param  dataModel {Object}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
- 		  	this.setLocation(dataModel.location.lat, dataModel.location.lon);
- 		  	this.setScale(dataModel.scale);
  		  	this.setId(dataModel.id);
- 		  	this.setKey(dataModel.key);
- 		  	this.setShow(dataModel.show);
- 		  	this.setNameKey(dataModel.nameKey);
- 		  	this.__names = dataModel.names;
+ 		  	this.setRouteWayID(dataModel.routeWayID);
+ 		  	this.setIndex(dataModel.index);
+ 		  	this.setDistance(dataModel.distance);
+ 		  	this.setMove(new bus.admin.mvp.model.TimeIntervalModel(dataModel.move));
+ 		  	this.setGeom(new bus.admin.mvp.model.geom.PolyLineModel(dataModel.geom));
+ 		  	this.setCurrStation(new bus.admin.mvp.model.StationModel(dataModel.currStation));
  		  },
 
  		  /**
- 		   * Возвращает местоположение города.
- 		   * @return {Object} Местоположение города. Объект имеет функции getLat() и getLon().
- 		   */
- 		   getLocation : function(){
- 		   	return this.__location;
- 		   },
-
- 		  /**
- 		   * Устанавливает местоположение города.
- 		   * @param lat {Number}  Широта
- 		   * @param lon {Number}  Долгота
- 		   */
- 		   setLocation : function(lat, lon){
- 		   	var loc = {
- 		   		lat : lat,
- 		   		lon : lon
- 		   	};
- 		   	this.__location = qx.data.marshal.Json.createModel(loc);
- 		   },
-
- 		  /**
  		   * Клонирует текущий объект.
- 		   * @return {bus.admin.mvp.model.CityModel} Копия объекта.
+ 		   * @return {bus.admin.mvp.model.route.RouteRelationModel} Копия объекта.
  		   */
  		   clone : function(){
- 		   	var copy = new bus.admin.mvp.model.CityModel(this.toDataModel());
+ 		   	var copy = new bus.admin.mvp.model.route.RouteRelationModel(this.toDataModel());
  		   	return copy;
  		   }
 

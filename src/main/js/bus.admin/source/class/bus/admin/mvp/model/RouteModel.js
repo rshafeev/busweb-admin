@@ -32,7 +32,7 @@
  	 properties : {
 
  	 	/**
- 	 	 * ID остановки
+ 	 	 * ID маршрута
  	 	 */
  	 	 id : {
  	 	 	init : 0,
@@ -55,26 +55,33 @@
  	 	 	check : "String"
  	 	 },
 
-
+ 	 	 /**
+ 	 	  * Стоимость маршрута.
+ 	 	  */
  	 	 cost : {
  	 	 	init : 0.0,
  	 	 	check : "Number"
  	 	 },
 
  	 	/**
- 	 	 * Ключ строковых констант названий остановки.
+ 	 	 * Ключ строковых констант номеров маршрута.
  	 	 */
  	 	 numberKey : {
  	 	 	init : 0,
  	 	 	check : "Integer"
  	 	 },
 
-
+ 	 	 /**
+ 	 	  * Прямой путь
+ 	 	  */
  	 	 directWay :{
  	 	 	init : null,
  	 	 	check : "bus.admin.mvp.model.route.RouteWayModel"
  	 	 },
 
+ 	 	 /**
+ 	 	  * Обратный путь
+ 	 	  */
  	 	 reverseWay :{
  	 	 	init : null,
  	 	 	check : "bus.admin.mvp.model.route.RouteWayModel"
@@ -162,10 +169,14 @@
  		  * следующие свойства:
  		  * <pre>
  		  * <ul>
- 		  * <li> id          ID остановки, Integer</li>
+ 		  * <li> id          ID маршрута, Integer</li>
  		  * <li> cityID      ID города, Integer</li>
- 		  * <li> location    Местоположение, Object</li>
- 		  * <li> names       Названия города на разных языках, Object[] </li>
+ 		  * <li> routeTypeID Тип маршрута, String</li>
+ 		  * <li> cost        Стоимость проезда, Number </li>
+ 		  * <li> numberKey   Ключ строковых констант номеров маршрута, Integer </li>
+ 		  * <li> number      Номера маршрута на разных языках, Object </li>
+ 		  * <li> directWay   Прямой путь, Object </li>
+ 		  * <li> reverseWay  Обратный путь, Object </li>
  		  * <ul>
  		  * </pre>
  		  * @param  dataModel {Object}  JS объект.
@@ -175,30 +186,11 @@
  		  	this.setCityID(dataModel.cityID);
  		  	this.setNumberKey(dataModel.numberKey);
  		  	this.setCost(dataModel.cost);
- 		  	
+ 		  	this.setRouteTypeID(dataModel.routeTypeID);
+ 		  	this.setDirectWay(new bus.admin.mvp.model.route.RouteWayModel(dataModel.directWay));
+ 		  	this.setReverseWay(new bus.admin.mvp.model.route.RouteWayModel(dataModel.reverseWay));
  		  	this.__number = dataModel.number;
 
- 		  },
-
- 		  /**
- 		   * Возвращает местоположение города.
- 		   * @return {Object} Местоположение города. Объект имеет функции getLat() и getLon().
- 		   */
- 		  getLocation : function(){
- 		  	return this.__location;
- 		  },
-
- 		  /**
- 		   * Устанавливает местоположение города.
- 		   * @param lat {Number}  Широта
- 		   * @param lon {Number}  Долгота
- 		   */
- 		  setLocation : function(lat, lon){
- 		  	var loc = {
- 		  		lat : lat,
- 		  		lon : lon
- 		  	};
- 		  	this.__location = qx.data.marshal.Json.createModel(loc);
  		  },
 
  		  /**

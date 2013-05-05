@@ -70,59 +70,13 @@
  	 	 * Расписание выезда из начальной станции.
  	 	 */
  	 	 schedule : {
- 	 	 	init : false,
+ 	 	 	init : null,
  	 	 	check : "bus.admin.mvp.model.route.ScheduleModel"
  	 	 }
 
  	 	},
  	 	members : 
  	 	{
-
-
- 	 	/**
- 	 	 * Задает название города.
- 	 	 * @param langID {String} Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
- 	 	 * @param name {String}   Новое название города. 
- 	 	 */
- 	 	 setName : function(langID, name){
- 	 	 	if(this.__names != null)
- 	 	 	{
- 	 	 		for(var i=0;i < this.__names.length; i++){
- 	 	 			if(this.__names[i].lang == langID){
- 	 	 				this.__names[i].value = name;
- 	 	 				return;
- 	 	 			}
- 	 	 		}
- 	 	 	}
- 	 	 	
- 	 	 	if(this.__names == null)
- 	 	 		this.__names = [];
- 	 	 	this.__names.push({
- 	 	 		id : null,
- 	 	 		lang : langID,
- 	 	 		value : name
- 	 	 	}
- 	 	 	);
-
- 	 	 },
-
-		/**
-		 * Возвращает назание города в зависимости от языка
-		 * @param  langID {String}  Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
-		 * @return {String|null} Название города.  
-		 */
-		 getName : function(langID) {
-		 	var names = this.__names;
-		 	if(names == null)
-		 		return null;
-		 	for (var i = 0; i < names.length; i++) {
-		 		if (names[i].lang.toString() == langID.toString()) 
-		 		{
-		 			return names[i].value;
-		 		}
-		 	}
-		 	return null;
-		 },
 
 
  		/**
@@ -132,15 +86,14 @@
  		 toDataModel : function(){
  		 	var dataModel = {
  		 		id : this.getId(),
- 		 		key : this.getKey(),
- 		 		show : this.getShow(),
- 		 		nameKey : this.getNameKey(),
- 		 		scale : this.getScale(),
- 		 		names : this.__names,
- 		 		location : {
- 		 			lat : this.getLocation().getLat(),
- 		 			lon : this.getLocation().getLon()
- 		 		}
+ 		 		routeID : this.getRouteID(),
+ 		 		direct : this.getDirect(),
+ 		 		relations : [],
+ 		 		schedule : this.getSchedule().toDataModel()
+ 		 	}
+ 		 	var relations = this.getRelations();
+ 		 	for(var i=0;i < relations.length; i++){
+ 		 		dataModel.relations.push(relations[i].toDataModel());
  		 	}
  		 	return dataModel;
  		 },
@@ -151,52 +104,34 @@
  		  * следующие свойства:
  		  * <pre>
  		  * <ul>
- 		  * <li> id          ID города, Integer</li>
- 		  * <li> location    Местоположение, Object</li>
- 		  * <li> scale       Масштаб, Integer. </li>
- 		  * <li> names       Названия города на разных языках, Object[] </li>
- 		  * <li> isShow      Видимость города, String </li>
+ 		  * <li> id          ID пути, Integer</li>
+ 		  * <li> routeID     ID маршрута, Object</li>
+ 		  * <li> direct      Направление, Boolean. </li>
+ 		  * <li> relations   Географическое описание пути, Object[] </li>
+ 		  * <li> schedule    Расписание, Object </li>
  		  * <ul>
  		  * </pre>
  		  * @param  dataModel {Object}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
- 		  	this.setLocation(dataModel.location.lat, dataModel.location.lon);
- 		  	this.setScale(dataModel.scale);
  		  	this.setId(dataModel.id);
- 		  	this.setKey(dataModel.key);
- 		  	this.setShow(dataModel.show);
- 		  	this.setNameKey(dataModel.nameKey);
- 		  	this.__names = dataModel.names;
+ 		  	this.setRouteID(dataModel.routeID);
+ 		  	this.setDirect(dataModel.direct);
+ 		  	this.setSchedule(new bus.admin.mvp.model.route.ScheduleModel(dataModel.schedule));
+ 		  	var relations = [];
+ 		  	for(var i=0;i < dataModel.relations.length; i++){
+ 		  		var relationModel = new bus.admin.mvp.model.route.RouteRelationModel( dataModel.relations[i]);
+ 		  		relations.push(relationModel);
+ 		  	}
+ 		  	this.setRelations(relations);
  		  },
 
  		  /**
- 		   * Возвращает местоположение города.
- 		   * @return {Object} Местоположение города. Объект имеет функции getLat() и getLon().
- 		   */
- 		   getLocation : function(){
- 		   	return this.__location;
- 		   },
-
- 		  /**
- 		   * Устанавливает местоположение города.
- 		   * @param lat {Number}  Широта
- 		   * @param lon {Number}  Долгота
- 		   */
- 		   setLocation : function(lat, lon){
- 		   	var loc = {
- 		   		lat : lat,
- 		   		lon : lon
- 		   	};
- 		   	this.__location = qx.data.marshal.Json.createModel(loc);
- 		   },
-
- 		  /**
  		   * Клонирует текущий объект.
- 		   * @return {bus.admin.mvp.model.CityModel} Копия объекта.
+ 		   * @return {bus.admin.mvp.model.route.RouteWayModel} Копия объекта.
  		   */
  		   clone : function(){
- 		   	var copy = new bus.admin.mvp.model.CityModel(this.toDataModel());
+ 		   	var copy = new bus.admin.mvp.model.route.RouteWayModel(this.toDataModel());
  		   	return copy;
  		   }
 

@@ -253,13 +253,13 @@
 
       /**
        * Задает выбранный маршрут.
-       * @param  stationID {Integer}    ID остановки
+       * @param  routeID {Integer}    ID маршрута
        * @param  centering_map {Boolean} Нужно ли центрировать карту
        * @param  callback {Function}   Callback функиця
        * @param  sender {Object}      Объект, который вызвал триггер
        */
        selectRouteTrigger : function(routeID, centering_map, callback, sender){
-        if(stationID <= 0){
+        if(routeID <= 0){
           var prevRoute = this.getDataStorage().getSelectedRoute();
           var args = {
             prevRoute : prevRoute,
