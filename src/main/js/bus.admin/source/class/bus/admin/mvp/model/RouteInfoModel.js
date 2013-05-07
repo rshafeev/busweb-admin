@@ -93,18 +93,10 @@
  		 		id : this.getId(),
  		 		number : this.getNumber(),
  		 		cost : this.getCost(),
- 		 		startWork : {
- 		 			time: this.getStartWork().getSecs()
- 		 		},
- 		 		finishWork : {
- 		 			time : this.getFinishWork().getSecs()
- 		 		},
- 		 		minInterval : {
- 		 			time : this.getMinInterval().getSecs()
- 		 		},
- 		 		maxInterval : {
- 		 			time : this.getMaxInterval().getSecs()
- 		 		},
+ 		 		startWork : this.getStartWork().toDataModel(),
+ 		 		finishWork : this.getFinishWork().toDataModel(),
+ 		 		minInterval :  this.getMinInterval().toDataModel(),
+ 		 		maxInterval : this.getMaxInterval().toDataModel(),
  		 		startStation : this.getStartStation(),
  		 		finishStation : this.getFinishStation() 
  		 	}
@@ -132,10 +124,10 @@
  		  	this.setId(dataModel.id);
  		  	this.setCost(dataModel.cost);
  		  	this.setNumber(dataModel.number);
- 		  	this.setStartWork(new bus.admin.mvp.model.TimeIntervalModel(dataModel.startWork.time));
- 		  	this.setFinishWork(new bus.admin.mvp.model.TimeIntervalModel(dataModel.finishWork.time));
- 		  	this.setMinInterval(new bus.admin.mvp.model.TimeIntervalModel(dataModel.minInterval.time));
- 		  	this.setMaxInterval(new bus.admin.mvp.model.TimeIntervalModel(dataModel.maxInterval.time));
+ 		  	this.setStartWork(new bus.admin.mvp.model.TimeIntervalModel(dataModel.startWork));
+ 		  	this.setFinishWork(new bus.admin.mvp.model.TimeIntervalModel(dataModel.finishWork));
+ 		  	this.setMinInterval(new bus.admin.mvp.model.TimeIntervalModel(dataModel.minInterval));
+ 		  	this.setMaxInterval(new bus.admin.mvp.model.TimeIntervalModel(dataModel.maxInterval));
  		  	this.setStartStation(dataModel.startStation);
  		  	this.setFinishStation(dataModel.finishStation);
  		  },
@@ -143,10 +135,10 @@
 
  		  /**
  		   * Клонирует текущий объект.
- 		   * @return {bus.admin.mvp.model.StationModel} Копия объекта.
+ 		   * @return {bus.admin.mvp.model.RouteInfoModel} Копия объекта.
  		   */
  		   clone : function(){
- 		   	var copy = new bus.admin.mvp.model.StationModel(this.toDataModel());
+ 		   	var copy = new bus.admin.mvp.model.RouteInfoModel(this.toDataModel());
  		   	return copy;
  		   }
 

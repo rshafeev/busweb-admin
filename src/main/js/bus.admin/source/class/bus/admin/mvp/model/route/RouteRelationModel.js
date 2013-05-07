@@ -93,52 +93,6 @@
  	 	{
 
 
- 	 	/**
- 	 	 * Задает название города.
- 	 	 * @param langID {String} Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
- 	 	 * @param name {String}   Новое название города. 
- 	 	 */
- 	 	 setName : function(langID, name){
- 	 	 	if(this.__names != null)
- 	 	 	{
- 	 	 		for(var i=0;i < this.__names.length; i++){
- 	 	 			if(this.__names[i].lang == langID){
- 	 	 				this.__names[i].value = name;
- 	 	 				return;
- 	 	 			}
- 	 	 		}
- 	 	 	}
- 	 	 	
- 	 	 	if(this.__names == null)
- 	 	 		this.__names = [];
- 	 	 	this.__names.push({
- 	 	 		id : null,
- 	 	 		lang : langID,
- 	 	 		value : name
- 	 	 	}
- 	 	 	);
-
- 	 	 },
-
-		/**
-		 * Возвращает назание города в зависимости от языка
-		 * @param  langID {String}  Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
-		 * @return {String|null} Название города.  
-		 */
-		 getName : function(langID) {
-		 	var names = this.__names;
-		 	if(names == null)
-		 		return null;
-		 	for (var i = 0; i < names.length; i++) {
-		 		if (names[i].lang.toString() == langID.toString()) 
-		 		{
-		 			return names[i].value;
-		 		}
-		 	}
-		 	return null;
-		 },
-
-
  		/**
  		 * Преобразует модель в JS объект, который можно в дальнейшем сериализовать в JSON строку и отправить на сервер.
  		 * @return {Object} JS объект.
@@ -151,7 +105,7 @@
  		 		distance: this.getDistance(),
  		 		move: this.getMove().toDataModel(),
  		 		geom: this.getGeom().toDataModel(),
- 		 		currStation: this.GetCurrStation().toDataModel()
+ 		 		currStation: this.getCurrStation().toDataModel()
 
  		 	}
  		 	return dataModel;

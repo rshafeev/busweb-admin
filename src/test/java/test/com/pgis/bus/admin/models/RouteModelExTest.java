@@ -15,7 +15,7 @@ import com.pgis.bus.data.orm.RouteWay;
 import com.pgis.bus.data.orm.StringValue;
 import com.pgis.bus.data.orm.type.LangEnum;
 
-public class RouteModelTest {
+public class RouteModelExTest {
 
 	private Route route1 = null;
 

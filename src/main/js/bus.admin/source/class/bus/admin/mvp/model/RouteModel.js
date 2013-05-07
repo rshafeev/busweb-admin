@@ -58,10 +58,10 @@
  	 	 /**
  	 	  * Стоимость маршрута.
  	 	  */
- 	 	 cost : {
- 	 	 	init : 0.0,
- 	 	 	check : "Number"
- 	 	 },
+ 	 	  cost : {
+ 	 	  	init : 0.0,
+ 	 	  	check : "Number"
+ 	 	  },
 
  	 	/**
  	 	 * Ключ строковых констант номеров маршрута.
@@ -74,18 +74,18 @@
  	 	 /**
  	 	  * Прямой путь
  	 	  */
- 	 	 directWay :{
- 	 	 	init : null,
- 	 	 	check : "bus.admin.mvp.model.route.RouteWayModel"
- 	 	 },
+ 	 	  directWay :{
+ 	 	  	init : null,
+ 	 	  	check : "bus.admin.mvp.model.route.RouteWayModel"
+ 	 	  },
 
  	 	 /**
  	 	  * Обратный путь
  	 	  */
- 	 	 reverseWay :{
- 	 	 	init : null,
- 	 	 	check : "bus.admin.mvp.model.route.RouteWayModel"
- 	 	 }
+ 	 	  reverseWay :{
+ 	 	  	init : null,
+ 	 	  	check : "bus.admin.mvp.model.route.RouteWayModel"
+ 	 	  }
 
 
 
@@ -194,13 +194,25 @@
  		  },
 
  		  /**
- 		   * Клонирует текущий объект.
- 		   * @return {bus.admin.mvp.model.StationModel} Копия объекта.
+ 		   * Возвращает путь в зависимости от направления.
+ 		   * @param direction  {Boolean}  Направление
+ 		   * @return  {bus.admin.mvp.model.route.RouteWayModel} Модель пути
  		   */
- 		  clone : function(){
- 		  	var copy = new bus.admin.mvp.model.StationModel(this.toDataModel());
- 		  	return copy;
- 		  }
+ 		   getWayByDirection : function (direction)
+ 		   {
+ 		   	if (direction == true)
+ 		   		return this.getDirectWay();
+ 		   	return this.getReverseWay();
+ 		   },
+
+ 		  /**
+ 		   * Клонирует текущий объект.
+ 		   * @return {bus.admin.mvp.model.RouteModel} Копия объекта.
+ 		   */
+ 		   clone : function(){
+ 		   	var copy = new bus.admin.mvp.model.RouteModel(this.toDataModel());
+ 		   	return copy;
+ 		   }
 
 
 

@@ -38,6 +38,7 @@
 
  	 	/**
  	 	 * Точки полилинии 
+ 	 	 * @type {Number[][]}
  	 	 */
  	 	 __points : null,
 
@@ -68,6 +69,14 @@
  		  	this.__points = dataModel.points;
  		  },
 
+ 		  /**
+ 		   * Возвращает точки.
+ 		   * @return {Number[][]} Точки.
+ 		   */
+ 		  getPoints : function ()
+ 		  {
+ 		  	return this.__points;
+ 		  },
  		  
  		  /**
  		   * Клонирует текущий объект.

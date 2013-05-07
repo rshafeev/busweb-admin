@@ -182,7 +182,8 @@
  		   * @return {bus.admin.mvp.model.StationModel} Копия объекта.
  		   */
  		  clone : function(){
- 		  	var copy = new bus.admin.mvp.model.StationModel(this.toDataModel());
+ 		  	var dataModel = this.toDataModel();
+ 		  	var copy = new bus.admin.mvp.model.StationModel(dataModel);
  		  	return copy;
  		  }
 

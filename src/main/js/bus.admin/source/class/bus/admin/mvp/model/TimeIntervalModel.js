@@ -23,8 +23,10 @@
  	 * 
  	 * @param  dataModel {Object|null}  JS объект.
  	 */
- 	 construct : function(secs) {
- 	 	this.setSecs(secs);
+ 	 construct : function(dataModel) {
+ 	 	if(dataModel != undefined){
+ 	 		this.fromDataModel(dataModel);
+ 	 	}
  	 },
 
  	 properties : {
@@ -41,14 +43,42 @@
  	 	members : 
  	 	{
 
+        /**
+ 		 * Преобразует модель в JS объект, который можно в дальнейшем сериализовать в JSON строку и отправить на сервер.
+ 		 * @return {Object} JS объект.
+ 		 */
+ 		 toDataModel : function(){
+ 		 	var dataModel = {
+ 		 		time : this.getSecs()
+
+ 		 	}
+ 		 	return dataModel;
+ 		 },
+
+
+ 		 /**
+ 		  * Формирует модель из JS объекта. <br>
+ 		  * Как правило, объект  dataModel получают путем десериализации JSON строки, полученной от сервера. Объект dataModel должен иметь
+ 		  * следующие свойства:
+ 		  * <pre>
+ 		  * <ul>
+ 		  * <li> time          Время в секундах, Integer</li>
+ 		  * <ul>
+ 		  * </pre>
+ 		  * @param  dataModel {Object}  JS объект.
+ 		  */
+ 		  fromDataModel : function(dataModel){
+ 		  	this.setSecs(dataModel.time);
+ 		  },
+
  		  /**
  		   * Клонирует текущий объект.
  		   * @return {bus.admin.mvp.model.TimeIntervalModel} Копия объекта.
  		   */
- 		  clone : function(){
- 		  	var copy = new bus.admin.mvp.model.TimeIntervalModel(this.getSecs());
- 		  	return copy;
- 		  }
+ 		   clone : function(){
+ 		   	var copy = new bus.admin.mvp.model.TimeIntervalModel(this.getSecs());
+ 		   	return copy;
+ 		   }
 
 
 

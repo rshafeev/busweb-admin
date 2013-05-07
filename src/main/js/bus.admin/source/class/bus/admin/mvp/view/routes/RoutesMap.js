@@ -33,9 +33,15 @@
      construct : function(presenter) {
      	this.__presenter = presenter;
      	this.base(arguments);
-     	this._nextStationID = -1;
+     	this.__stations = [];
+     	this.__polylines = [];
      	this.__initWidgets();
      	presenter.addListener("select_city", this.__onSelectCity, this);
+     	presenter.addListener("load_routes_list", this.__onLoadRoutesList, this);
+     	presenter.addListener("select_route", this.__onSelectRoute, this);
+     	presenter.addListener("change_direction", this.__onChangeDirection, this);
+     	
+
 
      },
      properties : {
@@ -65,18 +71,39 @@
  		 __presenter : null,
 
 
- 		 _nextStationID : null,
- 		 _menuItems : null,
- 		 _contextMenu : null,
+ 		 /**
+ 		  * Массив станций, google.maps.Marker
+ 		  * @type {Object}
+ 		  */
+ 		  __stations : null,
 
- 		 _stations : [],
- 		 _addedStations : [],
- 		 _routeStations : [],
- 		 _stationIcon : null,
- 		 _addedStationIcon : null,
- 		 _routeStationIcon : null,
+ 		 /**
+ 		  * Массив полилиний, google.maps.Polyline
+ 		  * @type {Object}
+ 		  */
+ 		  __polylines : null,
 
- 		 _routePolylines : [],
+ 		 /**
+ 		  * Иконка станции маршрута, google.maps.MarkerImage
+ 		  * @type {Obejct}
+ 		  */
+ 		  __routeStationIcon : null,
+
+ 		  
+
+
+
+ 		  _nextStationID : null,
+ 		  _menuItems : null,
+ 		  _contextMenu : null,
+
+ 		  _stations : [],
+ 		  _addedStations : [],
+ 		  _routeStations : [],
+
+ 		  _addedStationIcon : null,
+
+ 		  _routePolylines : [],
 
 		/**
 		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#select_city select_city} вызывается при выборе пользователем города.
@@ -85,8 +112,7 @@
 		 __onSelectCity : function(e){
 		 	this.debug("execute __onSelectCity() event handler");
 		 	var cityModel = e.getData().city;
-		 	if(cityModel == null)
-		 		return;
+		 	this.clearMapObjects();
 		 	if(e.getData().centering_map == true){
 		 		this.getGoogleMap().setCenter(cityModel.getLocation().getLat(), 
 		 			cityModel.getLocation().getLon(),cityModel.getScale());
@@ -94,19 +120,210 @@
 
 		 },
 
- 		 on_refresh_cities : function(e) {
- 		 	var data = e.getData();
- 		 	if (data == null || data.error == true) {
- 		 		this.debug("on_refresh_cities() : event data has errors");
- 		 		return;
- 		 	}
- 		 	if (data.models.cities.length <= 0)
- 		 		return;
- 		 	var city = data.models.cities[0];
- 		 	var map = this.getGoogleMap();
- 		 	map.setCenter(city.location.x, city.location.y, city.scale);
+		/**
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#load_routes_list load_routes_list} вызывается при 
+		 * изменении города или типа транспорта.
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 __onLoadRoutesList : function(e){
+		 	this.debug("execute __onSelectCity() event handler");
+		 	var cityModel = e.getData().city;
+		 	this.clearMapObjects();
+		 	
+		 },
 
- 		 },
+		 /**
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#select_route select_route} вызывается при выборе 
+		 * пользователем маршрута.
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 __onSelectRoute : function (e){
+		 	this.debug("execute __onSelectRoute() event handler");
+		 	var routeModel = e.getData().route;
+		 	this.clearMapObjects();
+		 	if(routeModel != null){
+		 		var isCentering = e.getData().centering_map;
+		 		var direction = this.__presenter.getDataStorage().getDirection();	
+		 		var wayModel = routeModel.getWayByDirection(direction);
+		 		this.__drawRouteWay(wayModel, isCentering);
+
+		 	}
+
+		 },
+
+		 /**
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#change_direction change_direction} вызывается при изменении 
+		 * направления.
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 __onChangeDirection : function(e){
+		 	this.debug("execute __onChangeDirection() event handler");
+		 	var routeModel =  this.__presenter.getDataStorage().getSelectedRoute();
+		 	this.clearMapObjects();
+		 	if(routeModel != null){
+		 		var direction = e.getData().direction;	
+		 		var wayModel = routeModel.getWayByDirection(direction);
+		 		this.__drawRouteWay(wayModel, false);
+
+		 	}
+
+		 },
+
+		 /**
+		  * Отрисовка пути на карте
+		  * @param routeWayModel {bus.admin.mvp.model.route.RouteWayModel}  Модель пути
+		  * @param isCentering {Boolean}   Центрировать карту?
+		  */
+
+		  __drawRouteWay : function (routeWayModel, isCentering)
+		  {
+		  	var relations = routeWayModel.getRelations();
+		  	var canChange = false;
+		  	
+		  	if (isCentering == true)
+		  	{
+		  		var bounds = new google.maps.LatLngBounds();
+		  		var map = this.getGoogleMap().getMapObject();
+
+		  		for (var i = 0; i < relations.length; i++) {
+		  			var st = relations[i].getCurrStation();
+		  			
+		  			bounds.extend(new google.maps.LatLng(
+		  				st.getLocation().getLat(),
+		  				st.getLocation().getLon()));
+
+		  		}
+		  		map.fitBounds(bounds);
+		  	}
+		  	for (var i = 1; i < relations.length; i++) {
+		  		var stA = relations[i - 1].getCurrStation();
+		  		var stB = relations[i].getCurrStation();
+		  		var polyLine = relations[i].getGeom();
+		  		this.insertPolyLine(polyLine, stA, stB, 'red', canChange);
+		  	}
+		  	for (var i = 0; i < relations.length; i++) {
+		  		var st = relations[i].getCurrStation();
+		  		this.__insertStation(st);
+
+		  	}
+
+		  },
+
+
+		  /**
+		   * Добавляет станцию на карту.
+		   * @param  stationModel {bus.admin.mvp.model.StationModel}  Модель станции.
+		   * @return {Object}              Возвращает gmaps станцию.
+		   */
+		   __insertStation : function (stationModel)
+		   {
+		   	var map  = this.getGoogleMap().getMapObject();
+		   	var langID = bus.admin.AppProperties.getLocale();
+		   	var stationIcon = this.__routeStationIcon;
+		   	var marker = new google.maps.Marker({
+		   		position : new google.maps.LatLng(stationModel.getLocation().getLat(),
+		   			stationModel.getLocation().getLon()),
+		   		map : map,
+		   		title : stationModel.getName(langID),
+		   		icon : stationIcon
+		   	});
+
+		   	marker.set("id", stationModel.getId());
+		   	marker.set("station", stationModel);
+		   	marker.setDraggable(false);
+		   	this.__stations.push(marker);
+		   	return marker;
+		   },
+
+
+		/**
+		 * Удаляет объекты (станции, полилинии) на карте.
+		 */
+		 clearMapObjects : function() {
+		 	this.__removeAllStations();
+		 	this.__removeAllPolylines();
+		 },
+
+
+		/**
+		 * Удаляет полилинии.
+		 */
+		 __removeAllPolylines : function() {
+		 	for (var i = 0; i < this.__polylines.length; i++) {
+		 		this.__polylines[i].setMap(null);
+		 	}
+		 	this.__polylines = [];
+		 },
+
+		/**
+		 * Удаляет станции.
+		 */
+		 __removeAllStations : function() {
+		 	for (var i = 0; i < this.__stations.length; i++) {
+		 		this.__stations[i].setMap(null);
+		 	}
+		 	this.__stations = [];
+
+		 },
+
+		 /**
+		  * Добавляет полилинии на карту.
+		  * @param polyline {bus.admin.mvp.model.geom.PolyLineModel}  Модель полилинии.
+		  * @param  stA {bus.admin.mvp.model.StationModel} Начальная станция.       
+		  * @param  stB {bus.admin.mvp.model.StationModel} Конечная станция.
+		  * @param  color {String}      Цвет полилинии.
+		  * @param  canChange {Boolean}  Возможность редактирования.
+		  * @return {Object}  Возвращает  gmaps полилинию.          
+		  */
+		  insertPolyLine : function(polyline, stA, stB, color, canChange) {
+		  	var path = [];
+		  	var points = polyline.getPoints();
+		  	for (var i = 0; i < points.length; i++) {
+		  		var lat = points[i][0];
+		  		var lon = points[i][1];
+		  		path.push(new google.maps.LatLng(lat, lon));
+		  	}
+		  	var line = new google.maps.Polyline({
+		  		map : this.getGoogleMap().getMapObject(),
+		  		path : path,
+		  		strokeColor : color
+		  	});
+		  	line.setEditable(canChange);
+		  	line.set("stA", stA);
+		  	line.set("stB", stB);
+		  	this.__polylines.push(line);
+		  	return line;
+		  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		  on_refresh_cities : function(e) {
+		  	var data = e.getData();
+		  	if (data == null || data.error == true) {
+		  		this.debug("on_refresh_cities() : event data has errors");
+		  		return;
+		  	}
+		  	if (data.models.cities.length <= 0)
+		  		return;
+		  	var city = data.models.cities[0];
+		  	var map = this.getGoogleMap();
+		  	map.setCenter(city.location.x, city.location.y, city.scale);
+
+		  },
 		/**
 		 * Обработчик вызывается при начале добавления нового маршрута
 		 * @param e {RouteModel}(еще не полностью заполненную)
@@ -286,14 +503,7 @@
 			}
 		},
 
-		clearMapObjects : function() {
-			this.deleteAllStations("route");
-			if (this._routesPage.getStatus() == "show") {
-				this.deleteAllStations("added");
-			}
-			this.deleteAllStations();
-			this.deleteAllRoutePolylines();
-		},
+
 
 		showRouteWay : function(directType) {
 			this.clearMapObjects();
@@ -394,7 +604,7 @@
 
 		__initWidgets : function() {
 			this.setLayout(new qx.ui.layout.Dock());
-			this._routeStationIcon = new google.maps.MarkerImage('resource/bus/admin/images/map/stop_selected.png');
+			this.__routeStationIcon = new google.maps.MarkerImage('resource/bus/admin/images/map/stop_selected.png');
 			this._stationIcon = new google.maps.MarkerImage('resource/bus/admin/images/map/stop.png');
 			this._addedStationIcon = new google.maps.MarkerImage('resource/bus/admin/images/map/stop_new.png');
 			// create Map Widget
@@ -546,12 +756,7 @@
 			insertStationDlg.open();
 		},
 
-		deleteAllRoutePolylines : function() {
-			for (var i = 0; i < this._routePolylines.length; i++) {
-				this._routePolylines[i].setMap(null);
-			}
-			this._routePolylines = [];
-		},
+
 
 		insertRoutePolyline : function(points, stationA, stationB, color,
 			canChange) {
@@ -727,6 +932,13 @@
 		 			this._stations.splice(i, 1);
 		 		}
 		 	}
+		 },
+
+		 deleteAllRoutePolylines : function() {
+		 	for (var i = 0; i < this._routePolylines.length; i++) {
+		 		this._routePolylines[i].setMap(null);
+		 	}
+		 	this._routePolylines = [];
 		 },
 
 		 deleteAllStations : function(type) {

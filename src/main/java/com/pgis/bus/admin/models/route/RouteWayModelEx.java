@@ -14,6 +14,10 @@ import com.pgis.bus.net.models.route.ScheduleModel;
  * последовательность остановок, посещаемых по данному марщруту, массив географических точек, описывающих путь,
  * расписание выезда из начальной станции.
  */
+/**
+ * @author romario
+ * 
+ */
 public class RouteWayModelEx {
 
 	/**
@@ -47,7 +51,9 @@ public class RouteWayModelEx {
 		this.routeID = routeWay.getRouteID();
 		this.direct = routeWay.isDirect();
 		this.relations = RouteRelationModelEx.createModels(routeWay.getRouteRelations());
-		this.schedule = routeWay.getSchedule().toModel();
+		Schedule s = routeWay.getSchedule();
+		if (s != null)
+			this.schedule = s.toModel();
 
 	}
 
@@ -57,6 +63,22 @@ public class RouteWayModelEx {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public int getRouteID() {
+		return routeID;
+	}
+
+	public void setRouteID(int routeID) {
+		this.routeID = routeID;
+	}
+
+	public boolean isDirect() {
+		return direct;
+	}
+
+	public void setDirect(boolean direct) {
+		this.direct = direct;
 	}
 
 	public Collection<RouteRelationModelEx> getRelations() {

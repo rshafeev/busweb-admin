@@ -55,6 +55,8 @@ public class StringValueModel {
 	}
 
 	static public Collection<StringValueModel> createModels(Collection<StringValue> arr) {
+		if (arr == null)
+			return null;
 		Collection<StringValueModel> models = new ArrayList<StringValueModel>();
 		for (StringValue sValue : arr) {
 			models.add(new StringValueModel(sValue));

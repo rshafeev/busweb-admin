@@ -85,7 +85,20 @@
        * <ul>
        * </pre>
        */    
-       "select_route" : "qx.event.type.Data"
+       "select_route" : "qx.event.type.Data",
+
+      /**
+       * Событие наступает после изменения направления.
+       * <br><br>Свойства возвращаемого объекта: <br>      
+       * <pre>
+       * <ul>
+       * <li> direction       Направление (прямое/обратное), Boolean </li>
+       * <li> sender          Объект, который вызвал триггер, Object </li>
+       * <ul>
+       * </pre>
+       */ 
+       "change_direction" : "qx.event.type.Data"
+
 
  		/*
  		 "loadRoutesList" : "qx.event.type.Data",
@@ -170,9 +183,17 @@
  					 	var routeTypeID = this.getDataStorage().getSelectedRouteTypeID();
  					 	this.loadRoutesListTrigger(cityID, routeTypeID);
  					 	this.selectCityTrigger(cityID,isCenteringMap);
- 					 }
- 					 if(isCenteringMap == false){
- 					 	var mapCenter = this.getDataStorage().getMapCenter();
+            if(this.getDataStorage().getSelectedRoute() == null){
+              this.getDataStorage().setSelectedRoute(null);
+              this.selectRouteTrigger(-1);
+            }else
+            {
+              var routeID = this.getDataStorage().getSelectedRoute().getId();
+              //this.selectRouteTrigger(-1);
+            }
+          }
+          if(isCenteringMap == false){
+            var mapCenter = this.getDataStorage().getMapCenter();
  					 	//this.changeMapCenterTrigger(mapCenter.lat, mapCenter.lon, mapCenter.scale);
  					 }
 
@@ -224,9 +245,14 @@
        };
        this.debug("fire");
        this.fireDataEvent("load_routes_list", args);
+
      }
+
+     this.getDataStorage().setSelectedRoute(null);
+     this.selectRouteTrigger(-1);
      if(callback != undefined)
       callback(args);
+
   }, this);
 },
 
@@ -277,7 +303,7 @@
         var self  = this;
         var rt_callback = function(args){
           var prevRoute = self.getDataStorage().getSelectedRoute();
-          if(prevStation != undefined)
+          if(prevRoute != undefined)
             args.prevRoute = prevRoute.clone();
           else
             args.prevRoute = null;
@@ -290,6 +316,26 @@
             callback(args);
         }
         this.getRoute(routeID, rt_callback);
+      },
+
+      /**
+       * Задает направление
+       * @param  {[type]}   direction [description]
+       * @param  {Function} callback  [description]
+       * @return {[type]}             [description]
+       */
+       setDirectionTrigger : function (direction, callback, sender)
+       {
+        if(this.getDataStorage().getDirection() == direction)
+          return;
+        var args = {
+          direction : direction,
+          sender : sender
+        };
+        this.getDataStorage().setDirection(direction);
+        this.fireDataEvent("change_direction", args);
+        if(callback != undefined)
+          callback(args);
       },
 
        /**

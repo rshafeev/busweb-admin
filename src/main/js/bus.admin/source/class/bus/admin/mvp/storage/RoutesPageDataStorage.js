@@ -87,6 +87,16 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
               },
 
               /**
+               * Выбранный маршрут.
+               * @type {bus.admin.mvp.model.RouteModel}
+               */
+              selectedRoute : {
+                nullable : true,
+                check : "bus.admin.mvp.model.RouteModel"
+              },
+
+
+              /**
                * Центр карты.
                * @type {Object}
                */
@@ -104,8 +114,13 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
 
               selectedRouteTypeID: {
                 check : "String",
-                init : "c_route_bus",
+                init : "bus",
                 apply : "_applySelectedRouteTypeID" 
+              },
+
+              direction :{
+                check : "Boolean",
+                init : true
               }
 
 

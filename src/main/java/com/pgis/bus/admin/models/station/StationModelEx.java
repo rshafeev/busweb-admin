@@ -27,7 +27,6 @@ public class StationModelEx {
 		this.cityID = st.getCityID();
 		this.nameKey = st.getNameKey();
 		this.location = PointModelFactory.createModel(st.getLocation());
-		this.names = new ArrayList<StringValueModel>();
 		try {
 			this.names = StringValueModel.createModels(st.getName());
 		} catch (SQLException e) {

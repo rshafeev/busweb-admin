@@ -60,17 +60,17 @@
 		/**
 	 	 * Географическое описание пути. Данная коллекция хранит последовательность станций пути, географическое описание
 	 	 * пути в виде массива точек между станциями.
+	 	 *  @type {bus.admin.mvp.model.route.RouteRelationModel[]}
 	 	 */
 	 	 relations : {
-	 	 	init : null,
-	 	 	check : "bus.admin.mvp.model.route.RouteRelationModel[]"
+	 	 	nullable : true
 	 	 },
 
  	 	/**
  	 	 * Расписание выезда из начальной станции.
  	 	 */
  	 	 schedule : {
- 	 	 	init : null,
+ 	 	 	nullable : true,
  	 	 	check : "bus.admin.mvp.model.route.ScheduleModel"
  	 	 }
 
