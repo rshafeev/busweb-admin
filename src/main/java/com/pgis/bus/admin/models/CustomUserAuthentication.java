@@ -9,14 +9,13 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 @SuppressWarnings("deprecation")
 public class CustomUserAuthentication implements Authentication {
-	
+
 	private static final long serialVersionUID = -3091441742758356129L;
-	
+
 	private boolean authenticated;
-	
+
 	private GrantedAuthority grantedAuthority;
 	private Authentication authentication;
-	
 
 	public CustomUserAuthentication(String role, Authentication authentication) {
 		this.grantedAuthority = new GrantedAuthorityImpl(role);

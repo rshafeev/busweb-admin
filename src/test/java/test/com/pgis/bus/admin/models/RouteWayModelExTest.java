@@ -3,7 +3,6 @@ package test.com.pgis.bus.admin.models;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -11,6 +10,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.postgresql.util.PGInterval;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.pgis.bus.admin.models.route.RouteRelationModelEx;
 import com.pgis.bus.admin.models.route.RouteWayModelEx;
 import com.pgis.bus.data.orm.RouteRelation;
 import com.pgis.bus.data.orm.RouteWay;
@@ -42,14 +45,25 @@ public class RouteWayModelExTest {
 		routeWay.setRouteID(2);
 		routeWay.setDirect(true);
 		routeWay.setRouteRelations(relations);
+
 	}
 
 	@Test
-	public void test() throws SQLException {
+	public void test() throws Exception {
 		RouteWayModelEx model = new RouteWayModelEx(routeWay);
 		assertEquals(routeWay.getId(), model.getId());
 		assertEquals(routeWay.getRouteID(), model.getRouteID());
 		assertEquals(routeWay.isDirect(), model.isDirect());
 		assertTrue(model.getRelations().size() == routeWay.getRouteRelations().size());
+
+		RouteRelationModelEx r = model.getRelations().iterator().next();
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			System.out.println(mapper.writeValueAsString(r));
+			System.out.println((new Gson()).toJson(r));
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

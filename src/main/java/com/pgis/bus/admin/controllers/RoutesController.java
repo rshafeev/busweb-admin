@@ -3,10 +3,12 @@ package com.pgis.bus.admin.controllers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.pgis.bus.admin.models.ErrorModel;
 import com.pgis.bus.admin.models.route.RouteModelEx;
@@ -15,6 +17,7 @@ import com.pgis.bus.data.orm.type.LangEnum;
 import com.pgis.bus.data.service.IDataBaseService;
 import com.pgis.bus.data.service.IDataModelsService;
 import com.pgis.bus.net.models.LangEnumModel;
+import com.pgis.bus.net.models.geom.PointModel;
 import com.pgis.bus.net.models.route.RouteTypeModel;
 import com.pgis.bus.net.models.route.RoutesListModel;
 
@@ -23,9 +26,9 @@ import com.pgis.bus.net.models.route.RoutesListModel;
 public class RoutesController extends BaseController {
 	private static final Logger log = LoggerFactory.getLogger(RoutesController.class);
 
-	@ResponseBody
 	@RequestMapping(value = "getRoutesList", method = RequestMethod.POST)
-	public String getRoutesList(Integer cityID, String routeTypeID, String langID) {
+	@ResponseBody
+	public Object getRoutesList(Integer cityID, String routeTypeID, String langID) {
 		try {
 			log.debug("getRoutesList()");
 			log.debug("cityID:" + cityID);
@@ -38,21 +41,22 @@ public class RoutesController extends BaseController {
 			RoutesListModel model = modelsService.Routes().getRoutesList(cityID,
 					RouteTypeModel.getDBRouteType(routeTypeID));
 			// send model
-			String routesModelJson = (new Gson()).toJson(model);
-			return routesModelJson;
+			// String routesModelJson = (new Gson()).toJson(model);
+			return model;
 
 		} catch (Exception e) {
 			log.error("get_all_list exception", e);
-			return (new Gson()).toJson(new ErrorModel(e));
+			// return (new Gson()).toJson();
+			return new ErrorModel(e);
 		} finally {
 			super.disposeDataServices();
 		}
 
 	}
 
-	@ResponseBody
 	@RequestMapping(value = "get", method = RequestMethod.POST)
-	public String get(Integer routeID) {
+	@ResponseBody
+	public Object get(Integer routeID) {
 		try {
 			if (routeID == null)
 				throw new Exception("can not convert routeID from json to string");
@@ -60,12 +64,15 @@ public class RoutesController extends BaseController {
 			RouteModelEx model = new RouteModelEx(route);
 			// send model
 			String jsonModel = (new Gson()).toJson(model);
-			log.debug(jsonModel);
-			return jsonModel;
+			ObjectMapper mapper = new ObjectMapper();
+
+			log.debug(mapper.writeValueAsString(model));
+			return model;
 
 		} catch (Exception e) {
 			log.error("get exception", e);
-			return (new Gson()).toJson(new ErrorModel(e));
+			// return (new Gson()).toJson();
+			return new ErrorModel(e);
 		} finally {
 			super.disposeDataServices();
 		}
@@ -115,15 +122,41 @@ public class RoutesController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "update", method = RequestMethod.POST, consumes = "application/json")
 	@ResponseBody
-	@RequestMapping(value = "update", method = RequestMethod.POST)
-	public String update(String data) {
+	public Object update(@RequestBody RouteModelEx route) {
+		// RouteModelEx
 		log.debug("update()");
-		log.debug(data);
+		log.debug(route.toString());
 		IDataBaseService db = super.getDbService();
 		try {
-			// UpdateRouteModel updateData = (new Gson()).fromJson(data, UpdateRouteModel.class);
-			Route route = null;
+			// RouteModelEx routeModel = (new Gson()).fromJson(route, RouteModelEx.class);
+			Route ormRoute = route.toORMObject();
+			// db.Routes().update(ormRoute);
+			db.commit();
+			String routeModelJson = (new Gson()).toJson(route);
+			log.debug(routeModelJson);
+			return route;
+		} catch (Exception e) {
+			// db.rollback();
+			log.error("update exception", e);
+			// return (new Gson()).toJson();
+			return new ErrorModel(e);
+		} finally {
+			super.disposeDataServices();
+		}
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "updateSchedule", method = RequestMethod.POST)
+	public String updateSchedule(String schedule) {
+		log.debug("update()");
+		log.debug(schedule);
+		IDataBaseService db = super.getDbService();
+		try {
+			RouteModelEx routeModel = (new Gson()).fromJson(schedule, RouteModelEx.class);
+
+			Route route = routeModel.toORMObject();
 			db.Routes().update(route);
 			db.commit();
 			String routeModelJson = (new Gson()).toJson(route);

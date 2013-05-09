@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.pgis.bus.admin.models.StringValueModel;
 import com.pgis.bus.admin.models.route.RouteModelEx;
 import com.pgis.bus.data.orm.Route;
@@ -20,7 +23,7 @@ public class RouteModelExTest {
 	private Route route1 = null;
 
 	@Before
-	public void init() {
+	public void init() throws SQLException {
 
 		/*
 		 * Schedule dSchedule = new Schedule(); dSchedule.setId(1); dSchedule.setRouteWayId(10);
@@ -75,6 +78,14 @@ public class RouteModelExTest {
 		assertEquals(route1.getDirectRouteWay().getId(), model.getDirectWay().getId());
 		assertEquals(route1.getReverseRouteWay().getId(), model.getReverseWay().getId());
 
+	}
+
+	@Test
+	public void jsonSerealize() throws Exception {
+		RouteModelEx requestModel = new RouteModelEx(route1);
+		ObjectMapper json = new ObjectMapper();
+		byte[] data = json.writeValueAsBytes(requestModel);
+		RouteModelEx responeModel = json.readValue(data, RouteModelEx.class);
 	}
 
 }

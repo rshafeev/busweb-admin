@@ -14,12 +14,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.pgis.bus.admin.models.CustomUserAuthentication;
 import com.pgis.bus.data.DBConnectionFactory;
+import com.pgis.bus.data.IConnectionManager;
 import com.pgis.bus.data.orm.type.AuthenticateResult;
 import com.pgis.bus.data.service.IDataBaseService;
 import com.pgis.bus.data.service.impl.DataBaseService;
 
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 	private static final Logger log = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
+
+	public CustomAuthenticationProvider() {
+
+	}
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -29,6 +34,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		AuthenticateResult result = null;
 		IDataBaseService db = null;
 		try {
+			IConnectionManager manager = DBConnectionFactory.getConnectionManager();
 			db = new DataBaseService(DBConnectionFactory.getConnectionManager());
 
 			result = db.Users().authenticate("admin", userName, userPassword);

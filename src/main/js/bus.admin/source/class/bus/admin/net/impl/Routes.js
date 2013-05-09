@@ -15,17 +15,17 @@
 /**
  * Класс удаленного вызова функций работы с маршрутами.
  */
-qx.Class.define("bus.admin.net.impl.Routes", {
-	extend : qx.core.Object,
+ qx.Class.define("bus.admin.net.impl.Routes", {
+ 	extend : qx.core.Object,
 
-	construct : function(sync) {
-		if (sync != null) {
-			this.__sync = sync;
-		}
+ 	construct : function(sync) {
+ 		if (sync != null) {
+ 			this.__sync = sync;
+ 		}
 
-	},
-	members : {
-		__sync : false,
+ 	},
+ 	members : {
+ 		__sync : false,
 
  		/**
  		 * Возвращает список остановок для определенного города. Язык названий остановок задается в аргументах функции.
@@ -68,7 +68,40 @@ qx.Class.define("bus.admin.net.impl.Routes", {
 		 	request.addListener("failed", callback, self);
 		 	request.send();
 		 	return request;		
-		 }		 
+		 },
+
+ 		/**
+ 		 * Изменяет маршрут на сервере. 
+ 		 * @param  routeModel {bus.admin.mvp.model.RouteModel}  Модель маршрута
+		 * @param  callback  {Function}  Функция вызывается после получения ответа сервера. 
+		 *                               Аргументом функции является объект типа {@link qx.io.remote.Response}.
+		 * @param  self      {Object}    Объект this для callback функции
+		 * @return {qx.io.remote.Request}  Объект управления запросом.
+		 */
+		 update : function(routeModel, callback,	self) {
+		 	var contextPath = bus.admin.AppProperties.ContextPath;
+		 	var routeJson = qx.lang.Json.stringify(routeModel.toDataModel()); 
+
+		 	var req = new qx.io.request.Xhr(contextPath + "routes/update", "POST");
+		 	this.debug(routeJson);
+		 	req.setRequestHeader("Accept", "application/json");
+		 	req.setRequestHeader("Content-Type", "application/json");
+		 	req.setRequestData(routeJson);
+		 	req.setUrl(contextPath + "routes/update");
+		 	req.send();
+		 	return req;
+		 	/*
+		 	var request = new qx.io.remote.Request(contextPath + "routes/update", "POST", "application/json");
+			//request.setRequestHeader("Accept", "application/json");
+			request.setRequestHeader("Content-Type", "application/json");
+			
+			request.setParseJson(true);
+			request.setParameter("route",routeJson, true);
+			request.addListener("completed", callback, self);
+			request.addListener("failed", callback, self);
+			request.send();
+			return request;*/
+		} 		 
 
 		 /*
 		 getRoute : function(data, completed_func, failed_func, self) {
@@ -129,7 +162,7 @@ qx.Class.define("bus.admin.net.impl.Routes", {
 		 	return request;
 
 		 }
-		  */
+		 */
 
 		}
 	});

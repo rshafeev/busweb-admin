@@ -62,7 +62,7 @@ members : {
  		 __tableRoutes : null,
 
  		/**
- 		 * Поле для фильтрации станций в таблице по назнанию
+ 		 * Поле для фильтрации станций в таблице по назнанию.
  		 * @type {qx.ui.form.TextField}
  		 */
  		 __filterField : null,
@@ -74,12 +74,24 @@ members : {
  		  */
  		  __routeTabsView : null,
 
+ 		  /**
+ 		   * Кнопка для создания нового маршрута.
+ 		   * @type {qx.ui.form.Button}
+ 		   */
+ 		  __btnNew : null,
+
+ 		  /**
+ 		   * Кнопка для вывоза диалогового окна редактирования основной информации маршрута.
+ 		   * @type {qx.ui.form.Button}
+ 		   */
+ 		  __btnEdit : null,
+
+
 
  		  __mainContainer : null,
  		  __scrollContainer : null,
  		  btn_import : null,
- 		  btn_new : null,
- 		  btn_edit : null,
+ 		  
  		  btn_move : null,
  		  btn_delete : null,
  		  btn_save : null,
@@ -96,23 +108,23 @@ members : {
 		 	var routeModel = e.getData().route;
 
 		 	if(state == "none" && routeModel == null){
-		 		this.btn_new.setEnabled(false);
+		 		//this.__btnNew.setEnabled(false);
 		 		this.btn_import.setEnabled(false);
-				this.btn_edit.setEnabled(false);
-				this.btn_move.setEnabled(false);
-				this.btn_delete.setEnabled(false);
+		 		this.__btnEdit.setEnabled(false);
+		 		this.btn_move.setEnabled(false);
+		 		this.btn_delete.setEnabled(false);
 		 		
 		 	}else{
-		 		this.btn_new.setEnabled(true);
+		 		this.__btnNew.setEnabled(true);
 		 		this.btn_import.setEnabled(true);
-				this.btn_edit.setEnabled(true);
-				this.btn_move.setEnabled(true);
-				this.btn_delete.setEnabled(true);
+		 		this.__btnEdit.setEnabled(true);
+		 		this.btn_move.setEnabled(true);
+		 		this.btn_delete.setEnabled(true);
 		 	}
 		 	// this.btn_move.setVisibility("hidden");
 			// this.btn_cancel.setVisibility("visible");
 
-		 },
+		},
 
  		/**
  		 * Создает виджеты вкладки
@@ -129,37 +141,41 @@ members : {
  		 	});
 
 			// buttons
-			this.btn_new = new qx.ui.form.Button("New...",
-				"bus/admin/images/btn/go-bottom.png");
-			this.btn_new.setWidth(105);
+			this.__btnNew = new qx.ui.form.Button(this.tr("New..."),	"bus/admin/images/btn/go-bottom.png");
+			this.__btnNew.setWidth(105);
+			this.__btnNew.addListener("execute", this._onClickBtnNew, this);
 
-			this.btn_import = new qx.ui.form.Button("Import...",
+
+			this.btn_import = new qx.ui.form.Button(this.tr("Import..."),
 				"bus/admin/images/btn/go-bottom.png");
 			this.btn_import.setWidth(105);
 			
-			this.btn_edit = new qx.ui.form.Button("Edit...",
+			this.__btnEdit = new qx.ui.form.Button(this.tr("Edit..."),
 				"bus/admin/images/btn/go-bottom.png");
-			this.btn_edit.setWidth(105);
-			this.btn_move = new qx.ui.form.Button("Move",
+			this.__btnEdit.setWidth(105);
+			this.__btnEdit.addListener("execute", this.__onClickBtnEdit, this);
+
+
+			this.btn_move = new qx.ui.form.Button(this.tr("Move"),
 				"bus/admin/images/btn/utilities-text-editor.png");
 			this.btn_move.setWidth(105);
 
-			this.btn_delete = new qx.ui.form.Button("Delete",
+			this.btn_delete = new qx.ui.form.Button(this.tr("Delete"),
 				"bus/admin/images/btn/edit-delete.png");
 			this.btn_delete.setWidth(105);
 
-			this.btn_save = new qx.ui.form.Button("Save",
+			this.btn_save = new qx.ui.form.Button(this.tr("Save"),
 				"bus/admin/images/btn/dialog-apply.png");
 			this.btn_save.setWidth(105);
 			this.btn_save.setVisibility("hidden");
 
-			this.btn_cancel = new qx.ui.form.Button("Cancel",
+			this.btn_cancel = new qx.ui.form.Button(this.tr("Cancel"),
 				"bus/admin/images/btn/dialog-cancel.png");
 			this.btn_cancel.setWidth(105);
 			this.btn_cancel.setVisibility("hidden");
 
 			// add widgets
-			var filterLabel = new qx.ui.basic.Label("Filter:");
+			var filterLabel = new qx.ui.basic.Label(this.tr("Filter:"));
 			this.__filterField = new qx.ui.form.TextField();
 
 			this.__tableRoutes = this.__createRoutesTable();
@@ -181,9 +197,9 @@ members : {
 
 			this.__mainContainer.add(this.btn_save);
 			this.__mainContainer.add(this.btn_cancel);
-			this.__mainContainer.add(this.btn_new);
+			this.__mainContainer.add(this.__btnNew);
 			this.__mainContainer.add(this.btn_import);
-			this.__mainContainer.add(this.btn_edit);
+			this.__mainContainer.add(this.__btnEdit);
 			this.__mainContainer.add(this.btn_move);
 			this.__mainContainer.add(this.btn_delete);
 
@@ -207,15 +223,15 @@ members : {
 			/*
 			this.__tableRoutes.addListener("cellClick",
 				this.__onClickTableRoutes, this);
-			this.btn_new.addListener("execute", this.on_btn_new, this);
+			
 			this.btn_import.addListener("execute", this.on_btn_import, this);
-			this.btn_edit.addListener("execute", this.on_btn_edit, this);
+			
 			this.btn_save.addListener("execute", this.on_btn_save, this);
 			this.btn_cancel.addListener("execute", this.on_btn_cancel, this);
 			this.btn_move.addListener("execute", this.on_btn_move, this);
 			this.btn_delete.addListener("execute", this.on_btn_delete, this);
 			*/
-},
+		},
 
 		/**
 		 * Создает таблицу, отображающую список маршрутов.
@@ -309,45 +325,71 @@ members : {
  		  * Обработчик события изменения размеров текущего объекта.
  		  * @param e {qx.event.type.Event} Объект события.
  		  */
-		__onResize : function(e) {
-			this.debug("__onResize()");
-			if (this.__tableRoutes != null) {
-				this.__tableRoutes.setWidth(this.__mainContainer.getBounds().width
-					- this.__tableRoutes.getBounds().left - 115);
-				this.btn_save.setUserBounds(
-					this.__mainContainer.getBounds().width - 110, 50,
-					this.btn_save.getBounds().width, this.btn_save.getBounds().height);
-				this.btn_cancel.setUserBounds(
-					this.__mainContainer.getBounds().width - 110, 85,
-					this.btn_cancel.getBounds().width, this.btn_cancel.getBounds().height);
-				this.btn_new.setUserBounds(
-					this.__mainContainer.getBounds().width - 110, 50,
-					this.btn_new.getBounds().width, this.btn_new.getBounds().height);
-				this.btn_import.setUserBounds(
-					this.__mainContainer.getBounds().width - 110, 85,
-					this.btn_import.getBounds().width, this.btn_import.getBounds().height);
-				
-				this.btn_edit.setUserBounds(
-					this.__mainContainer.getBounds().width - 110, 120,
-					this.btn_edit.getBounds().width, this.btn_edit.getBounds().height);
-				this.btn_move.setUserBounds(
-					this.__mainContainer.getBounds().width - 110, 155,
-					this.btn_move.getBounds().width, this.btn_move.getBounds().height);
+ 		  __onResize : function(e) {
+ 		  	this.debug("__onResize()");
+ 		  	if (this.__tableRoutes != null) {
+ 		  		this.__tableRoutes.setWidth(this.__mainContainer.getBounds().width
+ 		  			- this.__tableRoutes.getBounds().left - 115);
+ 		  		this.btn_save.setUserBounds(
+ 		  			this.__mainContainer.getBounds().width - 110, 50,
+ 		  			this.btn_save.getBounds().width, this.btn_save.getBounds().height);
+ 		  		this.btn_cancel.setUserBounds(
+ 		  			this.__mainContainer.getBounds().width - 110, 85,
+ 		  			this.btn_cancel.getBounds().width, this.btn_cancel.getBounds().height);
+ 		  		this.__btnNew.setUserBounds(
+ 		  			this.__mainContainer.getBounds().width - 110, 50,
+ 		  			this.__btnNew.getBounds().width, this.__btnNew.getBounds().height);
+ 		  		this.btn_import.setUserBounds(
+ 		  			this.__mainContainer.getBounds().width - 110, 85,
+ 		  			this.btn_import.getBounds().width, this.btn_import.getBounds().height);
 
-				this.btn_delete.setUserBounds(
-					this.__mainContainer.getBounds().width - 110, 190,
-					this.btn_delete.getBounds().width, this.btn_delete.getBounds().height);
+ 		  		this.__btnEdit.setUserBounds(
+ 		  			this.__mainContainer.getBounds().width - 110, 120,
+ 		  			this.__btnEdit.getBounds().width, this.__btnEdit.getBounds().height);
+ 		  		this.btn_move.setUserBounds(
+ 		  			this.__mainContainer.getBounds().width - 110, 155,
+ 		  			this.btn_move.getBounds().width, this.btn_move.getBounds().height);
 
-			}
-			if (this.__routeTabsView != null) {
-				this.__routeTabsView.setWidth(this.__mainContainer.getBounds().width
-					- this.__routeTabsView.getBounds().left - 10);
-				this.__routeTabsView.setHeight(this.__mainContainer.getBounds().height
-					- this.__routeTabsView.getBounds().top - 10);
-			}
-		}
+ 		  		this.btn_delete.setUserBounds(
+ 		  			this.__mainContainer.getBounds().width - 110, 190,
+ 		  			this.btn_delete.getBounds().width, this.btn_delete.getBounds().height);
 
+ 		  	}
+ 		  	if (this.__routeTabsView != null) {
+ 		  		this.__routeTabsView.setWidth(this.__mainContainer.getBounds().width
+ 		  			- this.__routeTabsView.getBounds().left - 10);
+ 		  		this.__routeTabsView.setHeight(this.__mainContainer.getBounds().height
+ 		  			- this.__routeTabsView.getBounds().top - 10);
+ 		  	}
+ 		  },
 
+ 		/**
+ 		 * Обработчик нажатия на кнопку редактирования основной информации маршрута.
+ 		 * @param e {qx.event.type.Event} Объект события.
+ 		 */
+ 		 __onClickBtnEdit : function(e) {
+ 		 	var routeModel = this.__presenter.getDataStorage().getSelectedRoute();
+ 		 	if(routeModel == null)
+ 		 		return;
+ 		 	var editRouteForm = new bus.admin.mvp.view.routes.CURouteForm(this.__presenter,true, routeModel);
+ 		 	editRouteForm.open();
+
+ 		 },
+
+ 		/**
+ 		 * Обработчик нажатия на кнопку создания нового маршрута.
+ 		 * @param e {qx.event.type.Event} Объект события.
+ 		 */
+ 		 _onClickBtnNew : function(e) {
+ 		 	var dataStorage = this.__presenter.getDataStorage();
+ 		 	var cityID = this.__presenter.getDataStorage();
+ 		 	var routeModel = new bus.admin.mvp.model.RouteModel();
+ 		 	routeModel.setCityID(dataStorage.getSelectedCityID());
+ 		 	routeModel.setRouteTypeID(dataStorage.getSelectedRouteTypeID());
+ 		 	
+ 		 	var newRouteForm = new bus.admin.mvp.view.routes.CURouteForm( this.__presenter, false,	routeModel);
+ 		 	newRouteForm.open();
+ 		 },
 
 
 
@@ -369,97 +411,97 @@ members : {
 
 
 
-		getRouteTableRowByID : function(id) {
-			for (var i = 0; i < this.__tableRoutes.getTableModel()
-				.getRowCount(); i++) {
-				var rowData = this.__tableRoutes.getTableModel()
-			.getRowDataAsMap(i);
-			if (rowData.ID == id) {
-				return i;
+getRouteTableRowByID : function(id) {
+	for (var i = 0; i < this.__tableRoutes.getTableModel()
+		.getRowCount(); i++) {
+		var rowData = this.__tableRoutes.getTableModel()
+	.getRowDataAsMap(i);
+	if (rowData.ID == id) {
+		return i;
 
-			}
-		}
-		return -1;
-	},
-	on_insertStationToCurrentRoute : function(e) {
-		var stationModel = e.getData();
-		if (stationModel == null || stationModel.error == true) {
-			this
-			.debug("on_insertStationToCurrentRoute() : event data has errors");
-			return;
-		}
-		var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
-		var stationName = bus.admin.mvp.model.helpers.StationsModelHelper
-		.getStationNameByLang(stationModel, lang_id);
-		var rowsData = this.__stationsTable.getTableModel().getData();
-		rowsData.push([stationModel.id, stationName]);
-		this.__stationsTable.getTableModel().setData(rowsData);
-	},
-	on_updateRoute : function(e) {
-		var data = e.getData();
-		if (data == null || data.error == true) {
-			this.debug("on_updateRoute() : event data has errors");
-			return;
-		}
-		var opts = data.updateData.opts;
-		var route = data.updateData.route;
-		if (route == null)
-			return;
-		if (opts.isUpdateMainInfo == true) {
-			var row = this.getRouteTableRowByID(route.id);
-			if (row >= 0) {
-				var lang_id = "c_"
-				+ qx.locale.Manager.getInstance().getLocale();
-				var fullName = bus.admin.mvp.model.helpers.RouteModelHelper
-				.getFullName(route, lang_id);
-				var tableModel = this.__tableRoutes.getTableModel();
-				tableModel.setValue(0, row, route.id);
-				tableModel.setValue(1, row, fullName);
-				tableModel.setValue(2, row, route.cost);
-			}
-		}
-		if (opts.isUpdateRouteRelations == true) {
-			if (this.__radioDirect.getValue() == true) {
-				this.__onRadioDirect();
-			} else {
-				this.__onRadioReverse();
-			}
-			this.setStatusForWidgets(this._routesPage.getStatus());
-		}
-	},
-
-	on_insertRoute : function(e) {
-		var data = e.getData();
-		this.debug("RoutesTabPage: on_insertRoute()1");
-		if (data == null || data.error == true) {
-			this.debug("on_insertRoute() : event data has errors");
-			return;
-		}
-		var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
-		var route = data.route;
-		var name = bus.admin.mvp.model.helpers.RouteModelHelper
-		.getNameByLang(route, lang_id);
-		var name_number = (name ? name.toString() : "")
-		+ (route.number ? route.number.toString() : "");
-
-		var tableModel = this.__tableRoutes.getTableModel();
-		tableModel.setRows([[route.id, name_number, route.cost]],
-			tableModel.getRowCount());
-		this.debug("RoutesTabPage: on_insertRoute(). ok.");
-	},
-
-	on_removeRoute : function(e) {
-		var data = e.getData();
-		if (data == null || data.error == true) {
-			this.debug("on_removeRoute() : event data has errors");
-			return;
-		}
-		var row = this.getRouteTableRowByID(data.routeID);
+	}
+}
+return -1;
+},
+on_insertStationToCurrentRoute : function(e) {
+	var stationModel = e.getData();
+	if (stationModel == null || stationModel.error == true) {
+		this
+		.debug("on_insertStationToCurrentRoute() : event data has errors");
+		return;
+	}
+	var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
+	var stationName = bus.admin.mvp.model.helpers.StationsModelHelper
+	.getStationNameByLang(stationModel, lang_id);
+	var rowsData = this.__stationsTable.getTableModel().getData();
+	rowsData.push([stationModel.id, stationName]);
+	this.__stationsTable.getTableModel().setData(rowsData);
+},
+on_updateRoute : function(e) {
+	var data = e.getData();
+	if (data == null || data.error == true) {
+		this.debug("on_updateRoute() : event data has errors");
+		return;
+	}
+	var opts = data.updateData.opts;
+	var route = data.updateData.route;
+	if (route == null)
+		return;
+	if (opts.isUpdateMainInfo == true) {
+		var row = this.getRouteTableRowByID(route.id);
 		if (row >= 0) {
-			this.__tableRoutes.getTableModel().removeRows(row, 1);
-			this.setStatusForWidgets(this._routesPage.getStatus());
+			var lang_id = "c_"
+			+ qx.locale.Manager.getInstance().getLocale();
+			var fullName = bus.admin.mvp.model.helpers.RouteModelHelper
+			.getFullName(route, lang_id);
+			var tableModel = this.__tableRoutes.getTableModel();
+			tableModel.setValue(0, row, route.id);
+			tableModel.setValue(1, row, fullName);
+			tableModel.setValue(2, row, route.cost);
 		}
-	},
+	}
+	if (opts.isUpdateRouteRelations == true) {
+		if (this.__radioDirect.getValue() == true) {
+			this.__onRadioDirect();
+		} else {
+			this.__onRadioReverse();
+		}
+		this.setStatusForWidgets(this._routesPage.getStatus());
+	}
+},
+
+on_insertRoute : function(e) {
+	var data = e.getData();
+	this.debug("RoutesTabPage: on_insertRoute()1");
+	if (data == null || data.error == true) {
+		this.debug("on_insertRoute() : event data has errors");
+		return;
+	}
+	var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
+	var route = data.route;
+	var name = bus.admin.mvp.model.helpers.RouteModelHelper
+	.getNameByLang(route, lang_id);
+	var name_number = (name ? name.toString() : "")
+	+ (route.number ? route.number.toString() : "");
+
+	var tableModel = this.__tableRoutes.getTableModel();
+	tableModel.setRows([[route.id, name_number, route.cost]],
+		tableModel.getRowCount());
+	this.debug("RoutesTabPage: on_insertRoute(). ok.");
+},
+
+on_removeRoute : function(e) {
+	var data = e.getData();
+	if (data == null || data.error == true) {
+		this.debug("on_removeRoute() : event data has errors");
+		return;
+	}
+	var row = this.getRouteTableRowByID(data.routeID);
+	if (row >= 0) {
+		this.__tableRoutes.getTableModel().removeRows(row, 1);
+		this.setStatusForWidgets(this._routesPage.getStatus());
+	}
+},
 
 
 		/**
@@ -507,16 +549,7 @@ members : {
 		 	this.setStatusForWidgets(this._routesPage.getStatus());
 		 },
 
-		 on_btn_new : function(e) {
-		 	var p = this._routesPage.getPresenter();
-		 	var routeModel = {
-		 		city_id : this._routesLeftPanel.getSelectableCityID(),
-		 		route_type_id : this._routesLeftPanel.getRouteType().id
-		 	};
-		 	var newRouteForm = new bus.admin.mvp.view.routes.CURouteForm(false,
-		 		routeModel, p);
-		 	newRouteForm.open();
-		 },
+
 
 		 on_btn_import : function(e){
 		 	var p = this._routesPage.getPresenter();
@@ -526,14 +559,7 @@ members : {
 		 	importForm.open();
 		 },
 
-		 on_btn_edit : function(e) {
-		 	var p = this._routesPage.getPresenter();
-		 	var routeModel = this._routesPage.getCurrRouteModel();
-		 	var editRouteForm = new bus.admin.mvp.view.routes.CURouteForm(true,
-		 		routeModel, p);
-		 	editRouteForm.open();
 
-		 },
 
 		 on_btn_move : function(e) {
 		 	var routeModel = this._routesPage.getCurrRouteModel();

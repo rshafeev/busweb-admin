@@ -65,4 +65,12 @@ public abstract class BaseController {
 		}
 	}
 
+	public void setDbService(IDataBaseService dbService) {
+		this.dbService = dbService;
+	}
+
+	public void setModelsService(IDataModelsService modelsService) {
+		this.modelsService = modelsService;
+	}
+
 }

@@ -35,7 +35,7 @@
  	 	 * ID маршрута
  	 	 */
  	 	 id : {
- 	 	 	init : 0,
+ 	 	 	init : -1,
  	 	 	check : "Integer"
  	 	 },
 
@@ -43,7 +43,7 @@
  	 	 * ID города
  	 	 */
  	 	 cityID : {
- 	 	 	init : 0,
+ 	 	 	init : -1,
  	 	 	check : "Integer"
  	 	 },
 
@@ -75,16 +75,16 @@
  	 	  * Прямой путь
  	 	  */
  	 	  directWay :{
- 	 	  	init : null,
- 	 	  	check : "bus.admin.mvp.model.route.RouteWayModel"
+ 	 	  	check : "bus.admin.mvp.model.route.RouteWayModel",
+ 	 	  	nullable : true
  	 	  },
 
  	 	 /**
  	 	  * Обратный путь
  	 	  */
  	 	  reverseWay :{
- 	 	  	init : null,
- 	 	  	check : "bus.admin.mvp.model.route.RouteWayModel"
+ 	 	  	check : "bus.admin.mvp.model.route.RouteWayModel",
+ 	 	  	nullable : true
  	 	  }
 
 
@@ -108,7 +108,7 @@
  	 	 	if(this.__number != null)
  	 	 	{
  	 	 		for(var i=0;i < this.__number.length; i++){
- 	 	 			if(this.__number[i].langID == langID){
+ 	 	 			if(this.__number[i].lang == langID){
  	 	 				this.__number[i].value = number;
  	 	 				return;
  	 	 			}
@@ -119,7 +119,7 @@
  	 	 		this.__number = [];
  	 	 	this.__number.push({
  	 	 		id : null,
- 	 	 		langID : langID,
+ 	 	 		lang : langID,
  	 	 		value : number
  	 	 	}
  	 	 	);
@@ -136,12 +136,21 @@
 		 	if(numb == null)
 		 		return null;
 		 	for (var i = 0; i < numb.length; i++) {
-		 		if (numb[i].langID.toString() == langID.toString()) 
+		 		if (numb[i].lang.toString() == langID.toString()) 
 		 		{
 		 			return numb[i].value;
 		 		}
 		 	}
 		 	return null;
+		 },
+
+		 /**
+		  * Возвращает массив номеров для разных языков
+		  * @return {Object[]} Массив номеров для разных языков
+		  */
+		 getNumbers : function(){
+		 	return this.__number;
+
 		 },
 
 
@@ -157,8 +166,14 @@
  		 		cost : this.getCost(),
  		 		numberKey : this.getNumberKey(),
  		 		number : this.__number,
- 		 		directWay : this.getDirectWay().toDataModel(),
- 		 		reverseWay : this.getReverseWay().toDataModel() 		 		
+ 		 		directWay : null,
+ 		 		reverseWay : null		 		
+ 		 	}
+ 		 	if(this.getDirectWay() != null){
+ 		 		dataModel.directWay = this.getDirectWay().toDataModel();
+ 		 	}
+ 		 	if(this.getReverseWay() != null){
+ 		 		dataModel.reverseWay = this.getReverseWay().toDataModel();
  		 	}
  		 	return dataModel;
  		 },
@@ -212,7 +227,23 @@
  		   clone : function(){
  		   	var copy = new bus.admin.mvp.model.RouteModel(this.toDataModel());
  		   	return copy;
- 		   }
+ 		   },
+
+
+ 		   /**
+ 		    * Одинаково ли пишется номер маршрута на разных языках?
+ 		    * @return {Boolean} True: одинаково. False : нет.
+ 		    */
+ 		    isSameNumbers : function(){
+ 		    	var langs  = bus.admin.AppProperties.LANGUAGES;
+ 		    	var numb = this.getName(langs[0].id);
+ 		    	for(var i=1;i < langs.length; i++){
+ 		    		if(numb.toString() != this.getName(langs[i].id).toString() )
+ 		    			return false;
+ 		    	}
+ 		    	return true;
+
+ 		    }
 
 
 

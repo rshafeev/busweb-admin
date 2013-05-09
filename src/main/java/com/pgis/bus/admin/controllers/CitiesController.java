@@ -23,9 +23,9 @@ import com.pgis.bus.data.service.IDataBaseService;
 public class CitiesController extends BaseController {
 	private static final Logger log = LoggerFactory.getLogger(CitiesController.class);
 
-	@ResponseBody
 	@RequestMapping(value = "get_all", method = RequestMethod.POST)
-	public String get_all() {
+	@ResponseBody
+	public Object get_all() {
 
 		try {
 			log.debug("get_all()");
@@ -39,10 +39,11 @@ public class CitiesController extends BaseController {
 			}
 			String citiesModelJson = (new Gson()).toJson(citiesModel);
 			log.debug(citiesModelJson);
-			return citiesModelJson;
+			return citiesModel;
 		} catch (Exception e) {
 			log.error("exception", e);
-			return (new Gson()).toJson(new ErrorModel(e));
+			return new ErrorModel(e);
+			// return (new Gson()).toJson(new ErrorModel(e));
 		} finally {
 			super.disposeDataServices();
 		}

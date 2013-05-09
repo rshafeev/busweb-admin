@@ -10,17 +10,6 @@
     http://www.springframework.org/schema/context 
     http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 	
-	
-	
-	
-	<beans:bean id="customAuthenticationProvider"
-		class="com.pgis.bus.admin.providers.CustomAuthenticationProvider" />
-	<authentication-manager alias="authenticationManager">
-		<authentication-provider ref="customAuthenticationProvider" />
-	</authentication-manager>
-	<beans:bean id="customAuthListener"
-		class="com.pgis.bus.admin.listeners.CustomAuthListener" />
-
 	<http access-denied-page="/login">
 		<intercept-url pattern="/login" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/media/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
@@ -35,10 +24,7 @@
 		<logout logout-url="/j_spring_security_logout"
 			logout-success-url="/login" invalidate-session="true" />
 
-
 	</http>
-
-
 
 
 </beans:beans>

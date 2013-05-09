@@ -1,5 +1,6 @@
 package com.pgis.bus.admin.models.station;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,7 +12,12 @@ import com.pgis.bus.data.orm.Station;
 import com.pgis.bus.data.orm.StringValue;
 import com.pgis.bus.net.models.geom.PointModel;
 
-public class StationModelEx {
+public class StationModelEx implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7282643759062319506L;
+
 	private Integer id;
 	private Integer cityID;
 	private PointModel location;
@@ -37,7 +43,7 @@ public class StationModelEx {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -53,7 +59,7 @@ public class StationModelEx {
 		return nameKey;
 	}
 
-	public void setNameKey(int nameKey) {
+	public void setNameKey(Integer nameKey) {
 		this.nameKey = nameKey;
 	}
 
@@ -71,14 +77,6 @@ public class StationModelEx {
 
 	public void setCityID(Integer cityID) {
 		this.cityID = cityID;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public void setNameKey(Integer nameKey) {
-		this.nameKey = nameKey;
 	}
 
 	public Station toORMObject() {

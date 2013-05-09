@@ -1,5 +1,6 @@
 package com.pgis.bus.admin.models.route;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,7 +14,12 @@ import com.pgis.bus.data.orm.RouteRelation;
 import com.pgis.bus.net.models.TimeIntervalModel;
 import com.pgis.bus.net.models.geom.PolyLineModel;
 
-public class RouteRelationModelEx {
+public class RouteRelationModelEx implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2102662846639639051L;
 
 	/**
 	 * ID дуги
@@ -105,6 +111,14 @@ public class RouteRelationModelEx {
 
 	public void setGeom(PolyLineModel geom) {
 		this.geom = geom;
+	}
+
+	public int getRouteWayID() {
+		return routeWayID;
+	}
+
+	public void setRouteWayID(int routeWayID) {
+		this.routeWayID = routeWayID;
 	}
 
 	public StationModelEx getCurrStation() {

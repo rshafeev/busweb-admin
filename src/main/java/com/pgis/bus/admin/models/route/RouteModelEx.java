@@ -1,5 +1,6 @@
 package com.pgis.bus.admin.models.route;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Collection;
 
@@ -8,7 +9,12 @@ import com.pgis.bus.data.orm.Route;
 import com.pgis.bus.data.orm.RouteWay;
 import com.pgis.bus.data.orm.StringValue;
 
-public class RouteModelEx {
+public class RouteModelEx implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 990530057298037357L;
 
 	/**
 	 * ID маршрута
@@ -140,9 +146,12 @@ public class RouteModelEx {
 		rWay.setDirect(false);
 		route.setDirectRouteWay(dWay);
 		route.setReverseRouteWay(rWay);
+
 		try {
-			for (StringValue s : route.getNumber()) {
-				s.setKeyID(this.numberKey);
+			if (route.getNumber() != null) {
+				for (StringValue s : route.getNumber()) {
+					s.setKeyID(this.numberKey);
+				}
 			}
 		} catch (SQLException e) {
 		}
@@ -155,6 +164,13 @@ public class RouteModelEx {
 
 	public void setNumberKey(int numberKey) {
 		this.numberKey = numberKey;
+	}
+
+	@Override
+	public String toString() {
+		return "RouteModelEx [id=" + id + ", cityID=" + cityID + ", routeTypeID=" + routeTypeID + ", cost=" + cost
+				+ ", numberKey=" + numberKey + ", number=" + number + ", directWay=" + directWay + ", reverseWay="
+				+ reverseWay + "]";
 	}
 
 }

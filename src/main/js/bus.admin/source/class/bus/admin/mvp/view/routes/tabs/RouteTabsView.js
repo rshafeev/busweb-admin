@@ -28,7 +28,7 @@
  		this.__initWidgets();
  		//presenter.addListener("load_routes_list", this.__onLoadRoutesList, this);
  		presenter.addListener("select_route", this.__onSelectRoute, this);
-
+ 		
  	},
 
  	members : {
@@ -87,7 +87,7 @@
 		 		this.__radioDirect.setValue(true);
 		 		this.__radioDirect.setEnabled(true);
 		 		this.__radioReverse.setEnabled(true);
-		 		this.__btnDeleteStation.setEnabled(true);
+		 		this.__btnDeleteStation.setEnabled(false);
 		 		this.__btnTimetable.setEnabled(true);
 		 	}
 

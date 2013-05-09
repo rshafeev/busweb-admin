@@ -1,5 +1,6 @@
 package com.pgis.bus.admin.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -7,7 +8,11 @@ import com.pgis.bus.data.orm.StringValue;
 import com.pgis.bus.data.orm.type.LangEnum;
 import com.pgis.bus.net.models.LangEnumModel;
 
-public class StringValueModel {
+public class StringValueModel implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8611252837510741391L;
 	private int id;
 	private LangEnumModel lang;
 	private String value;
@@ -65,6 +70,8 @@ public class StringValueModel {
 	}
 
 	static public Collection<StringValue> createORMObjects(Collection<StringValueModel> arr) {
+		if (arr == null)
+			return null;
 		Collection<StringValue> ormObjects = new ArrayList<StringValue>();
 		for (StringValueModel sValue : arr) {
 			ormObjects.add(sValue.toORMObject());

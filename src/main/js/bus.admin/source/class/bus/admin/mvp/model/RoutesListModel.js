@@ -43,7 +43,7 @@
  	 	 * Список маршрутов
  	 	 * @type {bus.admin.mvp.model.RouteInfoModel[]}
  	 	 */
- 	 	__routesList : null,
+ 	 	 __routesList : null,
 
 
  	 	/**
@@ -58,9 +58,9 @@
  		 * </pre>
  	 	 * @return {bus.admin.mvp.model.RouteInfoModel[]} Массив моделей маршрутов.
  	 	 */
- 	 	getAll : function(){
- 	 		return this.__routesList;
- 	 	},
+ 	 	 getAll : function(){
+ 	 	 	return this.__routesList;
+ 	 	 },
 
   		/**
  		  * Формирует модель из JS объекта. <br>
@@ -76,54 +76,67 @@
  		  * </pre>
  		  * @param  dataModel {Object[]}  JS объект.
  		  */	 	
- 	 	fromDataModel : function(dataModel){
- 	 		this.__routesList = [];
- 	 		for(var i = 0; i < dataModel.length; i++){
- 	 			this.__routesList.push(new bus.admin.mvp.model.RouteInfoModel(dataModel[i]));
- 	 		}
- 	 	},
+ 		  fromDataModel : function(dataModel){
+ 		  	this.__routesList = [];
+ 		  	for(var i = 0; i < dataModel.length; i++){
+ 		  		this.__routesList.push(new bus.admin.mvp.model.RouteInfoModel(dataModel[i]));
+ 		  	}
+ 		  },
 
  	 	/**
  	 	 * Возвращает модель маршрута по ID
  	 	 * @param  routeID {Integer}  ID маршрута
  	 	 * @return {bus.admin.mvp.model.RouteInfoModel}   Модель маршрута
  	 	 */
- 	 	getRouteInfoByID : function(routeID){
- 	 		if(this.__routesList == null)
- 	 			return null;
- 	 		for(var i = 0; i < this.__routesList.length; i++){
- 	 			if(routeID == this.__routesList[i].getId()){
- 	 				return this.__routesList[i];
- 	 			}
- 	 		}
- 	 		return null;
- 	 	},
+ 	 	 getRouteInfoByID : function(routeID){
+ 	 	 	if(this.__routesList == null)
+ 	 	 		return null;
+ 	 	 	for(var i = 0; i < this.__routesList.length; i++){
+ 	 	 		if(routeID == this.__routesList[i].getId()){
+ 	 	 			return this.__routesList[i];
+ 	 	 		}
+ 	 	 	}
+ 	 	 	return null;
+ 	 	 },
+
+
+ 	 	 isNumberExists : function(number, excludeRouteID){
+ 	 	 	for(var i=0;i < this.__routesList.length; i++){
+ 	 	 		var routeInfo = this.__routesList.getNumber();
+ 	 	 		if(number.toString() == routeInfo.getNumber().toString()){
+ 	 	 			if(excludeRouteID != undefined && excludeRouteID != routeInfo.getId())
+ 	 	 			return true;
+ 	 	 		}
+ 	 	 	}
+ 	 	 	return false;
+ 	 	 	
+ 	 	 },
 
  	 	/**
  	 	 * Добавляет маршрут в список.
  	 	 * @param  routeInfo {bus.admin.mvp.model.RouteInfoModel}  Информация о маршруте
  	 	 */
- 	 	insert : function(routeInfo){
- 	 		if(this.__routesList == undefined)
- 	 			this.__routesList = [];
- 	 		this.__routesList.push(routeInfo);
- 	 	},
+ 	 	 insert : function(routeInfo){
+ 	 	 	if(this.__routesList == undefined)
+ 	 	 		this.__routesList = [];
+ 	 	 	this.__routesList.push(routeInfo);
+ 	 	 },
 
  	 	/**
  	 	 * Удаляет маршрут из списка 
  	 	 * @param  routeID {Integer}  ID маршрута
  	 	 */
- 	 	remove : function(routeID){
- 	 		if(this.__routesList == null)
- 	 			return;
- 	 		for(var i = 0; i < this.__routesList.length; i++){
- 	 			if(routeID == this.__routesList[i].getId()){
- 	 				this.__routesList.splice(i, 1);
- 	 				break;
- 	 			}
- 	 		}	
+ 	 	 remove : function(routeID){
+ 	 	 	if(this.__routesList == null)
+ 	 	 		return;
+ 	 	 	for(var i = 0; i < this.__routesList.length; i++){
+ 	 	 		if(routeID == this.__routesList[i].getId()){
+ 	 	 			this.__routesList.splice(i, 1);
+ 	 	 			break;
+ 	 	 		}
+ 	 	 	}	
+ 	 	 }
+
  	 	}
 
- 	 }
-
- 	});
+ 	 });

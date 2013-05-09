@@ -1,5 +1,6 @@
 package com.pgis.bus.admin.models.route;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +19,12 @@ import com.pgis.bus.net.models.route.ScheduleModel;
  * @author romario
  * 
  */
-public class RouteWayModelEx {
+public class RouteWayModelEx implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4605157627908570136L;
 
 	/**
 	 * ID пути
@@ -46,7 +52,13 @@ public class RouteWayModelEx {
 	 */
 	private ScheduleModel schedule;
 
+	public RouteWayModelEx() {
+
+	}
+
 	public RouteWayModelEx(RouteWay routeWay) throws SQLException {
+		if (routeWay == null)
+			return;
 		this.id = routeWay.getId();
 		this.routeID = routeWay.getRouteID();
 		this.direct = routeWay.isDirect();
@@ -104,10 +116,12 @@ public class RouteWayModelEx {
 		routeWay.setSchedule(new Schedule(this.schedule));
 		routeWay.setRouteID(this.routeID);
 		Collection<RouteRelation> rels = new ArrayList<RouteRelation>();
-		RouteRelationModelEx prevRelation = null;
-		for (RouteRelationModelEx currRelation : this.relations) {
-			rels.add(currRelation.toORMObject(prevRelation));
-			prevRelation = currRelation;
+		if (this.relations != null) {
+			RouteRelationModelEx prevRelation = null;
+			for (RouteRelationModelEx currRelation : this.relations) {
+				rels.add(currRelation.toORMObject(prevRelation));
+				prevRelation = currRelation;
+			}
 		}
 		routeWay.setRouteRelations(rels);
 		return routeWay;

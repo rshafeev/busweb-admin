@@ -1,6 +1,5 @@
 package com.pgis.bus.admin.controllers;
 
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -12,13 +11,12 @@ import com.pgis.bus.admin.models.LoginPageModel;
 
 @Controller
 @RequestMapping(value = "/")
-public class AuthController {
+public class AuthController extends BaseController {
 
 	@RequestMapping(value = "login")
 	public ModelAndView login(Integer login_error) {
-		
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication instanceof CustomUserAuthentication) {
 			if (((CustomUserAuthentication) authentication).isAuthenticated())
 				return new ModelAndView("redirect:/");
@@ -35,9 +33,8 @@ public class AuthController {
 			model.setLoginFailed(true);
 			model.setPassFailed(true);
 		}
-		
+
 		return new ModelAndView("login", "model", model);
 	}
 
-	
 }

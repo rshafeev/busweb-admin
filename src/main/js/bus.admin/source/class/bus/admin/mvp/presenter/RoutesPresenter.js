@@ -320,9 +320,9 @@
 
       /**
        * Задает направление
-       * @param  {[type]}   direction [description]
-       * @param  {Function} callback  [description]
-       * @return {[type]}             [description]
+       * @param  direction {Boolean}   Прямое/обратное направление маршрута.
+       * @param  callback {Function}   Callback функиця
+       * @param  sender {Object}       Объект, который вызвал триггер
        */
        setDirectionTrigger : function (direction, callback, sender)
        {
@@ -337,6 +337,46 @@
         if(callback != undefined)
           callback(args);
       },
+
+
+      /**
+       * Обновляет модель маршрута
+       * @param  routeModel {bus.admin.mvp.model.RouteModel} Модель маршрута
+       * @param  callback {Function}   Callback функиця
+       * @param  sender {Object}       Объект, который вызвал триггер
+       */
+       updateRouteTrigger : function(routeModel, callback, sender){
+        var dataRequest =  new bus.admin.net.DataRequest();
+        dataRequest.Routes().update(routeModel, function(responce){
+          var data = responce.getContent();
+          this.debug("Routes: update(): received route`s data");
+          console.debug(data);
+          var args ={};
+
+          if(data == null || data.error != null)
+          {
+            args = {
+              route : null,
+              updateRouteModel : routeModel,
+              error  : true,
+              errorCode : data.error != undefined ? data.error.code : "req_err",
+              errorRemoteInfo :  data.error != undefined ? data.error.info : null
+            };
+          }
+          else
+          {
+            var routeModel = new bus.admin.mvp.model.RouteModel(data);
+            args = {
+              route : routeModel,
+              updateRouteModel : routeModel,
+              error  :  false
+            };
+          }
+          if(callback != undefined)
+            callback(args);
+        },this);
+      },
+
 
        /**
         * Ассинхронная функция. Возвращает модель маршрута.
