@@ -174,7 +174,6 @@
 		  * @param routeWayModel {bus.admin.mvp.model.route.RouteWayModel}  Модель пути
 		  * @param isCentering {Boolean}   Центрировать карту?
 		  */
-
 		  __drawRouteWay : function (routeWayModel, isCentering)
 		  {
 		  	var relations = routeWayModel.getRelations();

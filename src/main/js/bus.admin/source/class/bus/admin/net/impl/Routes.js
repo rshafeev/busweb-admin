@@ -38,7 +38,7 @@
 		 */
 		 getRoutesList : function(cityID, routeTypeID, langID, callback, self) {
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
-		 	var request = new qx.io.remote.Request(contextPath + "routes/getRoutesList", "POST", "application/json");
+		 	var request = new qx.io.remote.Request(contextPath + "routes/getRoutesList.json", "POST", "application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
 		 	request.setParameter("cityID", cityID, true);
@@ -60,7 +60,7 @@
 		 */
 		 get : function(routeID, callback, self){
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
-		 	var request = new qx.io.remote.Request(contextPath +  "routes/get", "POST", "application/json");
+		 	var request = new qx.io.remote.Request(contextPath +  "routes/get.json", "POST", "application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
 		 	request.setParameter("routeID", routeID, true);
@@ -82,25 +82,14 @@
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
 		 	var routeJson = qx.lang.Json.stringify(routeModel.toDataModel()); 
 
-		 	var req = new qx.io.request.Xhr(contextPath + "routes/update", "POST");
-		 	this.debug(routeJson);
-		 	req.setRequestHeader("Accept", "application/json");
-		 	req.setRequestHeader("Content-Type", "application/json");
-		 	req.setRequestData(routeJson);
-		 	req.setUrl(contextPath + "routes/update");
-		 	req.send();
-		 	return req;
-		 	/*
-		 	var request = new qx.io.remote.Request(contextPath + "routes/update", "POST", "application/json");
-			//request.setRequestHeader("Accept", "application/json");
+		 	var request = new qx.io.remote.Request(contextPath + "routes/update.json", "POST", "application/json");
 			request.setRequestHeader("Content-Type", "application/json");
-			
 			request.setParseJson(true);
-			request.setParameter("route",routeJson, true);
+			request.setData(routeJson);
 			request.addListener("completed", callback, self);
 			request.addListener("failed", callback, self);
 			request.send();
-			return request;*/
+			return request;
 		} 		 
 
 		 /*

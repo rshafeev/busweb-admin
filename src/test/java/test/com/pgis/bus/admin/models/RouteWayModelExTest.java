@@ -12,7 +12,6 @@ import org.postgresql.util.PGInterval;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.pgis.bus.admin.models.route.RouteRelationModelEx;
 import com.pgis.bus.admin.models.route.RouteWayModelEx;
 import com.pgis.bus.data.orm.RouteRelation;
@@ -60,7 +59,7 @@ public class RouteWayModelExTest {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			System.out.println(mapper.writeValueAsString(r));
-			System.out.println((new Gson()).toJson(r));
+			System.out.println((new ObjectMapper()).writeValueAsString(r));
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

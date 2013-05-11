@@ -13,8 +13,8 @@ import com.pgis.bus.net.models.station.StationModel;
 public class StationsBoxModel {
 	private int cityID;
 	private LangEnum langID;
-	private Point ltPoint;
-	private Point rbPoint;
+	private PointModel ltPoint;
+	private PointModel rbPoint;
 
 	public class StElem {
 		public int id;
@@ -35,6 +35,14 @@ public class StationsBoxModel {
 
 		public void setName(String name) {
 			this.name = name;
+		}
+
+		public PointModel getLocation() {
+			return location;
+		}
+
+		public void setLocation(PointModel location) {
+			this.location = location;
 		}
 
 	}
@@ -63,19 +71,19 @@ public class StationsBoxModel {
 		this.cityID = cityID;
 	}
 
-	public Point getLtPoint() {
+	public PointModel getLtPoint() {
 		return ltPoint;
 	}
 
-	public void setLtPoint(Point ltPoint) {
+	public void setLtPoint(PointModel ltPoint) {
 		this.ltPoint = ltPoint;
 	}
 
-	public Point getRbPoint() {
+	public PointModel getRbPoint() {
 		return rbPoint;
 	}
 
-	public void setRbPoint(Point rbPoint) {
+	public void setRbPoint(PointModel rbPoint) {
 		this.rbPoint = rbPoint;
 	}
 

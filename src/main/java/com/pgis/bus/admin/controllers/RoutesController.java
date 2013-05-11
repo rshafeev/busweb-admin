@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.pgis.bus.admin.models.ErrorModel;
 import com.pgis.bus.admin.models.route.RouteModelEx;
 import com.pgis.bus.data.orm.Route;
@@ -54,7 +53,7 @@ public class RoutesController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "get", method = RequestMethod.POST)
+	@RequestMapping(value = "get", method = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseBody
 	public Object get(Integer routeID) {
 		try {
@@ -63,7 +62,6 @@ public class RoutesController extends BaseController {
 			Route route = this.getDbService().Routes().get(routeID);
 			RouteModelEx model = new RouteModelEx(route);
 			// send model
-			String jsonModel = (new Gson()).toJson(model);
 			ObjectMapper mapper = new ObjectMapper();
 
 			log.debug(mapper.writeValueAsString(model));
@@ -78,33 +76,26 @@ public class RoutesController extends BaseController {
 		}
 	}
 
-	@ResponseBody
 	@RequestMapping(value = "insert_route", method = RequestMethod.POST)
-	public String insert(String data) {
-		log.debug("insert_route");
-		log.debug(data);
-
+	@ResponseBody
+	public Object insert(@RequestBody Route newRoute) {
+		log.debug("insert_route()");
 		try {
-
-			Route newRoute = (new Gson()).fromJson(data, Route.class);
 			super.getDbService().Routes().insert(newRoute);
-
-			String routeModelJson = (new Gson()).toJson(newRoute);
-			log.debug(routeModelJson);
-			return routeModelJson;
+			return newRoute;
 
 		} catch (Exception e) {
 			log.error("insert exception", e);
-			return (new Gson()).toJson(new ErrorModel(e));
+			return new ErrorModel(e);
 		} finally {
 			super.disposeDataServices();
 		}
 
 	}
 
-	@ResponseBody
 	@RequestMapping(value = "delete", method = RequestMethod.POST)
-	public String delete(Integer route_id) {
+	@ResponseBody
+	public Object delete(Integer route_id) {
 		log.debug(route_id.toString());
 		IDataBaseService db = super.getDbService();
 		try {
@@ -116,56 +107,28 @@ public class RoutesController extends BaseController {
 			return "\"ok\"";
 		} catch (Exception e) {
 			log.error("delete exception", e);
-			return (new Gson()).toJson(new ErrorModel(e));
-		} finally {
-			super.disposeDataServices();
-		}
-	}
-
-	@RequestMapping(value = "update", method = RequestMethod.POST, consumes = "application/json")
-	@ResponseBody
-	public Object update(@RequestBody RouteModelEx route) {
-		// RouteModelEx
-		log.debug("update()");
-		log.debug(route.toString());
-		IDataBaseService db = super.getDbService();
-		try {
-			// RouteModelEx routeModel = (new Gson()).fromJson(route, RouteModelEx.class);
-			Route ormRoute = route.toORMObject();
-			// db.Routes().update(ormRoute);
-			db.commit();
-			String routeModelJson = (new Gson()).toJson(route);
-			log.debug(routeModelJson);
-			return route;
-		} catch (Exception e) {
-			// db.rollback();
-			log.error("update exception", e);
-			// return (new Gson()).toJson();
 			return new ErrorModel(e);
 		} finally {
 			super.disposeDataServices();
 		}
 	}
 
+	@RequestMapping(value = "update", method = RequestMethod.POST)
 	@ResponseBody
-	@RequestMapping(value = "updateSchedule", method = RequestMethod.POST)
-	public String updateSchedule(String schedule) {
+	public Object update(@RequestBody RouteModelEx routeModel) {
+		// RouteModelEx
 		log.debug("update()");
-		log.debug(schedule);
+		log.debug(routeModel.toString());
 		IDataBaseService db = super.getDbService();
 		try {
-			RouteModelEx routeModel = (new Gson()).fromJson(schedule, RouteModelEx.class);
-
-			Route route = routeModel.toORMObject();
-			db.Routes().update(route);
+			Route ormRoute = routeModel.toORMObject();
+			// db.Routes().update(ormRoute);
 			db.commit();
-			String routeModelJson = (new Gson()).toJson(route);
-			log.debug(routeModelJson);
-			return routeModelJson;
+			return new RouteModelEx(ormRoute);
 		} catch (Exception e) {
 			db.rollback();
 			log.error("update exception", e);
-			return (new Gson()).toJson(new ErrorModel(e));
+			return new ErrorModel(e);
 		} finally {
 			super.disposeDataServices();
 		}

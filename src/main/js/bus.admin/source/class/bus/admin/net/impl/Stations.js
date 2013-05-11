@@ -37,7 +37,7 @@
 		 */
 		 getStationsList : function(cityID, langID, callback, self ){
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
-		 	var request = new qx.io.remote.Request(contextPath + "stations/getStationsList", "POST", "application/json");
+		 	var request = new qx.io.remote.Request(contextPath + "stations/getStationsList.json", "POST", "application/json");
 		 	request.setParseJson(true);
 		 	request.setParameter("cityID", cityID, true);
 		 	request.setParameter("langID", langID, true);
@@ -68,10 +68,11 @@
 		 	};
 		 	var data_json = qx.lang.Json.stringify(data);
 		 	this.debug(data);
-		 	var request = new qx.io.remote.Request(contextPath + "stations/getStationsFromBox", "POST",	"application/json");
+		 	var request = new qx.io.remote.Request(contextPath + "stations/getStationsFromBox.json", "POST",	"application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
-		 	request.setParameter("data", data_json, true);
+		 	request.setRequestHeader("Content-Type", "application/json");
+			request.setData(data_json);
 		 	request.addListener("completed", callback, self);
 		 	request.addListener("failed", callback, self);
 		 	request.send();
@@ -87,7 +88,7 @@
 		 */
 		 get : function(stationID, callback, self){
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
-		 	var request = new qx.io.remote.Request(contextPath +  "stations/get", "POST", "application/json");
+		 	var request = new qx.io.remote.Request(contextPath +  "stations/get.json", "POST", "application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
 		 	request.setParameter("stationID", stationID, true);
@@ -107,11 +108,11 @@
 		 update : function(stationModel, callback, self) {
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
 		 	var stationJson = qx.lang.Json.stringify(stationModel.toDataModel());
-		 	var request = new qx.io.remote.Request(contextPath + "stations/update","POST", "application/json");
+		 	var request = new qx.io.remote.Request(contextPath + "stations/update.json","POST", "application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
-
-		 	request.setParameter("row_station", stationJson, true);
+		 	request.setRequestHeader("Content-Type", "application/json");
+		 	request.setData(stationJson);
 		 	request.addListener("completed", callback, self);
 		 	request.addListener("failed", callback, self);
 		 	request.send();
@@ -128,10 +129,11 @@
 		 insert : function(stationModel, callback, self) {
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
 		 	var stationJson = qx.lang.Json.stringify(stationModel.toDataModel());
-		 	var request = new qx.io.remote.Request(contextPath + "stations/insert", "POST", "application/json");
+		 	var request = new qx.io.remote.Request(contextPath + "stations/insert.json", "POST", "application/json");
+		 	request.setRequestHeader("Content-Type", "application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
-		 	request.setParameter("row_station", stationJson, true);
+		 	request.setData(stationJson);
 		 	request.addListener("completed", callback, self);
 		 	request.addListener("failed", callback, self);
 		 	request.send();
@@ -147,7 +149,7 @@
 		 */
 		 remove : function(stationID, callback, self) {
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
-		 	var request = new qx.io.remote.Request(contextPath + "stations/remove",	"POST", "application/json");
+		 	var request = new qx.io.remote.Request(contextPath + "stations/remove.json",	"POST", "application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
 		 	request.setParameter("stationID", stationID, true);

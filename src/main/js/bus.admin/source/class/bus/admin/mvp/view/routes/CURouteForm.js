@@ -317,7 +317,7 @@
 		 			bus.admin.widget.MsgDlg.info(this.tr("Error"), this.tr("Please, push number for all languages"));
 		 			return;
 		 		}
-		 		this.__routeModel.setNumber(numb, langID);
+		 		this.__routeModel.setNumber(langID, numb);
 		 	}
 
 		 	if(this.__isChangeDlg == true){

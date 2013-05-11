@@ -4,11 +4,14 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.pgis.bus.admin.models.StringValueModel;
 import com.pgis.bus.data.orm.Route;
 import com.pgis.bus.data.orm.RouteWay;
 import com.pgis.bus.data.orm.StringValue;
 
+@XmlRootElement(name = "route")
 public class RouteModelEx implements Serializable {
 
 	/**
@@ -132,20 +135,23 @@ public class RouteModelEx implements Serializable {
 		Route route = new Route();
 		route.setId(id);
 		route.setCityID(cityID);
-		route.setRouteTypeID(routeTypeID);
+		route.setRouteTypeID("c_route_" + routeTypeID);
 		route.setCost(cost);
 		route.setNumberKey(this.numberKey);
 		route.setNumber(StringValueModel.createORMObjects(this.number));
+		if (this.directWay != null) {
+			RouteWay dWay = this.directWay.toORMObject();
+			dWay.setRouteID(this.id);
+			dWay.setDirect(true);
+			route.setDirectRouteWay(dWay);
+		}
 
-		RouteWay dWay = this.directWay.toORMObject();
-		RouteWay rWay = this.reverseWay.toORMObject();
-
-		dWay.setRouteID(this.id);
-		dWay.setDirect(true);
-		rWay.setRouteID(this.id);
-		rWay.setDirect(false);
-		route.setDirectRouteWay(dWay);
-		route.setReverseRouteWay(rWay);
+		if (this.reverseWay != null) {
+			RouteWay rWay = this.reverseWay.toORMObject();
+			rWay.setRouteID(this.id);
+			rWay.setDirect(false);
+			route.setReverseRouteWay(rWay);
+		}
 
 		try {
 			if (route.getNumber() != null) {

@@ -34,7 +34,7 @@ public class AuthController extends BaseController {
 			model.setPassFailed(true);
 		}
 
-		return new ModelAndView("login", "model", model);
+		return new ModelAndView("login1", "model", model);
 	}
 
 }

@@ -3,11 +3,11 @@ package com.pgis.bus.admin.controllers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.google.gson.Gson;
 import com.pgis.bus.admin.helpers.ControllerException;
 import com.pgis.bus.admin.models.ErrorModel;
 import com.pgis.bus.admin.models.LoadImportObjectsParams;
@@ -25,15 +25,13 @@ import com.pgis.bus.data.service.IDataModelsService;
 public class ImportController extends BaseController {
 	private static final Logger log = LoggerFactory.getLogger(ImportController.class);
 
-	@ResponseBody
 	@RequestMapping(value = "insert", method = RequestMethod.POST)
-	public String insert(String cityKey, String importRouteModelJson) {
+	@ResponseBody
+	public Object insert(String cityKey, @RequestBody JsonRouteObjectModel importModel) {
 		IDataBaseService db = null;
 		try {
 			log.debug("import.insert()");
 			log.debug(cityKey);
-			log.debug(importRouteModelJson);
-			JsonRouteObjectModel importModel = (new Gson()).fromJson(importRouteModelJson, JsonRouteObjectModel.class);
 			if (importModel.isValid() == false) {
 				throw new Exception("ImportRouteModel is not valid");
 			}
@@ -43,32 +41,24 @@ public class ImportController extends BaseController {
 			if (city == null)
 				throw new Exception("Can not find city");
 			importModel.setCityID(city.getId());
-			JsonRouteObject obj = new JsonRouteObject(cityKey, importModel);
-			db.JsonRouteObjects().insert(obj);
+			// JsonRouteObject obj = new JsonRouteObject(cityKey, importModel);
+			// db.JsonRouteObjects().insert(obj);
 			db.commit();
 			return "ok";
-		} catch (RepositoryException e) {
-			if (db != null)
-				db.rollback();
-			log.error("RepositoryException", e);
-			return (new Gson()).toJson(new ErrorModel(e));
 		} catch (Exception e) {
 			if (db != null)
 				db.rollback();
 			log.error("JsonSyntaxException exception", e);
-			return (new Gson()).toJson(new ErrorModel(e));
+			return new ErrorModel(e);
 		} finally {
 			super.disposeDataServices();
 		}
 	}
 
-	@ResponseBody
 	@RequestMapping(value = "get_all", method = RequestMethod.POST)
-	public String getAll(String data) {
+	@ResponseBody
+	public Object getAll(@RequestBody LoadImportObjectsParams params) {
 		try {
-
-			LoadImportObjectsParams params = (new Gson()).fromJson(data, LoadImportObjectsParams.class);
-			log.debug(data);
 			log.debug("get_all()");
 			IDataBaseService db = super.getDbService();
 
@@ -81,20 +71,20 @@ public class ImportController extends BaseController {
 			JsonRouteObjectsListModel listModel = modelsService.JsonRouteObjects().getmportObjectsList(city.getKey(),
 					params.getRouteTypeID());
 			// вернем клиенту
-			return (new Gson()).toJson(listModel);
+			return listModel;
 
 		} catch (Exception e) {
 			log.error("exception", e);
-			return (new Gson()).toJson(new ErrorModel(e));
+			return new ErrorModel(e);
 		} finally {
 			super.disposeDataServices();
 
 		}
 	}
 
-	@ResponseBody
 	@RequestMapping(value = "get", method = RequestMethod.POST)
-	public String get(int objID) {
+	@ResponseBody
+	public Object get(int objID) {
 		try {
 			log.debug("get()");
 			if (objID <= 0)
@@ -104,10 +94,10 @@ public class ImportController extends BaseController {
 			JsonRouteObjectModel jsonRouteObject = modelsService.JsonRouteObjects().get(objID);
 			Route newRoute = jsonRouteObject.toRoute();
 			// вернем клиенту
-			return (new Gson()).toJson(newRoute);
+			return newRoute;
 		} catch (Exception e) {
 			log.error("exception", e);
-			return (new Gson()).toJson(new ErrorModel(e));
+			return new ErrorModel(e);
 		} finally {
 			super.disposeDataServices();
 		}

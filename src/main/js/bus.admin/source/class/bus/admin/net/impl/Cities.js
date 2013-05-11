@@ -31,7 +31,7 @@ qx.Class.define("bus.admin.net.impl.Cities", {
 		 */
 		getAll : function(callback, self) {
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
-			var request = new qx.io.remote.Request(contextPath + "cities/get_all", "POST", "application/json");
+			var request = new qx.io.remote.Request(contextPath + "cities/getAll.json", "POST", "application/json");
 			request.setParseJson(true);
 			request.addListener("completed", callback, self);
 			request.addListener("failed", callback, self);
@@ -49,9 +49,11 @@ qx.Class.define("bus.admin.net.impl.Cities", {
 		update : function(cityModel, callback,	self) {
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
 			var cityJson = qx.lang.Json.stringify(cityModel.toDataModel()); 
-			var request = new qx.io.remote.Request(contextPath + "cities/update", "POST", "application/json");
+			var request = new qx.io.remote.Request(contextPath + "cities/update.json", "POST", "application/json");
 			request.setParseJson(true);
-			request.setParameter("row_city", cityJson, true);
+			request.setRequestHeader("Content-Type", "application/json");
+			request.setRequestHeader("Accept", "application/json");
+			request.setData(cityJson);
 			request.addListener("completed", callback, self);
 			request.addListener("failed", callback, self);
 			request.send();
@@ -68,9 +70,10 @@ qx.Class.define("bus.admin.net.impl.Cities", {
 		insert : function(cityModel, callback, self) {
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
 			var cityJson = qx.lang.Json.stringify(cityModel.toDataModel()); 
-			var request = new qx.io.remote.Request(contextPath +  "cities/insert", "POST", "application/json");
+			var request = new qx.io.remote.Request(contextPath +  "cities/insert.json", "POST", "application/json");
 			request.setParseJson(true);
-			request.setParameter("row_city", cityJson, true);
+			request.setRequestHeader("Content-Type", "application/json");
+			request.setData(cityJson);
 			request.addListener("completed", callback, self);
 			request.addListener("failed", callback, self);
 			request.send();
@@ -86,7 +89,7 @@ qx.Class.define("bus.admin.net.impl.Cities", {
 		 */
 		remove : function(cityID, callback, self) {
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
-			var request = new qx.io.remote.Request(contextPath +  "cities/delete", "POST", "application/json");
+			var request = new qx.io.remote.Request(contextPath +  "cities/remove.json", "POST", "application/json");
 			request.setParseJson(true);
 			request.setParameter("city_id", cityID, true);
 			request.addListener("completed", callback, self);

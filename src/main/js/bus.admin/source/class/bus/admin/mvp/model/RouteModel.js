@@ -108,7 +108,7 @@
  	 	 	if(this.__number != null)
  	 	 	{
  	 	 		for(var i=0;i < this.__number.length; i++){
- 	 	 			if(this.__number[i].lang == langID){
+ 	 	 			if(this.__number[i].lang.toString() == langID.toString()){
  	 	 				this.__number[i].value = number;
  	 	 				return;
  	 	 			}

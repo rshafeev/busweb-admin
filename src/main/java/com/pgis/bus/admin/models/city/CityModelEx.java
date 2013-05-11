@@ -19,6 +19,10 @@ public class CityModelEx {
 	private boolean show;
 	private Collection<StringValueModel> names;
 
+	public CityModelEx() {
+
+	}
+
 	public CityModelEx(City city) throws SQLException {
 		this.id = city.getId();
 		this.location = new PointModel(city.getLat(), city.getLon());
@@ -26,7 +30,9 @@ public class CityModelEx {
 		this.nameKey = city.getNameKey();
 		this.show = city.isShow();
 		this.key = city.getKey();
-		this.names = StringValueModel.createModels(city.getName().values());
+		if (city.getName() != null) {
+			this.names = StringValueModel.createModels(city.getName().values());
+		}
 
 	}
 
@@ -95,13 +101,17 @@ public class CityModelEx {
 		city.setNameKey(this.nameKey);
 		city.setScale(this.scale);
 		city.setShow(this.show);
-		HashMap<LangEnum, StringValue> name = new HashMap<LangEnum, StringValue>();
-		for (StringValueModel elem : this.names) {
-			StringValue ormObj = elem.toORMObject();
-			ormObj.setKeyID(this.nameKey);
-			name.put(ormObj.getLangID(), ormObj);
+		if (this.names != null) {
+			HashMap<LangEnum, StringValue> name = new HashMap<LangEnum, StringValue>();
+
+			for (StringValueModel elem : this.names) {
+				StringValue ormObj = elem.toORMObject();
+				ormObj.setKeyID(this.nameKey);
+				name.put(ormObj.getLangID(), ormObj);
+			}
+			city.setName(name);
 		}
-		city.setName(name);
+
 		return city;
 	}
 }

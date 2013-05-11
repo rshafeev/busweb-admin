@@ -2,15 +2,23 @@ package test.com.pgis.bus.admin.models;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.oxm.xstream.XStreamMarshaller;
+import org.springframework.util.ResourceUtils;
+
+import test.com.pgis.bus.admin.controllers.RoutesControllerTest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
+import com.pgis.bus.admin.helpers.XStreamMarshallerHelper;
 import com.pgis.bus.admin.models.StringValueModel;
 import com.pgis.bus.admin.models.route.RouteModelEx;
 import com.pgis.bus.data.orm.Route;
@@ -19,6 +27,7 @@ import com.pgis.bus.data.orm.StringValue;
 import com.pgis.bus.data.orm.type.LangEnum;
 
 public class RouteModelExTest {
+	private static final Logger log = LoggerFactory.getLogger(RouteModelExTest.class);
 
 	private Route route1 = null;
 
@@ -86,6 +95,45 @@ public class RouteModelExTest {
 		ObjectMapper json = new ObjectMapper();
 		byte[] data = json.writeValueAsBytes(requestModel);
 		RouteModelEx responeModel = json.readValue(data, RouteModelEx.class);
+		assertEquals(requestModel.getId(), responeModel.getId());
 	}
 
+	@Test
+	public void jsonDeserealize() throws Exception {
+		ObjectMapper json = new ObjectMapper();
+
+		String jsonInputModel = "{\"id\":270,\"cityID\":1,\"routeTypeID\":\"bus\",\"cost\":1,\"numberKey\":4058,"
+				+ "\"number\":[{\"id\":13193,\"lang\":\"uk\",\"value\":\"3\"},{\"id\":13192,\"lang\":\"en\",\"value\":\"3\"},"
+				+ "{\"id\":13191,\"lang\":\"ru\",\"value\":\"3\"}],\"directWay\":null,\"reverseWay\":null}";
+		RouteModelEx responeModel = json.readValue(jsonInputModel, RouteModelEx.class);
+		assertEquals(270, responeModel.getId());
+	}
+
+	@Test
+	public void xmlDeserealize() throws Exception {
+		// org.springframework.oxm.xstream.XStreamMarshaller a = new XStreamMarshaller();
+
+		// XStream xs = new XStream();
+
+		ObjectMapper json = new ObjectMapper();
+
+		String jsonInputModel = "{\"id\":270,\"cityID\":1,\"routeTypeID\":\"bus\",\"cost\":1,\"numberKey\":4058,"
+				+ "\"number\":[{\"id\":13193,\"lang\":\"uk\",\"value\":\"3\"},{\"id\":13192,\"lang\":\"en\",\"value\":\"3\"},"
+				+ "{\"id\":13191,\"lang\":\"ru\",\"value\":\"3\"}],\"directWay\":null,\"reverseWay\":null}";
+		RouteModelEx responeModel = json.readValue(jsonInputModel, RouteModelEx.class);
+		assertEquals(270, responeModel.getId());
+	}
+
+	@Test
+	public void xmlDesedealize2() throws Exception {
+
+		File file = ResourceUtils.getFile(this.getClass().getResource("/routeModel1.json"));
+		String jsonData = com.pgis.bus.data.helpers.FileManager.getFileData(file);
+
+		ObjectMapper json = new ObjectMapper();
+		RouteModelEx requestModel = json.readValue(jsonData, RouteModelEx.class);
+
+		String xmlData = XStreamMarshallerHelper.marshal(requestModel);
+		log.info(xmlData);
+	}
 }
