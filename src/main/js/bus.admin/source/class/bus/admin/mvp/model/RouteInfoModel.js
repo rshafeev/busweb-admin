@@ -35,17 +35,17 @@
  	 	 * ID остановки
  	 	 */
  	 	 id : {
- 	 	 	init : 0,
+ 	 	 	nullable : true,
  	 	 	check : "Integer"
  	 	 },
 
  	 	 cost : {
- 	 	 	init : 0.0,
+ 	 	 	nullable : true,
  	 	 	check : "Number"
  	 	 },
 
  	 	 number : {
- 	 	 	init : "",
+ 	 	 	nullable : true,
  	 	 	check : "String"
  	 	 },
 
@@ -70,12 +70,12 @@
  	 	 },
 
  	 	 startStation : {
- 	 	 	init : "",
+ 	 	 	nullable : true,
  	 	 	check : "String"
  	 	 },
 
  	 	 finishStation : {
- 	 	 	init : "",
+ 	 	 	nullable : true,
  	 	 	check : "String"
  	 	 }
 
@@ -121,16 +121,38 @@
  		  * @param  dataModel {Object}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
- 		  	this.setId(dataModel.id);
- 		  	this.setCost(dataModel.cost);
- 		  	this.setNumber(dataModel.number);
- 		  	this.setStartWork(new bus.admin.mvp.model.TimeIntervalModel(dataModel.startWork));
- 		  	this.setFinishWork(new bus.admin.mvp.model.TimeIntervalModel(dataModel.finishWork));
- 		  	this.setMinInterval(new bus.admin.mvp.model.TimeIntervalModel(dataModel.minInterval));
- 		  	this.setMaxInterval(new bus.admin.mvp.model.TimeIntervalModel(dataModel.maxInterval));
- 		  	this.setStartStation(dataModel.startStation);
- 		  	this.setFinishStation(dataModel.finishStation);
+ 		  	if(dataModel == undefined)
+ 		  		return;
+ 		  	if(dataModel.id != undefined)
+ 		  		this.setId(dataModel.id);
+ 		  	if(dataModel.cost != undefined)
+ 		  		this.setCost(dataModel.cost);
+ 		  	if(dataModel.number != undefined)
+ 		  		this.setNumber(dataModel.number);
+ 		  	if(dataModel.startWork != undefined)
+ 		  		this.setStartWork(new bus.admin.mvp.model.TimeIntervalModel(dataModel.startWork));
+ 		  	if(dataModel.finishWork != undefined)
+ 		  		this.setFinishWork(new bus.admin.mvp.model.TimeIntervalModel(dataModel.finishWork));
+ 		  	if(dataModel.minInterval != undefined)
+ 		  		this.setMinInterval(new bus.admin.mvp.model.TimeIntervalModel(dataModel.minInterval));
+ 		  	if(dataModel.maxInterval != undefined)
+ 		  		this.setMaxInterval(new bus.admin.mvp.model.TimeIntervalModel(dataModel.maxInterval));
+ 		  	if(dataModel.startStation != undefined)
+ 		  		this.setStartStation(dataModel.startStation);
+ 		  	if(dataModel.finishStation != undefined)
+ 		  		this.setFinishStation(dataModel.finishStation);
  		  },
+
+ 		  /**
+ 		   * Формирует модель из модели маршрута
+ 		   * @param  routeModel{bus.admin.mvp.model.RouteModel}  Модель маршрута
+ 		   * @param  langID {String} ID языка
+ 		   */
+ 		   fromRoute : function(routeModel, langID){
+ 		   	this.setId(routeModel.getId());
+ 		   	this.setCost(routeModel.getCost());
+ 		   	this.setNumber(routeModel.getNumber(langID));
+ 		   },
 
 
  		  /**

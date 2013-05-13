@@ -71,7 +71,7 @@
 
  		  __btnSave : null,
  		  __btnCancel : null,
- 		  check_sameDirections : null,
+ 		  __checkSameWays : null,
 
  		  editCost : null,
  		  editTimeA : null,
@@ -228,8 +228,8 @@
 					left : 110,
 					top : 90
 				});
-				this.check_sameDirections = new qx.ui.form.CheckBox("Same ways");
-				this.check_sameDirections.setValue(false);
+				this.__checkSameWays = new qx.ui.form.CheckBox("Same ways");
+				this.__checkSameWays.setValue(false);
 
 				
 				this.add(timeSettings, {
@@ -237,7 +237,7 @@
 					top : -10
 				});
 				
-				this.add(this.check_sameDirections, {
+				this.add(this.__checkSameWays, {
 					left : 300,
 					top : 170
 				});
@@ -341,7 +341,9 @@
 		  */
 		  __saveIntoEditRouteMode : function(){
 		  	var self = this;
+		  	qx.core.Init.getApplication().setWaitingWindow(true);
 		  	var callback = function(args){
+		  		qx.core.Init.getApplication().setWaitingWindow(false);
 		  		if(args.error == true){
 		  			bus.admin.widget.MsgDlg.error(this.tr("Error"), this.tr("Can not update route. Please, check input data and try again."));
 		  			return;
@@ -361,25 +363,68 @@
 		  	var routesList = this.__presenter.getDataStorage().getRoutesListModel();
 		  	var numbers  = this.__routeModel.getNumbers();
 		  	for(var i=0;i < numbers.length; i++){
-		  		var numb = numbers.value;
+		  		var numb = numbers[i].value;
 		  		if (routesList.isNumberExists(numb) == true){
 		  			bus.admin.widget.MsgDlg.info(this.tr("Error"), this.tr("The route with this number has already exist!"));
 		  			return;
 		  		}
 		  	}
-
 		  	var timeAvalue = this.editTimeA.getValue();
 		  	var timeBvalue = this.editTimeB.getValue();
 		  	var freqValue = this.editFrequency.getValue();
-		  	var schedule = this._createScheduleObj(timeAvalue, timeBvalue,	freqValue);
+		  	var schedule = this.__makeScheduleModel(timeAvalue, timeBvalue,	freqValue);
 		  	if (schedule == null) {
 		  		bus.admin.widget.MsgDlg.info(this.tr("Error"), this.tr("Please, set valid time and frequency"));
 		  		return;
 		  	}
 
+		  	var sameWays = this.__checkSameWays.getValue();
+		  	var directWay = new bus.admin.mvp.model.route.RouteWayModel();
+		  	var reverseWay = null;
+		  	directWay.setSchedule(schedule);
+		  	if(sameWays == false){
+		  		reverseWay = new bus.admin.mvp.model.route.RouteWayModel();
+		  		reverseWay.setSchedule(schedule.clone());
+		  	}
+		  	this.__routeModel.setDirectWay(directWay);
+		  	this.__routeModel.setReverseWay(reverseWay);
+
+		  	var self = this;
+		  	var callback = function(args){
+		  		if(args.error == true){
+		  			bus.admin.widget.MsgDlg.error(this.tr("Error"), this.tr("Can not insert route. Please, check input data and try again."));
+		  			return;
+		  		}
+		  		self.close();
+		  	}
+		  	this.__presenter.startingMakeRouteTrigger(this.__routeModel, callback);
+		  },
+
+
+		  /**
+		   * Создает модель расписания
+		   * @param  timeValueA {String}  Время начала работы по текущему маршруту. Формат чч:мм
+		   * @param  timeValueB {String}  Время окончания работы по текущему маршруту. Формат чч:мм
+		   * @param  frequency  {String}  Интервал движения транспортных средств. Формат мм
+		   * @return {bus.admin.mvp.model.route.ScheduleModel|null} Расписание маршрута
+		   */
+		  __makeScheduleModel : function(timeValueA, timeValueB, frequency) {
+		  	// Валидация данных
+		  	if (bus.admin.mvp.model.TimeIntervalModel.validate(timeValueA) == false
+		  		|| bus.admin.mvp.model.TimeIntervalModel.validate(timeValueB) == false
+		  		|| frequency.toString() != parseInt(frequency).toString()) {
+		  		return null;
+		  }
+		  var secsA = bus.admin.mvp.model.TimeIntervalModel.convertToSeconds(timeValueA);
+		  var secsB = bus.admin.mvp.model.TimeIntervalModel.convertToSeconds(timeValueB);
+		  var frequencySecs = 60 * frequency;
+		  if (frequencySecs < 0 || secsB < 0 || secsB < secsA) {
+		  	return null;
+		  }
+		  var schedule = new bus.admin.mvp.model.route.ScheduleModel();
+		  schedule.fromSimple(secsA, secsB, frequencySecs);
+		  return schedule;
 		},
-
-
 
 
 		//==============================================================================================================
@@ -483,46 +528,10 @@
 			this.__tableNumbers.setEnabled(false);
 		}
 
-	},
-
-
-	_createScheduleObj : function(timeValueA, timeValueB, frequency) {
-		if (bus.admin.helpers.ObjectHelper.validateTime(timeValueA) == false
-			|| bus.admin.helpers.ObjectHelper.validateTime(timeValueB) == false
-			|| frequency.toString() != parseInt(frequency).toString()) {
-			return null;
 	}
-	var secsA = bus.admin.helpers.ObjectHelper
-	.convertTimeToSeconds(timeValueA);
-	var secsB = bus.admin.helpers.ObjectHelper
-	.convertTimeToSeconds(timeValueB);
-	var frequencySecs = 60 * frequency;
-	if (frequencySecs < 0 || secsB < 0 || secsB < secsA) {
-		return null;
-	}
-	var schedule = {
-		id : null,
-		direct_route_id : null,
-		scheduleGroups : [{
-			id : null,
-			schedule_id : null,
-			days : [{
-				id : null,
-				schedule_group_id : null,
-				day_id : "c_all"
 
-			}],
-			timetables : [{
-				id : null,
-				schedule_group_id : null,
-				frequency : frequencySecs,
-				time_A : secsA,
-				time_B : secsB
-			}]
-		}]
-	};
-	return schedule;
-}
+
+
 }
 
 });

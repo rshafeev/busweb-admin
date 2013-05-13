@@ -28,6 +28,7 @@
  		this.__initWidgets();
  		//presenter.addListener("load_routes_list", this.__onLoadRoutesList, this);
  		presenter.addListener("select_route", this.__onSelectRoute, this);
+ 		presenter.addListener("change_state", this.__onChangeState, this);
  		
  	},
 
@@ -74,31 +75,73 @@
 		 __onSelectRoute : function (e){
 		 	this.debug("execute __onSelectRoute() event handler");
 		 	var state = this.__presenter.getDataStorage().getState();
-		 	var routeModel = e.getData().route;
-
-		 	if(state == "none" && routeModel == null){
-		 		this.__radioDirect.setEnabled(false);
-		 		this.__radioReverse.setEnabled(false);
-		 		this.__btnTimetable.setEnabled(false);
-		 		this.__btnDeleteStation.setEnabled(false);
-		 		this.__stationsTable.getTableModel().setData([]);
-		 		
-		 	}else{
-		 		this.__radioDirect.setValue(true);
-		 		this.__radioDirect.setEnabled(true);
-		 		this.__radioReverse.setEnabled(true);
-		 		this.__btnDeleteStation.setEnabled(false);
-		 		this.__btnTimetable.setEnabled(true);
-		 	}
-
-
-		 	if(routeModel!= null){
+		 	var routeModel = this.__presenter.getDataStorage().getSelectedRoute();
+		 	this.__setState(state);
+		 	if(routeModel != null){
 		 		var direction = this.__presenter.getDataStorage().getDirection();	
 		 		var wayModel = routeModel.getWayByDirection(direction);
-		 		this.__fillStationsTable(wayModel);
+		 		if(wayModel != undefined)
+		 			this.__fillStationsTable(wayModel);
 		 	}
+
 		 },
 
+		 /**
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#change_state change_state} вызывается при изменении состояния страницы.
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 __onChangeState : function (e){
+		 	this.debug("execute __onChangeState() event handler");
+		 	var state = e.getData().newState;
+		 	this.__setState(state);
+		 },
+
+		 /**
+		  * Задать виджету состояние
+		  * @param  state {String} Состояние
+		  */
+		  __setState : function(state){
+		  	var routeModel = this.__presenter.getDataStorage().getSelectedRoute();
+		  	if(state == "none"){
+		  		if(routeModel == null){
+		  			this.__radioDirect.setEnabled(false);
+		  			this.__radioReverse.setEnabled(false);
+		  			this.__btnTimetable.setEnabled(false);
+		  			this.__btnDeleteStation.setEnabled(false);
+		  			this.__stationsTable.getTableModel().setData([]);
+
+		  		}else
+		  		if(state == "none"){
+		  			this.__radioDirect.setValue(true);
+		  			this.__radioDirect.setEnabled(true);
+		  			this.__radioReverse.setEnabled(true);
+		  			this.__btnDeleteStation.setEnabled(false);
+		  			this.__btnTimetable.setEnabled(true);
+		  		}
+		  	} 
+		  	
+		  	if(state == "make"){
+		  		this.__btnDeleteStation.setEnabled(true);
+		  		this.__btnTimetable.setEnabled(true);
+		  		if(routeModel != undefined){
+		  			if( routeModel.getDirectWay() != undefined){
+		  				this.__radioDirect.setValue(true);
+		  				this.__radioDirect.setEnabled(true);	
+		  			}else
+		  			{
+		  				this.__radioDirect.setEnabled(false);	
+		  			}
+		  			if( routeModel.getReverseWay() != undefined){
+		  				this.__radioReverse.setEnabled(true);	
+		  			}else
+		  			{
+		  				this.__radioReverse.setEnabled(false);	
+		  			}		  			
+
+		  		}
+		  	}
+
+		  },
 
 
  		/**
@@ -240,6 +283,7 @@
  		  * @param e {qx.event.type.Event} Объект события.
  		  */
  		  __onClickBtnTimetable : function(e) {
+ 		  	/*
  		  	var route = this._routesPage.getCurrRouteModel();
  		  	var routeWay = null;
  		  	if (this.__radioDirect.getValue() == true) {
@@ -250,6 +294,7 @@
  		  	var form = new bus.admin.mvp.view.routes.tabs.TimeForm(
  		  		this._routesPage, routeWay);
  		  	form.open();
+ 		  	*/
  		  },
 
 
@@ -259,13 +304,14 @@
 		  */
 		  __fillStationsTable : function(routeWayModel) {
 		  	this.debug("__fillStationsTable()");
-		  	var rowData = [];
 		  	var relations = routeWayModel.getRelations();
+		  	var rowData = [];
 		  	var langID = bus.admin.AppProperties.getLocale();
-
-		  	for (var i = 1; i < relations.length; i++) {
-		  		var st = relations[i].getCurrStation();
-		  		rowData.push([st.getId(), st.getName(langID)]);
+		  	if(relations != undefined){
+		  		for (var i = 1; i < relations.length; i++) {
+		  			var st = relations[i].getCurrStation();
+		  			rowData.push([st.getId(), st.getName(langID)]);
+		  		}
 		  	}
 		  	this.__stationsTable.getTableModel().setData(rowData);
 

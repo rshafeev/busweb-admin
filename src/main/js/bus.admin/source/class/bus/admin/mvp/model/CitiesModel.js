@@ -163,6 +163,8 @@
  		  * @param  dataModel {Object[]}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
+ 		  	if(dataModel == undefined)
+ 		  		return;
  		  	this._cities = [];
  		  	for(var i=0; i < dataModel.length; i++)
  		  	{

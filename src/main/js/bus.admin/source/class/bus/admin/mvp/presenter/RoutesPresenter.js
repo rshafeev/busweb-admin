@@ -57,6 +57,19 @@
       */
       "load_routes_list" : "qx.event.type.Data",
 
+    /**
+     * Событие наступает при изменении состояния страницы. Например, при создании нового маршрута.
+       * <br><br>Свойства возвращаемого объекта: <br>      
+     * <pre>
+     * <ul>
+     * <li> oldState  Старое состояние,  String. </li>
+     * <li> newState  Новое состояние, String. </li>
+     * <li> sender    Объект, который вызвал триггер, Object </li>
+     * <ul>
+     * </pre>
+     */
+     "change_state" : "qx.event.type.Data",
+
       /**
        * Событие наступает после выбора города.
        * <br><br>Свойства возвращаемого объекта: <br>         
@@ -97,7 +110,22 @@
        * <ul>
        * </pre>
        */ 
-       "change_direction" : "qx.event.type.Data"
+       "change_direction" : "qx.event.type.Data",
+
+
+      /**
+       * Событие наступает после изменения данных маршрута.
+       * <br><br>Свойства возвращаемого объекта: <br>      
+       * <pre>
+       * <ul>
+       * <li> route             Обновленная модель маршрута, {@link bus.admin.mvp.model.RouteModel RouteModel} </li>
+       * <li> requestRoute      Модель маршрута, которая была отправлена на обновление (Может хранить не все данные маршрута, а только те, 
+       *                        которые нужно обновить), {@link bus.admin.mvp.model.RouteModel RouteModel} </li>
+       * <li> sender            Объект, который вызвал триггер, Object </li>
+       * <ul>
+       * </pre>
+       */ 
+       "update_route" : "qx.event.type.Data"
 
 
  		/*
@@ -109,7 +137,7 @@
 
  		 "removeRoute" : "qx.event.type.Data",
 
- 		 "updateRoute" : "qx.event.type.Data",
+ 		 
 
  		 "startCreateNewRoute" : "qx.event.type.Data",
 
@@ -340,42 +368,196 @@
 
 
       /**
+       * Обновление  выбранного маршрута, когда страница находится в состоянии конструирования маршрута (state = "make")
+       * @param  routeModel {bus.admin.mvp.model.RouteModel} Модель маршрута. Хранит только те данные, которые были изменены.
+       * @param  callback {Function}   Callback функиця
+       * @param  sender {Object}       Объект, который вызвал триггер
+       */
+       __updateRouteInStateMake : function(routeModel, callback, sender){
+         var selectedRoute = this.getDataStorage().getSelectedRoute();
+         var dataModel = routeModel.toDataModel();
+         selectedRoute.fromDataModel(dataModel);
+         var args = {
+          route : selectedRoute,
+          requestRoute : routeModel,
+          error  :  false
+        };
+        this.fireDataEvent("update_route", args);
+      },
+
+      /**
        * Обновляет модель маршрута
        * @param  routeModel {bus.admin.mvp.model.RouteModel} Модель маршрута
        * @param  callback {Function}   Callback функиця
        * @param  sender {Object}       Объект, который вызвал триггер
        */
        updateRouteTrigger : function(routeModel, callback, sender){
-        var dataRequest =  new bus.admin.net.DataRequest();
-        dataRequest.Routes().update(routeModel, function(responce){
-          var data = responce.getContent();
-          this.debug("Routes: update(): received route`s data");
-          console.debug(data);
-          var args ={};
+        var state = this.getDataStorage().getState();
+        
+        // Если страница находится в состоянии конструирования маршрута, то просто обновим выбранную модель
+        if(state == "make"){
+         var selectedRoute = this.getDataStorage().getSelectedRoute();
+         if(selectedRoute != undefined && selectedRoute.getId() == routeModel.getId()){
+          this.__updateRouteInStateMake(routeModel, callback, sender);
+          return; 
+        }
+      }
 
-          if(data == null || data.error != null)
-          {
-            args = {
-              route : null,
-              updateRouteModel : routeModel,
-              error  : true,
-              errorCode : data.error != undefined ? data.error.code : "req_err",
-              errorRemoteInfo :  data.error != undefined ? data.error.info : null
-            };
-          }
-          else
-          {
-            var routeModel = new bus.admin.mvp.model.RouteModel(data);
-            args = {
-              route : routeModel,
-              updateRouteModel : routeModel,
-              error  :  false
-            };
-          }
-          if(callback != undefined)
-            callback(args);
-        },this);
+      var dataRequest =  new bus.admin.net.DataRequest();
+      dataRequest.Routes().update(routeModel, function(responce){
+        var data = responce.getContent();
+        this.debug("Routes: update(): received route`s data");
+        console.debug(data);
+        var args ={};
+
+        if(data == null || data.error != null)
+        {
+          args = {
+            route : null,
+            requestRoute : routeModel,
+            error  : true,
+            errorCode : data.error != undefined ? data.error.code : "req_err",
+            errorRemoteInfo :  data.error != undefined ? data.error.info : null
+          };
+        }
+        else
+        {
+          var routeModel = new bus.admin.mvp.model.RouteModel(data);
+          var langID = bus.admin.AppProperties.getLocale();
+
+          args = {
+            route : routeModel,
+            requestRoute : routeModel,
+            error  :  false
+          };
+            // Обновим выбранный маршрут
+            var selectedRoute = this.getDataStorage().getSelectedRoute();
+            if(selectedRoute!=undefined && selectedRoute.getId() == routeModel.getId()){
+             this.getDataStorage().setSelectedRoute(routeModel);
+           }
+
+            // Обновим список маршрутов
+            var routesList = this.getDataStorage().getRoutesListModel();
+            if(routesList != undefined){
+             var routeInfo = new bus.admin.mvp.model.RouteInfoModel();
+             routeInfo.fromRoute(routeModel, langID);
+             routesList.update(routeInfo);
+           }
+
+           // Оповестим слушателей об обновлении маршрута
+           this.fireDataEvent("update_route", args);
+
+           // В случае, если второй путь отсутствует, изменим направление на true
+           if(routeModel.getReverseWay() == undefined)
+             this.setDirectionTrigger(true);
+         }
+         if(callback != undefined)
+          callback(args);
+      },this);
+},
+
+      /**
+       * Оповещает презентер о начале процесса конструирования маршрута и перевод страницы в состояние "make".
+       * @param  routeModel {bus.admin.mvp.model.RouteModel} Модель маршрута
+       * @param  callback {Function}  callback функция
+       * @param  sender {Object}      Объект, который вызвал триггер
+       */
+       startingMakeRouteTrigger : function(routeModel, callback, sender){
+        this.debug("execute startingMakeRouteTrigger()", routeModel);
+
+        var state = "make";
+
+        if(this.getDataStorage().getState() == state)
+        {
+          if(callback!=undefined)
+            callback({error  : true});
+          return;
+        }
+        // Сохраним копию текущего выбранного маршрута
+        var backupRoute = null;
+        if(this.getDataStorage().getSelectedRoute() != null)
+          backupRoute = this.getDataStorage().getSelectedRoute().clone();
+        this.getDataStorage().setBackupSelectedRoute(backupRoute);
+        
+        // Заменим текущий маршрут 
+        this.getDataStorage().setSelectedRoute(routeModel);
+
+        // Оповестим слушателей об изменении выбранного маршрута
+        var isCenteringMap = true;
+        if(backupRoute != null && routeModel.getId() == backupRoute.getId())
+          isCenteringMap = false;
+        var selectRouteArgs = {
+          prevRoute : backupRoute,
+          route : routeModel,
+          centering_map : isCenteringMap,
+          sender : sender,
+          error  : false
+        };
+        this.fireDataEvent("select_route", selectRouteArgs);
+
+        // Изменим состояние страницы
+        this.getDataStorage().setState(state);
+        
+        // Оповестим слушателей об изменении состояния страницы
+        var args  = {
+          oldState  : this.getDataStorage().getState(),
+          newState  : state,
+          sender    : sender
+        };
+        this.fireDataEvent("change_state", args);
+        
+        if(callback != undefined){
+          callback(args);
+        }
+
       },
+
+      /**
+       * Оповещает презентер о завершении процесса конструирования маршрута и перевод страницы в состояние "make".
+       * @param  isSave {Boolean}     Сохранить изменения маршрута или отменить?
+       * @param  callback {Function}  callback функция
+       * @param  sender {Object}      Объект, который вызвал триггер
+       */
+       finishingMakeRouteTrigger : function(isSave, callback, sender){
+        var state = "none";
+       
+        if(this.getDataStorage().getState() == state)
+        {
+          if(callback!=undefined)
+            callback({error  : true});
+          return;
+        }
+        var args  = {
+          oldState  : this.getDataStorage().getState(),
+          newState  : state,
+          sender    : sender
+        };
+        this.getDataStorage().setState(state);
+        this.fireDataEvent("change_state", args);
+        
+        if(isSave != undefined){
+          var currRoute = this.getDataStorage().getSelectedRoute();
+          console.debug(currRoute.toDataModel());
+          var backupRoute = this.getDataStorage().getBackupSelectedRoute();
+          this.getDataStorage().setSelectedRoute(backupRoute);
+          var selectRouteArgs = {
+            prevRoute : currRoute,
+            route : this.getDataStorage().getSelectedRoute(),
+            centering_map : false,
+            sender : sender,
+            error  : false
+          };
+
+          this.fireDataEvent("select_route", selectRouteArgs);
+        }
+        
+        
+
+        if(callback!=undefined)
+          callback({error  : false});
+      },
+
+
 
 
        /**

@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.pgis.bus.data.orm.RouteRelation;
 import com.pgis.bus.data.orm.RouteWay;
 import com.pgis.bus.data.orm.Schedule;
@@ -19,6 +21,7 @@ import com.pgis.bus.net.models.route.ScheduleModel;
  * @author romario
  * 
  */
+@XmlRootElement
 public class RouteWayModelEx implements Serializable {
 
 	/**

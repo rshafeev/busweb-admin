@@ -110,22 +110,7 @@ public class RouteModelExTest {
 	}
 
 	@Test
-	public void xmlDeserealize() throws Exception {
-		// org.springframework.oxm.xstream.XStreamMarshaller a = new XStreamMarshaller();
-
-		// XStream xs = new XStream();
-
-		ObjectMapper json = new ObjectMapper();
-
-		String jsonInputModel = "{\"id\":270,\"cityID\":1,\"routeTypeID\":\"bus\",\"cost\":1,\"numberKey\":4058,"
-				+ "\"number\":[{\"id\":13193,\"lang\":\"uk\",\"value\":\"3\"},{\"id\":13192,\"lang\":\"en\",\"value\":\"3\"},"
-				+ "{\"id\":13191,\"lang\":\"ru\",\"value\":\"3\"}],\"directWay\":null,\"reverseWay\":null}";
-		RouteModelEx responeModel = json.readValue(jsonInputModel, RouteModelEx.class);
-		assertEquals(270, responeModel.getId());
-	}
-
-	@Test
-	public void xmlDesedealize2() throws Exception {
+	public void xmlDesedealize() throws Exception {
 
 		File file = ResourceUtils.getFile(this.getClass().getResource("/routeModel1.json"));
 		String jsonData = com.pgis.bus.data.helpers.FileManager.getFileData(file);
@@ -134,6 +119,9 @@ public class RouteModelExTest {
 		RouteModelEx requestModel = json.readValue(jsonData, RouteModelEx.class);
 
 		String xmlData = XStreamMarshallerHelper.marshal(requestModel);
+
+		RouteModelEx responeModel = XStreamMarshallerHelper.unmarshal(xmlData, RouteModelEx.class);
+		assertEquals(requestModel.getId(), responeModel.getId());
 		log.info(xmlData);
 	}
 }

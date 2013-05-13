@@ -141,11 +141,14 @@
 		 	this.debug("execute __onSelectRoute() event handler");
 		 	var routeModel = e.getData().route;
 		 	this.clearMapObjects();
+
 		 	if(routeModel != null){
+		 		console.debug(routeModel.toDataModel());
 		 		var isCentering = e.getData().centering_map;
 		 		var direction = this.__presenter.getDataStorage().getDirection();	
 		 		var wayModel = routeModel.getWayByDirection(direction);
-		 		this.__drawRouteWay(wayModel, isCentering);
+		 		if(wayModel != undefined)
+		 			this.__drawRouteWay(wayModel, isCentering);
 
 		 	}
 
@@ -163,7 +166,8 @@
 		 	if(routeModel != null){
 		 		var direction = e.getData().direction;	
 		 		var wayModel = routeModel.getWayByDirection(direction);
-		 		this.__drawRouteWay(wayModel, false);
+		 		if(wayModel != undefined)
+		 			this.__drawRouteWay(wayModel, false);
 
 		 	}
 
@@ -177,6 +181,8 @@
 		  __drawRouteWay : function (routeWayModel, isCentering)
 		  {
 		  	var relations = routeWayModel.getRelations();
+		  	if(relations == undefined)
+		  		return;
 		  	var canChange = false;
 		  	
 		  	if (isCentering == true)
@@ -211,7 +217,7 @@
 
 		  /**
 		   * Добавляет станцию на карту.
-		   * @param  stationModel {bus.admin.mvp.model.StationModel}  Модель станции.
+		   * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции.
 		   * @return {Object}              Возвращает gmaps станцию.
 		   */
 		   __insertStation : function (stationModel)
@@ -268,8 +274,8 @@
 		 /**
 		  * Добавляет полилинии на карту.
 		  * @param polyline {bus.admin.mvp.model.geom.PolyLineModel}  Модель полилинии.
-		  * @param  stA {bus.admin.mvp.model.StationModel} Начальная станция.       
-		  * @param  stB {bus.admin.mvp.model.StationModel} Конечная станция.
+		  * @param  stA {bus.admin.mvp.model.StationModelEx} Начальная станция.       
+		  * @param  stB {bus.admin.mvp.model.StationModelEx} Конечная станция.
 		  * @param  color {String}      Цвет полилинии.
 		  * @param  canChange {Boolean}  Возможность редактирования.
 		  * @return {Object}  Возвращает  gmaps полилинию.          

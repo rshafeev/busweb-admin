@@ -43,7 +43,7 @@
  	 	 * ID города
  	 	 */
  	 	 cityID : {
- 	 	 	init : -1,
+ 	 	 	nullable : true,
  	 	 	check : "Integer"
  	 	 },
 
@@ -51,7 +51,7 @@
  	 	 *  Тип маршрута. Возможные значения: "metro", "bus", "trolley", "tram" и др.
  	 	 */
  	 	 routeTypeID : {
- 	 	 	init : "",
+ 	 	 	nullable : true,
  	 	 	check : "String"
  	 	 },
 
@@ -59,7 +59,7 @@
  	 	  * Стоимость маршрута.
  	 	  */
  	 	  cost : {
- 	 	  	init : 0.0,
+ 	 	  	nullable : true,
  	 	  	check : "Number"
  	 	  },
 
@@ -67,7 +67,7 @@
  	 	 * Ключ строковых констант номеров маршрута.
  	 	 */
  	 	 numberKey : {
- 	 	 	init : 0,
+ 	 	 	nullable : true,
  	 	 	check : "Integer"
  	 	 },
 
@@ -148,10 +148,10 @@
 		  * Возвращает массив номеров для разных языков
 		  * @return {Object[]} Массив номеров для разных языков
 		  */
-		 getNumbers : function(){
-		 	return this.__number;
+		  getNumbers : function(){
+		  	return this.__number;
 
-		 },
+		  },
 
 
  		/**
@@ -197,14 +197,36 @@
  		  * @param  dataModel {Object}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
- 		  	this.setId(dataModel.id);
- 		  	this.setCityID(dataModel.cityID);
- 		  	this.setNumberKey(dataModel.numberKey);
- 		  	this.setCost(dataModel.cost);
- 		  	this.setRouteTypeID(dataModel.routeTypeID);
- 		  	this.setDirectWay(new bus.admin.mvp.model.route.RouteWayModel(dataModel.directWay));
- 		  	this.setReverseWay(new bus.admin.mvp.model.route.RouteWayModel(dataModel.reverseWay));
- 		  	this.__number = dataModel.number;
+ 		  	if(dataModel == undefined)
+ 		  		return;
+ 		  	if(dataModel.id != undefined)
+ 		  		this.setId(dataModel.id);
+ 		  	if(dataModel.cityID != undefined)
+ 		  		this.setCityID(dataModel.cityID);
+ 		  	if(dataModel.numberKey != undefined)
+ 		  		this.setNumberKey(dataModel.numberKey);
+ 		  	if(dataModel.cost != undefined)
+ 		  		this.setCost(dataModel.cost);
+ 		  	if(dataModel.routeTypeID != undefined)
+ 		  		this.setRouteTypeID(dataModel.routeTypeID);
+ 		  	if(dataModel.directWay != undefined){
+ 		  		if(this.getDirectWay() == undefined){
+ 		  			this.setDirectWay(new bus.admin.mvp.model.route.RouteWayModel());
+ 		  		}
+ 		  		this.getDirectWay().fromDataModel(dataModel.directWay);
+ 		  	}
+
+ 		  	if(dataModel.reverseWay != undefined){
+ 		  		if(this.getReverseWay() == undefined){
+ 		  			this.setReverseWay(new bus.admin.mvp.model.route.RouteWayModel());
+ 		  		}
+ 		  		this.getReverseWay().fromDataModel(dataModel.reverseWay);
+ 		  	}
+
+ 		  	if(dataModel.number != undefined)
+ 		  		this.__number = dataModel.number;
+
+ 		  	
 
  		  },
 

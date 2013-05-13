@@ -68,7 +68,10 @@
  		  * @param  dataModel {Object}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
- 		  	this.setSecs(dataModel.time);
+ 		  	if(dataModel == undefined)
+ 		  		return;
+ 		  	if(dataModel.time != undefined)
+ 		  		this.setSecs(dataModel.time);
  		  },
 
  		  /**
@@ -82,6 +85,68 @@
 
 
 
- 		}
+ 		},
 
- 	});
+ 		statics : {
+
+ 				/**
+				 * Проверка регулярным выражением времени HH:MM
+				 * 
+				 * @param value {String} время  в формате HH:MM
+				 * @return {Boolean} True: валидация прошла успешно
+				 */
+				 validate : function(value) {
+					// validate if time has the format HH:MM
+					var re = /^([0-1][0-9]|[2][0-3])(:([0-5][0-9])){1,2}$/i;
+					return re.test(value);
+				},
+
+				/**
+				 * Обработка HH:MM
+				 * @param value {String} время  в формате HH:MM
+				 * @return {Object} Обект в формате: {hh: {Integer}, mm : (Integer) }
+				 */
+				 parse : function(value) {
+					// parse time HH:MM
+					var time = value.split(":");
+					return {
+						hh : parseInt(time[0]),
+						mm : parseInt(time[1])
+					};
+				},
+
+				/**
+				 * Преобразование в секунды
+				 * @param value {String} время  в формате HH:MM
+				 */
+				 convertToSeconds : function(value) {
+				 	if(value==null || value.toString().length == 0){
+				 		return 0;
+				 	}
+				 	var time = value.split(":");
+				 	var t = {
+				 		hh : time[0],
+				 		mm : time[1]
+				 	};
+				 	return (t.hh * 60 * 60 + t.mm * 60);
+				 },
+
+				 convertSecsToHHMM : function(secs) {
+				 	var d = new Date();
+				 	d.setTime(secs * 1000);
+				 	var hours = parseInt(secs / 60 / 60).toString();
+				 	var minutes = parseInt((secs - hours * 60 * 60) / 60)
+				 	.toString();
+				 	if (hours.length == 1) {
+				 		hours = "0" + hours;
+				 	}
+				 	if (minutes.length == 1) {
+				 		minutes = "0" + minutes;
+				 	}
+				 	return hours + ":" + minutes;
+				 }
+
+
+				}
+
+			});

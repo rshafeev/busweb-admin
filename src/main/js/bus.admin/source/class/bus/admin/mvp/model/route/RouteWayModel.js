@@ -36,7 +36,7 @@
  	 	 * ID пути
  	 	 */
  	 	 id : {
- 	 	 	init : 0,
+ 	 	 	nullable : true,
  	 	 	check : "Integer"
  	 	 },
 
@@ -44,17 +44,17 @@
  	 	 * ID маршрута, которому принадлежит данный путь
  	 	 */
  	 	 routeID : {
- 	 	 	init : 0,
+ 	 	 	nullable : true,
  	 	 	check : "Integer"
  	 	 },
 
  	 	 /**
  	 	  * Прямой или обратный путь?
  	 	  */
- 	 	 direct : {
- 	 	 	init : false,
- 	 	 	check : "Boolean"
- 	 	 },
+ 	 	  direct : {
+ 	 	  	nullable : true,
+ 	 	  	check : "Boolean"
+ 	 	  },
 
 
 		/**
@@ -92,8 +92,10 @@
  		 		schedule : this.getSchedule().toDataModel()
  		 	}
  		 	var relations = this.getRelations();
- 		 	for(var i=0;i < relations.length; i++){
- 		 		dataModel.relations.push(relations[i].toDataModel());
+ 		 	if(relations != undefined){
+ 		 		for(var i=0;i < relations.length; i++){
+ 		 			dataModel.relations.push(relations[i].toDataModel());
+ 		 		}
  		 	}
  		 	return dataModel;
  		 },
@@ -114,16 +116,27 @@
  		  * @param  dataModel {Object}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
- 		  	this.setId(dataModel.id);
- 		  	this.setRouteID(dataModel.routeID);
- 		  	this.setDirect(dataModel.direct);
- 		  	this.setSchedule(new bus.admin.mvp.model.route.ScheduleModel(dataModel.schedule));
- 		  	var relations = [];
- 		  	for(var i=0;i < dataModel.relations.length; i++){
- 		  		var relationModel = new bus.admin.mvp.model.route.RouteRelationModel( dataModel.relations[i]);
- 		  		relations.push(relationModel);
+ 		  	if(dataModel == undefined)
+ 		  		return;
+ 		  	if(dataModel.id != undefined)
+ 		  		this.setId(dataModel.id);
+ 		  	if(dataModel.routeID != undefined)
+ 		  		this.setRouteID(dataModel.routeID);
+ 		  	if(dataModel.direct != undefined)
+ 		  		this.setDirect(dataModel.direct);
+ 		  	if(dataModel.schedule != undefined){
+ 		  		if(this.getSchedule() == undefined)
+ 		  			this.setSchedule(new bus.admin.mvp.model.route.ScheduleModel());
+ 		  		this.getSchedule().fromDataModel(dataModel.schedule);
  		  	}
- 		  	this.setRelations(relations);
+ 		  	if(dataModel.relations!=undefined){
+ 		  		var relations = [];
+ 		  		for(var i=0;i < dataModel.relations.length; i++){
+ 		  			var relationModel = new bus.admin.mvp.model.route.RouteRelationModel( dataModel.relations[i]);
+ 		  			relations.push(relationModel);
+ 		  		}
+ 		  		this.setRelations(relations);
+ 		  	}
  		  },
 
  		  /**

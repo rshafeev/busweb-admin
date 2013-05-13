@@ -11,7 +11,7 @@ import com.pgis.bus.data.orm.Route;
 import com.pgis.bus.data.orm.RouteWay;
 import com.pgis.bus.data.orm.StringValue;
 
-@XmlRootElement(name = "route")
+@XmlRootElement
 public class RouteModelEx implements Serializable {
 
 	/**

@@ -56,28 +56,61 @@
  	 	}
  	 },
 
- 	 members : 
- 	 {
- 	 	ltPoint : null,
 
- 	 	__stations : null,
+ 	 properties : {
+
+ 	 	/**
+ 	 	 * ID города
+ 	 	 */
+ 	 	 cityID : {
+ 	 	 	nullable : true,
+ 	 	 	check : "Integer"
+ 	 	 },
+
+ 	 	/**
+ 	 	 * ID города
+ 	 	 */
+ 	 	 langID : {
+ 	 	 	nullable : true,
+ 	 	 	check : "String"
+ 	 	 },
+
+ 	 	 /**
+ 	 	  *  Левая верхняя точка прямоугольной области
+ 	 	  * @type {bus.admin.mvp.model.geom.PointModel}
+ 	 	  */
+ 	 	  ltPoint : {
+ 	 	  	nullable : true,
+ 	 	  	check : "bus.admin.mvp.model.geom.PointModel"
+ 	 	  },
+
+ 	 	 /**
+ 	 	  * Права нижняя точка прямоугольной области
+ 	 	  * @type {bus.admin.mvp.model.geom.PointModel}
+ 	 	  */
+ 	 	  rbPoint : {
+ 	 	  	nullable : true,
+ 	 	  	check : "bus.admin.mvp.model.geom.PointModel"
+ 	 	  }
+
+
+ 	 	},
+ 	 	members : 
+ 	 	{
+ 	 	/**
+ 	 	 * Массив станций
+ 	 	 * @type {bus.admin.mvp.model.geom.StationModel[]}
+ 	 	 */
+ 	 	 __stations : null,
 
  	 	/**
  	 	 * Возвращает массив объектов, каждый из которых является моделью станции. Каждая модель имеет следующие функции структуру:
-  		 * <br>
- 		 * <pre>
- 		 * <ul>
- 		 * <li> getId(), getId()              ID станции, Integer. </li>
- 		 * <li> getName(), setName()          Название, String. </li>
- 		 * <li> getLocation(), setLocation()  Местоположение станции. Возвращаемый обект имеет функции getLat() и getLon(), Obejct. </li>
- 		 * <ul>
- 		 * </pre>
- 	 	 * @return {Oject[]} Массив станций.
+ 	 	 * @return {bus.admin.mvp.model.geom.StationModel[]} Массив станций.
  	 	 */
- 	 	getAll : function(){
- 	 		return this.__stations;
- 	 	},
- 		
+ 	 	 getStations : function(){
+ 	 	 	return this.__stations;
+ 	 	 },
+
  		/**
  		  * Формирует модель из JS объекта. <br>
  		  * Как правило, объект  dataModel получают путем десериализации JSON строки, полученной от сервера. Объект dataModel является массивом объектов,
@@ -85,36 +118,66 @@
  		  * <br>
  		  * <pre>
  		  * <ul>
- 		  * <li> id          ID станции, Integer</li>
- 		  * <li> location    Местоположение, Object</li>
- 		  * <li> name        Название станции, String </li>
+ 		  * <li> cityID     ID города, Integer</li>
+ 		  * <li> langID     ID языка(ru,en,uk), String</li>
+ 		  * <li> ltPoint    Левая верхняя точка прямоугольной области, Object </li>
+ 		  * <li> rbPoint    Права нижняя точка прямоугольной области, Object </li>
  		  * <ul>
  		  * </pre>
- 		  * @param  dataModel {Object[]}  JS объект.
+ 		  * @param  dataModel {Object}  JS объект.
  		  */
- 	 	fromDataModel : function(dataModel){
- 	 		this.__stations = [];
- 	 		for(var i = 0; i < dataModel.length; i++){
- 	 			this.__stations.push(qx.data.marshal.Json.createModel(dataModel[i]));
- 	 		}
- 	 	},
+ 		  fromDataModel : function(dataModel){
+ 		  	if(dataModel == undefined)
+ 		  		return;
+ 		  	if(dataModel.cityID != undefined)
+ 		  		this.setCityID(dataModel.cityID);
+ 		  	if(dataModel.langID != undefined)
+ 		  		this.setLangID(dataModel.langID);
+ 		  	if(dataModel.ltPoint != undefined)
+ 		  		this.setLtPoint(new bus.admin.mvp.model.geom.PointModel(dataModel.ltPoint));
+ 		  	if(dataModel.rbPoint != undefined)
+ 		  		this.setRbPoint(new bus.admin.mvp.model.geom.PointModel(dataModel.rbPoint));
+ 		  	if(dataModel.stations != undefined){
+ 		  		this.__stations = [];
+ 		  		for(var i = 0; i < dataModel.stations.length; i++){
+ 		  			var stModel = new bus.admin.mvp.model.StationModel(dataModel.stations[i]);
+ 		  			this.__stations.push(stModel);
+ 		  		}
+ 		  	}
+ 		  	
+ 		  },
+
+
+ 		/**
+ 		 * Преобразует модель в JS объект, который можно в дальнейшем сериализовать в JSON строку и отправить на сервер.
+ 		 * @return {Object} JS объект.
+ 		 */
+ 		 toDataModel : function(){
+ 		 	var dataModel = {
+ 		 		cityID : this.getCityID(),
+ 		 		langID : this.getLangID(),
+ 		 		ltPoint : this.getLtPoint().toDataModel(),
+ 		 		rbPoint : this.getRbPoint().toDataModel()
+ 		 	}
+ 		 	return dataModel;
+ 		 },
 
  	 	/**
  	 	 * Возвращает модель станции по ID
  	 	 * @param  stationID {Integer}  ID станции
  	 	 * @return {Object}   Модель станции
  	 	 */
- 	 	getStationByID : function(stationID){
- 	 		if(this.__stations == null)
- 	 			return null;
- 	 		for(var i = 0; i < this.__stations.length; i++){
- 	 			if(stationID == this.__stations[i].getId()){
- 	 				return this.__stations[i];
- 	 			}
- 	 		}
- 	 		return null;
+ 	 	 getStationByID : function(stationID){
+ 	 	 	if(this.__stations == null)
+ 	 	 		return null;
+ 	 	 	for(var i = 0; i < this.__stations.length; i++){
+ 	 	 		if(stationID == this.__stations[i].getId()){
+ 	 	 			return this.__stations[i];
+ 	 	 		}
+ 	 	 	}
+ 	 	 	return null;
+ 	 	 }
+
  	 	}
 
- 	 }
-
- 	});
+ 	 });

@@ -32,7 +32,7 @@ qx.Class.define("bus.admin.widget.MsgDlg",
        * @param  message {String}  Текст сообщения 
        * @param  caption {String} Заголовок диалогового окна.
        */
-      info : function(message, caption){
+      info : function(caption, message){
         alert(message);
       },
 
@@ -59,7 +59,7 @@ qx.Class.define("bus.admin.widget.MsgDlg",
    * @param  text {String}  Текст сообщения 
    * @param  caption {String} Заголовок диалогового окна.
    */
-  construct: function(text,caption)
+  construct: function(caption, text)
   {
     this.base(arguments,"caption");
     this.setModal(true);

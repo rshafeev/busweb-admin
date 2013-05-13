@@ -40,6 +40,9 @@
 		<property name="classesToBeBound">
 			<list>
 				<value>com.pgis.bus.admin.models.route.RouteModelEx</value>
+				<value>com.pgis.bus.admin.models.station.StationModelEx</value>
+				<value>com.pgis.bus.admin.models.station.StationsListModel</value>
+				<value>com.pgis.bus.net.models.city.CityModel</value>
 			</list>
 		</property>
 	</bean>

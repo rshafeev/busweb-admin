@@ -34,7 +34,7 @@
  	 {
  	 	/**
  	 	 * Список моделей станций
- 	 	 * @type {Object}
+ 	 	 * @type {new bus.admin.mvp.model.StationModel[]}
  	 	 */
  	 	__stationsList : null,
 
@@ -48,7 +48,7 @@
  		 * <li> getName(), setName()          Название, String. </li>
  		 * <ul>
  		 * </pre>
- 	 	 * @return {Oject[]} Массив станций.
+ 	 	 * @return {bus.admin.mvp.model.StationModel[]} Массив станций.
  	 	 */
  	 	getAll : function(){
  	 		return this.__stationsList;
@@ -68,12 +68,14 @@
  		  * @param  dataModel {Object[]}  JS объект.
  		  */	 	
  	 	fromDataModel : function(dataModel){
+ 	 		if(dataModel == undefined)
+ 	 			return;
  	 		this.__stationsList = [];
  	 		for(var i = 0; i < dataModel.length; i++){
  	 			if(dataModel[i].name == undefined){
  	 				dataModel[i].name = "";
  	 			}
- 	 			this.__stationsList.push(qx.data.marshal.Json.createModel(dataModel[i]));
+ 	 			this.__stationsList.push(new bus.admin.mvp.model.StationModel(dataModel[i]));
  	 		}
  	 	},
 
@@ -105,7 +107,7 @@
  	 		};
  	 		if(this.__stationsList == undefined)
  	 			this.__stationsList = [];
- 	 		this.__stationsList.push(qx.data.marshal.Json.createModel(model));
+ 	 		this.__stationsList.push(new bus.admin.mvp.model.StationModel(model));
  	 	},
 
  	 	/**

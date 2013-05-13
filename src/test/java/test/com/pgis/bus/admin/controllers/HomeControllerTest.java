@@ -22,15 +22,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.pgis.bus.admin.controllers.HomeController;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(value = { "classpath:/security-test-manager.xml", "file:WebContent/WEB-INF/security.xml",
-		"file:WebContent/WEB-INF/main-servlet.xml" })
 public class HomeControllerTest extends ControllerTestConf {
 	private static final Logger log = LoggerFactory.getLogger(HomeControllerTest.class);
-
 	private HomeController controller = null;
-
-	@Autowired
-	private FilterChainProxy springSecurityFilterChain;
 
 	@Before
 	public void before() throws SQLException {

@@ -13,9 +13,9 @@
  *************************************************************************/
 
 /**
- * Модель города.
+ * Модель остановки.
  */
- qx.Class.define("bus.admin.mvp.model.CityModel", {
+ qx.Class.define("bus.admin.mvp.model.StationModelEx", {
  	extend : Object,
 
  	/**
@@ -32,39 +32,23 @@
  	 properties : {
 
  	 	/**
- 	 	 * ID города
+ 	 	 * ID остановки
  	 	 */
  	 	 id : {
+ 	 	 	init : -1,
+ 	 	 	check : "Integer"
+ 	 	 },
+
+ 	 	/**
+ 	 	 * ID остановки
+ 	 	 */
+ 	 	 cityID : {
  	 	 	nullable : true,
  	 	 	check : "Integer"
  	 	 },
 
  	 	/**
- 	 	 * key города
- 	 	 */
- 	 	 key : {
- 	 	 	check : "String",
- 	 	 	nullable : true
- 	 	 },
-
- 	 	/**
- 	 	 * Масштаб карты по умолачнию для данного города.
- 	 	 */
- 	 	 scale : {
- 	 	 	nullable : true,
- 	 	 	check : "Integer"
- 	 	 },
-
- 	 	/**
- 	 	 * Показывать/скрывать город.
- 	 	 */
- 	 	 show : {
- 	 	 	nullable : true,
- 	 	 	check : "Boolean"
- 	 	 },
-
- 	 	/**
- 	 	 * Ключ строковых констант названий города.
+ 	 	 * Ключ строковых констант названий остановки.
  	 	 */
  	 	 nameKey : {
  	 	 	nullable : true,
@@ -87,7 +71,7 @@
  	 	 __names : null,
 
  	 	/**
- 	 	 * Задает название города.
+ 	 	 * Задает название остановки.
  	 	 * @param langID {String} Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
  	 	 * @param name {String}   Новое название города. 
  	 	 */
@@ -114,9 +98,9 @@
  	 	 },
 
 		/**
-		 * Возвращает назание города в зависимости от языка
+		 * Возвращает назание остановки в зависимости от языка
 		 * @param  langID {String}  Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
-		 * @return {String|null} Название города.  
+		 * @return {String|null} Название остановки.  
 		 */
 		 getName : function(langID) {
 		 	var names = this.__names;
@@ -139,11 +123,9 @@
  		 toDataModel : function(){
  		 	var dataModel = {
  		 		id : this.getId(),
- 		 		key : this.getKey(),
- 		 		show : this.getShow(),
  		 		nameKey : this.getNameKey(),
- 		 		scale : this.getScale(),
  		 		names : this.__names,
+ 		 		cityID : this.getCityID(),
  		 		location : {
  		 			lat : this.getLocation().getLat(),
  		 			lon : this.getLocation().getLon()
@@ -158,11 +140,10 @@
  		  * следующие свойства:
  		  * <pre>
  		  * <ul>
- 		  * <li> id          ID города, Integer</li>
+ 		  * <li> id          ID остановки, Integer</li>
+ 		  * <li> cityID      ID города, Integer</li>
  		  * <li> location    Местоположение, Object</li>
- 		  * <li> scale       Масштаб, Integer. </li>
  		  * <li> names       Названия города на разных языках, Object[] </li>
- 		  * <li> isShow      Видимость города, String </li>
  		  * <ul>
  		  * </pre>
  		  * @param  dataModel {Object}  JS объект.
@@ -170,20 +151,27 @@
  		  fromDataModel : function(dataModel){
  		  	if(dataModel == undefined)
  		  		return;
- 		  	if(dataModel.location != undefined)
+ 		  	if(dataModel.location != undefined){
  		  		this.setLocation(dataModel.location.lat, dataModel.location.lon);
- 		  	if(dataModel.scale != undefined)
- 		  		this.setScale(dataModel.scale);
- 		  	if(dataModel.id != undefined)
+ 		  	}
+ 		  	
+ 		  	if(dataModel.id != undefined){
  		  		this.setId(dataModel.id);
- 		  	if(dataModel.key != undefined)
- 		  		this.setKey(dataModel.key);
- 		  	if(dataModel.show != undefined)
- 		  		this.setShow(dataModel.show);
- 		  	if(dataModel.nameKey != undefined)
+ 		  	}
+ 		  	
+ 		  	if(dataModel.cityID != undefined){
+ 		  		this.setCityID(dataModel.cityID);
+ 		  	}
+
+ 		  	if(dataModel.nameKey != undefined){
  		  		this.setNameKey(dataModel.nameKey);
- 		  	if(dataModel.names != undefined)
+ 		  	}
+ 		  	
+ 		  	if(dataModel.names != undefined){
  		  		this.__names = dataModel.names;
+ 		  	}
+ 		  	
+ 		  	
  		  },
 
  		  /**
@@ -209,10 +197,11 @@
 
  		  /**
  		   * Клонирует текущий объект.
- 		   * @return {bus.admin.mvp.model.CityModel} Копия объекта.
+ 		   * @return {bus.admin.mvp.model.StationModelEx} Копия объекта.
  		   */
  		   clone : function(){
- 		   	var copy = new bus.admin.mvp.model.CityModel(this.toDataModel());
+ 		   	var dataModel = this.toDataModel();
+ 		   	var copy = new bus.admin.mvp.model.StationModelEx(dataModel);
  		   	return copy;
  		   }
 

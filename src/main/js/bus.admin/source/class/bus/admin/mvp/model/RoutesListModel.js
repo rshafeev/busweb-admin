@@ -77,6 +77,8 @@
  		  * @param  dataModel {Object[]}  JS объект.
  		  */	 	
  		  fromDataModel : function(dataModel){
+ 		  	if(dataModel == undefined)
+ 		  		return;
  		  	this.__routesList = [];
  		  	for(var i = 0; i < dataModel.length; i++){
  		  		this.__routesList.push(new bus.admin.mvp.model.RouteInfoModel(dataModel[i]));
@@ -99,17 +101,38 @@
  	 	 	return null;
  	 	 },
 
-
+ 	 	 /**
+ 	 	  * Показывает, есть ли маршрут с таким же номером в списке. (Внимание, т.к. номера маршрутов в списке хранятся только
+ 	 	  * на языке текущей локали, сравнение выполняется только по одному языку).
+ 	 	  * @param  number {String}   Номер маршрута
+ 	 	  * @param  excludeRouteID {Integer} ID языка, который не учавствует в проверке
+ 	 	  * @return {Boolean}  True : маршрут с таким номер есть в списке. False : в противном случае.
+ 	 	  */
  	 	 isNumberExists : function(number, excludeRouteID){
  	 	 	for(var i=0;i < this.__routesList.length; i++){
- 	 	 		var routeInfo = this.__routesList.getNumber();
+ 	 	 		var routeInfo = this.__routesList[i];
  	 	 		if(number.toString() == routeInfo.getNumber().toString()){
  	 	 			if(excludeRouteID != undefined && excludeRouteID != routeInfo.getId())
- 	 	 			return true;
+ 	 	 				return true;
  	 	 		}
  	 	 	}
  	 	 	return false;
  	 	 	
+ 	 	 },
+
+  	 	/**
+ 	 	 * Обновляет маршрут в списке.
+ 	 	 * @param  routeInfo {bus.admin.mvp.model.RouteInfoModel}  Информация о маршруте
+ 	 	 */
+ 	 	 update : function(routeInfo){
+ 	 	 	if(this.__routesList == null)
+ 	 	 		return;
+ 	 	 	for(var i = 0; i < this.__routesList.length; i++){
+ 	 	 		if(routeInfo.getId() == this.__routesList[i].getId()){
+ 	 	 			this.__routesList[i] = routeInfo;
+ 	 	 			break;
+ 	 	 		}
+ 	 	 	}	
  	 	 },
 
  	 	/**

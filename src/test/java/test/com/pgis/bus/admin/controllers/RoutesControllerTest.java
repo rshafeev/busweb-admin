@@ -36,16 +36,11 @@ import com.pgis.bus.data.service.IDataBaseService;
 import com.pgis.bus.data.service.IDataModelsService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(value = { "classpath:/security-test-manager.xml", "file:WebContent/WEB-INF/security.xml",
-		"file:WebContent/WEB-INF/main-servlet.xml" })
 public class RoutesControllerTest extends ControllerTestConf {
 
 	private static final Logger log = LoggerFactory.getLogger(RoutesControllerTest.class);
 
 	private RoutesController controller = null;
-
-	@Autowired
-	private FilterChainProxy springSecurityFilterChain;
 
 	@Before
 	public void before() throws SQLException {
@@ -53,11 +48,6 @@ public class RoutesControllerTest extends ControllerTestConf {
 		controller = new RoutesController();
 		this.mockMvc = standaloneSetup(controller).addFilters(this.springSecurityFilterChain).build();
 
-	}
-
-	@After
-	public void after() {
-		SecurityContextHolder.clearContext();
 	}
 
 	@Test
@@ -216,18 +206,17 @@ public class RoutesControllerTest extends ControllerTestConf {
 		controller.setModelsService(dbModelsService);
 
 		// Input data
-		String xmlRequestModel = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><route>"
+		String xmlRequestModel = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><routeModelEx>"
 				+ "<cityID>0</cityID><cost>0.0</cost><directWay><direct>false</direct><id>0</id>"
 				+ "<routeID>0</routeID></directWay><id>11</id><numberKey>0</numberKey>"
 				+ "<reverseWay><direct>false</direct><id>0</id><routeID>0</routeID></reverseWay>"
-				+ "<routeTypeID>metro</routeTypeID></route>";
+				+ "<routeTypeID>metro</routeTypeID></routeModelEx>";
 		// Testing
 		log.info(xmlRequestModel);
 		MockHttpSession session = this.getSession("admin", "pass");
 		// .contentType(MediaType.APPLICATION_JSON)
-		ResultActions actions = this.mockMvc.perform(post("/routes/update.json").contentType(MediaType.APPLICATION_XML)
-				.accept(MediaType.APPLICATION_XML, MediaType.TEXT_HTML, MediaType.APPLICATION_XHTML_XML, MediaType.ALL)
-				.body(xmlRequestModel.getBytes()).session(session));
+		ResultActions actions = this.mockMvc.perform(post("/routes/update.xml").contentType(MediaType.APPLICATION_XML)
+				.accept(MediaType.APPLICATION_XML).body(xmlRequestModel.getBytes()).session(session));
 		actions.andDo(print());
 
 		actions.andExpect(status().isOk());
@@ -249,11 +238,11 @@ public class RoutesControllerTest extends ControllerTestConf {
 		controller.setModelsService(dbModelsService);
 
 		// Input data
-		String xmlRequestModel = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><route>"
+		String xmlRequestModel = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><routeModelEx>"
 				+ "<cityID>0</cityID><cost>0.0</cost><directWay><direct>false</direct><id>0</id>"
 				+ "<routeID>0</routeID></directWay><id>11</id><numberKey>0</numberKey>"
 				+ "<reverseWay><direct>false</direct><id>0</id><routeID>0</routeID></reverseWay>"
-				+ "<routeTypeID>metro</routeTypeID></route>";
+				+ "<routeTypeID>metro</routeTypeID></routeModelEx>";
 		// Testing
 		log.info(xmlRequestModel);
 		MockHttpSession session = this.getSession("admin", "pass");

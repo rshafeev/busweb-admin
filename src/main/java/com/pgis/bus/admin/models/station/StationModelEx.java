@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.pgis.bus.admin.models.StringValueModel;
 import com.pgis.bus.data.helpers.GeoObjectsHelper;
 import com.pgis.bus.data.models.factory.geom.PointModelFactory;
@@ -12,6 +14,7 @@ import com.pgis.bus.data.orm.Station;
 import com.pgis.bus.data.orm.StringValue;
 import com.pgis.bus.net.models.geom.PointModel;
 
+@XmlRootElement
 public class StationModelEx implements Serializable {
 	/**
 	 * 

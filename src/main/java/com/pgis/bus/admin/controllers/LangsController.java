@@ -19,7 +19,7 @@ import com.pgis.bus.data.orm.Language;
 public class LangsController extends BaseController {
 	private static final Logger log = LoggerFactory.getLogger(CitiesController.class);
 
-	@RequestMapping(value = "get_all", method = RequestMethod.POST)
+	@RequestMapping(value = "get_all", method = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseBody
 	public Object get_all(HttpServletResponse response) {
 		try {

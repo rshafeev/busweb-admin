@@ -74,8 +74,8 @@
  		 * <br><br>Свойства возвращаемого объекта: <br> 		 
  		 * <pre>
  		 * <ul>
- 		 * <li> station         Выбранная остановка, {@link bus.admin.mvp.model.StationModel StationModel}</li>
-  	 * <li> prevStation     Предыдущая выбранная остановка, {@link bus.admin.mvp.model.StationModel StationModel}</li>
+ 		 * <li> station         Выбранная остановка, {@link bus.admin.mvp.model.StationModelEx StationModelEx}</li>
+  	 * <li> prevStation     Предыдущая выбранная остановка, {@link bus.admin.mvp.model.StationModelEx StationModelEx}</li>
      * <li> centering_map   Центрирование карты, Boolean  </li>
  		 * <li> error           Наличие ошибки при выполнении события, Boolean. </li>
  		 * <li> errorCode       Код ошибки, String. </li>
@@ -91,8 +91,8 @@
   		 * <br><br>Свойства возвращаемого объекта: <br> 		 
  		 * <pre>
  		 * <ul>
- 		 * <li> oldStation      Старая модель остановки, {@link bus.admin.mvp.model.StationModel StationModel}. </li>
- 		 * <li> newStation      Обновленная модель остановки,  {@link bus.admin.mvp.model.StationModel StationModel}. </li>
+ 		 * <li> oldStation      Старая модель остановки, {@link bus.admin.mvp.model.StationModelEx StationModelEx}. </li>
+ 		 * <li> newStation      Обновленная модель остановки,  {@link bus.admin.mvp.model.StationModelEx StationModelEx}. </li>
  		 * <li> error           Наличие ошибки при выполнении события, Boolean. </li>
  		 * <li> errorCode       Код ошибки, String. </li>
  		 * <li> errorRemoteInfo Описание ошибки с сервера, String. </li>
@@ -107,7 +107,7 @@
   		 * <br><br>Свойства возвращаемого объекта: <br> 		 
  		 * <pre>
  		 * <ul>
- 		 * <li> newStation      Модель новой остановки,  {@link bus.admin.mvp.model.StationModel StationModel}. </li>
+ 		 * <li> newStation      Модель новой остановки,  {@link bus.admin.mvp.model.StationModelEx StationModelEx}. </li>
  		 * <li> error           Наличие ошибки при выполнении события, Boolean. </li>
  		 * <li> errorCode       Код ошибки, String. </li>
  		 * <li> errorRemoteInfo Описание ошибки с сервера, String. </li>
@@ -168,8 +168,8 @@
  		members : {
  			/**
  			 * Триггер обновляет данные станции. 
- 			 * @param  oldStationModel {bus.admin.mvp.model.StationModel} Старая модель станции
- 			 * @param  newStationModel {bus.admin.mvp.model.StationModel} Новая модель станции
+ 			 * @param  oldStationModel {bus.admin.mvp.model.StationModelEx} Старая модель станции
+ 			 * @param  newStationModel {bus.admin.mvp.model.StationModelEx} Новая модель станции
  			 * @param  callback {Function}  callback функция
  			 * @param  sender {Object}      Объект, который вызвал триггер
  			 */
@@ -194,7 +194,7 @@
  			 		}
  			 		else
  			 		{
- 			 			var stationModel = new bus.admin.mvp.model.StationModel(data);
+ 			 			var stationModel = new bus.admin.mvp.model.StationModelEx(data);
  			 			if(this.getDataStorage().getSelectedStationModel() != undefined && 
  			 				this.getDataStorage().getSelectedStationModel().getId() == oldStationModel.getId())
  			 			{
@@ -217,7 +217,7 @@
 
  			/**
  			 * Триггер добавляет остановку. 
- 			 * @param  newStationModel {bus.admin.mvp.model.StationModel} Новая модель станции
+ 			 * @param  newStationModel {bus.admin.mvp.model.StationModelEx} Новая модель станции
  			 * @param  callback {Function}  callback функция
  			 * @param  sender {Object}      Объект, который вызвал триггер
  			 */
@@ -241,7 +241,7 @@
  			 		}
  			 		else
  			 		{
- 			 			var stationModel = new bus.admin.mvp.model.StationModel(data);
+ 			 			var stationModel = new bus.admin.mvp.model.StationModelEx(data);
  			 			var langID = this.getDataStorage().getCurrNamesLangID();
  			 			// Обновим список станций
  			 			this.getDataStorage().getStationsListModel().insert(stationModel.getId(), stationModel.getName(langID));
@@ -379,8 +379,8 @@
 
  			/**
  			 * Возвращает набор остановок, местоположения которых попадает в заданный прямоугольник. 
- 			 * @param  p1 {Object}    Координаты левого верхнего угла прямоугольника. Формат объекта: {x : Number, y : Number}
- 			 * @param  p2 {Object}    Координаты правого нижнего угла прямоугольника. Формат объекта: {x : Number, y : Number}
+ 			 * @param  p1 {bus.admin.mvp.model.geom.PointModel}    Координаты левого верхнего угла прямоугольника. 
+ 			 * @param  p2 {bus.admin.mvp.model.geom.PointModel}    Координаты правого нижнего угла прямоугольника. 
  			 * @param  callback {Function}  Callback функиция, аргументом которой выступает массив остановок.
  			 */
  			 loadStationsFromBox : function(p1, p2, callback){
@@ -389,7 +389,7 @@
  			 	var langID = this.getDataStorage().getCurrNamesLangID();
 
  			 	var args = {
- 			 		stations : null 			 	
+ 			 		stationsBox : null 			 	
 
  			 	};
  			 	
@@ -398,25 +398,31 @@
  			 			callback(args);	
  			 		return;
  			 	}
+        var requestModel = new bus.admin.mvp.model.StationsBoxModel();
+        requestModel.setCityID(cityID);
+        requestModel.setLangID(langID);
+        requestModel.setLtPoint(p1);
+        requestModel.setRbPoint(p2);
+
 
  			 	var dataRequest =  new bus.admin.net.DataRequest();
- 			 	var req = dataRequest.Stations().getStationsFromBox(cityID, langID, p1, p2, function(responce){
+ 			 	var req = dataRequest.Stations().getStationsFromBox(requestModel, function(responce){
  			 		var data = responce.getContent();
  			 		this.debug("getStationsFromBox(): received cities data");
  			 		console.debug(data);
  			 		var args ={};
  			 		if(data == null || data.error != null){
  			 			args = {
- 			 				stations : null,
+ 			 				stationsBox : null,
  			 				error : true,
  			 				errorCode : data.error != undefined ? data.error.code : "req_err",
  			 				errorRemoteInfo :  data.error != undefined ? data.error.info : null
  			 			}
  			 		}
  			 		else{
- 			 			var stationsBoxModel = new bus.admin.mvp.model.StationsBoxModel(data.stations);
+ 			 			var responseModel = new bus.admin.mvp.model.StationsBoxModel(data);
  			 			args = {
- 			 				stations :  stationsBoxModel,
+ 			 				stationsBox :  responseModel,
  			 				error  :  false
  			 			};
  			 		}
@@ -517,7 +523,7 @@
 			 /**
 			  * Ассинхронная функция. Возвращает модель остановки.
 			  * @param  stationID {Integer}    ID остановки
-			  * @param  callback {Function}   Callback функиця. Имеент единственный аргумент, который имеет структуру: {station : bus.admin.mvp.model.StationModel, error : Boolean }
+			  * @param  callback {Function}   Callback функиця. Имеент единственный аргумент, который имеет структуру: {station : bus.admin.mvp.model.StationModelEx, error : Boolean }
 			  */
 			  getStation : function(stationID, callback){
 			  	var dataRequest =  new bus.admin.net.DataRequest();
@@ -538,7 +544,7 @@
 			  		}
 			  		else
 			  		{
-			  			var stationModel = new bus.admin.mvp.model.StationModel(data);
+			  			var stationModel = new bus.admin.mvp.model.StationModelEx(data);
 			  			args = {
 			  				station : stationModel,
 			  				error  :  false

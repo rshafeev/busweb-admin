@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.pgis.bus.admin.models.station.StationModelEx;
 import com.pgis.bus.data.helpers.GeoObjectsHelper;
 import com.pgis.bus.data.helpers.PGIntervalHelper;
@@ -14,6 +16,7 @@ import com.pgis.bus.data.orm.RouteRelation;
 import com.pgis.bus.net.models.TimeIntervalModel;
 import com.pgis.bus.net.models.geom.PolyLineModel;
 
+@XmlRootElement
 public class RouteRelationModelEx implements Serializable {
 
 	/**

@@ -9,11 +9,15 @@ import static org.springframework.test.web.server.result.MockMvcResultHandlers.p
 import static org.springframework.test.web.server.setup.MockMvcBuilders.standaloneSetup;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.postgis.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgis.bus.admin.controllers.CitiesController;
@@ -35,32 +40,37 @@ import com.pgis.bus.data.repositories.orm.ICitiesRepository;
 import com.pgis.bus.data.service.IDataBaseService;
 import com.pgis.bus.data.service.IDataModelsService;
 import com.pgis.bus.net.models.geom.PointModel;
+import com.pgis.bus.net.models.station.StationModel;
 
+@RunWith(SpringJUnit4ClassRunner.class)
 public class StationsControllerTest extends ControllerTestConf {
 	private static final Logger log = LoggerFactory.getLogger(RoutesControllerTest.class);
 
 	private StationsController controller = null;
 
-	@Autowired
-	private FilterChainProxy springSecurityFilterChain;
-
 	@Before
 	public void before() throws SQLException {
-
 		controller = new StationsController();
-		this.mockMvc = standaloneSetup(controller).addFilters(this.springSecurityFilterChain).build();
+		this.mockMvc = standaloneSetup(controller).addFilters(super.springSecurityFilterChain).build();
 
 	}
 
 	@Test
 	public void testGetStationsFromBox() throws Exception {
 		log.info("testGetStationsFromBox() ");
+		// Data
+
+		StationsBoxModel requestModel = new StationsBoxModel();
+		requestModel.setLtPoint(new PointModel(1, 10));
+		requestModel.setRbPoint(new PointModel(2, 20));
+		requestModel.setCityID(10);
+
+		Collection<StationModel> stations = new ArrayList<StationModel>();
+		stations.add(new StationModel(10, "st1", new PointModel(10, 20)));
+		stations.add(new StationModel(10, "st2", new PointModel(10, 20)));
+
 		// Mocking
-		StationsBoxModel model = new StationsBoxModel();
-		model.setLtPoint(new PointModel(1,10));
-		model.setRbPoint(new PointModel(2,20));
-		model.setCityID(10);
-		
+
 		HashMap<LangEnum, StringValue> name = new HashMap<LangEnum, StringValue>();
 		name.put(LangEnum.c_en, new StringValue(3253, 55435, LangEnum.c_en, "Kharkiv"));
 		City city = new City();
@@ -74,29 +84,28 @@ public class StationsControllerTest extends ControllerTestConf {
 		IDataModelsService dbModelsService = Mockito.mock(IDataModelsService.class);
 		IStationsModelRepository stationsRepository = Mockito.mock(IStationsModelRepository.class);
 
-		doNothing().when(stationsRepository).getStationsFromBox(cityID, p1, p2)(any(City.class));
+		doReturn(stations).when(stationsRepository).getStationsFromBox(any(Integer.class), any(Point.class),
+				any(Point.class));
 		doReturn(stationsRepository).when(dbModelsService).Stations();
-
-		controller.setDbService(dbService);
 		controller.setModelsService(dbModelsService);
 
 		// Input data
-		CityModelEx requestModel = new CityModelEx(city);
-		String jsonInputModel = (new ObjectMapper()).writeValueAsString(requestModel);
+		String jsonRequestModel = (new ObjectMapper()).writeValueAsString(requestModel);
 		// Testing
-		log.info(jsonInputModel);
+		log.info(jsonRequestModel);
 		MockHttpSession session = this.getSession("admin", "pass");
 
 		MockHttpServletResponse response = this.mockMvc
 				.perform(
 						post("/stations/getStationsFromBox.json").contentType(MediaType.APPLICATION_JSON)
-								.accept(MediaType.APPLICATION_JSON).body(jsonInputModel.getBytes()).session(session))
+								.accept(MediaType.APPLICATION_JSON).body(jsonRequestModel.getBytes()).session(session))
 				.andDo(print()).andReturn().getResponse();
 
 		log.info("CODE : " + response.getStatus());
 		log.info("RESULT : " + response.getContentAsString());
 		// Check
-		CityModelEx responseModel = (new ObjectMapper()).readValue(response.getContentAsString(), CityModelEx.class);
-		assertEquals(requestModel.getId(), responseModel.getId());
+		StationsBoxModel responseModel = (new ObjectMapper()).readValue(response.getContentAsString(),
+				StationsBoxModel.class);
+		assertEquals(requestModel.getCityID(), responseModel.getCityID());
 	}
 }

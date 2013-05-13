@@ -13,9 +13,9 @@
  *************************************************************************/
 
 /**
- * Модель остановки.
+ * Модель геоточки.
  */
- qx.Class.define("bus.admin.mvp.model.StationModel", {
+ qx.Class.define("bus.admin.mvp.model.geom.PointModel", {
  	extend : Object,
 
  	/**
@@ -30,48 +30,35 @@
  	 },
 
  	 properties : {
-
  	 	/**
- 	 	 * ID остановки
+ 	 	 * Широта
  	 	 */
- 	 	 id : {
- 	 	 	init : -1,
- 	 	 	check : "Integer"
+ 	 	 lat : {
+ 	 	 	init : 0.0,
+ 	 	 	check : "Number"
  	 	 },
-
-
- 	 	/**
- 	 	 * Название
- 	 	 */
- 	 	 name : {
- 	 	 	nullable : true,
- 	 	 	check : "String"
- 	 	 },
-
+ 	 	 
  	 	 /**
- 	 	  * Местоположение
- 	 	  * @type {bus.admin.mvp.model.geom.PointModel}
+ 	 	  * Долгота
  	 	  */
- 	 	  location : {
- 	 	  	nullable : true,
- 	 	  	check : "bus.admin.mvp.model.geom.PointModel"
- 	 	  }
-
+ 	 	 lon : {
+ 	 	 	init : 0.0,
+ 	 	 	check : "Number"
+ 	 	 }	 	 
 
  	 	},
+
  	 	members : 
  	 	{
 
-
- 		/**
+ 	 	/**
  		 * Преобразует модель в JS объект, который можно в дальнейшем сериализовать в JSON строку и отправить на сервер.
  		 * @return {Object} JS объект.
  		 */
  		 toDataModel : function(){
  		 	var dataModel = {
- 		 		id : this.getId(),
- 		 		name : this.getName(),
- 		 		location : this.getLocation().toDataModel()
+ 		 		lat: this.getLat(),
+ 		 		lon : this.getLon()
  		 	}
  		 	return dataModel;
  		 },
@@ -82,40 +69,26 @@
  		  * следующие свойства:
  		  * <pre>
  		  * <ul>
- 		  * <li> id          ID остановки, Integer</li>
- 		  * <li> name        Название станции, String</li>
- 		  * <li> location    Местоположение, Object</li>
+ 		  * <li> lat    Широта, Number</li>
+ 		  * <li> lon    Долгота, Number</li>
  		  * <ul>
  		  * </pre>
  		  * @param  dataModel {Object}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
- 		  	if(dataModel == undefined)
- 		  		return;
- 		  	if(dataModel.id != undefined){
- 		  		this.setId(dataModel.id);
- 		  	}
- 		  	if(dataModel.name != undefined){
- 		  		this.setName(dataModel.name);
- 		  	}
- 		  	if(dataModel.location != undefined){
- 		  		this.setLocation(new bus.admin.mvp.model.geom.PointModel(dataModel.location));
- 		  	} 		  	
- 		  	
+ 		  	this.setLat(dataModel.lat);
+ 		  	this.setLon(dataModel.lon);
  		  },
 
 
  		  /**
  		   * Клонирует текущий объект.
- 		   * @return {bus.admin.mvp.model.StationModel} Копия объекта.
+ 		   * @return {bus.admin.mvp.model.geom.PolyLineModel} Копия объекта.
  		   */
  		   clone : function(){
- 		   	var dataModel = this.toDataModel();
- 		   	var copy = new bus.admin.mvp.model.StationModel(dataModel);
+ 		   	var copy = new bus.admin.mvp.model.geom.PolyLineModel(this.toDataModel());
  		   	return copy;
  		   }
-
-
 
  		}
 

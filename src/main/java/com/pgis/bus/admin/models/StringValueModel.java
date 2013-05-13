@@ -4,10 +4,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.pgis.bus.data.orm.StringValue;
 import com.pgis.bus.data.orm.type.LangEnum;
 import com.pgis.bus.net.models.LangEnumModel;
 
+@XmlRootElement
 public class StringValueModel implements Serializable {
 	/**
 	 * 

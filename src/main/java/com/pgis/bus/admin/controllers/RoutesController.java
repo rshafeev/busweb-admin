@@ -25,7 +25,7 @@ import com.pgis.bus.net.models.route.RoutesListModel;
 public class RoutesController extends BaseController {
 	private static final Logger log = LoggerFactory.getLogger(RoutesController.class);
 
-	@RequestMapping(value = "getRoutesList", method = RequestMethod.POST)
+	@RequestMapping(value = "getRoutesList", method = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseBody
 	public Object getRoutesList(Integer cityID, String routeTypeID, String langID) {
 		try {
@@ -78,11 +78,11 @@ public class RoutesController extends BaseController {
 
 	@RequestMapping(value = "insert_route", method = RequestMethod.POST)
 	@ResponseBody
-	public Object insert(@RequestBody Route newRoute) {
+	public Object insert(@RequestBody RouteModelEx routeModel) {
 		log.debug("insert_route()");
 		try {
-			super.getDbService().Routes().insert(newRoute);
-			return newRoute;
+			// super.getDbService().Routes().insert(newRoute);
+			return routeModel;
 
 		} catch (Exception e) {
 			log.error("insert exception", e);
@@ -93,7 +93,7 @@ public class RoutesController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "delete", method = RequestMethod.POST)
+	@RequestMapping(value = "delete", method = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseBody
 	public Object delete(Integer route_id) {
 		log.debug(route_id.toString());
@@ -122,7 +122,7 @@ public class RoutesController extends BaseController {
 		IDataBaseService db = super.getDbService();
 		try {
 			Route ormRoute = routeModel.toORMObject();
-			// db.Routes().update(ormRoute);
+			db.Routes().update(ormRoute);
 			db.commit();
 			return new RouteModelEx(ormRoute);
 		} catch (Exception e) {

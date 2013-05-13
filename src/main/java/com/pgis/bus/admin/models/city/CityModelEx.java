@@ -4,12 +4,15 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.pgis.bus.admin.models.StringValueModel;
 import com.pgis.bus.data.orm.City;
 import com.pgis.bus.data.orm.StringValue;
 import com.pgis.bus.data.orm.type.LangEnum;
 import com.pgis.bus.net.models.geom.PointModel;
 
+@XmlRootElement
 public class CityModelEx {
 	private int id;
 	private String key;

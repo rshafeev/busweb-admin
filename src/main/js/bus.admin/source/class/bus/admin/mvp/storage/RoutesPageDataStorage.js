@@ -15,11 +15,11 @@
 /**
  * Хранилище данных страницы {@link bus.admin.view.Routes Routes}
  */
-qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
-	extend : qx.core.Object,
+ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
+   extend : qx.core.Object,
 
-	construct : function() {
-		this.base(arguments);
+   construct : function() {
+    this.base(arguments);
     // create models
     var citiesModel = new bus.admin.mvp.model.CitiesModel();
     var langsModel = new bus.admin.mvp.model.LanguagesModel();
@@ -43,26 +43,27 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
   properties : {
               /** Показывает состояние страницы, в котором она пребывает. Возможные значения:
                 none : обычное состояние. 
-              */
-              state : {
-              	init : "none",
-              	check : "String"
-              },
+                make : добавление нового маршрута или изменение существующего.
+                */
+                state : {
+                 init : "none",
+                 check : "String"
+               },
 
               /**
                * Хранит набор городов
                * @type {bus.admin.mvp.model.CitiesModel}
                */
-              citiesModel : {
-              	nullable : true,
-                check : "bus.admin.mvp.model.CitiesModel"
-              },
+               citiesModel : {
+                 nullable : true,
+                 check : "bus.admin.mvp.model.CitiesModel"
+               },
 
               /**
                * Хранит набор языков
                * @type {bus.admin.mvp.model.LanguagesModel}
                */
-              langsModel : {
+               langsModel : {
                 nullable : true,
                 check : "bus.admin.mvp.model.LanguagesModel"
               },
@@ -71,7 +72,7 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
                * Хранит список маршрутов
                * @type {bus.admin.mvp.model.RoutesListModel}
                */
-              routesListModel : {
+               routesListModel : {
                 nullable : true,
                 check : "bus.admin.mvp.model.RoutesListModel"
               },
@@ -90,17 +91,27 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
                * Выбранный маршрут.
                * @type {bus.admin.mvp.model.RouteModel}
                */
-              selectedRoute : {
+               selectedRoute : {
                 nullable : true,
                 check : "bus.admin.mvp.model.RouteModel"
               },
+
+              /**
+               * Выбранный маршрут (копия). При редактировании текущего маршрута в данное свойство выполняется сохранение  его копии.
+               * @type {bus.admin.mvp.model.RouteModel}
+               */
+               backupSelectedRoute : {
+                nullable : true,
+                check : "bus.admin.mvp.model.RouteModel"
+              },
+
 
 
               /**
                * Центр карты.
                * @type {Object}
                */
-              mapCenter : {
+               mapCenter : {
                 nullable : true
               },
 
@@ -108,7 +119,7 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
                * Массив типов маршрутов. Каждый элемент имеет поле id и name. 
                * @type {Object[]}
                */
-              routeTypes : {
+               routeTypes : {
                 nullable : true
               },
 
@@ -121,14 +132,44 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
               direction :{
                 check : "Boolean",
                 init : true
-              }
+              },
+
+              /**
+               * Набор станций, которые были добавлены пользователем при конструировании маршрута. (Данные станции не занесены в БД). 
+               * Их ID являются уникальными, но с отрицательным знаком (-1, -2, ...)
+               * @type {bus.admin.mvp.model.StaionModelEx[]}
+               */
+               prepareStations : {
+                 nullable : true
+               }
 
 
-            },
+             },
 
 
-            members : {
+             members : {
 
+              addPrepareStation : function(stationModel){
+                var stations = this.getPrepareStations();
+                if(stations == undefined)
+                 stations = [];
+               var id = this.__getNextPrepareStationID();
+               stationModel.setId(id);
+               stations.push(stationModel);
+               this.setPrepareStations(stations);
+             },
+
+              /**
+               * Возвращает ID следующей станции 
+               * @param  {[type]} stationModel [description]
+               * @return {[type]}              [description]
+               */
+               __getNextPrepareStationID : function(stationModel){
+                var stations = this.getPrepareStations();
+                if(stations == undefined)
+                  return -1;
+                return (-stations.length - 1);
+              },
 
               /**
                * Вызывается при изменении свойства bus.admin.mvp.storage.RoutesPageDataStorage#selectedCityID.
@@ -136,7 +177,7 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
                * @param  old {Object}    Предыдущее значение свойства
                * @param  name {String}   Название свойства
                */
-              _applySelectedCityID : function(value, old, name){
+               _applySelectedCityID : function(value, old, name){
                 qx.module.Storage.setLocalItem("routes.selectedCityID", value);
               },
 
@@ -146,7 +187,7 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
                * @param  old {Object}    Предыдущее значение свойства
                * @param  name {String}   Название свойства
                */
-              _applySelectedRouteTypeID : function(value, old, name){
+               _applySelectedRouteTypeID : function(value, old, name){
                 qx.module.Storage.setLocalItem("routes.selectedRouteTypeID", value);
               },
 
@@ -154,7 +195,7 @@ qx.Class.define("bus.admin.mvp.storage.RoutesPageDataStorage", {
                * Возвращает выбранный пользоателем город.
                * @return {bus.admin.mvp.model.CyModel} Модель города.
                */
-              getSelectedCity : function(){
+               getSelectedCity : function(){
                 var cityID = this.getSelectedCityID();
                 if(cityID <=0)
                   return null;

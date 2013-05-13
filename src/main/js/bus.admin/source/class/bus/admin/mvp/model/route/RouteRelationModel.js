@@ -32,7 +32,7 @@
  	 	 * ID дуги
  	 	 */
  	 	 id : {
- 	 	 	init : 0,
+ 	 	 	nullable : true,
  	 	 	check : "Integer"
  	 	 },
 
@@ -40,24 +40,24 @@
  	 	 * ID пути, которому принадлежит данная дуга
  	 	 */
  	 	 routeWayID : {
- 	 	 	init : 0,
+ 	 	 	nullable : true,
  	 	 	check : "Integer"
  	 	 },
 
  	 	 /**
  	 	  * Порядковый номер дуги в последовательности. Первая луга имеет порядковый номер 0.
  	 	  */
- 	 	 index : {
- 	 	 	init : false,
- 	 	 	check : "Integer"
- 	 	 },
+ 	 	  index : {
+ 	 	  	nullable : true,
+ 	 	  	check : "Integer"
+ 	 	  },
 
 
 		/**
 	 	 *  Географическая длина дуги ,м. Если данная дуга стоит первая в последовательности, то 0.
 	 	 */
 	 	 distance : {
-	 	 	init : 0.0,
+	 	 	nullable : true,
 	 	 	check : "Number"
 	 	 },
 
@@ -66,7 +66,7 @@
  	 	 * последовательности, то null.
  	 	 */
  	 	 move : {
- 	 	 	init : null,
+ 	 	 	nullable : true,
  	 	 	check : "bus.admin.mvp.model.TimeIntervalModel"
  	 	 },
 
@@ -74,19 +74,19 @@
  	 	  * Полилиния, описывающая передвижение от станции предыдущей дуги к станции текущей дуги.
  	 	  *Если данная дуга стоит первая в последовательности, то null.
  	 	  */
- 	 	 geom : {
- 	 	 	init : null,
- 	 	 	check : "bus.admin.mvp.model.geom.PolyLineModel"
- 	 	 },
+ 	 	  geom : {
+ 	 	  	nullable : true,
+ 	 	  	check : "bus.admin.mvp.model.geom.PolyLineModel"
+ 	 	  },
 
   	 	 /**
  	 	  * Станция, являющ. концом текущей дуги.
  	 	  */
- 	 	 currStation : {
- 	 	 	init : null,
- 	 	 	check : "bus.admin.mvp.model.StationModel"
- 	 	 }
- 	 	 	 	 
+ 	 	  currStation : {
+ 	 	  	nullable : true,
+ 	 	  	check : "bus.admin.mvp.model.StationModelEx"
+ 	 	  }
+
 
  	 	},
  	 	members : 
@@ -102,12 +102,15 @@
  		 		id : this.getId(),
  		 		routeWayID: this.getRouteWayID(),
  		 		index: this.getIndex(),
- 		 		distance: this.getDistance(),
- 		 		move: this.getMove().toDataModel(),
- 		 		geom: this.getGeom().toDataModel(),
- 		 		currStation: this.getCurrStation().toDataModel()
+ 		 		distance: this.getDistance()
+ 		 	};
+ 		 	if(this.getGeom() != undefined)
+ 		 		dataModel.geom =  this.getGeom().toDataModel();
+ 		 	if(this.getMove() != undefined)
+ 		 		dataModel.move =  this.getMove().toDataModel();
+ 		 	if(this.getCurrStation() != undefined)
+ 		 		dataModel.currStation =  this.getCurrStation().toDataModel();
 
- 		 	}
  		 	return dataModel;
  		 },
 
@@ -129,13 +132,22 @@
  		  * @param  dataModel {Object}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
- 		  	this.setId(dataModel.id);
- 		  	this.setRouteWayID(dataModel.routeWayID);
- 		  	this.setIndex(dataModel.index);
- 		  	this.setDistance(dataModel.distance);
- 		  	this.setMove(new bus.admin.mvp.model.TimeIntervalModel(dataModel.move));
- 		  	this.setGeom(new bus.admin.mvp.model.geom.PolyLineModel(dataModel.geom));
- 		  	this.setCurrStation(new bus.admin.mvp.model.StationModel(dataModel.currStation));
+ 		  	if(dataModel == undefined)
+ 		  		return;
+ 		  	if(dataModel.id !=undefined)
+ 		  		this.setId(dataModel.id);
+ 		  	if(dataModel.routeWayID !=undefined)
+ 		  		this.setRouteWayID(dataModel.routeWayID);
+ 		  	if(dataModel.index !=undefined)
+ 		  		this.setIndex(dataModel.index);
+ 		  	if(dataModel.distance !=undefined)
+ 		  		this.setDistance(dataModel.distance);
+ 		  	if(dataModel.move !=undefined)
+ 		  		this.setMove(new bus.admin.mvp.model.TimeIntervalModel(dataModel.move));
+ 		  	if(dataModel.geom !=undefined)
+ 		  		this.setGeom(new bus.admin.mvp.model.geom.PolyLineModel(dataModel.geom));
+ 		  	if(dataModel.currStation !=undefined)
+ 		  		this.setCurrStation(new bus.admin.mvp.model.StationModelEx(dataModel.currStation));
  		  },
 
  		  /**

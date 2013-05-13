@@ -37,8 +37,8 @@
      	this.setMinWidth(300);
      	this.setAppearance("left-panel");
      	this.__initWidgets();
-     	this.__presenter.addListener("refresh", this.__onRefresh, this);
-
+     	presenter.addListener("refresh", this.__onRefresh, this);
+     	presenter.addListener("change_state", this.__onChangeState, this);
      	
      },
 
@@ -196,6 +196,33 @@
 		 		top : 40
 		 	});
 		 },
+
+		 /**
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#change_state change_state} вызывается при изменении состояния страницы.
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 __onChangeState : function (e){
+		 	this.debug("execute __onChangeState() event handler");
+		 	var state = e.getData().newState;
+		 	this.__setState(state);
+		 },
+
+		 /**
+		  * Задать виджету состояние
+		  * @param  state {String} Состояние
+		  */
+		  __setState : function(state){
+		  	var routeModel = this.__presenter.getDataStorage().getSelectedRoute();
+		  	if(state == "none"){
+		  		this.__comboRouteTypes.setEnabled(true);
+		  		this.__comboCities.setEnabled(true);
+		  	} 
+		  	if(state == "make"){
+		  		this.__comboRouteTypes.setEnabled(false);
+		  		this.__comboCities.setEnabled(false);
+		  	}
+
+		  },
 
 		/**
 		 * Обработчик события {@link bus.admin.mvp.presenter.RoutesPresenter#refresh refresh}

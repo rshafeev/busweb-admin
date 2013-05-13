@@ -15,6 +15,8 @@ import com.pgis.bus.admin.models.ErrorModel;
 import com.pgis.bus.admin.models.station.StationModelEx;
 import com.pgis.bus.admin.models.station.StationsBoxModel;
 import com.pgis.bus.admin.models.station.StationsListModel;
+import com.pgis.bus.data.helpers.GeoObjectsHelper;
+import com.pgis.bus.data.models.factory.geom.PointModelFactory;
 import com.pgis.bus.data.orm.Station;
 import com.pgis.bus.data.orm.type.LangEnum;
 import com.pgis.bus.data.service.IDataBaseService;
@@ -56,13 +58,11 @@ public class StationsController extends BaseController {
 	@ResponseBody
 	public Object getStationsFromBox(@RequestBody StationsBoxModel model) {
 		try {
-			// Парсим полученные данные
-
 			// Загрузим список станций
 			IDataModelsService modelsDb = super.getModelsService();
 			modelsDb.setLocale(model.getLangID());
 			Collection<StationModel> stations = modelsDb.Stations().getStationsFromBox(model.getCityID(),
-					model.getLtPoint(), model.getRbPoint());
+					GeoObjectsHelper.createPoint(model.getLtPoint()), GeoObjectsHelper.createPoint(model.getRbPoint()));
 			// Сформируем модель
 			model.setStations(stations);
 
@@ -78,7 +78,7 @@ public class StationsController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "get", method = RequestMethod.POST)
+	@RequestMapping(value = "get", method = { RequestMethod.POST, RequestMethod.GET })
 	@ResponseBody
 	public Object get(Integer stationID) {
 		try {
@@ -125,7 +125,7 @@ public class StationsController extends BaseController {
 
 	@RequestMapping(value = "update", method = RequestMethod.POST)
 	@ResponseBody
-	public Object update(StationModelEx st) {
+	public Object update(@RequestBody StationModelEx st) {
 		IDataBaseService db = null;
 		try {
 			// Парсим полученные данные
@@ -147,7 +147,7 @@ public class StationsController extends BaseController {
 
 	}
 
-	@RequestMapping(value = "remove", method = RequestMethod.POST)
+	@RequestMapping(value = "remove", method = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseBody
 	public Object remove(Integer stationID) {
 		IDataBaseService db = null;

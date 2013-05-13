@@ -172,8 +172,8 @@
 
 		 /**
 		  * Выделяет остановку на карте.
-		  * @param  station {bus.admin.mvp.model.StationModel}  Модель станции
-		  * @param  prevStation {bus.admin.mvp.model.StationModel}  Предыдущая выделенная станция
+		  * @param  station {bus.admin.mvp.model.StationModelEx}  Модель станции
+		  * @param  prevStation {bus.admin.mvp.model.StationModelEx}  Предыдущая выделенная станция
 		  * @param  centering_map {Boolean} Нужно ли центрировать карту
 		  */
 		  __selectStation : function(station, prevStation, centering_map){
@@ -242,16 +242,15 @@
 		 	if (this.getMinZoom() >= map.getZoom()) {
 		 		return;
 		 	}
-		 	var p1 = {
-		 		x : map.getBounds().getSouthWest().lat(),
-		 		y : map.getBounds().getSouthWest().lng()
-		 	};
-		 	var p2 = {
-		 		x : map.getBounds().getNorthEast().lat(),
-		 		y : map.getBounds().getNorthEast().lng()
-		 	};
+		 	var p1 = new bus.admin.mvp.model.geom.PointModel();
+		 	p1.setLat(map.getBounds().getSouthWest().lat());
+		 	p1.setLon(map.getBounds().getSouthWest().lng());
+		 	var p2 = new bus.admin.mvp.model.geom.PointModel();
+		 	p2.setLat(map.getBounds().getNorthEast().lat());
+		 	p2.setLon(map.getBounds().getNorthEast().lng());
+
 		 	var callback = qx.lang.Function.bind(function(data) {
-		 		this.insertStations(data.stations);
+		 		this.insertStations(data.stationsBox);
 
 		 	}, this);
 		 	this.__presenter.loadStationsFromBox(p1, p2, callback);
@@ -262,9 +261,9 @@
 		 * Выводит остановки на карту
 		 * @param  stationsModel {bus.admin.mvp.model.StationsBoxModel}  Остановки.
 		 */
-		 insertStations : function(stationsModel){
+		 insertStations : function(stationsBoxModel){
 		 	this.debug("execute insertStations()");
-		 	var stations = stationsModel.getAll();
+		 	var stations = stationsBoxModel.getStations();
 		 	var stDict = {};
 		 	for (var i = 0; i < stations.length; i++) {
 		 		stDict[stations[i].getId()] = true;
@@ -426,7 +425,7 @@
 	     		case 'insert_station_click' :
 	     		this.debug("insert_station_click()");
 	     		var dataStorage = this.__presenter.getDataStorage();
-	     		var stationMoel = new bus.admin.mvp.model.StationModel();
+	     		var stationMoel = new bus.admin.mvp.model.StationModelEx();
 	     		stationMoel.setCityID(dataStorage.getSelectedCityID());
 	     		stationMoel.setLocation(latLng.lat(), latLng.lng());
 	     		var insertStationDlg = new bus.admin.mvp.view.stations.CUStationForm(

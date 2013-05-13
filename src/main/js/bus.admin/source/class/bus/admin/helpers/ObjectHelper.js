@@ -1,71 +1,30 @@
+/*************************************************************************
+ *
+ * Copyright:
+ * Bus.Admin-lib is copyright (c) 2012, {@link http://ways.in.ua} Inc. All Rights Reserved. 
+ *
+ * License:
+ * Bus.Admin-lib is free software, licensed under the MIT license. 
+ * See the file {@link http://api.ways.in.ua/license.txt license.txt} in this distribution for more details.
+ *
+ * Authors:
+ * Roman Shafeyev (rs@premiumgis.com)
+ *
+ *************************************************************************/
 
-
+/**
+ * Класс {@link bus.admin.helpers.ObjectHelper} имеет статические функции для упрощения работы с js-объектами.
+ */
 qx.Class.define("bus.admin.helpers.ObjectHelper", {
 			type : "static",
 
 			statics : {
-				/**
-				 * Проверка регулярным выражением времени HH:MM
-				 * 
-				 * @param {время
-				 *            в формате HH:MM} value
-				 * @return {true/false}
-				 */
-				validateTime : function(value) {
-					// validate if time has the format HH:MM
-					var re = /^([0-1][0-9]|[2][0-3])(:([0-5][0-9])){1,2}$/i;
-					return re.test(value);
-				},
 
 				/**
-				 * Обработка HH:MM
-				 * 
-				 * @param {время
-				 *            в формате HH:MM} value
-				 * @return {объект: часы, минуты}
+				 * Глубокое копирование объекта
+				 * @param  obj{Object}  Объект-источник
+				 * @return {Object}     Объект-клон
 				 */
-				parseTime : function(value) {
-					// parse time HH:MM
-					var time = value.split(":");
-					return {
-						hh : time[0],
-						mm : time[1]
-					};
-				},
-
-				/**
-				 * Преобразование в секунды
-				 * 
-				 * @param {время
-				 *            в формате HH:M} value
-				 */
-				convertTimeToSeconds : function(value) {
-					if(value==null || value.toString().length == 0){
-						return 0;
-					}
-					var time = value.split(":");
-					var t = {
-						hh : time[0],
-						mm : time[1]
-					};
-					return (t.hh * 60 * 60 + t.mm * 60);
-				},
-
-				convertSecsToHM : function(secs) {
-					var d = new Date();
-					d.setTime(secs * 1000);
-					var hours = parseInt(secs / 60 / 60).toString();
-					var minutes = parseInt((secs - hours * 60 * 60) / 60)
-							.toString();
-					if (hours.length == 1) {
-						hours = "0" + hours;
-					}
-					if (minutes.length == 1) {
-						minutes = "0" + minutes;
-					}
-					return hours + ":" + minutes;
-				},
-
 				clone : function(obj) {
 					if(obj == null)
 						return null;
@@ -85,8 +44,7 @@ qx.Class.define("bus.admin.helpers.ObjectHelper", {
 						var copy = [];
 						var len = obj.length;
 						for (var i = 0; i < len; ++i) {
-							copy[i] = bus.admin.helpers.ObjectHelper
-									.clone(obj[i]);
+							copy[i] = bus.admin.helpers.ObjectHelper.clone(obj[i]);
 						}
 						return copy;
 					}
@@ -96,8 +54,7 @@ qx.Class.define("bus.admin.helpers.ObjectHelper", {
 						var copy = {};
 						for (var attr in obj) {
 							if (obj.hasOwnProperty(attr))
-								copy[attr] = bus.admin.helpers.ObjectHelper
-										.clone(obj[attr]);
+								copy[attr] = bus.admin.helpers.ObjectHelper.clone(obj[attr]);
 						}
 						return copy;
 					}

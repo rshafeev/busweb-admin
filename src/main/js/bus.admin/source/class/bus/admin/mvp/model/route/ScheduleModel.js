@@ -35,7 +35,7 @@
  	 	 * ID расписания
  	 	 */
  	 	 id : {
- 	 	 	init : 0,
+ 	 	 	nullable : true,
  	 	 	check : "Integer"
  	 	 },
 
@@ -43,7 +43,7 @@
  	 	 * ID пути, к которому относится данное расписание
  	 	 */
  	 	 routeWayID : {
- 	 	 	init : 0,
+ 	 	 	nullable : true,
  	 	 	check : "Integer"
  	 	 }
 
@@ -55,7 +55,7 @@
  	 	/**
  	 	  * Дни недели разбиты по группам. Для каждой группы отдельное расписание
  	 	  */
- 	 		__groups : null,
+ 	 	  __groups : null,
 
  		/**
  		 * Преобразует модель в JS объект, который можно в дальнейшем сериализовать в JSON строку и отправить на сервер.
@@ -65,8 +65,7 @@
  		 	var dataModel = {
  		 		id : this.getId(),
  		 		routeWayID : this.getRouteWayID(),
- 		 		groups : this.__groups
- 		 
+ 		 		groups : bus.admin.helpers.ObjectHelper.clone(this.__groups)
  		 	};
  		 	return dataModel;
  		 },
@@ -85,10 +84,39 @@
  		  * @param  dataModel {Object}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
- 		  	this.setId(dataModel.id);
- 		  	this.setRouteWayID(dataModel.routeWayID);
- 		  	this.__groups = dataModel.groups;
+ 		  	if(dataModel == undefined)
+ 		  		return;
+ 		  	if(dataModel.id != undefined)
+ 		  		this.setId(dataModel.id);
+ 		  	if(dataModel.routeWayID != undefined)
+ 		  		this.setRouteWayID(dataModel.routeWayID);
+ 		  	if(dataModel.groups != undefined)
+ 		  		this.__groups = dataModel.groups;
  		  },
+
+
+ 		 /**
+ 		  * Формирует модель из данных об интервале движения, начале и окончании работы по маршруту <br>
+ 		  * @param  timeA {Integer}  Начало работы, сек.
+ 		  * @param  timeB{Integer}  Конец работы, сек.
+ 		  * @param  frequency {Integer} Интервал движения, сек.
+ 		  */
+ 		  fromSimple : function(timeA, timeB, frequency){
+ 		  	this.setId(-1);
+ 		  	this.setRouteWayID(-1);
+ 		  	this.__groups = [{
+ 		  		id : -1,
+ 		  		days : ["all"],
+ 		  		timetables : [{
+ 		  			freq  : frequency,
+ 		  			timeA : timeA,
+ 		  			timeB : timeB
+ 		  		}]
+ 		  	}]; 
+
+ 		  },
+
+
 
  		  /**
  		   * Клонирует текущий объект.

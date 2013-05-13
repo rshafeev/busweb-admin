@@ -50,29 +50,20 @@
 
  		/**
  		 * Возвращает набор остановок, местоположения которых попадает в заданный прямоугольник. 
- 		 * @param  cityID {Integer}    ID города
- 		 * @param  langID {String}     ID языка
- 		 * @param  ltPoint {Object}    Координаты левого верхнего угла прямоугольника. Формат объекта: {x : Number, y : Number}
- 		 * @param  rbPoint {Object}    Координаты правого нижнего угла прямоугольника. Формат объекта: {x : Number, y : Number}
-		 * @param  callback {Function}  Функция вызывается после получения ответа сервера. Аргументом функции является объект типа {@link qx.io.remote.Response}.
+ 		 * @param  stationsBoxModel {bus.admin.mvp.model.StationsBoxModel} Модель с ID города, языка, координатами прямоугольника.
+ 		 * @param  callback {Function}  Функция вызывается после получения ответа сервера. Аргументом функции является объект типа {@link qx.io.remote.Response}.
 		 * @param  self    {Object} Объект this для callback функции
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
-		 getStationsFromBox : function(cityID, langID, ltPoint, rbPoint,  callback, self) {
+		 getStationsFromBox : function(stationsBoxModel,  callback, self) {
 		 	var contextPath = bus.admin.AppProperties.ContextPath;
-		 	var data = {
-		 		cityID : cityID,
-		 		langID : langID,
-		 		ltPoint : ltPoint,
-		 		rbPoint : rbPoint
-		 	};
-		 	var data_json = qx.lang.Json.stringify(data);
-		 	this.debug(data);
+		 	var requestBody = qx.lang.Json.stringify(stationsBoxModel.toDataModel());
+		 	this.debug(requestBody);
 		 	var request = new qx.io.remote.Request(contextPath + "stations/getStationsFromBox.json", "POST",	"application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
 		 	request.setRequestHeader("Content-Type", "application/json");
-			request.setData(data_json);
+			request.setData(requestBody);
 		 	request.addListener("completed", callback, self);
 		 	request.addListener("failed", callback, self);
 		 	request.send();
@@ -100,7 +91,7 @@
 
 		/**
 		 * Отправляет Обновленную модель станции на сервере. В ответе от сервера содержится также содержится обновленная модель.
-		 * @param  stationModel {bus.admin.mvp.model.StationModel}  Модель станции.
+		 * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции.
 		 * @param  callback {Function}  Функция вызывается после получения ответа сервера. Аргументом функции является объект типа {@link qx.io.remote.Response}.
 		 * @param  self      {Object} Объект this для callback функции
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
@@ -121,7 +112,7 @@
 
 		/**
 		 * Отправляет Новую модель станции на сервер. В ответе от сервера содержится также содержится обновленная модель.
-		 * @param  stationModel {bus.admin.mvp.model.StationModel}  Модель станции.
+		 * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции.
 		 * @param  callback {Function}  Функция вызывается после получения ответа сервера. Аргументом функции является объект типа {@link qx.io.remote.Response}.
 		 * @param  self      {Object} Объект this для callback функции
 		 * @return {qx.io.remote.Request}  Объект управления запросом.

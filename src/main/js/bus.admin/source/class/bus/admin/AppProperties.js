@@ -69,7 +69,7 @@ qx.Class.define("bus.admin.AppProperties", {
 
 		/**
 		 * Возвращает ID языка для текущей локали
-		 * @return {String} ID языка. Возможные значения: "c_en", "c_ru", "c_uk"
+		 * @return {String} ID языка. Возможные значения: "en", "ru", "uk"
 		 */
 		getLocale : function(){
 			return qx.locale.Manager.getInstance().getLocale();

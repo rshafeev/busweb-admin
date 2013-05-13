@@ -110,11 +110,11 @@ qx.Class.define("bus.admin.mvp.storage.StationsPageDataStorage", {
 
               /**
                * Выбранная станция
-               * @type {bus.admin.mvp.model.StationModel}
+               * @type {bus.admin.mvp.model.StationModelEx}
                */
               selectedStationModel : {
                 nullable : true,
-                check : "bus.admin.mvp.model.StationModel"
+                check : "bus.admin.mvp.model.StationModelEx"
               }
 
             },

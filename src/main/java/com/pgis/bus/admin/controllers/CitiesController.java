@@ -30,7 +30,7 @@ public class CitiesController extends BaseController {
 	public Object getAll() {
 
 		try {
-			log.debug("get_all()");
+			log.debug("getAll()");
 			// Загрузим список всех городов из БД
 			IDataBaseService db = super.getDbService();
 			Collection<City> cities = db.Cities().getAll();
@@ -123,7 +123,7 @@ public class CitiesController extends BaseController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "remove", method = RequestMethod.POST)
+	@RequestMapping(value = "remove", method = { RequestMethod.GET, RequestMethod.POST })
 	public Object remove(Integer city_id) {
 		log.debug(city_id.toString());
 		IDataBaseService db = null;

@@ -40,19 +40,17 @@ import com.pgis.bus.data.service.IDataBaseService;
 import com.pgis.bus.data.service.IDataModelsService;
 import com.pgis.bus.net.models.city.CityModel;
 
+@RunWith(SpringJUnit4ClassRunner.class)
 public class CitiesControllerTest extends ControllerTestConf {
 	private static final Logger log = LoggerFactory.getLogger(RoutesControllerTest.class);
 
 	private CitiesController controller = null;
 
-	@Autowired
-	private FilterChainProxy springSecurityFilterChain;
-
 	@Before
 	public void before() throws SQLException {
 
 		controller = new CitiesController();
-		this.mockMvc = standaloneSetup(controller).addFilters(this.springSecurityFilterChain).build();
+		this.mockMvc = standaloneSetup(controller).addFilters(super.springSecurityFilterChain).build();
 
 	}
 
