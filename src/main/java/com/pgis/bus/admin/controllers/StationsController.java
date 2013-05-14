@@ -101,7 +101,7 @@ public class StationsController extends BaseController {
 
 	@RequestMapping(value = "insert", method = RequestMethod.POST)
 	@ResponseBody
-	public Object insert(StationModelEx st) {
+	public Object insert(@RequestBody StationModelEx st) {
 		IDataBaseService db = null;
 		try {
 			db = super.getDbService();

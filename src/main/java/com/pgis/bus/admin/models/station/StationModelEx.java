@@ -42,7 +42,7 @@ public class StationModelEx implements Serializable {
 		}
 	}
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
@@ -58,7 +58,7 @@ public class StationModelEx implements Serializable {
 		this.location = location;
 	}
 
-	public int getNameKey() {
+	public Integer getNameKey() {
 		return nameKey;
 	}
 

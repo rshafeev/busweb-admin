@@ -11,42 +11,89 @@
  * Roman Shafeyev (rs@premiumgis.com)
  *
  *************************************************************************/
+/**
+ #asset(bus/admin/css/ContextMenu.css)
+ #asset(bus/admin/js/ContextMenu.js)
+ */
 
 /**
  * @ignore(google.maps)
+ * @ignore(ContextMenu)
  */
+
 
 /**
  * Виджет Google карты
  */
-qx.Class.define("bus.admin.widget.GoogleMap", {
-	extend : qx.ui.core.Widget,
+ qx.Class.define("bus.admin.widget.GoogleMap", {
+ 	extend : qx.ui.core.Widget,
 
-	construct : function() {
-		this.base(arguments);
-		this.__center = {};
-	},
+ 	construct : function() {
+ 		this.base(arguments);
+ 		this.__center = {};
+ 	},
 
-	destruct : function() {
-		this.getMapObject().destroy();
-		this.setMapObject(null);
-		this.__center = null;
-	},
-	properties : {
+ 	destruct : function() {
+ 		this.getMapObject().destroy();
+ 		this.setMapObject(null);
+ 		this.__center = null;
+ 	},
+ 	properties : {
 		/**
 		 * Google карта
 		 * @type {google.maps.Map}
 		 */
-		mapObject : {
-			nullable : true
-		}
-	},
-	members : {
+		 mapObject : {
+		 	nullable : true
+		 }
+		},
+		members : {
 		/**
 		 * Центральная точка карты
 		 * @type {Object}
 		 */
-		__center : null,
+		 __center : null,
+
+ 		  /**
+ 		   * Контекстное меню карты
+ 		   * @type {Object}
+ 		   */
+		 __contextMenu : null,
+
+		 setContextMenu : function(menuItems){
+		 	var map = this.getMapObject();
+		 	if (map == null)
+		 		return;
+		 	if (this.__contextMenu  != undefined) {
+		 		google.maps.event.clearListeners(map, 'menu_item_selected');
+		 	}
+		 	if(menuItems == undefined)
+		 		return;
+		 	var contextMenuOptions = {};
+		 	contextMenuOptions.classNames = {
+		 		menu : 'context_menu',
+		 		menuSeparator : 'context_menu_separator'
+		 	};
+		 	contextMenuOptions.menuItems = menuItems;
+
+		 	var contextMenu = new ContextMenu(map, contextMenuOptions);
+		 	var self = this;
+		 	google.maps.event.addListener(map, "rightclick", function(mouseEvent) {
+		 		contextMenu.show(mouseEvent.latLng);
+		 	});
+		 	google.maps.event.addListener(map, "click",	function(mouseEvent) {
+		 		contextMenu.hide();
+		 	});
+		 	google.maps.event.addListener(map, "dragstart", function(mouseEvent) {
+		 		contextMenu.hide();
+		 	});
+		 	this.__contextMenu = contextMenu;
+		 },
+
+		 getContextMenu : function(){
+		 	return this.__contextMenu;
+		 },
+
 
 		/**
 		 * Центрирует карту и задает масштаб
@@ -54,16 +101,16 @@ qx.Class.define("bus.admin.widget.GoogleMap", {
 		 * @param lon {Number}    Долгота
 		 * @param scale {Integer}  Масштаб
 		 */
-		setCenter : function(lat, lon, scale) {
-			if (this.getMapObject()) {
-				this.getMapObject().setCenter(new google.maps.LatLng(lat, lon));
-				if(scale!=null)
-				this.getMapObject().setZoom(scale);
-						}
-			this.__center.lat = lat;
-			this.__center.lon = lon;
-			this.__center.scale = scale;
-		},
+		 setCenter : function(lat, lon, scale) {
+		 	if (this.getMapObject()) {
+		 		this.getMapObject().setCenter(new google.maps.LatLng(lat, lon));
+		 		if(scale!=null)
+		 			this.getMapObject().setZoom(scale);
+		 	}
+		 	this.__center.lat = lat;
+		 	this.__center.lon = lon;
+		 	this.__center.scale = scale;
+		 },
 
 		/**
 		 * инициализация виджета
@@ -71,60 +118,58 @@ qx.Class.define("bus.admin.widget.GoogleMap", {
 		 * @param lon {Number}    Долгота центральной точки
 		 * @param scale {Integer}  Масштаб
 		 */
-		init : function(lat, lon, scale) {
-			this.__center.lat = lat;
-			this.__center.lon = lon;
-			this.__center.scale = scale;
-			this.addListenerOnce("appear", this.__createMap, this);
-			this.addListener("appear", this.__onAppear, this);
-			this.addListener("resize", this.__onResize, this);
+		 init : function(lat, lon, scale) {
+		 	this.__center.lat = lat;
+		 	this.__center.lon = lon;
+		 	this.__center.scale = scale;
+		 	this.addListenerOnce("appear", this.__createMap, this);
+		 	this.addListener("appear", this.__onAppear, this);
+		 	this.addListener("resize", this.__onResize, this);
 
-		},
+		 },
 
 		/**
 		 * Создание google карты
 		 */
-		__createMap : function() {
-			var map = new google.maps.Map(this.getContentElement()
-							.getDomElement(), {
-						mapTypeId : google.maps.MapTypeId.ROADMAP,
-						mapTypeControl : true,
-						mapTypeControlOptions : {
-							style : google.maps.MapTypeControlStyle.DROPDOWN_MENU
-						},
-						navigationControl : true,
-						navigationControlOptions : {
-							style : google.maps.NavigationControlStyle.SMALL
-						}
-					});
-			map.setOptions({draggableCursor:'crosshair'});
-						
-			this.setMapObject(map);
-			this.setCenter(this.__center.lat, this.__center.lon, this.__center.scale);
-			this.debug('map was initialized');
-		},
+		 __createMap : function() {
+		 	var map = new google.maps.Map(this.getContentElement().getDomElement(), {
+		 			mapTypeId : google.maps.MapTypeId.ROADMAP,
+		 			mapTypeControl : true,
+		 			mapTypeControlOptions : {
+		 				style : google.maps.MapTypeControlStyle.DROPDOWN_MENU
+		 			},
+		 			navigationControl : true,
+		 			navigationControlOptions : {
+		 				style : google.maps.NavigationControlStyle.SMALL
+		 			}
+		 		});
+		 	map.setOptions({draggableCursor:'crosshair'});
+		 	this.setMapObject(map);
+		 	this.setCenter(this.__center.lat, this.__center.lon, this.__center.scale);
+		 	this.debug('map was initialized');
+		 },
 
  		/**
  		 * Обработчик события вызывается при изменении размеров карты.
  		 */
-		__onResize : function() {
-			if (this.getMapObject()!=null) {
-				
-				qx.html.Element.flush();
-				google.maps.event.trigger(this.getMapObject(), 'resize');
-			}
-		},
+ 		 __onResize : function() {
+ 		 	if (this.getMapObject()!=null) {
+
+ 		 		qx.html.Element.flush();
+ 		 		google.maps.event.trigger(this.getMapObject(), 'resize');
+ 		 	}
+ 		 },
 
 		/**
 		 * Обработчик события вызывается при появлении карты.
 		 */
-		__onAppear : function(){
-			this.debug("__onAppear()");
-			this.__onResize();
+		 __onAppear : function(){
+		 	this.debug("__onAppear()");
+		 	this.__onResize();
+		 }
+
+
+
 		}
-		
-		
 
-	}
-
-});
+	});

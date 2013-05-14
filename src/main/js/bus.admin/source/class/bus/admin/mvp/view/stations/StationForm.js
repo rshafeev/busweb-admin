@@ -23,14 +23,16 @@
  	extend : qx.ui.window.Window,
 
  	/**
- 	 * @param  isChangeDlg {Boolean}  Тип окна. True - диалоговое окно для редактирования ранее созданной станции. False - диалоговое окнго создания новой станции.
  	 * @param  stationModel   {bus.admin.mvp.model.StationModelEx}     Модель станции.
  	 * @param  langsModel {bus.admin.mvp.model.LanguagesModel} Список языков.
+ 	 * @param  cityModel {bus.admin.mvp.model.CityModel} Город, к которому относится редактируемая/создаваемая станция
+ 	 * @param  isChangeDlg {Boolean}  Тип окна. True - диалоговое окно для редактирования ранее созданной станции. False - диалоговое окнго создания новой станции.
  	 */
- 	 construct : function(isChangeDlg, stationModel, langsModel) {
+ 	 construct : function(stationModel, langsModel, cityModel, isChangeDlg) {
  	 	this.base(arguments);
- 	 	this.debug(isChangeDlg, stationModel, langsModel);
  	 	this._stationModel = stationModel;
+ 	 	this._langsModel = langsModel;
+ 	 	this._cityModel = cityModel;
  	 	this._isChangeDlg = isChangeDlg;
  	 	this.__initWidgets();
  	 	this.__setOptions();
@@ -44,16 +46,23 @@
  		  * <pre>
  		  * <ul>
  		  * <li> station         Модель станции,  {@link bus.admin.mvp.model.StationModel StationModel}. </li>
+ 		  * <li> cancel          Пользователь нажал на кнопку Cancel, Boolean. </li>
  		  * <ul> 
  		  * </pre>
  		  */
- 		  "prepare_model"     : "qx.event.type.Data",
+ 		  "prepared_model"     : "qx.event.type.Data"
  		},
 
  	/**
  	 * Методы класса
  	 */
  	 members : {
+ 	 	/**
+ 	 	 * Город, к которому относится редактируемая/создаваемая станция
+ 	 	 * @type {bus.admin.mvp.model.CityModel}
+ 	 	 */
+ 	 	_cityModel : null,
+
  		/**
  		 * Список языков.
  		 * @type {bus.admin.mvp.model.LanguagesModel}
@@ -113,90 +122,43 @@
 				var rowData = this._tableNames.getTableModel()
 				.getRowDataAsMap(i);
 
-				if (rowData.Name==null || rowData.Name.toString().length <= 0) {
+				if (rowData.Name == null || rowData.Name.toString().length <= 0) {
 					bus.admin.widget.MsgDlg.info(this.tr("Please, push names for all languages"));
 					return;
 				}
 			}
-			
-			if (this._isChangeDlg) {
-				this.__updateStation();
-			} else {
-				this.__insertStation();
+			var newStationModel = this._stationModel.clone();
+			newStationModel.setLocation(this.__editLat.getValue(), this._editLon.getValue());
+
+			for (var i = 0; i < this._tableNames.getTableModel().getRowCount(); i++) {
+				var rowData = this._tableNames.getTableModel().getRowDataAsMap(i);
+				var lang = this._langsModel.getLangByName(rowData.Language);
+				newStationModel.setName(lang.getId(), rowData.Name);
 			}
+			var args = {
+				station : newStationModel,
+				cancel : false
+			};
+			this.fireDataEvent("prepared_model", args);
+
 		},
 
 		/**
 		 * Обработчик события нажатия на кнопку btnCancel
 		 */
 		 __onClickBtnCancel : function() {
-		 	this.close();
-		 },
-
-		/**
-		 *  Функция формирует новую модель станции с учетом введенных в форму данных и вызывает у презентера триггер insertStationTrigger.
-		 */
-		 __insertStation : function() {
-		 	var newStationModel = this._stationModel;
-		 	newStationModel.setLocation(this.__editLat.getValue(), this._editLon.getValue());
-
-		 	for (var i = 0; i < this._tableNames.getTableModel().getRowCount(); i++) {
-		 		var rowData = this._tableNames.getTableModel().getRowDataAsMap(i);
-		 		var lang = this._langsModel.getLangByName(rowData.Language);
-		 		newStationModel.setName(lang.getId(), rowData.Name);
-		 	}
-
-		 	qx.core.Init.getApplication().setWaitingWindow(true);
-		 	var callback = qx.lang.Function.bind(function(data) {
-		 		qx.core.Init.getApplication().setWaitingWindow(false);
-		 		if (data.error == true) {
-		 			var msg = data.errorInfo != undefined ? this.tr("Error! ") + data.errorInfo : 
-		 			this.tr("Error! Can not insert new station. Please, check input data.");
-		 			bus.admin.widget.MsgDlg.info(msg);
-		 			return;
-		 		}
-		 		this.close();
-		 	}, this);
-		 	console.debug(newStationModel);
-		 	this.__presenter.insertStationTrigger(newStationModel, callback, this);
-
-		 },
-
-		/**
-		 * Функция формирует новую модель станции с учетом введенных в форму данных и вызывает у презентера триггер updateStationTrigger .
-		 */
-		 __updateStation : function() {
-		 	var newStationModel = this._stationModel.clone();
-		 	newStationModel.setLocation(this.__editLat.getValue(), this._editLon.getValue());
-
-		 	for (var i = 0; i < this._tableNames.getTableModel().getRowCount(); i++) {
-		 		var rowData = this._tableNames.getTableModel().getRowDataAsMap(i);
-		 		var lang = this._langsModel.getLangByName(rowData.Language);
-		 		newStationModel.setName(lang.getId(), rowData.Name);
-		 	}
-
-		 	qx.core.Init.getApplication().setWaitingWindow(true);
-		 	var callback = qx.lang.Function.bind(function(data) {
-		 		qx.core.Init.getApplication().setWaitingWindow(false);
-		 		if (data.error == true) {
-		 			var msg = data.errorInfo != undefined ? this.tr("Error! ") + data.errorInfo : 
-		 			this.tr("Error! Can not update station. Please, check input data.");
-		 			bus.admin.widget.MsgDlg.info(msg);
-		 			return;
-		 		}
-		 		this.close();
-		 	}, this);
-		 	console.debug(newStationModel);
-		 	this.__presenter.updateStationTrigger(this._stationModel, newStationModel, callback, this);
-
+		 	var args = {
+		 		station : null,
+		 		cancel : true
+		 	};
+		 	this.fireDataEvent("prepared_model", args);
 		 },
 
 		/**
 		 * Функция создает все дочерние виджеты и размещает их на форме
 		 */		
 		 __initWidgets : function() {
-		 	var city = this.__presenter.getDataStorage().getSelectedCity();
-		 	var cityName = city.getName(bus.admin.AppProperties.getLocale());
+		 	var cityName = this._cityModel.getName(bus.admin.AppProperties.getLocale());
 
 		 	this.setLayout(new qx.ui.layout.Canvas());
 
@@ -311,7 +273,7 @@
 		 	this._editLon.setValue(station.getLocation().getLon().toString());
 
 			// fill table
-			var langs = this._langsModel;
+			var langs = this._langsModel.getLangs();
 			var rowsData = [];
 			for (var i = 0; i < langs.length; i++) {
 				var stationName = "";

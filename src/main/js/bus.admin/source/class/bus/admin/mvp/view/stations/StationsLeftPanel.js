@@ -268,9 +268,8 @@
  		 	var callback = function(data){
  		 		if(data.error == true || data.station == undefined)
  		 			return;
- 		 		var changeStationDlg = new bus.admin.mvp.view.stations.CUStationForm(
- 		 			self._presenter, true, data.station);
- 		 		changeStationDlg.open();
+ 		 		var dlg = new bus.admin.mvp.view.stations.CUStationForm(self._presenter, data.station, true);
+ 		 		dlg.open();
  		 	};
  		 	this._presenter.getStation(rowData.ID, callback);
  		 },
@@ -485,8 +484,7 @@
 
  		 	this._btnChange.addListener("click", this.__onClickBtnChange, this);
  		 	this._btnDelete.addListener("click", this.__onClickBtnDelete, this);
- 		 	this._btnRefresh.addListener("click", this.__onClickBtnRefresh,
- 		 		this);
+ 		 	this._btnRefresh.addListener("click", this.__onClickBtnRefresh,	this);
  		 }
 
  		}

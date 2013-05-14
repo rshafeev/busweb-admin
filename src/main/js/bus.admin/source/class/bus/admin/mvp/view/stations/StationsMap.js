@@ -26,7 +26,6 @@
  */
  qx.Class.define("bus.admin.mvp.view.stations.StationsMap", {
  	extend : qx.ui.container.Composite,
-
  	/**
      * @param  presenter   {bus.admin.mvp.presenter.StationsPresenter}  Presenter   
      */
@@ -209,6 +208,8 @@
 		  	}
 		  },
 
+
+
 		/**
 		 * В зависимости от того, какой масштаб у карты, скрывает или показывает остановки на карте. 
 		 */
@@ -298,13 +299,10 @@
 		 				var callback = function(data){
 		 					if(data.error == true || data.station == undefined)
 		 						return;
-		 					var changeStationDlg = new bus.admin.mvp.view.stations.CUStationForm(
-		 						self.__presenter, true, data.station);
-		 					changeStationDlg.open();
+		 					var dlg = new bus.admin.mvp.view.stations.CUStationForm(self.__presenter, data.station, true);
+		 					dlg.open();
 		 				};
 		 				self.__presenter.getStation(stationID, callback);
-
-
 		 			});
 		 		this.__stationMarkers[stID] = marker;
 		 	}
@@ -425,12 +423,11 @@
 	     		case 'insert_station_click' :
 	     		this.debug("insert_station_click()");
 	     		var dataStorage = this.__presenter.getDataStorage();
-	     		var stationMoel = new bus.admin.mvp.model.StationModelEx();
-	     		stationMoel.setCityID(dataStorage.getSelectedCityID());
-	     		stationMoel.setLocation(latLng.lat(), latLng.lng());
-	     		var insertStationDlg = new bus.admin.mvp.view.stations.CUStationForm(
-	     			this.__presenter, false, stationMoel);
-	     		insertStationDlg.open();
+	     		var stationModel = new bus.admin.mvp.model.StationModelEx();
+	     		stationModel.setCityID(dataStorage.getSelectedCityID());
+	     		stationModel.setLocation(latLng.lat(), latLng.lng());
+	     		var dlg = new bus.admin.mvp.view.stations.CUStationForm(this.__presenter, stationModel, false);
+	     		dlg.open();
 	     		break;
 
 	     		case 'zoom_in_click' :

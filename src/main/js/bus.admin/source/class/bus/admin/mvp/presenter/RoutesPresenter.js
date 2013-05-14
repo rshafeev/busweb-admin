@@ -125,7 +125,35 @@
        * <ul>
        * </pre>
        */ 
-       "update_route" : "qx.event.type.Data"
+       "update_route" : "qx.event.type.Data",
+
+
+      /**
+       * Событие наступает после добавления новой "prepared" станции на карту в процессе конструирования маршрута. Данная станция
+       * не была занесена в БД, а только хранитс в dataStorage текущего презентера. Станции типа "prepared" нужны для конструирования маршрута 
+       * и заносятся в БД только вместе с сохранением в ней обновленого/нового маршрута. Все станции "prepared" имеют уникальный ID, но с 
+       * отрицательным знаком. 
+       * <br><br>Свойства возвращаемого объекта: <br>      
+       * <pre>
+       * <ul>
+       * <li> station           Модель новой станции, {@link bus.admin.mvp.model.StationModelEx StationModelEx} </li>
+       * <ul>
+       * </pre>
+       */ 
+       "insert_prepared_station" : "qx.event.type.Data",
+
+
+      /**
+       * Событие наступает после изменения "prepared" станции.
+       * <br><br>Свойства возвращаемого объекта: <br>      
+       * <pre>
+       * <ul>
+       * <li> station           Модель измененной станции, {@link bus.admin.mvp.model.StationModelEx StationModelEx} </li>
+       * <ul>
+       * </pre>
+       */ 
+       "update_prepared_station" : "qx.event.type.Data"
+
 
 
  		/*
