@@ -78,6 +78,122 @@
  	 	members : 
  	 	{
 
+ 	 	/**
+ 	 	 * Возвращает предыдущую дугу
+ 	 	 * @param  relationModel {bus.admin.mvp.model.route.RouteRelationModel} Текущая дуга
+ 	 	 * @return {bus.admin.mvp.model.route.RouteRelationModel}  Предыдущая дуга
+ 	 	 */
+ 	 	getPrevRelation : function(relationModel){
+ 	 		var relations = this.getRelations();
+ 	 		if(relationModel == undefined || relations == undefined)
+ 	 			return null;
+ 	 		
+ 	 		for(var i = 0; i < relations.length; i++){
+ 	 			if(relations[i].getCurrStation().getId() == relationModel.getCurrStation().getId()){
+ 	 				
+ 	 			}
+ 	 		}
+ 	 		return null;
+
+ 	 	},
+
+ 	 	/**
+         * <br><br>Свойства возвращаемого объекта: <br>      
+         * <pre>
+         * <ul>
+         * <li> oldRelation       Модель измененной  дуги, {@link bus.admin.mvp.model.route.RouteRelationModel RouteRelationModel} </li>
+         * <li> relation          Новая модель дуги, {@link bus.admin.mvp.model.route.RouteRelationModel RouteRelationModel </li>
+         * <li> operation         Операция, которая была произведена над дугой ("insert", "remove", "update"), String </li>
+         * <ul>
+         * </pre>
+ 	 	 * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции
+ 	 	 * @param  position {Integer} Положение станции относительно остальных станций
+ 	 	 * @return {Object[]}   Измененные дуги пути.
+ 	 	 */
+ 	 	 insertStation : function(stationModel, position){
+ 	 	 	// Проверка входных данных
+ 	 	 	var result = [];
+ 	 	 	var relations = this.getRelations();
+ 	 	 	if((relations != undefined && relations.length < position) ||
+ 	 	 		(relations == undefined && position > 0 ) )
+ 	 	 		return [];
+ 	 	 	if(relations == undefined)
+ 	 	 		relations = [];
+
+ 	 	 	// обновим индексы
+ 	 	 	for(var i = position;i <  relations.length; i++){
+ 	 	 		relations[i].setIndex(i+1);
+ 	 	 	}
+ 	 	 	var newRelation = new bus.admin.mvp.model.route.RouteRelationModel();
+ 	 	 	newRelation.setRouteWayID(this.getId());
+ 	 	 	newRelation.setCurrStation(stationModel);
+ 	 	 	newRelation.setIndex(position);
+ 	 	 	result.push({
+ 	 	 		relation : newRelation,
+ 	 	 		operation : "insert"
+ 	 	 	});
+ 	 	 	
+ 	 	 	if(relations.length == 0){
+ 	 	 		// Если путь пустой
+ 	 	 		newRelation.setGeom(null);
+ 	 	 		//relations.push(newRelation);
+ 	 	 	}
+ 	 	 	else
+ 	 	 		if(position == relations.length){
+ 	 	 		// Если нужно добавить станцию вконец пути
+ 	 	 		var lastStation = relations[relations.length-1].getCurrStation();
+ 	 	 		var geom = new bus.admin.mvp.model.geom.PolyLineModel();
+ 	 	 		var points = [];
+ 	 	 		points.push([lastStation.getLocation().getLat(),  lastStation.getLocation().getLon()]);
+ 	 	 		points.push([stationModel.getLocation().getLat(), stationModel.getLocation().getLon()]);
+
+ 	 	 		newRelation.setGeom(new bus.admin.mvp.model.geom.PolyLineModel({points : points}));
+ 	 	 		// relations.push(newRelation);
+ 	 	 	}
+ 	 	 	else
+ 	 	 		if(position == 0){
+ 	 	 		// Если нужно добавить станцию в начало пути
+ 	 	 		var fistStation = relations[0].getCurrStation();
+ 	 	 		var points = [];
+ 	 	 		points.push([stationModel.getLocation().getLat(), stationModel.getLocation().getLon()]);
+ 	 	 		points.push([fistStation.getLocation().getLat(),  fistStation.getLocation().getLon()]);
+ 	 	 		relations[0].setGeom(new bus.admin.mvp.model.geom.PolyLineModel({points : points}));
+ 	 	 		// relations.splice(0, 0, newRelation);
+
+ 	 	 	}
+ 	 	 	else
+ 	 	 		if(position > 0){
+ 	 	 		// Если нужно добавить станцию по средине пути
+ 	 	 		var prevStation = relations[position-1].getCurrStation();
+ 	 	 		var nextStation = relations[position].getCurrStation();
+ 	 	 		
+ 	 	 		var points1 = [];
+ 	 	 		points1.push([prevStation.getLocation().getLat(),  prevStation.getLocation().getLon()]);
+ 	 	 		points1.push([stationModel.getLocation().getLat(), stationModel.getLocation().getLon()]);
+ 	 	 		newRelation.setGeom(new bus.admin.mvp.model.geom.PolyLineModel({points : points1}));
+
+ 	 	 		var points2 = [];
+ 	 	 		points2.push([stationModel.getLocation().getLat(), stationModel.getLocation().getLon()]);
+ 	 	 		points2.push([nextStation.getLocation().getLat(),  nextStation.getLocation().getLon()]);
+ 	 	 		relations[position].setGeom(new bus.admin.mvp.model.geom.PolyLineModel({points : points2}));
+
+ 	 	 		result.push({
+ 	 	 			relation : relations[position],
+ 	 	 			operation : "update"
+ 	 	 		});
+
+ 	 	 	}
+ 	 	 	if(relations.length == position)
+ 	 	 		relations.push(newRelation);
+ 	 	 	else
+ 	 	 		relations.splice(position, 0, newRelation);
+ 	 	 	// Сохраним дуги в свойство "relations" и вернем измененные дуги. 
+ 	 	 	this.setRelations(relations);
+ 	 	 	return result;
+ 	 	 	
+
+
+ 	 	 },
 
  		/**
  		 * Преобразует модель в JS объект, который можно в дальнейшем сериализовать в JSON строку и отправить на сервер.
@@ -147,6 +263,10 @@
  		   	var copy = new bus.admin.mvp.model.route.RouteWayModel(this.toDataModel());
  		   	return copy;
  		   }
+
+
+
+
 
 
 

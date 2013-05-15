@@ -17,6 +17,12 @@
  */
 
 /**
+ #asset(bus/admin/images/map/stop.png)
+ #asset(bus/admin/images/map/stop_selected.png)
+ #asset(bus/admin/images/map/stop_new.png)
+ */
+
+/**
  * Виджет карты для страницы {@link bus.admin.mvp.view.Routes Routes}
  */
  qx.Class.define("bus.admin.mvp.view.routes.RoutesMap", {
@@ -28,7 +34,8 @@
      construct : function(presenter) {
      	this.base(arguments);
      	this.__presenter = presenter;
-     	this.__stations = [];
+     	this.__markers = {};
+     	this.__preparedMarkers = {};
      	this.__polylines = [];
      	this.__initWidgets();
      	presenter.addListener("select_city", this.__onSelectCity, this);
@@ -36,8 +43,11 @@
      	presenter.addListener("select_route", this.__onSelectRoute, this);
      	presenter.addListener("change_direction", this.__onChangeDirection, this);
      	presenter.addListener("change_state", this.__onChangeState, this);
+     	presenter.addListener("insert_prepared_station", this.__onInsertPreparedStation, this);
+     	presenter.addListener("update_prepared_station",this.__onUpdatePreparedStation, this);
+     	presenter.addListener("update_way_relations",this.__onUpdateWayRelations, this);
 
-
+     	//
 
      },
      properties : {
@@ -58,6 +68,7 @@
 		 	init : 13,
 		 	check : "Integer"
 		 }
+
 		},
 		members : {
  		/**
@@ -68,10 +79,17 @@
 
 
  		 /**
+ 		  * Словарь маркеров станций, google.maps.Marker. Key - ID станции
+ 		  * @type {Object}
+ 		  */
+ 		  __markers : null,
+
+ 		 /**
  		  * Массив станций, google.maps.Marker
  		  * @type {Object}
  		  */
- 		  __stations : null,
+ 		  __preparedMarkers : null,
+
 
  		 /**
  		  * Массив полилиний, google.maps.Polyline
@@ -80,29 +98,104 @@
  		  __polylines : null,
 
  		 /**
+ 		  * Иконка свободной станции, google.maps.MarkerImage
+ 		  * @type {Obejct}
+ 		  */
+ 		  __stationIcon : null,
+
+ 		 /**
  		  * Иконка станции маршрута, google.maps.MarkerImage
  		  * @type {Obejct}
  		  */
  		  __routeStationIcon : null,
 
- 		  /**
- 		   * Контекстное меню карты
- 		   * @type {Object}
- 		   */
- 		   __contextMenu : null,
+ 		 /**
+ 		  * Иконка  "prepared" станции, google.maps.MarkerImage
+ 		  * @type {Obejct}
+ 		  */
+ 		  __preparedStationIcon : null,
 
 
 
- 		   _nextStationID : null,
- 		   _menuItems : null,
+ 		  _nextStationID : null,
+ 		  _stations : [],
+ 		  _addedStations : [],
+ 		  _routeStations : [],
+ 		  _routePolylines : [],
 
- 		   _stations : [],
- 		   _addedStations : [],
- 		   _routeStations : [],
+		/**
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#update_way_relations update_way_relations} 
+		 * вызывается при изменении пути.
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 __onUpdateWayRelations : function(e){
+		 	this.debug("execute __onUpdateWayRelations() event handler.");
+		 	var relation = e.getData().relation;
+		 	var operation = e.getData().operation;
+		 	if(operation == "insert"){
+		 		var marker = this.__markers[relation.getCurrStation().getId()];
+		 		marker.setIcon(this.__routeStationIcon);
+		 		var prevRelation = this.__presenter.getDataStorage().getSelectedWay().
+		 		var stA = relations[i - 1].getCurrStation();
+		 		var stB = relation.getCurrStation();
+		 		var polyLine = relations[i].getGeom();
+		 		this.insertPolyLine(polyLine, stA, stB, 'red', canChange);
+		 	}
+		 },
 
- 		   _addedStationIcon : null,
+		/**
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#update_prepared_station update_prepared_station} 
+		 * вызывается при изменении "prepared" станции.
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 __onUpdatePreparedStation : function(e){
+		 	var stationModel = e.getData().station;
+		 	var langID = bus.admin.AppProperties.getLocale();
+		 	var marker = this.__preparedMarkers[stationModel.getId()];
+		 	marker.setPosition(new google.maps.LatLng(stationModel.getLocation().getLat(), stationModel.getLocation().getLon()));
+		 	marker.setTitle(stationModel.getName(langID));
+		 },
+		/**
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#insert_prepared_station insert_prepared_station} 
+		 * вызывается при добавлении "prepared" станции.
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 __onInsertPreparedStation : function(e){
+		 	var stationModel = e.getData().station;
+		 	var options = {
+		 		icon : this.__preparedStationIcon,
+		 		draggable : true
+		 	};
+		 	var marker = this.__insertStation(stationModel,options);
+		 	this.__preparedMarkers[stationModel.getId()] = stationModel;
+		 	var self = this;
+		 	google.maps.event.addListener(marker, "rightclick", function(mouseEvent) {
+		 		mouseEvent.latLng
+		 		var langsModel = self.__presenter.getDataStorage().getLangsModel();
+		 		var cityModel = self.__presenter.getDataStorage().getSelectedCity();
+		 		var stationModel = marker.get("station");
+		 		var dlg = new bus.admin.mvp.view.stations.StationForm(stationModel, langsModel, cityModel, true);
+		 		dlg.addListener("prepared_model", function(e){
+		 			var newStationModel = e.getData().station;
+		 			if(newStationModel == null || e.getData().cancel == true){
+		 				dlg.close();
+		 				return;
+		 			}
+		 			var callback = function(data){
+		 				if (data.error == true) {
+		 					var msg = data.errorInfo != undefined ? this.tr("Error! ") + data.errorInfo : 
+		 					this.tr("Error! Can not save station. Please, check input data.");
+		 					bus.admin.widget.MsgDlg.info(msg);
+		 					return;
+		 				}
+		 				dlg.close();
+		 			};
+		 			this.__presenter.updatePreparedStationTrigger(newStationModel, callback, this);
+		 		}, this);
+		 		dlg.open();
+		 	});
 
- 		   _routePolylines : [],
+},
 
 		/**
 		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#select_city select_city} вызывается при выборе пользователем города.
@@ -181,25 +274,60 @@
 		  		eventName : 'zoom_out_click',
 		  		label : this.tr('Zoom out')
 		  	});
-			menuItems.push({
-				className : 'context_menu_item',
-				eventName : 'center_map_click',
-				label : this.tr('Center map here')
-			});
+		  	menuItems.push({
+		  		className : 'context_menu_item',
+		  		eventName : 'center_map_click',
+		  		label : this.tr('Center map here')
+		  	});
 
-			if(state == "none"){
+		  	if(state == "none"){
 
-			} 
-			if(state == "make"){
-				menuItems.unshift({
-					className : 'context_menu_item',
-					eventName : 'insert_station_click',
-					label : this.tr('Insert station')
-				});
-			}
-			this.__setContextMenuItems(menuItems);
-		},
+		  	} 
+		  	if(state == "make"){
+		  		menuItems.unshift({
+		  			className : 'context_menu_item',
+		  			eventName : 'insert_station_click',
+		  			label : this.tr('Insert station')
+		  		});
+		  	}
+		  	this.__setContextMenuItems(menuItems);
+		  },
 
+		/**
+		 * С помощью презентера загружает остановки, которые располагаются в видимой части карты. Затем добавляет их
+		 * на карту.
+		 */
+		 __loadStationsFromBox : function(){
+		 	var state = this.__presenter.getDataStorage().getState();
+		 	if(state != "make")
+		 		return;
+		 	this.debug("execute loadStationsFromBox()");
+		 	var map = this.getGoogleMap().getMapObject();
+		 	if (map == null)
+		 		return;
+		 	if (this.getMinZoom() >= map.getZoom()) {
+		 		return;
+		 	}
+		 	var cityID = this.__presenter.getDataStorage().getSelectedCityID();
+		 	var langID = bus.admin.AppProperties.getLocale();
+		 	var p1 = new bus.admin.mvp.model.geom.PointModel();
+		 	p1.setLat(map.getBounds().getSouthWest().lat());
+		 	p1.setLon(map.getBounds().getSouthWest().lng());
+		 	var p2 = new bus.admin.mvp.model.geom.PointModel();
+		 	p2.setLat(map.getBounds().getNorthEast().lat());
+		 	p2.setLon(map.getBounds().getNorthEast().lng());
+		 	var callback = qx.lang.Function.bind(function(data) {
+		 		var stations = data.stationsBox.getStations();
+		 		for (var i = 0; i < stations.length; i++) {
+		 			var options = {
+		 				icon : this.__stationIcon,
+		 				draggable : false
+		 			};
+		 			this.__insertStation(stations[i].toModelEx(langID),options);
+		 		}
+		 	}, this);
+		 	this.__presenter.loadBoxStations(p1, p2, cityID, langID, callback);
+		 },
 
 		/**
 		 * Cоздает контекстное меню карты
@@ -271,7 +399,6 @@
 
 		  		for (var i = 0; i < relations.length; i++) {
 		  			var st = relations[i].getCurrStation();
-		  			
 		  			bounds.extend(new google.maps.LatLng(
 		  				st.getLocation().getLat(),
 		  				st.getLocation().getLon()));
@@ -293,31 +420,44 @@
 
 		  },
 
-
 		  /**
 		   * Добавляет станцию на карту.
 		   * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции.
-		   * @return {Object}              Возвращает gmaps станцию.
+		   * @param options {Map} Опции маркера
+		   * @return {Object}     Возвращает gmaps станцию.
 		   */
-		   __insertStation : function (stationModel)
+		   __insertStation : function (stationModel, options)
 		   {
-		   	var map  = this.getGoogleMap().getMapObject();
+		   	var marker = this.__markers[stationModel.getId()];
 		   	var langID = bus.admin.AppProperties.getLocale();
-		   	var stationIcon = this.__routeStationIcon;
-		   	var marker = new google.maps.Marker({
-		   		position : new google.maps.LatLng(stationModel.getLocation().getLat(),
-		   			stationModel.getLocation().getLon()),
-		   		map : map,
-		   		title : stationModel.getName(langID),
-		   		icon : stationIcon
-		   	});
-
-		   	marker.set("id", stationModel.getId());
-		   	marker.set("station", stationModel);
-		   	marker.setDraggable(false);
-		   	this.__stations.push(marker);
+		   	if(marker == undefined){
+		   		var map  = this.getGoogleMap().getMapObject();
+		   		var stationIcon = this.__routeStationIcon;
+		   		var draggable = false;
+		   		if(options != undefined && options.icon != undefined){
+		   			stationIcon = options.icon;
+		   		}
+		   		if(options != undefined && options.draggable != undefined){
+		   			draggable = options.draggable;
+		   		}
+		   		marker = new google.maps.Marker({
+		   			position : new google.maps.LatLng(stationModel.getLocation().getLat(),
+		   				stationModel.getLocation().getLon()),
+		   			map : map,
+		   			icon : stationIcon
+		   		});
+		   		marker.set("id", stationModel.getId());
+		   		marker.set("station", stationModel);
+		   		marker.setDraggable(draggable);
+		   		if(options != undefined)
+		   			marker.setOptions(options);
+		   		this.__markers[stationModel.getId()] = marker;
+		   	}
+		   	marker.setPosition(new google.maps.LatLng(stationModel.getLocation().getLat(), stationModel.getLocation().getLon()));
+		   	marker.setTitle(stationModel.getName(langID));
 		   	return marker;
 		   },
+
 
 
 		/**
@@ -343,10 +483,11 @@
 		 * Удаляет станции.
 		 */
 		 __removeAllStations : function() {
-		 	for (var i = 0; i < this.__stations.length; i++) {
-		 		this.__stations[i].setMap(null);
+		 	for (var stationID in this.__markers){
+		 		var marker = this.__markers[stationID];
+		 		marker.setMap(null);
 		 	}
-		 	this.__stations = [];
+		 	this.__markers = {};
 
 		 },
 
@@ -390,15 +531,20 @@
 		   	var self = this;
 		   	google.maps.event.addListener(map, "dragend", function(
 		   		mouseEvent) {
+		   		self.__loadStationsFromBox();
 		   		//self.onMapDragEnd();
 		   	});
 
 		   	google.maps.event.addListener(map, 'idle', function() {
+		   		self.__loadStationsFromBox();
+		   		self.__refreshMarkersVisibility();
 		   		//self.updateMarkersVisible(self._addedStations);
 		   		//self.updateMarkersVisible(self._stations);
 		   	});
 
 		   	google.maps.event.addListener(map, 'zoom_changed', function() {
+		   		self.__loadStationsFromBox();
+		   		self.__refreshMarkersVisibility();
 		   		//self.updateMarkersVisible(self._addedStations);
 		   		//self.updateMarkersVisible(self._stations);
 		   	});
@@ -411,8 +557,8 @@
 		 __initWidgets : function() {
 		 	this.setLayout(new qx.ui.layout.Dock());
 		 	this.__routeStationIcon = new google.maps.MarkerImage('resource/bus/admin/images/map/stop_selected.png');
-		 	this._stationIcon = new google.maps.MarkerImage('resource/bus/admin/images/map/stop.png');
-		 	this._addedStationIcon = new google.maps.MarkerImage('resource/bus/admin/images/map/stop_new.png');
+		 	this.__stationIcon = new google.maps.MarkerImage('resource/bus/admin/images/map/stop.png');
+		 	this.__preparedStationIcon = new google.maps.MarkerImage('resource/bus/admin/images/map/stop_new.png');
 
 			// Создадим виджет "GoogleMap"
 			this.setGoogleMap(new bus.admin.widget.GoogleMap());
@@ -462,6 +608,26 @@
 		 },
 
 
+		/**
+		 * В зависимости от того, какой масштаб у карты, скрывает или показывает остановки на карте. 
+		 */
+		 __refreshMarkersVisibility : function(){
+		 	var map = this.getGoogleMap().getMapObject();
+		 	if (map == null)
+		 		return;
+		 	if (this.getMinZoom() >= map.getZoom()) {
+		 		for(var id in this.__markers){
+		 			this.__markers[id].setMap(null);
+		 		}
+		 	}
+		 	else{
+		 		for(var id in this.__markers){
+		 			var marker = this.__markers[id];
+		 			if(marker.getMap() == undefined)
+		 				marker.setMap(map);
+		 		}
+		 	}
+		 },
 
 
 		  //======================================================================================================
@@ -805,6 +971,7 @@
 			}
 			return null;
 		},
+
 		insertStation : function(station, map, type) {
 			var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
 			var stationName = bus.admin.mvp.model.helpers.StationsModelHelper

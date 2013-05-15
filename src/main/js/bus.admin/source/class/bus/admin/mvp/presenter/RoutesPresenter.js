@@ -22,8 +22,8 @@
  qx.Class.define("bus.admin.mvp.presenter.RoutesPresenter", {
 
  	extend : qx.core.Object,
-
- 	events : {
+  include : [bus.admin.mvp.presenter.mix.BoxStationsLoader],
+  events : {
 
 	   /**
  		  * Событие наступает после загрузки страницы или после нажатия на кнопку "Refresh".
@@ -142,17 +142,30 @@
        */ 
        "insert_prepared_station" : "qx.event.type.Data",
 
-
       /**
-       * Событие наступает после изменения "prepared" станции.
+       * Событие наступает после изменения  "prepared" станции. 
        * <br><br>Свойства возвращаемого объекта: <br>      
        * <pre>
        * <ul>
-       * <li> station           Модель измененной станции, {@link bus.admin.mvp.model.StationModelEx StationModelEx} </li>
+       * <li> station           Модель станции, {@link bus.admin.mvp.model.StationModelEx StationModelEx} </li>
        * <ul>
        * </pre>
        */ 
-       "update_prepared_station" : "qx.event.type.Data"
+       "update_prepared_station" : "qx.event.type.Data",
+
+
+
+      /**
+       * Событие наступает после добавления/изменения(geom, станции)/удаления дуги пути. 
+       * <br><br>Свойства возвращаемого объекта: <br>      
+       * <pre>
+       * <ul>
+       * <li> relation          Новая модель дуги, {@link bus.admin.mvp.model.route.RouteRelationModel RouteRelationModel </li>
+       * <li> operation         Операция, которая была произведена над дугой ("insert", "remove", "update"), String </li>
+       * <ul>
+       * </pre>
+       */ 
+       "update_way_relations" : "qx.event.type.Data"
 
 
 
@@ -198,6 +211,35 @@
  		},
 
  		members : {
+
+     /**
+      * Триггер вызывается для добавления станции к пути маршрута
+      * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции
+      * @param  position {Integer} Положение станции относительно остальных станций
+      * @param  callback {Function}  callback функция
+      * @param  sender {Object}      Объект, который вызвал триггер
+      */     
+      insertStationToRouteWayTrigger : function(stationModel, position, callback, sender){
+       if(this.getDataStorage().getState() != "make")
+       {
+        if(callback!=undefined || position > relations.length || position < 0)
+          callback({error  : true});
+        return;
+      }
+      var routeWay = this.getDataStorage().getSelectedWay();
+      var relations = routeWay.insertStation(stationModel, position);
+      for(var i=0; i< relations.length; i++){
+        var args  =  bus.admin.helpers.ObjectHelper.clone(relations[i]);
+        args.error = false;
+        args.sender = this;
+        this.fireDataEvent("update_way_relations", args);
+      }
+
+    },
+
+    removeStationToRouteWayTrigger : function(stationModel, callback, sender){
+
+    },
 
  		   /**
  			* Триггер вызывается для обновления данных на странице
@@ -548,7 +590,7 @@
        */
        finishingMakeRouteTrigger : function(isSave, callback, sender){
         var state = "none";
-       
+
         if(this.getDataStorage().getState() == state)
         {
           if(callback!=undefined)
@@ -585,6 +627,55 @@
           callback({error  : false});
       },
 
+      /**
+       * Добавляет "prepared" станцию. Возможен вызов только, если страница находится в состоянии "make".
+       * @param stationModel {bus.admin.mvp.model.StationModelEx}    Модель станции
+       * @param  callback {Function}  callback функция
+       * @param  sender {Object}      Объект, который вызвал триггер
+       */
+       insertPreparedStationTrigger : function(stationModel, callback, sender){
+         if(this.getDataStorage().getState() != "make")
+         {
+          if(callback!=undefined)
+            callback({error  : true});
+          return;
+        }
+        var newStationModel = this.getDataStorage().addPreparedStation(stationModel);
+        var args  = {
+          station : newStationModel,
+          sender  : sender,
+          arror   : false
+        };
+
+        this.fireDataEvent("insert_prepared_station", args);
+        if(callback!=undefined)
+          callback(args);
+      },
+
+      /**
+       * Обновляет "prepared" станцию. Возможен вызов только, если страница находится в состоянии "make".
+       * @param stationModel {bus.admin.mvp.model.StationModelEx}    Модель станции
+       * @param  callback {Function}  callback функция
+       * @param  sender {Object}      Объект, который вызвал триггер
+       */
+       updatePreparedStationTrigger : function(stationModel, callback, sender){
+         if(this.getDataStorage().getState() != "make")
+         {
+          if(callback!=undefined)
+            callback({error  : true});
+          return;
+        }
+        var newStationModel = this.getDataStorage().updatePreparedStation(stationModel);
+        var args  = {
+          station : stationModel,
+          sender  : sender,
+          arror   : false
+        };
+
+        this.fireDataEvent("update_prepared_station", args);
+        if(callback!=undefined)
+          callback(args);
+      },
 
 
 

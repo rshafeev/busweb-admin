@@ -77,6 +77,19 @@
  		 },
 
  		 /**
+ 		  * Возвращает модель станции типа {@link bus.admin.mvp.model.StationModelEx}
+ 		  * @param langID {String} ID языка, для которого нужно присвоить название станции в модели modelEx
+ 		  * @return {bus.admin.mvp.model.StationModelEx} Модель станции
+ 		  */
+ 		 toModelEx : function(langID){
+ 		 	var modelEx = new bus.admin.mvp.model.StationModelEx();
+ 		 	modelEx.setId(this.getId());
+ 		 	modelEx.setLocation(this.getLocation().getLat(), this.getLocation().getLon());
+ 		 	modelEx.setName(langID, this.getName());
+ 		 	return modelEx;
+ 		 },
+
+ 		 /**
  		  * Формирует модель из JS объекта. <br>
  		  * Как правило, объект  dataModel получают путем десериализации JSON строки, полученной от сервера. Объект dataModel должен иметь
  		  * следующие свойства:

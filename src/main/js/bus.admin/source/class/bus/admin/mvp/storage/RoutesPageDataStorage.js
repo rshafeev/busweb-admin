@@ -47,7 +47,8 @@
                 */
                 state : {
                  init : "none",
-                 check : "String"
+                 check : "String",
+                 apply : "_applyState"
                },
 
               /**
@@ -136,10 +137,13 @@
 
               /**
                * Набор станций, которые были добавлены пользователем при конструировании маршрута. (Данные станции не занесены в БД). 
-               * Их ID являются уникальными, но с отрицательным знаком (-1, -2, ...)
+               * Их ID являются уникальными, но с отрицательным знаком (-1, -2, ...).
+               * Занесение данных станций в БД происходит с сохранением в БД нового/измененного маршрута, причем только тех станций,
+               * которые принадлежат данному маршруту.После успешного сохранения маршрута и переключения состояния страницы на "none",
+               * данный массив очищается.
                * @type {bus.admin.mvp.model.StaionModelEx[]}
                */
-               prepareStations : {
+               preparedStations : {
                  nullable : true
                }
 
@@ -149,23 +153,44 @@
 
              members : {
 
-              addPrepareStation : function(stationModel){
-                var stations = this.getPrepareStations();
+              /**
+               * Добавляет в хранилище "prepared" станцию.
+               * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции
+               * @return {bus.admin.mvp.model.StationModelEx} Добавленная станция с назначенным ID
+               */
+               addPreparedStation : function(stationModel){
+                var stations = this.getPreparedStations();
                 if(stations == undefined)
                  stations = [];
-               var id = this.__getNextPrepareStationID();
-               stationModel.setId(id);
+               stationModel.setId(this.__getNextPreparedStationID());
                stations.push(stationModel);
-               this.setPrepareStations(stations);
+               this.setPreparedStations(stations);
+               return stationModel;
              },
 
               /**
-               * Возвращает ID следующей станции 
-               * @param  {[type]} stationModel [description]
-               * @return {[type]}              [description]
+               * Обновляет в хранилище "prepared" станцию.
+               * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции
                */
-               __getNextPrepareStationID : function(stationModel){
-                var stations = this.getPrepareStations();
+               updatePreparedStation : function(stationModel){
+                var stations = this.getPreparedStations();
+                if(stations == undefined)
+                  return;
+                for(var i=0;i < stations.length; i++){
+                  if(stations[i].getId() == stationModel.getId()){
+                    stations[i] = stationModel;
+                    break;
+                  }
+                }
+              },
+
+              /**
+               * Возвращает ID следующей станции 
+               * @param  stationModel {bus.admin.mvp.model.StationModelEx} Модель станции
+               * @return {Integer}  ID станции
+               */
+               __getNextPreparedStationID : function(stationModel){
+                var stations = this.getPreparedStations();
                 if(stations == undefined)
                   return -1;
                 return (-stations.length - 1);
@@ -179,6 +204,19 @@
                */
                _applySelectedCityID : function(value, old, name){
                 qx.module.Storage.setLocalItem("routes.selectedCityID", value);
+              },
+
+              /**
+               * Вызывается при изменении свойства bus.admin.mvp.storage.RoutesPageDataStorage#state.
+               * @param  value {Object}  Новое значение свойства
+               * @param  old {Object}    Предыдущее значение свойства
+               * @param  name {String}   Название свойства
+               */
+               _applyState: function(value, old, name){
+                if(value == "none")
+                  this.setPreparedStations(null);
+                if(value == "make")
+                  this.setPreparedStations([]);
               },
 
               /**
@@ -200,6 +238,19 @@
                 if(cityID <=0)
                   return null;
                 return this.getCitiesModel().getCityByID(cityID);
+              },
+
+              /**
+               * Возвращает путь (прямой или обратный) для текущего направления (свойство direction).
+               * @return {bus.admin.mvp.model.route.RouteWayModel} Модель пути.
+               */
+              getSelectedWay : function(){
+                var direction = this.getDirection();
+                var route = this.getSelectedRoute();
+                if(direction != undefined && route != undefined){
+                  return route.getWayByDirection(direction);
+                }
+                return null;
               }
 
             }

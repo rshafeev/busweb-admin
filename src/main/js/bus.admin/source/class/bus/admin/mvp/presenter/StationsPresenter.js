@@ -22,6 +22,7 @@
  qx.Class.define("bus.admin.mvp.presenter.StationsPresenter", {
 
  	extend : qx.core.Object,
+  include : [bus.admin.mvp.presenter.mix.BoxStationsLoader],
  	events : {
 
 	   /**
@@ -374,62 +375,9 @@
  			 	};
  			 	this.fireDataEvent("select_city", args);
  			 	if(callback!= undefined)
- 			 		callback(args);			
- 			 },
+ 			 		callback(args);		
+       },
 
- 			/**
- 			 * Возвращает набор остановок, местоположения которых попадает в заданный прямоугольник. 
- 			 * @param  p1 {bus.admin.mvp.model.geom.PointModel}    Координаты левого верхнего угла прямоугольника. 
- 			 * @param  p2 {bus.admin.mvp.model.geom.PointModel}    Координаты правого нижнего угла прямоугольника. 
- 			 * @param  callback {Function}  Callback функиция, аргументом которой выступает массив остановок.
- 			 */
- 			 loadStationsFromBox : function(p1, p2, callback){
- 			 	this.debug("execute loadStationsFromBox()");
- 			 	var cityID = this.getDataStorage().getSelectedCityID();
- 			 	var langID = this.getDataStorage().getCurrNamesLangID();
-
- 			 	var args = {
- 			 		stationsBox : null 			 	
-
- 			 	};
- 			 	
- 			 	if (cityID <= 0){
- 			 		if(callback!= undefined)
- 			 			callback(args);	
- 			 		return;
- 			 	}
-        var requestModel = new bus.admin.mvp.model.StationsBoxModel();
-        requestModel.setCityID(cityID);
-        requestModel.setLangID(langID);
-        requestModel.setLtPoint(p1);
-        requestModel.setRbPoint(p2);
-
-
- 			 	var dataRequest =  new bus.admin.net.DataRequest();
- 			 	var req = dataRequest.Stations().getStationsFromBox(requestModel, function(responce){
- 			 		var data = responce.getContent();
- 			 		this.debug("getStationsFromBox(): received cities data");
- 			 		console.debug(data);
- 			 		var args ={};
- 			 		if(data == null || data.error != null){
- 			 			args = {
- 			 				stationsBox : null,
- 			 				error : true,
- 			 				errorCode : data.error != undefined ? data.error.code : "req_err",
- 			 				errorRemoteInfo :  data.error != undefined ? data.error.info : null
- 			 			}
- 			 		}
- 			 		else{
- 			 			var responseModel = new bus.admin.mvp.model.StationsBoxModel(data);
- 			 			args = {
- 			 				stationsBox :  responseModel,
- 			 				error  :  false
- 			 			};
- 			 		}
- 			 		callback(args);
- 			 	},this);
-
- 			 },
  			/**
  			 * Триггер выполняет загрузку списка станций. (Вызывает событие load_stations_list)
  			 * @param  cityID {Integer}     ID города

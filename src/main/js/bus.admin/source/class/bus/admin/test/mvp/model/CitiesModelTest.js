@@ -21,7 +21,9 @@
   construct: function()
   {
     this.base(arguments);
-    var data1 = '[]';
+    var data1 = "[{\"id\":55,\"key\":\"\",\"location\":{\"lat\":46.846674042342435,\"lon\":35.37549018859865}," + 
+    "\"scale\":13,\"nameKey\":4381,\"show\":false,\"names\":[{\"id\":13420,\"lang\":\"uk\",\"value\":\"Мелитополь\"}," + 
+    "{\"id\":13422,\"lang\":\"ru\",\"value\":\"Мелитополь\"},{\"id\":13421,\"lang\":\"en\",\"value\":\"Melitopol\"}]}]";
 
     this.debug("Parsing test data...");
     this._citiesData1 = qx.lang.Json.parse(data1);
@@ -65,7 +67,7 @@
     /**
      * Проверим формирование объекта из модели CityModel
      */
-    testCityModelToDataModel : function(){
+     testCityModelToDataModel : function(){
       this.debug("execute testCityModelToJsonObj()");
       var cityModel = new bus.admin.mvp.model.CityModel(this._citiesData1[0]);
       var jsonObj = cityModel.toDataModel();
@@ -75,7 +77,7 @@
     /**
      * Проверим формирование объекта из модели CitiesModel
      */
-    testCitiesModelToDataModel : function(){
+     testCitiesModelToDataModel : function(){
       this.debug("execute testCitiesModelToJsonObj()");
       var citiesModel = new bus.admin.mvp.model.CitiesModel(this._citiesData1);
       var jsonObj = citiesModel.toDataModel();

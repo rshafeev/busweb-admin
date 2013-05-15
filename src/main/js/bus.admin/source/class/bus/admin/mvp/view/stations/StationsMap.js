@@ -243,18 +243,18 @@
 		 	if (this.getMinZoom() >= map.getZoom()) {
 		 		return;
 		 	}
+		 	var cityID = this.__presenter.getDataStorage().getSelectedCityID();
+		 	var langID = this.__presenter.getDataStorage().getCurrNamesLangID();	
 		 	var p1 = new bus.admin.mvp.model.geom.PointModel();
 		 	p1.setLat(map.getBounds().getSouthWest().lat());
 		 	p1.setLon(map.getBounds().getSouthWest().lng());
 		 	var p2 = new bus.admin.mvp.model.geom.PointModel();
 		 	p2.setLat(map.getBounds().getNorthEast().lat());
 		 	p2.setLon(map.getBounds().getNorthEast().lng());
-
 		 	var callback = qx.lang.Function.bind(function(data) {
 		 		this.insertStations(data.stationsBox);
-
 		 	}, this);
-		 	this.__presenter.loadStationsFromBox(p1, p2, callback);
+		 	this.__presenter.loadBoxStations(p1, p2, cityID, langID, callback);
 		 },
 
 
@@ -265,9 +265,9 @@
 		 insertStations : function(stationsBoxModel){
 		 	this.debug("execute insertStations()");
 		 	var stations = stationsBoxModel.getStations();
-		 	var stDict = {};
+		 	//var stDict = {};
 		 	for (var i = 0; i < stations.length; i++) {
-		 		stDict[stations[i].getId()] = true;
+		 		// stDict[stations[i].getId()] = true;
 		 		this.insertStation(stations[i].getId(), stations[i].getLocation(), stations[i].getName());
 		 	}
 
