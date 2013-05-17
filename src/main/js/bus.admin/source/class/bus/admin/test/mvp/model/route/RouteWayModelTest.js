@@ -146,7 +146,133 @@
       this.assertNotNull(relations[1].getGeom(), "Geom for relation is  null");
       this.assertNotNull(relations[2].getGeom(), "Geom for relation is  null");
       this.assertEquals(2, result.length, "Result count is failed");
-    }
+    },
 
-  }
-});
+
+    /**
+     * Проверим правильность удаления станции с начала пути
+     */
+     testRemoveStationBegin : function()
+     {
+       var st1 = new bus.admin.mvp.model.StationModelEx();
+       st1.setId(-1);
+       st1.setLocation(10, 20);
+
+       var st2 = new bus.admin.mvp.model.StationModelEx();
+       st2.setId(-2);
+       st2.setLocation(20, 40);
+
+       var st3 = new bus.admin.mvp.model.StationModelEx();
+       st3.setId(-4);
+       st3.setLocation(30, 50);
+
+       var routeWay = new bus.admin.mvp.model.route.RouteWayModel();
+
+       routeWay.insertStation(st1, 0);
+       routeWay.insertStation(st2, 1);
+       routeWay.insertStation(st3, 2);
+
+       // tests
+       var changes = routeWay.removeStation(st1.getId());
+
+       // check
+       var relations = routeWay.getRelations();
+       this.assertEquals(2, routeWay.getRelations().length, "Relations count is failed");
+       this.assertEquals(0, relations[0].getIndex(), "Relation index is failed");
+       this.assertEquals(1, relations[1].getIndex(), "Relation index id is failed");
+       this.assertEquals(st2.getId(), relations[0].getCurrStation().getId(), "Station id is failed");
+       this.assertEquals(st3.getId(), relations[1].getCurrStation().getId(), "Station id is failed");
+       this.assertNull(relations[0].getGeom(), "Geom for first relation is not null");
+       this.assertNotNull(relations[1].getGeom(), "Geom for relation is  null");
+       this.assertEquals(2, changes.length, "Result count is failed");
+       this.assertEquals(st1.getId(), changes[0].relation.getCurrStation().getId(), "Return data is failed");
+       this.assertEquals(st2.getId(), changes[1].relation.getCurrStation().getId(), "Return data is failed");
+       this.assertEquals("remove", changes[0].operation, "Return data is failed");
+       this.assertEquals("update", changes[1].operation, "Return data is failed");
+     },
+
+
+    /**
+     * Проверим правильность удаления станции с середины пути
+     */
+     testRemoveStationMiddle : function()
+     {
+       var st1 = new bus.admin.mvp.model.StationModelEx();
+       st1.setId(-1);
+       st1.setLocation(10, 20);
+
+       var st2 = new bus.admin.mvp.model.StationModelEx();
+       st2.setId(-2);
+       st2.setLocation(20, 40);
+
+       var st3 = new bus.admin.mvp.model.StationModelEx();
+       st3.setId(-4);
+       st3.setLocation(30, 50);
+
+       var routeWay = new bus.admin.mvp.model.route.RouteWayModel();
+       routeWay.insertStation(st1, 0);
+       routeWay.insertStation(st2, 1);
+       routeWay.insertStation(st3, 2);
+
+       
+       // tests
+       var changes = routeWay.removeStation(st2.getId());
+       
+       // check
+       var relations = routeWay.getRelations();
+       this.assertEquals(2, routeWay.getRelations().length, "Relations count is failed");
+       this.assertEquals(0, relations[0].getIndex(), "Relation index is failed");
+       this.assertEquals(1, relations[1].getIndex(), "Relation index id is failed");
+       this.assertEquals(st1.getId(), relations[0].getCurrStation().getId(), "Station id is failed");
+       this.assertEquals(st3.getId(), relations[1].getCurrStation().getId(), "Station id is failed");
+       this.assertNull(relations[0].getGeom(), "Geom for first relation is not null");
+       this.assertNotNull(relations[1].getGeom(), "Geom for relation is  null");
+       this.assertEquals(2, changes.length, "Result count is failed");
+       this.assertEquals(st2.getId(), changes[0].relation.getCurrStation().getId(), "Return data is failed");
+       this.assertEquals(st3.getId(), changes[1].relation.getCurrStation().getId(), "Return data is failed");
+       this.assertEquals("remove", changes[0].operation, "Return data is failed");
+       this.assertEquals("update", changes[1].operation, "Return data is failed");
+     },
+
+    /**
+     * Проверим правильность удаления станции с конца пути
+     */
+     testRemoveStationEnd : function()
+     {
+       var st1 = new bus.admin.mvp.model.StationModelEx();
+       st1.setId(-1);
+       st1.setLocation(10, 20);
+
+       var st2 = new bus.admin.mvp.model.StationModelEx();
+       st2.setId(-2);
+       st2.setLocation(20, 40);
+
+       var st3 = new bus.admin.mvp.model.StationModelEx();
+       st3.setId(-4);
+       st3.setLocation(30, 50);
+
+       var routeWay = new bus.admin.mvp.model.route.RouteWayModel();
+       routeWay.insertStation(st1, 0);
+       routeWay.insertStation(st2, 1);
+       routeWay.insertStation(st3, 2);
+
+       
+       // tests
+       var changes = routeWay.removeStation(st3.getId());
+       
+       // check
+       var relations = routeWay.getRelations();
+       this.assertEquals(2, routeWay.getRelations().length, "Relations count is failed");
+       this.assertEquals(0, relations[0].getIndex(), "Relation index is failed");
+       this.assertEquals(1, relations[1].getIndex(), "Relation index id is failed");
+       this.assertEquals(st1.getId(), relations[0].getCurrStation().getId(), "Station id is failed");
+       this.assertEquals(st2.getId(), relations[1].getCurrStation().getId(), "Station id is failed");
+       this.assertNull(relations[0].getGeom(), "Geom for first relation is not null");
+       this.assertNotNull(relations[1].getGeom(), "Geom for relation is  null");
+       this.assertEquals(1, changes.length, "Result count is failed");
+       this.assertEquals(st3.getId(), changes[0].relation.getCurrStation().getId(), "Return data is failed");
+       this.assertEquals("remove", changes[0].operation, "Return data is failed");
+     }         
+
+   }
+ });

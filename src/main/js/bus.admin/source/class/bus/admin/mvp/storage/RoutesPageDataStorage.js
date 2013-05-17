@@ -22,12 +22,8 @@
     this.base(arguments);
     // create models
     var citiesModel = new bus.admin.mvp.model.CitiesModel();
-    var langsModel = new bus.admin.mvp.model.LanguagesModel();
-    langsModel.fromDataModel(bus.admin.AppProperties.LANGUAGES);
     this.setCitiesModel(citiesModel);
-    this.setLangsModel(langsModel);
-    this.setRouteTypes(bus.admin.AppProperties.RouteTypes);
-
+   
     // get data from locale storage
     var selectedCityID = qx.module.Storage.getLocalItem("routes.selectedCityID");
     var selectedRouteTypeID = qx.module.Storage.getLocalItem("routes.selectedRouteTypeID");
@@ -61,15 +57,6 @@
                },
 
               /**
-               * Хранит набор языков
-               * @type {bus.admin.mvp.model.LanguagesModel}
-               */
-               langsModel : {
-                nullable : true,
-                check : "bus.admin.mvp.model.LanguagesModel"
-              },
-
-              /**
                * Хранит список маршрутов
                * @type {bus.admin.mvp.model.RoutesListModel}
                */
@@ -95,6 +82,7 @@
                selectedRoute : {
                 nullable : true,
                 check : "bus.admin.mvp.model.RouteModel"
+                
               },
 
               /**
@@ -116,14 +104,7 @@
                 nullable : true
               },
 
-              /**
-               * Массив типов маршрутов. Каждый элемент имеет поле id и name. 
-               * @type {Object[]}
-               */
-               routeTypes : {
-                nullable : true
-              },
-
+              
               selectedRouteTypeID: {
                 check : "String",
                 init : "bus",
@@ -152,6 +133,38 @@
 
 
              members : {
+
+               /**
+               * Возвращает набор языков
+               * @type {bus.admin.mvp.model.LanguagesModel}
+               */
+               getLangsModel : function(){
+                return qx.core.Init.getApplication().getDataStorage().getSupportedLocales();
+              },
+
+              /**
+               * Массив типов маршрутов. Каждый элемент имеет поле id и name. 
+               * @type {Object[]}
+               */
+               getRouteTypes : function(){
+                return qx.core.Init.getApplication().getDataStorage().getRouteTypes();
+              },
+
+              /**
+               * Возвращает "prepared" станции, которые не включены в выбранный путь
+               * @return {bus.admin.mvp.model.StationModelEx[]} Массив "prepared" станций
+               */
+               getFreePreparedStations : function(){
+                 var arr = [];
+                 var stations = this.getPreparedStations();
+                 var way = this.getSelectedWay();
+                 for(var i = 0; i < stations.length; i++){
+                  if(way.isStationExists(stations[i].getId()) == false){
+                    arr.push(stations[i]);
+                  }
+                }
+                return arr;
+              },
 
               /**
                * Добавляет в хранилище "prepared" станцию.
@@ -244,10 +257,10 @@
                * Возвращает путь (прямой или обратный) для текущего направления (свойство direction).
                * @return {bus.admin.mvp.model.route.RouteWayModel} Модель пути.
                */
-              getSelectedWay : function(){
+               getSelectedWay : function(){
                 var direction = this.getDirection();
                 var route = this.getSelectedRoute();
-                if(direction != undefined && route != undefined){
+                if(route != undefined){
                   return route.getWayByDirection(direction);
                 }
                 return null;

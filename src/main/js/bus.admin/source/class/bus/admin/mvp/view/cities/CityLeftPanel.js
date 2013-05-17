@@ -114,7 +114,7 @@
  		 */
  		 _fillComboLangs : function(langsModel, currNamesLangID) {
  		 	this.debug("execute _fillComboLangs()");
- 		 	var locale = bus.admin.AppProperties.getLocale();
+ 		 	var locale = qx.core.Init.getApplication().getDataStorage().getLocale();
  		 	var langs = langsModel.getLangs();
  		 	var selectedItem = null;
 
@@ -147,7 +147,7 @@
  		  	var rowData = [];
  		  	this.debug("execute _fillTableCityNames()");
  		  	var cities  = citiesModel.getAllCities();
- 		  	var locale = bus.admin.AppProperties.getLocale();
+ 		  	var locale = qx.core.Init.getApplication().getDataStorage().getLocale();
  		  	for (var i = 0; i < cities.length; i++) {
  		  		var localeName = cities[i].getName(locale);
  		  		var name = cities[i].getName(langID);
@@ -183,7 +183,7 @@
  		 	var rowData = [];
  		 	var cities = citiesModel.getAllCities();
  		 	if (cities.length != null) {
- 		 		var locale = bus.admin.AppProperties.getLocale();
+ 		 		var locale = qx.core.Init.getApplication().getDataStorage().getLocale();
  		 		for (var i = 0; i < cities.length; i++) {
  		 			var name = cities[i].getName(locale);
  		 			rowData.push([cities[i].getId(), name, cities[i].getLocation().getLat(),
@@ -221,7 +221,7 @@
  		  	if(rowIndex < 0)
  		  		return;
  		  	var tableModel = this._tableCities.getTableModel();
- 		  	var locale = bus.admin.AppProperties.getLocale();
+ 		  	var locale = qx.core.Init.getApplication().getDataStorage().getLocale();
  		  	
  		  	tableModel.setValue(0, rowIndex, newCityModel.getId());
  		  	tableModel.setValue(1, rowIndex, newCityModel.getName(locale));
@@ -242,7 +242,7 @@
  		  	if(rowIndex < 0)
  		  		return;
  		  	var tableModel = this._tableCityNames.getTableModel();
- 		  	var locale = bus.admin.AppProperties.getLocale();
+ 		  	var locale = qx.core.Init.getApplication().getDataStorage().getLocale();
  		  	var currLangID = this._presenter.getDataStorage().getCurrNamesLangID();
  		  	tableModel.setValue(0, rowIndex,newCityModel.getId());
  		  	tableModel.setValue(1, rowIndex, newCityModel.getName(locale));
@@ -427,7 +427,7 @@
 
  		  var langID = null;
  		  if(data.col == 1){
- 		  	langID = bus.admin.AppProperties.getLocale();
+ 		  	langID = qx.core.Init.getApplication().getDataStorage().getLocale();
  		  }else
  		  if(data.col == 2){
  		  	langID = this._presenter.getDataStorage().getCurrNamesLangID();

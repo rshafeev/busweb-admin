@@ -79,25 +79,125 @@
  	 	{
 
  	 	/**
- 	 	 * Возвращает предыдущую дугу
- 	 	 * @param  relationModel {bus.admin.mvp.model.route.RouteRelationModel} Текущая дуга
- 	 	 * @return {bus.admin.mvp.model.route.RouteRelationModel}  Предыдущая дуга
+ 	 	 * Есть ли такая станция в пути?
+ 	 	 * @param  stationID {Integer}  ID станции
+ 	 	 * @return {Boolean}   True: есть.
  	 	 */
- 	 	getPrevRelation : function(relationModel){
- 	 		var relations = this.getRelations();
- 	 		if(relationModel == undefined || relations == undefined)
- 	 			return null;
- 	 		
- 	 		for(var i = 0; i < relations.length; i++){
- 	 			if(relations[i].getCurrStation().getId() == relationModel.getCurrStation().getId()){
- 	 				
- 	 			}
- 	 		}
- 	 		return null;
-
- 	 	},
+ 	 	 isStationExists: function(stationID){
+ 	 	 	var relations = this.getRelations();
+ 	 	 	if(relations == undefined)
+ 	 	 		return false;
+ 	 	 	for(var i = 0; i < relations.length; i++){
+ 	 	 		if(relations[i].getCurrStation().getId() == stationID){
+ 	 	 			return true;
+ 	 	 		}
+ 	 	 	}	 		
+ 	 	 	return false;
+ 	 	 },
 
  	 	/**
+ 	 	 * Возвращает предыдущую дугу
+ 	 	 * @param  relationModel {bus.admin.mvp.model.route.RouteRelationModel} Текущая дуга
+ 	 	 * @return {bus.admin.mvp.model.route.RouteRelationModel|null}  Предыдущая дуга
+ 	 	 */
+ 	 	 getPrevRelation : function(relationModel){
+ 	 	 	var relations = this.getRelations();
+ 	 	 	if(relationModel == undefined || relations == undefined)
+ 	 	 		return null;
+
+ 	 	 	for(var i = 0; i < relations.length; i++){
+ 	 	 		if(relations[i].getCurrStation().getId() == relationModel.getCurrStation().getId()){
+ 	 	 			if(i > 0)
+ 	 	 				return relations[i-1];
+ 	 	 		}
+ 	 	 	}
+
+ 	 	 	return null;
+ 	 	 },
+
+ 	 	/**
+ 	 	 * Возвращает следующую дугу
+ 	 	 * @param  relationModel {bus.admin.mvp.model.route.RouteRelationModel} Текущая дуга
+ 	 	 * @return {bus.admin.mvp.model.route.RouteRelationModel|null}  Следующая дуга
+ 	 	 */
+ 	 	 getNextRelation : function(relationModel){
+ 	 	 	var relations = this.getRelations();
+ 	 	 	if(relationModel == undefined || relations == undefined)
+ 	 	 		return null;
+
+ 	 	 	for(var i = 0; i < relations.length; i++){
+ 	 	 		if(relations[i].getCurrStation().getId() == relationModel.getCurrStation().getId()){
+ 	 	 			if(i < relations.length - 1)
+ 	 	 				return relations[i+1];
+ 	 	 		}
+ 	 	 	}
+ 	 	 	return null;
+ 	 	 },
+
+ 	 	/** Удаляет станции из пути.
+         * <br><br>Свойства возвращаемого объекта: <br>      
+         * <pre>
+         * <ul>
+         * <li> oldRelation       Модель измененной  дуги, {@link bus.admin.mvp.model.route.RouteRelationModel RouteRelationModel} </li>
+         * <li> relation          Новая модель дуги, {@link bus.admin.mvp.model.route.RouteRelationModel RouteRelationModel </li>
+         * <li> operation         Операция, которая была произведена над дугой ("insert", "remove", "update"), String </li>
+         * <ul>
+         * </pre>
+ 	 	 * @param  stationID Integer}  Модель станции
+ 	 	 * @param  position {Integer} Положение станции относительно остальных станций
+ 	 	 * @return {Object[]}   Правки пути.
+ 	 	 */
+ 	 	 removeStation : function(stationID){
+ 	 	 	// Проверка входных данных
+ 	 	 	var result = [];
+ 	 	 	var relations = this.getRelations();
+ 	 	 	if(relations == undefined)
+ 	 	 		return [];
+ 	 	 	var position = null; // индекс станции, которую нужно удалить
+ 	 	 	for(var i = 0;i <  relations.length; i++){
+ 	 	 		if(relations[i].getCurrStation().getId() == stationID){
+ 	 	 			position = i;
+ 	 	 			break;
+ 	 	 		}
+ 	 	 	} 	 	 	
+ 	 	 	if(position == null)
+ 	 	 		return [];
+ 	 	 	
+ 	 	 	// Удалим дугу с данной станцией 
+ 	 	 	result.push({
+ 	 	 		relation : relations[position],
+ 	 	 		operation : "remove"
+ 	 	 	});
+ 	 	 	relations.splice(position, 1);
+
+ 	 	 	// обновим индексы
+ 	 	 	for(var i = position;i <  relations.length; i++){
+ 	 	 		relations[i].setIndex(i);
+ 	 	 	}
+ 	 	 	
+ 	 	 	if(position < relations.length){
+ 	 	 		// Пересчитаем первую точку geom для следующей дуги (ее индекс теперь равен position, т.к. перед ней мы удалили дугу)
+ 	 	 		var geom = relations[position].getGeom();
+ 	 	 		if(position == 0)
+ 	 	 			geom = null;
+ 	 	 		else
+ 	 	 		{
+ 	 	 			var prevStation = relations[position - 1].getCurrStation();
+ 	 	 			geom.setPoint(0, prevStation.getLocation().getLat(),  prevStation.getLocation().getLon());
+ 	 	 		}
+ 	 	 		relations[position].setGeom(geom);
+ 	 	 		var points = [];
+
+ 	 	 		result.push({
+ 	 	 			relation : relations[position],
+ 	 	 			operation : "update"
+ 	 	 		});
+ 	 	 	}
+ 	 	 	this.setRelations(relations);
+ 	 	 	return result;
+ 	 	 },
+
+ 	 	/** Добавляет станцию к пути на указанную позицию.
          * <br><br>Свойства возвращаемого объекта: <br>      
          * <pre>
          * <ul>
@@ -108,7 +208,7 @@
          * </pre>
  	 	 * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции
  	 	 * @param  position {Integer} Положение станции относительно остальных станций
- 	 	 * @return {Object[]}   Измененные дуги пути.
+ 	 	 * @return {Object[]}   Правки пути.
  	 	 */
  	 	 insertStation : function(stationModel, position){
  	 	 	// Проверка входных данных
@@ -119,6 +219,10 @@
  	 	 		return [];
  	 	 	if(relations == undefined)
  	 	 		relations = [];
+ 	 	 	for(var i = 0;i <  relations.length; i++){
+ 	 	 		if(relations[i].getCurrStation().getId() == stationModel.getId())
+ 	 	 			return [];
+ 	 	 	} 	 	 	
 
  	 	 	// обновим индексы
  	 	 	for(var i = position;i <  relations.length; i++){
@@ -190,9 +294,6 @@
  	 	 	// Сохраним дуги в свойство "relations" и вернем измененные дуги. 
  	 	 	this.setRelations(relations);
  	 	 	return result;
- 	 	 	
-
-
  	 	 },
 
  		/**

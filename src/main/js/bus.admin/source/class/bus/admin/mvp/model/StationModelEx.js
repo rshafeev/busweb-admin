@@ -72,7 +72,7 @@
 
  	 	/**
  	 	 * Задает название остановки.
- 	 	 * @param langID {String} Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
+ 	 	 * @param langID {String} Код языка (Возможные значения смотрите в классе {@link bus.admin.GlobalDataStorage#supportedLocales})
  	 	 * @param name {String}   Новое название города. 
  	 	 */
  	 	 setName : function(langID, name){
@@ -99,7 +99,7 @@
 
 		/**
 		 * Возвращает назание остановки в зависимости от языка
-		 * @param  langID {String}  Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
+		 * @param  langID {String}  Код языка (Возможные значения смотрите в классе {@link bus.admin.GlobalDataStorage#supportedLocales})
 		 * @return {String|null} Название остановки.  
 		 */
 		 getName : function(langID) {

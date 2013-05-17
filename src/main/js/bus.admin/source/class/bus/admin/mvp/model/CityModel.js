@@ -88,7 +88,7 @@
 
  	 	/**
  	 	 * Задает название города.
- 	 	 * @param langID {String} Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
+ 	 	 * @param langID {String} Код языка (Возможные значения смотрите в классе {@link bus.admin.GlobalDataStorage#supportedLocales})
  	 	 * @param name {String}   Новое название города. 
  	 	 */
  	 	 setName : function(langID, name){
@@ -115,7 +115,7 @@
 
 		/**
 		 * Возвращает назание города в зависимости от языка
-		 * @param  langID {String}  Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
+		 * @param  langID {String}  Код языка (Возможные значения смотрите в классе {@link bus.admin.GlobalDataStorage#supportedLocales})
 		 * @return {String|null} Название города.  
 		 */
 		 getName : function(langID) {

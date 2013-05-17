@@ -18,10 +18,24 @@
 qx.Class.define("bus.admin.net.impl.Cities", {
 	extend : Object,
 
-	construct : function() {
+	construct : function(sync) {
+		if (sync != undefined) {
+			this.__sync = sync;
+		}
+		this.__contextPath  = qx.core.Init.getApplication().getDataStorage().getContextPath();
 	},
-
 	members : {
+		/**
+		 * Синхронный запрос (блокирующий)  или асинхронный?
+		 * @type {Boolean}
+		 */
+		__sync : false,
+
+		/**
+		 * Папка web-приложения на сервере
+		 * @type {String}
+		 */
+		 __contextPath : null, 
 
 		/**
 		 * Получает от сервера массив всех городов. 
@@ -30,9 +44,9 @@ qx.Class.define("bus.admin.net.impl.Cities", {
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		getAll : function(callback, self) {
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
-			var request = new qx.io.remote.Request(contextPath + "cities/getAll.json", "POST", "application/json");
+			var request = new qx.io.remote.Request(this.__contextPath + "cities/getAll.json", "POST", "application/json");
 			request.setParseJson(true);
+			request.setAsynchronous(!this.__sync);
 			request.addListener("completed", callback, self);
 			request.addListener("failed", callback, self);
 			request.send();
@@ -47,10 +61,10 @@ qx.Class.define("bus.admin.net.impl.Cities", {
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		update : function(cityModel, callback,	self) {
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
 			var cityJson = qx.lang.Json.stringify(cityModel.toDataModel()); 
-			var request = new qx.io.remote.Request(contextPath + "cities/update.json", "POST", "application/json");
+			var request = new qx.io.remote.Request(this.__contextPath + "cities/update.json", "POST", "application/json");
 			request.setParseJson(true);
+			request.setAsynchronous(!this.__sync);
 			request.setRequestHeader("Content-Type", "application/json");
 			request.setRequestHeader("Accept", "application/json");
 			request.setData(cityJson);
@@ -68,10 +82,10 @@ qx.Class.define("bus.admin.net.impl.Cities", {
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		insert : function(cityModel, callback, self) {
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
 			var cityJson = qx.lang.Json.stringify(cityModel.toDataModel()); 
-			var request = new qx.io.remote.Request(contextPath +  "cities/insert.json", "POST", "application/json");
+			var request = new qx.io.remote.Request(this.__contextPath +  "cities/insert.json", "POST", "application/json");
 			request.setParseJson(true);
+			request.setAsynchronous(!this.__sync);
 			request.setRequestHeader("Content-Type", "application/json");
 			request.setData(cityJson);
 			request.addListener("completed", callback, self);
@@ -88,9 +102,9 @@ qx.Class.define("bus.admin.net.impl.Cities", {
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		remove : function(cityID, callback, self) {
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
-			var request = new qx.io.remote.Request(contextPath +  "cities/remove.json", "POST", "application/json");
+			var request = new qx.io.remote.Request(this.__contextPath +  "cities/remove.json", "POST", "application/json");
 			request.setParseJson(true);
+			request.setAsynchronous(!this.__sync);
 			request.setParameter("city_id", cityID, true);
 			request.addListener("completed", callback, self);
 			request.addListener("failed", callback, self);

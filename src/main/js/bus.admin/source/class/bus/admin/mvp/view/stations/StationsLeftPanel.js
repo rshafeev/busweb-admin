@@ -124,7 +124,7 @@
  		 */
  		 _fillComboCities : function(citiesModel, selectedCityID) {
  		 	this.debug("execute _fillComboLangs()");
- 		 	var locale = bus.admin.AppProperties.getLocale();
+ 		 	var locale = qx.core.Init.getApplication().getDataStorage().getLocale();
  		 	var cities = citiesModel.getAllCities();
  		 	var selectedItem = null;
  		 	this._comboCities.removeListener("changeSelection", this.__onChangeComboCities, this);

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pgis.bus.admin.helpers.ControllerException;
 import com.pgis.bus.admin.models.ErrorModel;
 import com.pgis.bus.admin.models.StringValueModel;
+import com.pgis.bus.admin.models.city.CitiesModelEx;
 import com.pgis.bus.admin.models.city.CityModelEx;
 import com.pgis.bus.data.orm.City;
 import com.pgis.bus.data.orm.StringValue;
@@ -39,7 +40,7 @@ public class CitiesController extends BaseController {
 			for (City city : cities) {
 				citiesModel.add(new CityModelEx(city));
 			}
-			return citiesModel;
+			return new CitiesModelEx(citiesModel);
 		} catch (Exception e) {
 			log.error("exception", e);
 			return new ErrorModel(e);

@@ -28,14 +28,11 @@
  qx.Class.define("bus.admin.Application", {
  	extend : qx.application.Standalone,
 
-	/*
-	 * ****************************************************************************
-	 * MEMBERS
-	 * ****************************************************************************
-	 */
-
 	 properties : {
-
+	 	dataStorage : {
+	 		nullable : true,
+	 		check : "bus.admin.mvp.storage.GlobalDataStorage"
+	 	}
 	 },
 	 members : {
 
@@ -49,34 +46,19 @@
 	 	__blocker : null,
 
 
-	 	/**
-	 	 * Задает такие опции приложения, как локаль, ContextPath. Эти данные берутся из нешней функции  GlobalOptions()
-	 	 */
-		 _setGlobalOptions : function(){
-		 	var globalOptions = GlobalOptions();
-		 	if(globalOptions!= undefined){
-		 		bus.admin.AppProperties.ContextPath = globalOptions.contextPath;
-		 		bus.admin.AppProperties.LOCALE_LANGUAGE = globalOptions.lang;
-		 		console.debug("Global options: ", globalOptions );
-		 	}
-
-		 },
-
 		 /**
 		  * Main функция
 		  */
-		 main : function() {
+		  main : function() {
 			// Call super class
 			this.base(arguments);
 			this.getRoot().setVisibility("hidden");
 
 			// Enable logging in debug variant
 			if (qx.core.Environment.get("qx.debug") == true) {
-				// support native logging capabilities, e.g. Firebug for
-				// Firefox
+				// support native logging capabilities, e.g. Firebug for Firefox
 				qx.log.appender.Native;
-				// support additional cross-browser console. Press F7 to
-				// toggle visibility
+				// support additional cross-browser console. Press F7 to toggle visibility
 				qx.log.appender.Console;
 				console.debug("qx.debug = ON");
 
@@ -87,14 +69,27 @@
 				qx.log.Logger.setLevel("error");
 			}
 
-			this._setGlobalOptions();
-
-			var localeManager = qx.locale.Manager.getInstance();
-			localeManager.setLocale(bus.admin.AppProperties.LOCALE_LANGUAGE);
+			this.__setGlobalOptions();
 			this.__initWidgets();
 			this.__initBookmarkSupport();
 
 		},
+
+	 	/**
+	 	 * Задает такие опции приложения, как локаль, ContextPath. Эти данные берутся из нешней функции  GlobalOptions()
+	 	 */
+	 	 __setGlobalOptions : function(){
+	 	 	var dataStorage  = new bus.admin.mvp.storage.GlobalDataStorage();
+	 	 	var globalOptions = GlobalOptions();
+	 	 	var localeManager = qx.locale.Manager.getInstance();
+	 	 	if(globalOptions!= undefined){
+	 	 		dataStorage.setContextPath(globalOptions.contextPath);
+	 	 		localeManager.setLocale(globalOptions.lang);
+	 	 	}else{
+	 	 		localeManager.setLocale("en");
+	 	 	}
+	 	 	this.setDataStorage(dataStorage);
+	 	 },
 
 		// ***************************************************
 		// HISTORY SUPPORT
@@ -112,12 +107,11 @@
 			var pageName = null;
 			if (this.__history.getState().match('page-*')) {
 				pageName = this.__history.getState().substr(5);
-
+				this.getDataStorage().setCurrentPageKey(pageName);
 			} else {
-				pageName = 'Cities';
+				pageName = this.getDataStorage().getCurrentPageKey();
 			}
-			var pageButton = this.__header.getPagesGroup()
-			.getPageButtonByURL(pageName);
+			var pageButton = this.__header.getPagesGroup().getPageButtonByURL(pageName);
 
 			if (pageButton != null) {
 				// when page was loaded, app must start to load data 
@@ -129,42 +123,42 @@
 						.setVisibility("visible");
 					}
 				}, this);
-
 				this.__header.getPagesGroup().selectPageByObj(pageButton);
 			}
 
 		},
 
-		 __onHistoryChanged : function(e) {
-		 	this.debug("__onHistoryChanged : execute");
-		 	var state = new qx.type.BaseString(e.getData());
-		 	if (state.match('page-*')) {
-		 		this.__header.getPagesGroup().selectPageByURL(state.substr(5));
+		__onHistoryChanged : function(e) {
+			this.debug("__onHistoryChanged : execute");
+			var state = new qx.type.BaseString(e.getData());
+			var pageName = null;
+			if (state.match('page-*')) {
+				pageName = state.substr(5);
+				this.getDataStorage().setCurrentPageKey(pageName);
+				this.__header.getPagesGroup().selectPageByURL(state.substr(5));
+			} else if (state == '') {
+				pageName = this.getDataStorage().getCurrentPageKey();
+			}
+			this.__header.getPagesGroup().selectPageByURL(pageName);
 
-		 	} else if (state == '') {
-		 		this.__header.getPagesGroup().selectPageByURL('Cities');
-		 	}
+		},
 
-		 },
+		getPageContainer : function() {
+			this.debug("call getPageContainer");
+			return this.__pageContainer;
+		},
 
-		 getPageContainer : function() {
-		 	this.debug("call getPageContainer");
-		 	return this.__pageContainer;
-		 },
+		getLoadingIndicator : function() {
+			return this.__loadingIndicator;
+		},
 
-		 getLoadingIndicator : function() {
-		 	return this.__loadingIndicator;
-		 },
+		getHistoryObj : function() {
+			return this.__history;
+		},
 
-		 getHistoryObj : function() {
-		 	return this.__history;
-		 },
-
-		 setWaitingWindow : function(visiable) {
-		 	if (visiable == false) {
-		 		this.getRoot().remove(this.__waitingWindow);
-				//this.__pageContainer.setEnabled(true);
-				//this.__header.setEnabled(true);
+		setWaitingWindow : function(visiable) {
+			if (visiable == false) {
+				this.getRoot().remove(this.__waitingWindow);
 				this.__waitingWindow = null;
 				this.__blocker.unblock();
 			} else if (this.__waitingWindow == null) {

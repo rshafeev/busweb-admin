@@ -101,7 +101,7 @@
 
  	 	/**
  	 	 * Задает номер маршрута в зависимости от языка.
- 	 	 * @param langID {String} Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
+ 	 	 * @param langID {String} Код языка (Возможные значения смотрите в классе  {@link bus.admin.GlobalDataStorage#supportedLocales})
  	 	 * @param number {String} Номер маршрута. 
  	 	 */
  	 	 setNumber : function(langID, number){
@@ -128,7 +128,7 @@
 
 		/**
 		 * Возвращает номер маршрута в зависимости от языка.
-		 * @param  langID {String}  Код языка (Возможные значения смотрите в классе {@link bus.admin.AppProperties#LANGUAGES})
+		 * @param  langID {String}  Код языка (Возможные значения смотрите в классе {@link bus.admin.GlobalDataStorage#supportedLocales})
 		 * @return {String|null} Название города.  
 		 */
 		 getNumber : function(langID) {
@@ -257,10 +257,10 @@
  		    * @return {Boolean} True: одинаково. False : нет.
  		    */
  		    isSameNumbers : function(){
- 		    	var langs  = bus.admin.AppProperties.LANGUAGES;
+ 		    	var langs  = qx.core.Init.getApplication().getDataStorage().supportedLocales().getLangs();
  		    	var numb = this.getName(langs[0].id);
  		    	for(var i=1;i < langs.length; i++){
- 		    		if(numb.toString() != this.getName(langs[i].id).toString() )
+ 		    		if(numb.toString() != this.getName(langs[i].getId()).toString() )
  		    			return false;
  		    	}
  		    	return true;

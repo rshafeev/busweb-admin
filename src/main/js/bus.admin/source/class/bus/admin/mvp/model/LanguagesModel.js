@@ -65,7 +65,7 @@ qx.Class.define("bus.admin.mvp.model.LanguagesModel", {
  		  * Объект dataModel является массивом объектов, из которых можно сформировать модели языков. Каждый элемент массива имеет
  		  * два поля: id(String) и name (String). Поле id является кодом языка и принимает значения "ru", "en" или "uk". 
  		  * Поле "name" хранит название языка в зависимости от локали.
- 		  * Структура dataModel cовпадает со структурой объекта {@link bus.admin.AppProperties.LANGUAGES}.
+ 		  * Структура dataModel cовпадает со структурой объекта {@link bus.admin.GlobalDataStorage#supportedLocales}.
  		  * @param  dataModel {Object[]}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){

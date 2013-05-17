@@ -22,10 +22,7 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
 		this.base(arguments);
     // create models
     var citiesModel = new bus.admin.mvp.model.CitiesModel();
-    var langsModel = new bus.admin.mvp.model.LanguagesModel();
-    langsModel.fromDataModel(bus.admin.AppProperties.LANGUAGES);
     this.setCitiesModel(citiesModel);
-    this.setLangsModel(langsModel);
     this.setState("none");
     this.setMapCenter(null);
     // get data from locale storage
@@ -39,9 +36,10 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
       this.setCurrNamesLangID(currNamesLangID);
     }
     else{
-      var locale = bus.admin.AppProperties.getLocale();
-      for(var i=0;i < langsModel.getLangs().length; i++){
-        var langID = langsModel.getLangs()[i].getId();
+      var locale = qx.core.Init.getApplication().getDataStorage().getLocale();
+      var langs = this.getLangsModel().getLangs();
+      for(var i=0;i < langs.length; i++){
+        var langID = langs[i].getId();
         if(langID.toString() != locale.toString()){
           this.setCurrNamesLangID(langID);
           break;
@@ -68,13 +66,6 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
               	nullable : true
               },
 
-              /**
-               * Хранит набор языков
-               * @type {bus.admin.mvp.model.LanguagesModel}
-               */
-              langsModel : {
-                nullable : true
-              },
 
               /**
                * ID языка, в котором отображаются названия городов в таблице _tableCityNames
@@ -135,7 +126,14 @@ qx.Class.define("bus.admin.mvp.storage.CitiesPageDataStorage", {
                 if(cityID <=0)
                   return null;
                 return this.getCitiesModel().getCityByID(cityID);
-              }
+              },
 
+              /**
+               * Возвращает набор языков
+               * @type {bus.admin.mvp.model.LanguagesModel}
+               */
+              getLangsModel : function(){
+                return qx.core.Init.getApplication().getDataStorage().getSupportedLocales();
+              }
             }
           });

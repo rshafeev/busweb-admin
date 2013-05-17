@@ -106,6 +106,7 @@ public class StationsControllerTest extends ControllerTestConf {
 		// Check
 		StationsBoxModel responseModel = (new ObjectMapper()).readValue(response.getContentAsString(),
 				StationsBoxModel.class);
+
 		assertEquals(requestModel.getCityID(), responseModel.getCityID());
 	}
 }

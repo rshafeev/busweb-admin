@@ -158,7 +158,7 @@
 		 * Функция создает все дочерние виджеты и размещает их на форме
 		 */		
 		 __initWidgets : function() {
-		 	var cityName = this._cityModel.getName(bus.admin.AppProperties.getLocale());
+		 	var cityName = this._cityModel.getName(qx.core.Init.getApplication().getDataStorage().getLocale());
 
 		 	this.setLayout(new qx.ui.layout.Canvas());
 

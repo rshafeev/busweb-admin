@@ -23,7 +23,7 @@ public class HomeController {
 	public ModelAndView apidocs(Integer login_error) {
 		return new ModelAndView("redirect:/apidocs/index.html");
 	}
-	
+
 	@RequestMapping(value = "tests")
 	public ModelAndView tests(Integer login_error) {
 		return new ModelAndView("redirect:/tests/index.html");

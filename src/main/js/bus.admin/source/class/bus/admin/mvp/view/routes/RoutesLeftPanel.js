@@ -167,7 +167,7 @@
 		 	this.__comboCities.removeListener("changeSelection", this.__onChangeComboCities, this);
 		 	this.__comboCities.removeAll();
 		 	var selectedItem = null;
-		 	var locale = bus.admin.AppProperties.getLocale();
+		 	var locale = qx.core.Init.getApplication().getDataStorage().getLocale();
 		 	var cities = citiesModel.getAllCities();
 		 	for (var i = 0; i < cities.length; i++) {
 		 		var item = new qx.ui.form.ListItem( cities[i].getName(locale));

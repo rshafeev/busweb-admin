@@ -146,11 +146,12 @@
  		 * @return {Object[]} JS объект.
  		 */
  		 toDataModel : function(){
- 		 	var dataModel = [];
-
+ 		 	var dataModel = {
+ 		 		cities : []
+ 		 	};
  		 	for(var i=0; i < this._cities.length; i++)
  		 	{
- 		 		dataModel.push(this._cities[i].toDataModel());
+ 		 		dataModel.cities.push(this._cities[i].toDataModel());
  		 	}
  		 	return dataModel;
  		 },
@@ -160,15 +161,16 @@
  		  * Как правило, объект  dataModel получают путем десериализации JSON строки, полученной от сервера. 
  		  * Объект dataModel является массивом объектов, из которых можно сформировать модели городов.
  		  * Описание свойств данных объектов приведено в {@link bus.admin.mvp.model.CityModel#fromDataModel}. 
- 		  * @param  dataModel {Object[]}  JS объект.
+ 		  * @param  dataModel {Object}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
  		  	if(dataModel == undefined)
  		  		return;
  		  	this._cities = [];
- 		  	for(var i=0; i < dataModel.length; i++)
+ 		  	var citiesData = dataModel.cities;
+ 		  	for(var i=0; i < citiesData.length; i++)
  		  	{
- 		  		this._cities.push(new bus.admin.mvp.model.CityModel(dataModel[i]));
+ 		  		this._cities.push(new bus.admin.mvp.model.CityModel(citiesData[i]));
  		  	}
  		  }
 

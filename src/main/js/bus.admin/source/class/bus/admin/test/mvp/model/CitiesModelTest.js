@@ -21,9 +21,9 @@
   construct: function()
   {
     this.base(arguments);
-    var data1 = "[{\"id\":55,\"key\":\"\",\"location\":{\"lat\":46.846674042342435,\"lon\":35.37549018859865}," + 
+    var data1 = "{\"cities\":[{\"id\":55,\"key\":\"\",\"location\":{\"lat\":46.846674042342435,\"lon\":35.37549018859865}," + 
     "\"scale\":13,\"nameKey\":4381,\"show\":false,\"names\":[{\"id\":13420,\"lang\":\"uk\",\"value\":\"Мелитополь\"}," + 
-    "{\"id\":13422,\"lang\":\"ru\",\"value\":\"Мелитополь\"},{\"id\":13421,\"lang\":\"en\",\"value\":\"Melitopol\"}]}]";
+    "{\"id\":13422,\"lang\":\"ru\",\"value\":\"Мелитополь\"},{\"id\":13421,\"lang\":\"en\",\"value\":\"Melitopol\"}]}]}";
 
     this.debug("Parsing test data...");
     this._citiesData1 = qx.lang.Json.parse(data1);
@@ -46,11 +46,12 @@
      testCityModelInit : function()
      {
       this.debug("execute testCityModelInit()");
-      var cityModel = new bus.admin.mvp.model.CityModel(this._citiesData1[0]);
+      var cities = this._citiesData1.cities;
+      var cityModel = new bus.admin.mvp.model.CityModel(cities[0]);
       console.debug(cityModel);
-      this.assertEquals(cityModel.getId(), this._citiesData1[0].id, "Id property was failed");
-      this.assertEquals(cityModel.getLocation().getLat(), this._citiesData1[0].location.lat, "Location property was failed");
-      this.assertEquals(cityModel.getLocation().getLon(), this._citiesData1[0].location.lon, "Location property was failed");
+      this.assertEquals(cities[0].id,cityModel.getId(), "Id property was failed");
+      this.assertEquals(cities[0].location.lat, cityModel.getLocation().getLat(), "Location property was failed");
+      this.assertEquals(cities[0].location.lon, cityModel.getLocation().getLon(), "Location property was failed");
     },
 
     /**
@@ -59,9 +60,10 @@
      testCitiesModelInit : function()
      {
       this.debug("execute testCitiesModelInit()");
+      var cities = this._citiesData1.cities;
       var citiesModel = new bus.admin.mvp.model.CitiesModel(this._citiesData1);
       console.debug(citiesModel);
-      this.assertEquals(citiesModel.getAllCities().length, this._citiesData1.length, "Cities count is false");
+      this.assertEquals(citiesModel.getAllCities().length, cities.length, "Cities count is false");
     },
 
     /**
@@ -69,7 +71,8 @@
      */
      testCityModelToDataModel : function(){
       this.debug("execute testCityModelToJsonObj()");
-      var cityModel = new bus.admin.mvp.model.CityModel(this._citiesData1[0]);
+      var cities = this._citiesData1.cities;
+      var cityModel = new bus.admin.mvp.model.CityModel(cities[0]);
       var jsonObj = cityModel.toDataModel();
       console.debug(jsonObj);
     },
@@ -79,9 +82,10 @@
      */
      testCitiesModelToDataModel : function(){
       this.debug("execute testCitiesModelToJsonObj()");
+      var cities = this._citiesData1.cities;
       var citiesModel = new bus.admin.mvp.model.CitiesModel(this._citiesData1);
       var jsonObj = citiesModel.toDataModel();
-      this.assertEquals(jsonObj.length, this._citiesData1.length, "Cities count is false");
+      this.assertEquals(cities.length, jsonObj.cities.length, "Cities count is false");
     }
 
   }

@@ -77,6 +77,19 @@
  		  {
  		  	return this.__points;
  		  },
+
+ 		  /**
+ 		   * Устанавливает значение точки в массиве
+ 		   * @param  index {Integer}  Порядковый номер точки в массиве
+ 		   * @param  lat {Number}    Широта
+ 		   * @param  lon {Number}    Долгота
+ 		   */
+ 		  setPoint : function(index, lat, lon){
+ 		  	if(this.__points == undefined || index >= this.__points.length){
+ 		  		return;
+ 		  	}
+ 		  	this.__points[index] = [lat, lon];
+ 		  },
  		  
  		  /**
  		   * Клонирует текущий объект.

@@ -132,15 +132,40 @@
 		 	this.debug("execute __onUpdateWayRelations() event handler.");
 		 	var relation = e.getData().relation;
 		 	var operation = e.getData().operation;
+		 	var canChange = this.__presenter.getDataStorage().getState() == "make" ? true : false;
+		 	var marker = this.__markers[relation.getCurrStation().getId()];
+		 	var stB = relation.getCurrStation();
+		 	var geom = relation.getGeom();
+		 	
 		 	if(operation == "insert"){
-		 		var marker = this.__markers[relation.getCurrStation().getId()];
 		 		marker.setIcon(this.__routeStationIcon);
-		 		var prevRelation = this.__presenter.getDataStorage().getSelectedWay().
-		 		var stA = relations[i - 1].getCurrStation();
-		 		var stB = relation.getCurrStation();
-		 		var polyLine = relations[i].getGeom();
-		 		this.insertPolyLine(polyLine, stA, stB, 'red', canChange);
+		 		if(geom != undefined){
+		 			this.__insertPolyLine(geom, stB, 'red', canChange);
+		 		}
 		 	}
+		 	
+		 	if(operation == "remove"){
+		 		if(stB.getId() < 0)
+		 			marker.setIcon(this.__preparedStationIcon);
+		 		else
+		 			marker.setIcon(this.__stationIcon);
+		 		this.debug("geom:", geom);
+		 		
+		 		if(geom != undefined){
+		 			this.__removePolyline(stB.getId());
+		 		}
+		 	}
+
+		 	if(operation == "update"){
+		 		if(geom != undefined ){
+		 			var path = this.__makePolylinePath(geom);
+		 			var polyline = this.__getPolyline(stB.getId());
+		 			polyline.setPath(path);
+		 		}else{
+		 			this.__removePolyline(stB.getId());
+		 		}
+		 		
+		 	}		 			 		
 		 },
 
 		/**
@@ -149,8 +174,10 @@
 		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
 		 */
 		 __onUpdatePreparedStation : function(e){
+		 	if(e.getData().sender == this)
+		 		return;
 		 	var stationModel = e.getData().station;
-		 	var langID = bus.admin.AppProperties.getLocale();
+		 	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
 		 	var marker = this.__preparedMarkers[stationModel.getId()];
 		 	marker.setPosition(new google.maps.LatLng(stationModel.getLocation().getLat(), stationModel.getLocation().getLon()));
 		 	marker.setTitle(stationModel.getName(langID));
@@ -162,40 +189,60 @@
 		 */
 		 __onInsertPreparedStation : function(e){
 		 	var stationModel = e.getData().station;
-		 	var options = {
-		 		icon : this.__preparedStationIcon,
-		 		draggable : true
-		 	};
-		 	var marker = this.__insertStation(stationModel,options);
-		 	this.__preparedMarkers[stationModel.getId()] = stationModel;
-		 	var self = this;
-		 	google.maps.event.addListener(marker, "rightclick", function(mouseEvent) {
-		 		mouseEvent.latLng
-		 		var langsModel = self.__presenter.getDataStorage().getLangsModel();
-		 		var cityModel = self.__presenter.getDataStorage().getSelectedCity();
-		 		var stationModel = marker.get("station");
-		 		var dlg = new bus.admin.mvp.view.stations.StationForm(stationModel, langsModel, cityModel, true);
-		 		dlg.addListener("prepared_model", function(e){
-		 			var newStationModel = e.getData().station;
-		 			if(newStationModel == null || e.getData().cancel == true){
-		 				dlg.close();
-		 				return;
-		 			}
-		 			var callback = function(data){
-		 				if (data.error == true) {
-		 					var msg = data.errorInfo != undefined ? this.tr("Error! ") + data.errorInfo : 
-		 					this.tr("Error! Can not save station. Please, check input data.");
-		 					bus.admin.widget.MsgDlg.info(msg);
-		 					return;
-		 				}
-		 				dlg.close();
-		 			};
-		 			this.__presenter.updatePreparedStationTrigger(newStationModel, callback, this);
-		 		}, this);
-		 		dlg.open();
-		 	});
+		 	this.__insertPreparedStation(stationModel);
 
-},
+		 },
+
+		  /**
+		   * Добавляет "prepared" станцию на карту.
+		   * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции.
+		   * @return {Object}     Возвращает gmaps маркер.
+		   */
+		   __insertPreparedStation : function(stationModel){
+		   	var options = {
+		   		icon : this.__preparedStationIcon,
+		   		draggable : true
+		   	};
+		   	var marker = this.__insertStation(stationModel,options);
+		   	this.__preparedMarkers[stationModel.getId()] = stationModel;
+		   	var self = this;
+
+		   	google.maps.event.addListener(marker, "rightclick", function(mouseEvent) {
+		   		var langsModel = self.__presenter.getDataStorage().getLangsModel();
+		   		var cityModel = self.__presenter.getDataStorage().getSelectedCity();
+		   		var stationModel = marker.get("station");
+		   		var dlg = new bus.admin.mvp.view.stations.StationForm(stationModel, langsModel, cityModel, true);
+		   		dlg.addListener("prepared_model", function(e){
+		   			var newStationModel = e.getData().station;
+		   			if(newStationModel == null || e.getData().cancel == true){
+		   				dlg.close();
+		   				return;
+		   			}
+		   			var callback = function(data){
+		   				if (data.error == true) {
+		   					var msg = data.errorInfo != undefined ? this.tr("Error! ") + data.errorInfo : 
+		   					this.tr("Error! Can not save station. Please, check input data.");
+		   					bus.admin.widget.MsgDlg.info(msg);
+		   					return;
+		   				}
+		   				dlg.close();
+		   			};
+		   			this.__presenter.updatePreparedStationTrigger(newStationModel, callback, this);
+		   		}, self);
+		   		dlg.open();
+		   	});
+
+			// Добавим огбработчик на событие прекращения перемещения маркера
+			google.maps.event.addListener(marker, "dragend", function(mouseEvent) {
+				var stationModel = marker.get("station");
+				stationModel.setLocation(marker.getPosition().lat(),marker.getPosition().lng());
+				self.__presenter.updatePreparedStationTrigger(stationModel, null, self);
+			});
+
+			
+			// вернем созданный маркер
+			return marker;
+		},
 
 		/**
 		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#select_city select_city} вызывается при выборе пользователем города.
@@ -243,6 +290,8 @@
 		 			this.__drawRouteWay(wayModel, isCentering);
 
 		 	}
+		 	this.__drawPreparedStations();
+		 	this.__loadStationsFromBox();
 
 		 },
 
@@ -309,7 +358,7 @@
 		 		return;
 		 	}
 		 	var cityID = this.__presenter.getDataStorage().getSelectedCityID();
-		 	var langID = bus.admin.AppProperties.getLocale();
+		 	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
 		 	var p1 = new bus.admin.mvp.model.geom.PointModel();
 		 	p1.setLat(map.getBounds().getSouthWest().lat());
 		 	p1.setLon(map.getBounds().getSouthWest().lng());
@@ -375,10 +424,24 @@
 		 		var wayModel = routeModel.getWayByDirection(direction);
 		 		if(wayModel != undefined)
 		 			this.__drawRouteWay(wayModel, false);
-
 		 	}
-
+		 	this.__drawPreparedStations();
+		 	this.__loadStationsFromBox();
 		 },
+
+		 /**
+		  * Отрисовует на карте "prepared" станции. (Если страница не находится в состоянии "make", добавление станций не будет выполнено).
+		  */
+		  __drawPreparedStations : function(){
+		  	var state = this.__presenter.getDataStorage().getState();
+		  	if(state != "make")
+		  		return;
+		  	var stations = this.__presenter.getDataStorage().getFreePreparedStations();
+		  	for(var i=0;i < stations.length; i++){
+		  		this.__insertPreparedStation(stations[i]);
+		  	}
+		  },
+
 
 		 /**
 		  * Отрисовка пути на карте
@@ -390,7 +453,7 @@
 		  	var relations = routeWayModel.getRelations();
 		  	if(relations == undefined)
 		  		return;
-		  	var canChange = false;
+		  	var canChange = this.__presenter.getDataStorage().getState() == "make" ? true : false;
 		  	
 		  	if (isCentering == true)
 		  	{
@@ -407,15 +470,16 @@
 		  		map.fitBounds(bounds);
 		  	}
 		  	for (var i = 1; i < relations.length; i++) {
-		  		var stA = relations[i - 1].getCurrStation();
 		  		var stB = relations[i].getCurrStation();
 		  		var polyLine = relations[i].getGeom();
-		  		this.insertPolyLine(polyLine, stA, stB, 'red', canChange);
+		  		this.__insertPolyLine(polyLine, stB, 'red', canChange);
 		  	}
+		  	var options = {
+		  		icon : this.__routeStationIcon
+		  	};
 		  	for (var i = 0; i < relations.length; i++) {
 		  		var st = relations[i].getCurrStation();
-		  		this.__insertStation(st);
-
+		  		this.__insertStation(st, options);
 		  	}
 
 		  },
@@ -424,12 +488,12 @@
 		   * Добавляет станцию на карту.
 		   * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции.
 		   * @param options {Map} Опции маркера
-		   * @return {Object}     Возвращает gmaps станцию.
+		   * @return {Object}     Возвращает gmaps маркер.
 		   */
 		   __insertStation : function (stationModel, options)
 		   {
 		   	var marker = this.__markers[stationModel.getId()];
-		   	var langID = bus.admin.AppProperties.getLocale();
+		   	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
 		   	if(marker == undefined){
 		   		var map  = this.getGoogleMap().getMapObject();
 		   		var stationIcon = this.__routeStationIcon;
@@ -452,6 +516,22 @@
 		   		if(options != undefined)
 		   			marker.setOptions(options);
 		   		this.__markers[stationModel.getId()] = marker;
+		   		var self = this;
+		   		google.maps.event.addListener(marker, "click", function(
+		   			mouseEvent) {
+		   			var stationModel = marker.get("station");
+		   			var relations = self.__presenter.getDataStorage().getSelectedWay().getRelations();
+		   			var position = 0;
+		   			if(relations != undefined)
+		   				position = relations.length;
+		   			self.__presenter.includeStationToRouteWayTrigger(stationModel, position);
+		   			stationModel.location = {
+		   				x : mouseEvent.latLng.lat(),
+		   				y : mouseEvent.latLng.lng()
+		   			};
+
+		   		});
+
 		   	}
 		   	marker.setPosition(new google.maps.LatLng(stationModel.getLocation().getLat(), stationModel.getLocation().getLon()));
 		   	marker.setTitle(stationModel.getName(langID));
@@ -492,29 +572,72 @@
 		 },
 
 		 /**
-		  * Добавляет полилинии на карту.
-		  * @param polyline {bus.admin.mvp.model.geom.PolyLineModel}  Модель полилинии.
-		  * @param  stA {bus.admin.mvp.model.StationModelEx} Начальная станция.       
-		  * @param  stB {bus.admin.mvp.model.StationModelEx} Конечная станция.
-		  * @param  color {String}      Цвет полилинии.
-		  * @param  canChange {Boolean}  Возможность редактирования.
-		  * @return {Object}  Возвращает  gmaps полилинию.          
+		  * Создает google.maps path из полилинии 
+		  * @param  polylineModel {bus.admin.mvp.model.geom.PolyLineModel}  Медель полилинии
+		  * @return {Object[]}     google.maps.LatLng[]
 		  */
-		  insertPolyLine : function(polyline, stA, stB, color, canChange) {
+		  __makePolylinePath : function(polylineModel){
+		  	if(polylineModel == undefined)
+		  		return [];
+		  	var points = polylineModel.getPoints();
+		  	if(points == undefined)
+		  		return [];
 		  	var path = [];
-		  	var points = polyline.getPoints();
 		  	for (var i = 0; i < points.length; i++) {
 		  		var lat = points[i][0];
 		  		var lon = points[i][1];
 		  		path.push(new google.maps.LatLng(lat, lon));
 		  	}
+		  	return path;
+		  },
+
+		  __getPolyline : function(stbID){
+		  	var lines = this.__polylines;
+		  	if(lines == undefined)
+		  		return null;;
+		  	for(var i = 0; i < lines.length; i++){
+		  		var stB = lines[i].get("stB");
+		  		if(stB.getId() == stbID){
+		  			return lines[i];
+		  		}
+		  	}
+		  	return null;
+		  },
+
+		 /**
+		  * Удаляет полилинию
+		  * @param  stbID {Integer}  Конечная станция полилинии
+		  */
+		  __removePolyline : function(stbID){
+		  	this.debug("execute __removePolyline(", stbID, ")");
+		  	var lines = this.__polylines;
+		  	if(lines == undefined)
+		  		return;
+		  	for(var i = 0; i < lines.length; i++){
+		  		var stB = lines[i].get("stB");
+		  		if(stB.getId() == stbID){
+		  			lines[i].setMap(null);
+		  			lines.splice(i, 1);
+		  			return;
+		  		}
+		  	}
+		  },
+
+		 /**
+		  * Добавляет полилинии на карту.
+		  * @param polyline {bus.admin.mvp.model.geom.PolyLineModel}  Модель полилинии.
+		  * @param  stB {bus.admin.mvp.model.StationModelEx} Конечная станция.
+		  * @param  color {String}      Цвет полилинии.
+		  * @param  canChange {Boolean}  Возможность редактирования.
+		  * @return {Object}  Возвращает  gmaps полилинию.          
+		  */
+		  __insertPolyLine : function(polyline, stB, color, canChange) {
 		  	var line = new google.maps.Polyline({
 		  		map : this.getGoogleMap().getMapObject(),
-		  		path : path,
 		  		strokeColor : color
 		  	});
+		  	line.setPath(this.__makePolylinePath(polyline));
 		  	line.setEditable(canChange);
-		  	line.set("stA", stA);
 		  	line.set("stB", stB);
 		  	this.__polylines.push(line);
 		  	return line;
@@ -632,7 +755,7 @@
 
 		  //======================================================================================================
 
-
+/*
 
 		  on_refresh_cities : function(e) {
 		  	var data = e.getData();
@@ -647,10 +770,7 @@
 		  	map.setCenter(city.location.x, city.location.y, city.scale);
 
 		  },
-		/**
-		 * Обработчик вызывается при начале добавления нового маршрута
-		 * @param e {RouteModel}(еще не полностью заполненную)
-		 */
+
 		 on_startCreateNewRoute : function(e) {
 
 		 	this.deleteAllRoutePolylines();
@@ -675,13 +795,7 @@
 		 	this.canChangePolylines(true);
 		 },
 
-		/**
-		 * Обработчик вызывается при окончании процесса создания нового
-		 * маршрута: он был отредактирован пользователем, отправлен на сервер и
-		 * сохранен в БД. Теперь можно сделать доступным элементы левой
-		 * панели(список городов и список типов маршрута)
-		 * @param e {RouteModel}
-		 */
+
 		 on_finishCreateNewRoute : function(e) {
 		 	this.debug("RouteMap: on_finishCreateNewRoute()");
 		 	var data = e.getData();
@@ -734,44 +848,6 @@
 		 	this.updateMarkersVisible(this._addedStations);
 		 },
 
-		 onMapDragEnd : function(e) {
-		 	
-			/*if (this._routesPage.getStatus() != "show"
-					&& this.getGoogleMap() != null) {
-				var map = this.getGoogleMap().getMapObject();
-				if (map == null)
-					return;
-				this.debug(this.getMinZoom());
-				this.debug(map.getZoom());
-				if (this.getMinZoom() >= map.getZoom()) {
-					this.deleteAllStations();
-					return;
-				}
-				var city_id = this._routesPage.getRouteLeftPanel()
-						.getSelectableCityID();
-				if (city_id == null)
-					return;
-				var p1 = map.getBounds().getSouthWest();
-				var p2 = map.getBounds().getNorthEast();
-				var localPresenter = this._routesPage.getPresenter();
-				var p1 = {
-					x : p1.lat(),
-					y : p1.lng()
-				};
-				var p2 = {
-					x : p2.lat(),
-					y : p2.lng()
-				};
-				var event_finish_func = qx.lang.Function.bind(function(data) {
-
-						}, this);
-				localPresenter.loadStationsInBox(city_id, p1, p2,
-						event_finish_func);
-			} else if (this.getGoogleMap() != null) {
-				this.deleteAllStations();
-			}
-			*/
-		},
 
 		on_addNewStation : function(e) {
 			var stationModel = e.getData();
@@ -1028,22 +1104,14 @@
 						}
 					}
 					this.debug(stationModel);
-					presenter.insertStationToCurrentRoute(stationModel,
-						null);
+					presenter.insertStationToCurrentRoute(stationModel,	null);
 				});
 			}
 
 			return marker;
 		},
 
-		/**
-		 * Поиск индекс polyline по id станции
-		 * 
-		 * @param {id
-		 *            станции} id
-		 * @param {станция
-		 *            в начале или в конце Polyline? } isBegin
-		 */
+
 		 getPolylineIndexByStationID : function(id, isBegin) {
 		 	for (var i = 0; i < this._routePolylines.length; i++) {
 		 		var st = null;
@@ -1145,15 +1213,13 @@
 		 		break;
 		 	}
 		 },
-
+*/
 		 refresh : function() {
 		 	this.debug("refresh");
 		 	var map = this.getGoogleMap().getMapObject();
 		 	if (map == null)
 		 		return;
-		 	this.updateMarkersVisible(this._addedStations);
-		 	this.updateMarkersVisible(this._stations);
-
+		 	this.__refreshMarkersVisibility();
 		 	for (var i = 0; i < this._routeStations.length; i++) {
 		 		this._routeStations[i].setMap(map);
 		 	}

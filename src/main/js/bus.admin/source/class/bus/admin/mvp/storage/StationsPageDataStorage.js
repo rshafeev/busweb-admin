@@ -22,10 +22,7 @@ qx.Class.define("bus.admin.mvp.storage.StationsPageDataStorage", {
 		this.base(arguments);
     // create models
     var citiesModel = new bus.admin.mvp.model.CitiesModel();
-    var langsModel = new bus.admin.mvp.model.LanguagesModel();
-    langsModel.fromDataModel(bus.admin.AppProperties.LANGUAGES);
     this.setCitiesModel(citiesModel);
-    this.setLangsModel(langsModel);
     this.setState("none");
     this.setMapCenter(null);
     // get data from locale storage
@@ -40,12 +37,13 @@ qx.Class.define("bus.admin.mvp.storage.StationsPageDataStorage", {
       this.setCurrNamesLangID(currNamesLangID);
     }
     else{
-      this.setCurrNamesLangID( bus.admin.AppProperties.getLocale());
-      var locale = bus.admin.AppProperties.getLocale();
+      this.setCurrNamesLangID( qx.core.Init.getApplication().getDataStorage().getLocale());
+      var locale = qx.core.Init.getApplication().getDataStorage().getLocale();
     }
   },
 
   properties : {
+ 
               /** Показывает состояние страницы, в котором она пребывает. Возможные значения:
                 none : обычное состояние. 
               */
@@ -63,14 +61,6 @@ qx.Class.define("bus.admin.mvp.storage.StationsPageDataStorage", {
                 check : "bus.admin.mvp.model.CitiesModel"
               },
 
-              /**
-               * Хранит набор языков
-               * @type {bus.admin.mvp.model.LanguagesModel}
-               */
-              langsModel : {
-                nullable : true,
-                check : "bus.admin.mvp.model.LanguagesModel"
-              },
 
               /**
                * ID языка, в котором отображаются названия станций в таблице 
@@ -121,6 +111,13 @@ qx.Class.define("bus.admin.mvp.storage.StationsPageDataStorage", {
 
 
             members : {
+               /**
+               * Возвращает набор языков
+               * @type {bus.admin.mvp.model.LanguagesModel}
+               */
+               getLangsModel : function(){
+                return qx.core.Init.getApplication().getDataStorage().getSupportedLocales();
+              },
 
               /**
                * Вызывается при изменении свойства bus.admin.mvp.storage.CitiesPageDataStorage#currNamesLangID.

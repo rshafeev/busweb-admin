@@ -183,7 +183,7 @@ members : {
 		 		return;
 		 	}
 		 	var tableModel = this.__tableRoutes.getTableModel();
-		 	var langID = bus.admin.AppProperties.getLocale();
+		 	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
 		 	tableModel.setValue(0, rowIndex, route.getId());
 		 	tableModel.setValue(1, rowIndex, route.getNumber(langID));
 		 	tableModel.setValue(2, rowIndex, route.getCost());

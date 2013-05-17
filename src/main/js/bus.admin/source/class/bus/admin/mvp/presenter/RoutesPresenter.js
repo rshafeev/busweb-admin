@@ -168,39 +168,15 @@
        "update_way_relations" : "qx.event.type.Data"
 
 
+     },
 
- 		/*
- 		 "loadRoutesList" : "qx.event.type.Data",
+     construct : function() {
+      this.base(arguments);
+      var dataStorage = new bus.admin.mvp.storage.RoutesPageDataStorage();
+      this.initDataStorage(dataStorage);
+    },
 
- 		 "loadRoute" : "qx.event.type.Data",
-
- 		 "insertRoute" : "qx.event.type.Data",
-
- 		 "removeRoute" : "qx.event.type.Data",
-
- 		 
-
- 		 "startCreateNewRoute" : "qx.event.type.Data",
-
- 		 "finishCreateNewRoute" : "qx.event.type.Data",
-
- 		 "addNewStation" : "qx.event.type.Data",
-
- 		 "insertStationToCurrentRoute" : "qx.event.type.Data",
-
- 		 "loadImportObjects" : "qx.event.type.Data",
-
- 		 "loadImportRoute" : "qx.event.type.Data"
- 		 */
- 		},
-
- 		construct : function() {
- 			this.base(arguments);
- 			var dataStorage = new bus.admin.mvp.storage.RoutesPageDataStorage();
- 			this.initDataStorage(dataStorage);
- 		},
-
- 		properties : {
+    properties : {
  		/**
  		 * Хранилище данных страницы Routes
  		 * @type {bus.admin.mvp.storage.RoutesPageDataStorage}
@@ -219,27 +195,50 @@
       * @param  callback {Function}  callback функция
       * @param  sender {Object}      Объект, который вызвал триггер
       */     
-      insertStationToRouteWayTrigger : function(stationModel, position, callback, sender){
-       if(this.getDataStorage().getState() != "make")
-       {
-        if(callback!=undefined || position > relations.length || position < 0)
-          callback({error  : true});
-        return;
-      }
-      var routeWay = this.getDataStorage().getSelectedWay();
-      var relations = routeWay.insertStation(stationModel, position);
-      for(var i=0; i< relations.length; i++){
-        var args  =  bus.admin.helpers.ObjectHelper.clone(relations[i]);
-        args.error = false;
-        args.sender = this;
-        this.fireDataEvent("update_way_relations", args);
-      }
+      includeStationToRouteWayTrigger : function(stationModel, position, callback, sender){
+        this.debug("execute includeStationToRouteWayTrigger()");
+        if(this.getDataStorage().getState() != "make")
+        {
+          if(callback != undefined || position < 0)
+            callback({error  : true});
+          return;
+        }
+        var routeWay = this.getDataStorage().getSelectedWay();
+        var changes = routeWay.insertStation(stationModel, position);
+        for(var i=0; i< changes.length; i++){
+          var args  =  changes[i];
+          args.error = false;
+          args.sender = this;
+          this.fireDataEvent("update_way_relations", args);
+        }
 
-    },
 
-    removeStationToRouteWayTrigger : function(stationModel, callback, sender){
-
-    },
+      },
+      /**
+       * [ description]
+       * @param  {[type]}   stationModel [description]
+       * @param  {Function} callback     [description]
+       * @param  {[type]}   sender       [description]
+       * @return {[type]}                [description]
+       */
+       excludeStationToRouteWayTrigger : function(stationID, callback, sender){
+        this.debug("execute excludeStationToRouteWayTrigger()");
+        if(this.getDataStorage().getState() != "make")
+        {
+          if(callback!=undefined)
+            callback({error  : true});
+          return;
+        }
+        var routeWay = this.getDataStorage().getSelectedWay();
+        var changes = routeWay.removeStation(stationID);
+        for(var i=0; i< changes.length; i++){
+          var args  =  changes[i];
+          args.error = false;
+          args.sender = this;
+          this.debug(args);
+          this.fireDataEvent("update_way_relations", args);
+        }
+       },
 
  		   /**
  			* Триггер вызывается для обновления данных на странице
@@ -310,7 +309,7 @@
        loadRoutesListTrigger : function(cityID, routeTypeID, callback, sender){
         this.debug("execute loadRoutesListTrigger()");
         var dataRequest =  new bus.admin.net.DataRequest();
-        var langID = bus.admin.AppProperties.getLocale();
+        var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
         dataRequest.Routes().getRoutesList(cityID, routeTypeID, langID, function(responce){
          var data = responce.getContent();
          this.debug("Routes: getRoutesList(): received routes list data");
@@ -424,6 +423,7 @@
        */
        setDirectionTrigger : function (direction, callback, sender)
        {
+        this.debug("setDirectionTrigger(): ", direction);
         if(this.getDataStorage().getDirection() == direction)
           return;
         var args = {
@@ -493,7 +493,7 @@
         else
         {
           var routeModel = new bus.admin.mvp.model.RouteModel(data);
-          var langID = bus.admin.AppProperties.getLocale();
+          var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
 
           args = {
             route : routeModel,

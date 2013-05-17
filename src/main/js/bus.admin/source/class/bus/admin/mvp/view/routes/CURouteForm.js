@@ -288,12 +288,12 @@
 		 	
 
 			// fill table
-			var langs  = bus.admin.AppProperties.LANGUAGES;
+			var langs  = qx.core.Init.getApplication().getDataStorage().getSupportedLocales();
 			var rowsData = [];
 			for (var i = 0; i < langs.length; i++) {
-				var langID = langs[i].id;
+				var langID = langs[i].getId();
 				var number = this.__routeModel.getNumber(langID);
-				rowsData.push([langID, langs[i].name, number]);
+				rowsData.push([langID, langs[i].getName(), number]);
 			}
 			this.__tableNumbers.getTableModel().setData(rowsData);
 

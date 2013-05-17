@@ -107,7 +107,7 @@
 		  		return;
 		  	this.debug("execute _onInsertCity() event handler");
 		  	var cityModel = e.getData().city;
-		  	var locale = bus.admin.AppProperties.getLocale();
+		  	var locale = qx.core.Init.getApplication().getDataStorage().getLocale();
 		  	var currLangID = this._presenter.getDataStorage().getCurrNamesLangID();
 
  		  	// Добавим город в таблицу _tableCities

@@ -18,14 +18,24 @@
  qx.Class.define("bus.admin.net.impl.Routes", {
  	extend : qx.core.Object,
 
- 	construct : function(sync) {
- 		if (sync != null) {
- 			this.__sync = sync;
- 		}
+	construct : function(sync) {
+		if (sync != undefined) {
+			this.__sync = sync;
+		}
+		this.__contextPath  = qx.core.Init.getApplication().getDataStorage().getContextPath();
+	},
+	members : {
+		/**
+		 * Синхронный запрос (блокирующий)  или асинхронный?
+		 * @type {Boolean}
+		 */
+		__sync : false,
 
- 	},
- 	members : {
- 		__sync : false,
+		/**
+		 * Папка web-приложения на сервере
+		 * @type {String}
+		 */
+		 __contextPath : null, 
 
  		/**
  		 * Возвращает список остановок для определенного города. Язык названий остановок задается в аргументах функции.
@@ -37,8 +47,7 @@
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		 getRoutesList : function(cityID, routeTypeID, langID, callback, self) {
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
-		 	var request = new qx.io.remote.Request(contextPath + "routes/getRoutesList.json", "POST", "application/json");
+		 	var request = new qx.io.remote.Request(this.__contextPath  + "routes/getRoutesList.json", "POST", "application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
 		 	request.setParameter("cityID", cityID, true);
@@ -59,8 +68,7 @@
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		 get : function(routeID, callback, self){
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
-		 	var request = new qx.io.remote.Request(contextPath +  "routes/get.json", "POST", "application/json");
+		 	var request = new qx.io.remote.Request(this.__contextPath  +  "routes/get.json", "POST", "application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
 		 	request.setParameter("routeID", routeID, true);
@@ -79,12 +87,11 @@
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		 update : function(routeModel, callback,	self) {
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
 		 	var routeJson = qx.lang.Json.stringify(routeModel.toDataModel()); 
-
-		 	var request = new qx.io.remote.Request(contextPath + "routes/update.json", "POST", "application/json");
+		 	var request = new qx.io.remote.Request(this.__contextPath + "routes/update.json", "POST", "application/json");
 			request.setRequestHeader("Content-Type", "application/json");
-			request.setParseJson(true);
+			request.setAsynchronous(!this.__sync);
+		 	request.setParseJson(true);
 			request.setData(routeJson);
 			request.addListener("completed", callback, self);
 			request.addListener("failed", callback, self);

@@ -31,8 +31,7 @@
 				// EVIL HACK
 				this.addListener("appear", function() {
 					var el = this.getContentElement();
-					el.setStyle("top",
-						(parseInt(el.getStyle("top")) + 1) + "px");
+					el.setStyle("top",(parseInt(el.getStyle("top")) + 1) + "px");
 				}, this);
 				// /////////
 
@@ -111,7 +110,8 @@
 
 					var btnLogout = new qx.ui.basic.Label("logout");
 					btnLogout.addListener("click", function(evt) {
-						window.location = bus.admin.AppProperties.ContextPath + "j_spring_security_logout";
+						var contextPath  = qx.core.Init.getApplication().getDataStorage().getContextPath();
+						window.location = contextPath + "j_spring_security_logout";
 					}, this);	
 					this.add(new qx.ui.core.Spacer(10));
 					btnLogout.setCursor("pointer");

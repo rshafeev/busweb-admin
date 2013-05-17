@@ -26,10 +26,10 @@
  		this.base(arguments);
  		this.__presenter = presenter;
  		this.__initWidgets();
- 		//presenter.addListener("load_routes_list", this.__onLoadRoutesList, this);
  		presenter.addListener("select_route", this.__onSelectRoute, this);
+ 		presenter.addListener("change_direction", this.__onChangeDirection, this);
  		presenter.addListener("change_state", this.__onChangeState, this);
- 		
+ 		presenter.addListener("update_way_relations", this.__onUpdateWayRelations, this);
  	},
 
  	members : {
@@ -65,6 +65,34 @@
 
  		  __btnTimetable : null,
 
+		/**
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#update_way_relations update_way_relations} 
+		 * вызывается при изменении пути.
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 __onUpdateWayRelations : function(e){
+		 	this.debug("execute __onUpdateWayRelations() event handler.");
+		 	var relation = e.getData().relation;
+		 	var operation = e.getData().operation;
+		 	if(operation == "insert"){
+		 		var index = relation.getIndex();
+		 		var station = relation.getCurrStation();
+		 		var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
+		 		var rowsData = this.__stationsTable.getTableModel().getData();
+		 		if(rowsData.length <= index)
+		 			rowsData.push([station.getId(), station.getName(langID)]);
+		 		else
+		 			rowsData.splice(index, 0, [station.getId(), station.getName(langID)]);
+		 		this.__stationsTable.getTableModel().setData(rowsData);
+		 	}
+		 	if(operation == "remove"){
+		 		var index = relation.getIndex();
+		 		var rowsData = this.__stationsTable.getTableModel().getData();
+		 		rowsData.splice(index, 1);
+		 		this.__stationsTable.getTableModel().setData(rowsData);
+		 	}
+
+		 },
 
 
 		 /**
@@ -75,13 +103,26 @@
 		 __onSelectRoute : function (e){
 		 	this.debug("execute __onSelectRoute() event handler");
 		 	var state = this.__presenter.getDataStorage().getState();
-		 	var routeModel = this.__presenter.getDataStorage().getSelectedRoute();
+		 	var wayModel = this.__presenter.getDataStorage().getSelectedWay();
 		 	this.__setState(state);
-		 	if(routeModel != null){
-		 		var direction = this.__presenter.getDataStorage().getDirection();	
-		 		var wayModel = routeModel.getWayByDirection(direction);
-		 		if(wayModel != undefined)
-		 			this.__fillStationsTable(wayModel);
+		 	if(wayModel != null){
+		 		this.__fillStationsTable(wayModel);
+		 	}
+
+		 },
+
+		 /**
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#change_direction change_direction} вызывается при изменении 
+		 * направления пути.
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 __onChangeDirection: function (e){
+		 	this.debug("execute __onChangeDirection() event handler");
+		 	var state = this.__presenter.getDataStorage().getState();
+		 	var wayModel = this.__presenter.getDataStorage().getSelectedWay();
+		 	this.__setState(state);
+		 	if(wayModel != null){
+		 		this.__fillStationsTable(wayModel);
 		 	}
 
 		 },
@@ -149,15 +190,15 @@
  		 */
  		 __initWidgets : function() {
 
- 		 	this.__stationsTabPage = new qx.ui.tabview.Page("Stations");
+ 		 	this.__stationsTabPage = new qx.ui.tabview.Page(this.tr("Stations"));
  		 	this.__stationsTabPage.setLayout(new qx.ui.layout.Canvas());
  		 	this.__stationsTabPage.setWidth(250);
  		 	this.__stationsTabPage.setHeight(200);
 
 			// Создадим радиокнопки
 			this.__diRadioGroup = new qx.ui.form.RadioButtonGroup();
-			this.__radioDirect = new qx.ui.form.RadioButton("Direct");
-			this.__radioReverse = new qx.ui.form.RadioButton("Reverse");
+			this.__radioDirect = new qx.ui.form.RadioButton(this.tr("Direct"));
+			this.__radioReverse = new qx.ui.form.RadioButton(this.tr("Reverse"));
 			this.__radioDirect.addListener("changeValue", this.__onRadioDirect,
 				this);
 			this.__radioReverse.addListener("changeValue", this.__onRadioReverse,
@@ -172,15 +213,16 @@
 			this.__createStationsTable();
 			
 			// Создадим кнопку вызова диалогового окна редактирования расписания.
-			this.__btnTimetable = new qx.ui.form.Button("Timetable...",
+			this.__btnTimetable = new qx.ui.form.Button(this.tr("Timetable..."),
 				"bus/admin/images/btn/go-bottom.png");
 			this.__btnTimetable.setWidth(90);
 			this.__stationsTabPage.add(this.__btnTimetable);
 
 			// Создадим кнопку удаления выбранной станции.
-			this.__btnDeleteStation = new qx.ui.form.Button("Delete",
+			this.__btnDeleteStation = new qx.ui.form.Button(this.tr("Delete"),
 				"bus/admin/images/btn/edit-delete.png");
 			this.__btnDeleteStation.setWidth(90);
+			this.__btnDeleteStation.addListener("execute", this.__onClickBtnDeleteStation, this);
 			this.__stationsTabPage.add(this.__btnDeleteStation);
 
 			this.add(this.__stationsTabPage);
@@ -219,7 +261,8 @@
  		 * @param e {qx.event.type.Event} Объект события.
  		 */
  		 __onRadioDirect : function(e) {
- 		 	this.__presenter.setDirectionTrigger(true);
+ 		 	if(this.__radioDirect.getValue() == true)
+ 		 		this.__presenter.setDirectionTrigger(true);
  		 },
 
  		/**
@@ -227,7 +270,8 @@
  		 * @param e {qx.event.type.Event} Объект события.
  		 */
  		 __onRadioReverse : function(e) {
- 		 	this.__presenter.setDirectionTrigger(false);
+ 		 	if(this.__radioReverse.getValue() == true)
+ 		 		this.__presenter.setDirectionTrigger(false);
  		 },
 
  		 /**
@@ -261,20 +305,11 @@
  		  * @param  e {qx.event.type.Event} Объект события.
  		  */
  		  __onClickBtnDeleteStation : function(e) {
- 		  	var status = this._routesPage.getStatus();
- 		  	if (status == "show")
+ 		  	var selectedRow = this.__stationsTable.getSelectionModel().getAnchorSelectionIndex();
+ 		  	if (selectedRow < 0)
  		  		return;
-
- 		  	var row = this.__stationsTable.getSelectionModel()
- 		  	.getAnchorSelectionIndex();
- 		  	if (row < 0)
- 		  		return;
- 		  	var rowData = this.__stationsTable.getTableModel()
- 		  	.getRowDataAsMap(row);
- 		  	if (this._routesPage.getRouteMap() != null) {
- 		  		this._routesPage.getRouteMap().deleteRouteStation(rowData.ID);
- 		  	}
- 		  	this.__stationsTable.getTableModel().removeRows(row, 1);
+ 		  	var rowData = this.__stationsTable.getTableModel().getRowDataAsMap(selectedRow);
+ 		  	this.__presenter.excludeStationToRouteWayTrigger(rowData.ID);
 
  		  },
 
@@ -305,16 +340,15 @@
 		  __fillStationsTable : function(routeWayModel) {
 		  	this.debug("__fillStationsTable()");
 		  	var relations = routeWayModel.getRelations();
-		  	var rowData = [];
-		  	var langID = bus.admin.AppProperties.getLocale();
+		  	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
+		  	var rowsData = [];
 		  	if(relations != undefined){
-		  		for (var i = 1; i < relations.length; i++) {
+		  		for (var i = 0; i < relations.length; i++) {
 		  			var st = relations[i].getCurrStation();
-		  			rowData.push([st.getId(), st.getName(langID)]);
+		  			rowsData.push([st.getId(), st.getName(langID)]);
 		  		}
 		  	}
-		  	this.__stationsTable.getTableModel().setData(rowData);
-
+		  	this.__stationsTable.getTableModel().setData(rowsData);
 		  }
 
 

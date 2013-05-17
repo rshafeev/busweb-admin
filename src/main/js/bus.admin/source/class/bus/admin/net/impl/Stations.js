@@ -18,14 +18,24 @@
  qx.Class.define("bus.admin.net.impl.Stations", {
  	extend : qx.core.Object,
 
- 	construct : function(sync) {
- 		if (sync != undefined) {
- 			this.__sync = sync;
- 		}
+	construct : function(sync) {
+		if (sync != undefined) {
+			this.__sync = sync;
+		}
+		this.__contextPath  = qx.core.Init.getApplication().getDataStorage().getContextPath();
+	},
+	members : {
+		/**
+		 * Синхронный запрос (блокирующий)  или асинхронный?
+		 * @type {Boolean}
+		 */
+		__sync : false,
 
- 	},
- 	members : {
- 		__sync : false,
+		/**
+		 * Папка web-приложения на сервере
+		 * @type {String}
+		 */
+		 __contextPath : null, 
 
  		/**
  		 * Возвращает список остановок для определенного города. Язык названий остановок задается в аргументах функции.
@@ -36,9 +46,9 @@
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		 getStationsList : function(cityID, langID, callback, self ){
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
-		 	var request = new qx.io.remote.Request(contextPath + "stations/getStationsList.json", "POST", "application/json");
+		 	var request = new qx.io.remote.Request(this.__contextPath + "stations/getStationsList.json", "POST", "application/json");
 		 	request.setParseJson(true);
+		 	request.setAsynchronous(!this.__sync);
 		 	request.setParameter("cityID", cityID, true);
 		 	request.setParameter("langID", langID, true);
 		 	request.addListener("completed", callback, self);
@@ -56,12 +66,11 @@
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		 getStationsFromBox : function(stationsBoxModel,  callback, self) {
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
 		 	var requestBody = qx.lang.Json.stringify(stationsBoxModel.toDataModel());
 		 	this.debug(requestBody);
-		 	var request = new qx.io.remote.Request(contextPath + "stations/getStationsFromBox.json", "POST",	"application/json");
-		 	request.setAsynchronous(!this.__sync);
+		 	var request = new qx.io.remote.Request(this.__contextPath  + "stations/getStationsFromBox.json", "POST",	"application/json");
 		 	request.setParseJson(true);
+		 	request.setAsynchronous(!this.__sync);
 		 	request.setRequestHeader("Content-Type", "application/json");
 			request.setData(requestBody);
 		 	request.addListener("completed", callback, self);
@@ -78,8 +87,7 @@
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		 get : function(stationID, callback, self){
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
-		 	var request = new qx.io.remote.Request(contextPath +  "stations/get.json", "POST", "application/json");
+		 	var request = new qx.io.remote.Request(this.__contextPath  +  "stations/get.json", "POST", "application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
 		 	request.setParameter("stationID", stationID, true);
@@ -97,9 +105,8 @@
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		 update : function(stationModel, callback, self) {
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
 		 	var stationJson = qx.lang.Json.stringify(stationModel.toDataModel());
-		 	var request = new qx.io.remote.Request(contextPath + "stations/update.json","POST", "application/json");
+		 	var request = new qx.io.remote.Request(this.__contextPath  + "stations/update.json","POST", "application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
 		 	request.setRequestHeader("Content-Type", "application/json");
@@ -118,9 +125,8 @@
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		 insert : function(stationModel, callback, self) {
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
 		 	var stationJson = qx.lang.Json.stringify(stationModel.toDataModel());
-		 	var request = new qx.io.remote.Request(contextPath + "stations/insert.json", "POST", "application/json");
+		 	var request = new qx.io.remote.Request(this.__contextPath  + "stations/insert.json", "POST", "application/json");
 		 	request.setRequestHeader("Content-Type", "application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
@@ -139,8 +145,7 @@
 		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
 		 remove : function(stationID, callback, self) {
-		 	var contextPath = bus.admin.AppProperties.ContextPath;
-		 	var request = new qx.io.remote.Request(contextPath + "stations/remove.json",	"POST", "application/json");
+		 	var request = new qx.io.remote.Request(this.__contextPath  + "stations/remove.json",	"POST", "application/json");
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
 		 	request.setParameter("stationID", stationID, true);
