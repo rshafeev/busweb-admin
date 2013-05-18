@@ -58,41 +58,50 @@
  		   * Контекстное меню карты
  		   * @type {Object}
  		   */
-		 __contextMenu : null,
+ 		   __contextMenu : null,
 
-		 setContextMenu : function(menuItems){
-		 	var map = this.getMapObject();
-		 	if (map == null)
-		 		return;
-		 	if (this.__contextMenu  != undefined) {
-		 		google.maps.event.clearListeners(map, 'menu_item_selected');
-		 	}
-		 	if(menuItems == undefined)
-		 		return;
-		 	var contextMenuOptions = {};
-		 	contextMenuOptions.classNames = {
-		 		menu : 'context_menu',
-		 		menuSeparator : 'context_menu_separator'
-		 	};
-		 	contextMenuOptions.menuItems = menuItems;
+ 		   setContextMenu : function(menuItems){
+ 		   	this.debug("execute setContextMenu()");
+ 		   	var map = this.getMapObject();
+ 		   	if (map == null)
+ 		   		return;
+ 		   	if (this.__contextMenu  != undefined) {
+ 		   		google.maps.event.clearListeners(map, 'menu_item_selected');
+ 		   		var events = this.__contextMenu["__events__"];
+ 		   		for(var evt in events){
+ 		   			google.maps.event.removeListener(events[evt]);
+ 		   		}
+ 		   	}
+ 		   	if(menuItems == undefined)
+ 		   		return;
+ 		   	var contextMenuOptions = {};
+ 		   	contextMenuOptions.classNames = {
+ 		   		menu : 'context_menu',
+ 		   		menuSeparator : 'context_menu_separator'
+ 		   	};
+ 		   	contextMenuOptions.menuItems = menuItems;
 
-		 	var contextMenu = new ContextMenu(map, contextMenuOptions);
-		 	var self = this;
-		 	google.maps.event.addListener(map, "rightclick", function(mouseEvent) {
-		 		contextMenu.show(mouseEvent.latLng);
-		 	});
-		 	google.maps.event.addListener(map, "click",	function(mouseEvent) {
-		 		contextMenu.hide();
-		 	});
-		 	google.maps.event.addListener(map, "dragstart", function(mouseEvent) {
-		 		contextMenu.hide();
-		 	});
-		 	this.__contextMenu = contextMenu;
-		 },
+ 		   	var contextMenu = new ContextMenu(map, contextMenuOptions);
+ 		   	var self = this;
+ 		   	var events = {};
+ 		   	events.rightclick = google.maps.event.addListener(map, "rightclick", function(mouseEvent) {
+ 		   		contextMenu.show(mouseEvent.latLng);
+ 		   	});
+ 		   	events.click = google.maps.event.addListener(map, "click",	function(mouseEvent) {
+ 		   		contextMenu.hide();
+ 		   	});
+ 		   	events.dragstart = google.maps.event.addListener(map, "dragstart", function(mouseEvent) {
+ 		   		contextMenu.hide();
+ 		   	});
+ 		   	contextMenu["__events__"] = events;
+ 		   	this.__contextMenu = contextMenu;
 
-		 getContextMenu : function(){
-		 	return this.__contextMenu;
-		 },
+ 		   	this.debug("setContextMenu() : exit();");
+ 		   },
+
+ 		   getContextMenu : function(){
+ 		   	return this.__contextMenu;
+ 		   },
 
 
 		/**
@@ -133,16 +142,16 @@
 		 */
 		 __createMap : function() {
 		 	var map = new google.maps.Map(this.getContentElement().getDomElement(), {
-		 			mapTypeId : google.maps.MapTypeId.ROADMAP,
-		 			mapTypeControl : true,
-		 			mapTypeControlOptions : {
-		 				style : google.maps.MapTypeControlStyle.DROPDOWN_MENU
-		 			},
-		 			navigationControl : true,
-		 			navigationControlOptions : {
-		 				style : google.maps.NavigationControlStyle.SMALL
-		 			}
-		 		});
+		 		mapTypeId : google.maps.MapTypeId.ROADMAP,
+		 		mapTypeControl : true,
+		 		mapTypeControlOptions : {
+		 			style : google.maps.MapTypeControlStyle.DROPDOWN_MENU
+		 		},
+		 		navigationControl : true,
+		 		navigationControlOptions : {
+		 			style : google.maps.NavigationControlStyle.SMALL
+		 		}
+		 	});
 		 	map.setOptions({draggableCursor:'crosshair'});
 		 	this.setMapObject(map);
 		 	this.setCenter(this.__center.lat, this.__center.lon, this.__center.scale);

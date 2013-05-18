@@ -188,6 +188,34 @@
 
  		members : {
 
+
+     /**
+      * Триггер вызывается для обновления дуги
+      * @param  stationBID {Integer} ID конечной станции, к которой привязывается полилиния
+      * @param  relationModel {bus.admin.mvp.model.route.RouteRelationModel}  Модель дуги
+      * @param  callback {Function}  callback функция
+      * @param  sender {Object}      Объект, который вызвал триггер
+      */     
+      updateWayRelationTrigger : function(stationBID, relationModel, callback, sender){
+        this.debug("execute updateWayRelationTrigger()");
+        if(this.getDataStorage().getState() != "make")
+        {
+          if(callback != undefined )
+            callback({error  : true});
+          return;
+        }
+        var routeWay = this.getDataStorage().getSelectedWay();
+        var rel = routeWay.updateRelation(stationBID, relationModel);
+        var args  =  {
+          relation : rel,
+          operation : "update",
+          error : false,
+          sender : sender
+        };
+        this.fireDataEvent("update_way_relations", args);
+
+       },
+
      /**
       * Триггер вызывается для добавления станции к пути маршрута
       * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции
@@ -238,7 +266,7 @@
           this.debug(args);
           this.fireDataEvent("update_way_relations", args);
         }
-       },
+      },
 
  		   /**
  			* Триггер вызывается для обновления данных на странице
@@ -543,6 +571,17 @@
             callback({error  : true});
           return;
         }
+        // Изменим состояние страницы
+        this.getDataStorage().setState(state);
+        
+        // Оповестим слушателей об изменении состояния страницы
+        var args  = {
+          oldState  : this.getDataStorage().getState(),
+          newState  : state,
+          sender    : sender
+        };
+        this.fireDataEvent("change_state", args);
+
         // Сохраним копию текущего выбранного маршрута
         var backupRoute = null;
         if(this.getDataStorage().getSelectedRoute() != null)
@@ -563,19 +602,7 @@
           sender : sender,
           error  : false
         };
-        this.fireDataEvent("select_route", selectRouteArgs);
-
-        // Изменим состояние страницы
-        this.getDataStorage().setState(state);
-        
-        // Оповестим слушателей об изменении состояния страницы
-        var args  = {
-          oldState  : this.getDataStorage().getState(),
-          newState  : state,
-          sender    : sender
-        };
-        this.fireDataEvent("change_state", args);
-        
+        this.fireDataEvent("select_route", selectRouteArgs);        
         if(callback != undefined){
           callback(args);
         }
@@ -597,13 +624,13 @@
             callback({error  : true});
           return;
         }
-        var args  = {
+        var stateArgs  = {
           oldState  : this.getDataStorage().getState(),
           newState  : state,
           sender    : sender
         };
         this.getDataStorage().setState(state);
-        this.fireDataEvent("change_state", args);
+        this.fireDataEvent("change_state", stateArgs);
         
         if(isSave != undefined){
           var currRoute = this.getDataStorage().getSelectedRoute();

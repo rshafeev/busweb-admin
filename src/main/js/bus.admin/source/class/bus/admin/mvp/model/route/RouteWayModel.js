@@ -78,22 +78,35 @@
  	 	members : 
  	 	{
 
- 	 	/**
- 	 	 * Есть ли такая станция в пути?
- 	 	 * @param  stationID {Integer}  ID станции
- 	 	 * @return {Boolean}   True: есть.
- 	 	 */
- 	 	 isStationExists: function(stationID){
- 	 	 	var relations = this.getRelations();
- 	 	 	if(relations == undefined)
- 	 	 		return false;
- 	 	 	for(var i = 0; i < relations.length; i++){
- 	 	 		if(relations[i].getCurrStation().getId() == stationID){
- 	 	 			return true;
- 	 	 		}
- 	 	 	}	 		
- 	 	 	return false;
- 	 	 },
+         /**
+          * Обновляет дугу, причем обновляются только те поля, которые не null
+          * @param  stationBID {Integer} ID конечной станции, к которой привязывается полилиния
+          * @param  relationModel {bus.admin.mvp.model.route.RouteRelationModel}  Дуга
+          * @return {bus.admin.mvp.model.route.RouteRelationModel}  обновленная дуга
+          */
+          updateRelation : function(stationBID, relationModel){
+            var r = this.getRelationByStationBID(stationBID);
+            if(r != undefined)
+               r.fromDataModel(relationModel.toDataModel());
+            return r;
+         },
+
+        /**
+ 	 	   * Есть ли такая станция в пути?
+ 	 	   * @param  stationID {Integer}  ID станции
+ 	 	   * @return {Boolean}   True: есть.
+ 	 	   */
+          isStationExists: function(stationID){
+            var relations = this.getRelations();
+            if(relations == undefined)
+              return false;
+           for(var i = 0; i < relations.length; i++){
+              if(relations[i].getCurrStation().getId() == stationID){
+                return true;
+             }
+          }	 		
+          return false;
+       },
 
  	 	/**
  	 	 * Возвращает предыдущую дугу
@@ -114,6 +127,26 @@
 
  	 	 	return null;
  	 	 },
+
+       /**
+        * Возвращает дугу, у которой конечной вершиной выступает остановка с ID равным stationBID
+        * @param  stationBID {Integer}  ID конечной станции
+        * @return {bus.admin.mvp.model.route.RouteRelationModel|null} Дуга
+        */
+        getRelationByStationBID : function(stationBID){
+         var relations = this.getRelations();
+         if(stationBID == undefined || relations == undefined)
+            return null;
+
+         for(var i = 0; i < relations.length; i++){
+            if(relations[i].getCurrStation().getId() == stationBID){
+               return relations[i];
+            }
+         }
+
+         return null;
+      },
+
 
  	 	/**
  	 	 * Возвращает следующую дугу

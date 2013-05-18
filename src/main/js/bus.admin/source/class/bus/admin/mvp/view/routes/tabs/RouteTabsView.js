@@ -22,6 +22,10 @@
  */
  qx.Class.define("bus.admin.mvp.view.routes.tabs.RouteTabsView", {
  	extend : qx.ui.tabview.TabView,
+
+ 	/**
+ 	 * @param  presenter   {bus.admin.mvp.presenter.RoutesPresenter}  Presenter 
+ 	 */
  	construct : function(presenter) {
  		this.base(arguments);
  		this.__presenter = presenter;
@@ -216,6 +220,7 @@
 			this.__btnTimetable = new qx.ui.form.Button(this.tr("Timetable..."),
 				"bus/admin/images/btn/go-bottom.png");
 			this.__btnTimetable.setWidth(90);
+			this.__btnTimetable.addListener("execute", this.__onClickBtnTimetable, this);
 			this.__stationsTabPage.add(this.__btnTimetable);
 
 			// Создадим кнопку удаления выбранной станции.
@@ -309,8 +314,9 @@
  		  	if (selectedRow < 0)
  		  		return;
  		  	var rowData = this.__stationsTable.getTableModel().getRowDataAsMap(selectedRow);
- 		  	this.__presenter.excludeStationToRouteWayTrigger(rowData.ID);
-
+ 		  	if(rowData.ID != undefined){
+ 		  		this.__presenter.excludeStationToRouteWayTrigger(rowData.ID);	
+ 		  	}
  		  },
 
  		 /**
@@ -318,18 +324,11 @@
  		  * @param e {qx.event.type.Event} Объект события.
  		  */
  		  __onClickBtnTimetable : function(e) {
- 		  	/*
- 		  	var route = this._routesPage.getCurrRouteModel();
- 		  	var routeWay = null;
- 		  	if (this.__radioDirect.getValue() == true) {
- 		  		routeWay = route.directRouteWay;
- 		  	} else {
- 		  		routeWay = route.reverseRouteWay;
+ 		  	var routeWay = this.__presenter.getDataStorage().getSelectedWay();
+ 		  	if(routeWay != undefined){
+ 		  		var dlg = new bus.admin.mvp.view.routes.ScheduleForm(this.__presenter, routeWay);
+ 		  		dlg.open();
  		  	}
- 		  	var form = new bus.admin.mvp.view.routes.tabs.TimeForm(
- 		  		this._routesPage, routeWay);
- 		  	form.open();
- 		  	*/
  		  },
 
 

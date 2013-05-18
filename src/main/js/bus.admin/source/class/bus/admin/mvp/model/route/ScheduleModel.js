@@ -45,17 +45,21 @@
  	 	 routeWayID : {
  	 	 	nullable : true,
  	 	 	check : "Integer"
- 	 	 }
+ 	 	 },
+
+ 	 	/**
+ 	 	  * Дни недели разбиты по группам. Для каждой группы отдельное расписание
+ 	 	  * @type {bus.admin.mvp.model.route.ScheduleGroupModel[]}
+ 	 	  */
+ 	 	  groups : {
+ 	 	  	nullable : true
+ 	 	  }
 
 
 
  	 	},
  	 	members : 
  	 	{
- 	 	/**
- 	 	  * Дни недели разбиты по группам. Для каждой группы отдельное расписание
- 	 	  */
- 	 	  __groups : null,
 
  		/**
  		 * Преобразует модель в JS объект, который можно в дальнейшем сериализовать в JSON строку и отправить на сервер.
@@ -65,8 +69,15 @@
  		 	var dataModel = {
  		 		id : this.getId(),
  		 		routeWayID : this.getRouteWayID(),
- 		 		groups : bus.admin.helpers.ObjectHelper.clone(this.__groups)
+ 		 		groups :  [] 
  		 	};
+ 		 	var groups = this.getGroups();
+ 		 	if(groups != undefined){
+ 		 		for(var i = 0; i < groups.length; i++){
+ 		 			var grp = groups[i].toDataModel();
+ 		 			dataModel.groups.push(grp);
+ 		 		}
+ 		 	}
  		 	return dataModel;
  		 },
 
@@ -76,7 +87,7 @@
  		  * следующие свойства:
  		  * <pre>
  		  * <ul>
- 		  * <li> id          ID пути, Integer</li>
+ 		  * <li> id          ID расписания, Integer</li>
  		  * <li> routeWayID  ID пути, к которому относится данное расписание, Integer</li>
  		  * <li> groups      Дни недели разбиты по группам. Для каждой группы отдельное расписание, Object[]. </li>
  		  * <ul>
@@ -90,9 +101,47 @@
  		  		this.setId(dataModel.id);
  		  	if(dataModel.routeWayID != undefined)
  		  		this.setRouteWayID(dataModel.routeWayID);
- 		  	if(dataModel.groups != undefined)
- 		  		this.__groups = dataModel.groups;
+ 		  	if(dataModel.groups != undefined){
+ 		  		var groups = [];
+ 		  		for(var i=0;i < dataModel.groups.length; i++){
+ 		  			groups.push(new bus.admin.mvp.model.route.ScheduleGroupModel(dataModel.groups[i]));
+ 		  		}
+ 		  		this.setGroups(groups);
+ 		  	}
  		  },
+
+ 		  /**
+ 		   * Добавляет группу
+ 		   * @param  {bus.admin.mvp.model.route.ScheduleGroupModel} groupModel Новая группа
+ 		   * @return {bus.admin.mvp.model.route.ScheduleGroupModel}            Добавленая группа
+ 		   */
+ 		   addGroup : function(groupModel){
+ 		   	var groups = this.getGroups();
+ 		   	if(groups == undefined)
+ 		   		groups = [];
+ 		   	if(groupModel.getId() <= 0){
+ 		   		groupModel.setId(-groups.length -1);
+ 		   	}
+ 		   	groups.push(groupModel);
+ 		   	this.setGroups(groups);
+ 		   	return groupModel;
+ 		   },
+
+ 		  /**
+ 		   * Возвращает группу по ID
+ 		   * @param  groupID {Integer}  ID группы
+ 		   * @return {bus.admin.mvp.model.route.ScheduleGroupModel|null} Модель группы 
+ 		   */
+ 		   getGroupByID : function(groupID){
+ 		   	var groups = this.getGroups();
+ 		   	if(groups == undefined)
+ 		   		return null;
+ 		   	for(var i=0;i < groups.length; i++){
+ 		   		if(groups[i].getId() == groupID)
+ 		   			return groups[i];
+ 		   	}
+ 		   	return null;
+ 		   },
 
 
  		 /**
@@ -104,16 +153,15 @@
  		  fromSimple : function(timeA, timeB, frequency){
  		  	this.setId(-1);
  		  	this.setRouteWayID(-1);
- 		  	this.__groups = [{
- 		  		id : -1,
- 		  		days : ["all"],
- 		  		timetables : [{
- 		  			freq  : frequency,
- 		  			timeA : timeA,
- 		  			timeB : timeB
- 		  		}]
- 		  	}]; 
-
+ 		  	var group = new bus.admin.mvp.model.route.ScheduleGroupModel();
+ 		  	group.setId(-1);
+ 		  	group.setDays(["all"]);
+ 		  	group.setTimetable([{
+ 		  		freq  : frequency,
+ 		  		timeA : timeA,
+ 		  		timeB : timeB
+ 		  	}]);
+ 		  	this.addGroup(group);
  		  },
 
 

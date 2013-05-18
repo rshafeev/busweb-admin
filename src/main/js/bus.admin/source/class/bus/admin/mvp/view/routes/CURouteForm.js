@@ -66,18 +66,60 @@
  		  */
  		  __ckeckTranslit : null,
 
+ 		  /**
+ 		   * Поле ввода номера маршрута(Используется транслитерация, т.е. при вводе номера в данное поле производится транслит номера на все языки)
+ 		   * @type {qx.ui.form.TextField}
+ 		   */
+ 		   __editNumber : null,
 
- 		  __editNumber : null,
+ 		  /**
+ 		   * Поле ввода стоимости проезда
+ 		   * @type {qx.ui.form.TextField}
+ 		   */
+ 		   __editCost : null,
 
- 		  __btnSave : null,
- 		  __btnCancel : null,
- 		  __checkSameWays : null,
+ 		  /**
+ 		   * Кнопка сохранения изменений
+ 		   * @type { qx.ui.form.Button}
+ 		   */
+ 		   __btnSave : null,
+ 		   
+ 		  /**
+ 		   * Кнопка отмены действий
+ 		   * @type { qx.ui.form.Button}
+ 		   */
+ 		   __btnCancel : null,
 
- 		  editCost : null,
- 		  editTimeA : null,
- 		  editTimeB : null,
- 		  editFrequency : null,
- 		  __tableNumbers : null,
+ 		  /**
+ 		   * Прямой и обратный пути проходят через одни и теже остановки. В таком случае нужно составить только один путь, а обратный путь будет
+ 		   * построен автоматически. Данный флажок виден только в режиме создания нового маршрута. В режиме редактирования маршрута флажок скрыт.
+ 		   * @type {qx.ui.form.CheckBox}
+ 		   */
+ 		   __checkSameWays : null,
+
+ 		  /**
+ 		   * Поле ввода времени первого выезда с начальной станции пути
+ 		   * @type {qx.ui.form.TextField}
+ 		   */
+ 		   __editTimeA : null,
+
+ 		  /**
+ 		   *  Поле ввода времени  последнего выезда с начальной станции пути
+ 		   * @type {qx.ui.form.TextField}
+ 		   */
+ 		   __editTimeB : null,
+
+ 		  /**
+ 		   *  Поле ввода интервала движения м/у автотранспортом 
+ 		   * @type {qx.ui.form.TextField}
+ 		   */
+ 		   __editFrequency : null,
+
+ 		  /**
+ 		   * Таблица для редактироавния номера маршрута на разных языках
+ 		   * @type {qx.ui.table.Table}
+ 		   */
+ 		   __tableNumbers : null,
 
 
  		  /**
@@ -85,32 +127,29 @@
  		   * @return {qx.ui.table.Table} Виджет-таблица
  		   */
  		   __createTableNumbers : function(){
-			// names table
+ 		   	var tableModel = new qx.ui.table.model.Simple();
+ 		   	tableModel.setColumns(["ID", "Language", "Number"]);
+ 		   	tableModel.setColumnEditable(0, false);
+ 		   	tableModel.setColumnEditable(1, false);
+ 		   	tableModel.setColumnEditable(2, true);
+ 		   	tableModel.setColumnSortable(0, false);
+ 		   	tableModel.setColumnSortable(1, false);
+ 		   	tableModel.setColumnSortable(2, false);
 
-			var tableModel = new qx.ui.table.model.Simple();
-			tableModel.setColumns(["ID", "Language", "Number"]);
-			tableModel.setColumnEditable(0, false);
-			tableModel.setColumnEditable(1, false);
-			tableModel.setColumnEditable(2, true);
-			tableModel.setColumnSortable(0, false);
-			tableModel.setColumnSortable(1, false);
-			tableModel.setColumnSortable(2, false);
-
-			// table
-			var table = new qx.ui.table.Table(tableModel).set({
-				decorator : null
-			});
-			table.setBackgroundColor('gray');
-			table.setColumnVisibilityButtonVisible(false);
-			table.setStatusBarVisible(false);
-			table.setWidth(250);
-			table.setHeight(100);
-			table.setColumnWidth(0, 0);
-			table.setColumnWidth(1, 90);
-			table.setColumnWidth(2, 140);
-			table.getTableColumnModel().setColumnVisible(0,false);
-			return table;
-		},
+ 		   	var table = new qx.ui.table.Table(tableModel).set({
+ 		   		decorator : null
+ 		   	});
+ 		   	table.setBackgroundColor('gray');
+ 		   	table.setColumnVisibilityButtonVisible(false);
+ 		   	table.setStatusBarVisible(false);
+ 		   	table.setWidth(250);
+ 		   	table.setHeight(100);
+ 		   	table.setColumnWidth(0, 0);
+ 		   	table.setColumnWidth(1, 90);
+ 		   	table.setColumnWidth(2, 140);
+ 		   	table.getTableColumnModel().setColumnVisible(0,false);
+ 		   	return table;
+ 		   },
 
 		/**
  		 * Обработчик изменения значения флажка трансирования номера маршрута.
@@ -127,7 +166,6 @@
  		 	}
  		 },
 
-
  		 __onChangedEditNumber : function(e){
  		 	var numb = this.__editNumber.getValue();
 
@@ -137,7 +175,7 @@
  		 		var langID = rowsData[i][0];
  		 		var number = bus.admin.helpers.LanguageHelper.translitToLang(numb, langID);
  		 		this.__tableNumbers.getTableModel().setValue(2, i, number);
- 		 	}
+ 		 	}	
 
 
  		 },
@@ -150,7 +188,6 @@
 
  		 	var mainSettings = new qx.ui.groupbox.GroupBox(this.tr("Main info"));
  		 	mainSettings.setLayout(new qx.ui.layout.Canvas());
-
 
  		 	this.__ckeckTranslit = new qx.ui.form.CheckBox(this.tr("Translit"));
  		 	this.__ckeckTranslit.addListener("changeValue", this.__onCkeckTranslit, this);
@@ -166,10 +203,10 @@
 
 
  		 	var labelCost = new qx.ui.basic.Label(this.tr("Cost:"));
- 		 	this.editCost = new qx.ui.form.TextField("2.50");
- 		 	this.editCost.setWidth(80);
+ 		 	this.__editCost = new qx.ui.form.TextField("2.50");
+ 		 	this.__editCost.setWidth(80);
  		 	mainSettings.add(labelCost, { left : 10,	top : 150 });
- 		 	mainSettings.add(this.editCost, { left : 70, top : 150 });
+ 		 	mainSettings.add(this.__editCost, { left : 70, top : 150 });
 
  		 	this.__btnSave = new qx.ui.form.Button(this.tr("Save"),
  		 		"bus/admin/images/btn/dialog-apply.png");
@@ -181,33 +218,31 @@
  		 	this.__btnCancel.addListener("execute", this.__onClickCancel, this);
  		 	this.__btnCancel.setWidth(90);
 
-
-
  		 	if (this.__isChangeDlg == false) {
  		 		var timeSettings = new qx.ui.groupbox.GroupBox("Timetable");
  		 		timeSettings.setLayout(new qx.ui.layout.Canvas());
  		 		var labelTimeA = new qx.ui.basic.Label("Time(start):");
- 		 		this.editTimeA = new qx.ui.form.TextField("06:00");
- 		 		this.editTimeA.setWidth(80);
+ 		 		this.__editTimeA = new qx.ui.form.TextField("06:00");
+ 		 		this.__editTimeA.setWidth(80);
 
  		 		var labelTimeB = new qx.ui.basic.Label("Time(finish):");
- 		 		this.editTimeB = new qx.ui.form.TextField("22:00");
- 		 		this.editTimeB.setWidth(80);
+ 		 		this.__editTimeB = new qx.ui.form.TextField("22:00");
+ 		 		this.__editTimeB.setWidth(80);
 
  		 		var labelTimeB = new qx.ui.basic.Label("Time(finish):");
- 		 		this.editTimeB = new qx.ui.form.TextField("22:00");
- 		 		this.editTimeB.setWidth(80);
+ 		 		this.__editTimeB = new qx.ui.form.TextField("22:00");
+ 		 		this.__editTimeB.setWidth(80);
 
  		 		var labelFreq = new qx.ui.basic.Label("Frequency(min):");
- 		 		this.editFrequency = new qx.ui.form.TextField("15");
- 		 		this.editFrequency.setWidth(80);
+ 		 		this.__editFrequency = new qx.ui.form.TextField("15");
+ 		 		this.__editFrequency.setWidth(80);
 
 				// bus.admin.helpers.ObjectHelper.validateTime
 				timeSettings.add(labelTimeA, {
 					left : 10,
 					top : 10
 				});
-				timeSettings.add(this.editTimeA, {
+				timeSettings.add(this.__editTimeA, {
 					left : 110,
 					top : 10
 				});
@@ -215,7 +250,7 @@
 					left : 10,
 					top : 50
 				});
-				timeSettings.add(this.editTimeB, {
+				timeSettings.add(this.__editTimeB, {
 					left : 110,
 					top : 50
 				});
@@ -224,7 +259,7 @@
 					left : 10,
 					top : 90
 				});
-				timeSettings.add(this.editFrequency, {
+				timeSettings.add(this.__editFrequency, {
 					left : 110,
 					top : 90
 				});
@@ -244,7 +279,6 @@
 
 			}
 			// add to cantainer
-
 
 			this.add(mainSettings, {
 				left : 0,
@@ -271,7 +305,7 @@
 		 	if (this.__isChangeDlg == true) {
 		 		this.setWidth(350);
 		 		this.setCaption("Change route");
-		 		this.editCost.setValue(this.__routeModel.getCost().toString());
+		 		this.__editCost.setValue(this.__routeModel.getCost().toString());
 		 	} else {
 		 		this.setWidth(550);
 		 		this.setCaption("Insert new route");
@@ -288,7 +322,7 @@
 		 	
 
 			// fill table
-			var langs  = qx.core.Init.getApplication().getDataStorage().getSupportedLocales();
+			var langs  = qx.core.Init.getApplication().getDataStorage().getSupportedLocales().getLangs();
 			var rowsData = [];
 			for (var i = 0; i < langs.length; i++) {
 				var langID = langs[i].getId();
@@ -303,7 +337,7 @@
 		 * Обработчик события нажатия на кнопку сохранения маршрута с дальнейшим закрытием диалогового окна.
 		 */
 		 __onClickSave : function() {
-		 	var cost = cost = parseFloat(this.editCost.getValue());
+		 	var cost = cost = parseFloat(this.__editCost.getValue());
 		 	if (isNaN(cost)) {
 		 		bus.admin.widget.MsgDlg.info(this.tr("The cost must be a number"));
 		 		return;
@@ -369,9 +403,9 @@
 		  			return;
 		  		}
 		  	}
-		  	var timeAvalue = this.editTimeA.getValue();
-		  	var timeBvalue = this.editTimeB.getValue();
-		  	var freqValue = this.editFrequency.getValue();
+		  	var timeAvalue = this.__editTimeA.getValue();
+		  	var timeBvalue = this.__editTimeB.getValue();
+		  	var freqValue = this.__editFrequency.getValue();
 		  	var schedule = this.__makeScheduleModel(timeAvalue, timeBvalue,	freqValue);
 		  	if (schedule == null) {
 		  		bus.admin.widget.MsgDlg.info(this.tr("Error"), this.tr("Please, set valid time and frequency"));
@@ -408,7 +442,7 @@
 		   * @param  frequency  {String}  Интервал движения транспортных средств. Формат мм
 		   * @return {bus.admin.mvp.model.route.ScheduleModel|null} Расписание маршрута
 		   */
-		  __makeScheduleModel : function(timeValueA, timeValueB, frequency) {
+		   __makeScheduleModel : function(timeValueA, timeValueB, frequency) {
 		  	// Валидация данных
 		  	if (bus.admin.mvp.model.TimeIntervalModel.validate(timeValueA) == false
 		  		|| bus.admin.mvp.model.TimeIntervalModel.validate(timeValueB) == false
@@ -424,114 +458,9 @@
 		  var schedule = new bus.admin.mvp.model.route.ScheduleModel();
 		  schedule.fromSimple(secsA, secsB, frequencySecs);
 		  return schedule;
-		},
-
-
-		//==============================================================================================================
-		//
-		//
-
-
-		__updateRoute : function(number, cost) {
-			// model
-			var route = bus.admin.helpers.ObjectHelper.clone(this.__routeModel);
-			route.number = number;
-			route.cost = cost;
-			route.name = [];
-			if (this.check_names.getValue() == true) {
-
-				for (var i = 0; i < this.__tableNumbers.getTableModel()
-					.getRowCount(); i++) {
-					var rowData = this.__tableNumbers.getTableModel()
-				.getRowDataAsMap(i);
-				var modelsContainer = qx.core.Init.getApplication()
-				.getModelsContainer();
-				var lang = modelsContainer.getLangsModel()
-				.getLangByName(rowData.Language);
-				route.name.push({
-					lang_id : lang.id,
-					value : rowData.Name
-				});
-			}
 		}
-			// execute presenter event
-			var updateData = {
-				route : route,
-				opts : {
-					isUpdateSchedule : false,
-					isUpdateMainInfo : true,
-					isUpdateRouteRelations : false
-				}
-			};
 
-			qx.core.Init.getApplication().setWaitingWindow(true);
-			var event_finish_func = qx.lang.Function.bind(function(data) {
-				qx.core.Init.getApplication().setWaitingWindow(false);
-				if (data == null || data.error == true) {
-					alert(this.tr("Error! Can not changed this route."));
-					return;
-				}
-				this.close();
-			}, this);
-			this._routesPresenter.updateRoute(updateData, event_finish_func);
-
-		},
-
-		__insertRoute : function(number, cost, schedule, sameDirections) {
-
-			// create model
-			this.__routeModel.number = number;
-			this.__routeModel.cost = cost;
-			this.__routeModel.name = [];
-			if (sameDirections == false) {
-				this.__routeModel.directRouteWay = {
-					schedule : schedule
-				};
-
-				this.__routeModel.reverseRouteWay = {
-					schedule : bus.admin.helpers.ObjectHelper.clone(schedule)
-				};
-			} else {
-				this.__routeModel.directRouteWay = {
-					schedule : schedule
-				};
-				this.__routeModel.reverseRouteWay = null;
-			}
-			if (this.check_names.getValue() == true) {
-
-				for (var i = 0; i < this.__tableNumbers.getTableModel()
-					.getRowCount(); i++) {
-					var rowData = this.__tableNumbers.getTableModel()
-				.getRowDataAsMap(i);
-				var modelsContainer = qx.core.Init.getApplication()
-				.getModelsContainer();
-				var lang = modelsContainer.getLangsModel()
-				.getLangByName(rowData.Language);
-				this.__routeModel.name.push({
-					lang_id : lang.id,
-					value : rowData.Name
-				});
-			}
-		}
-		var event_finish_func = qx.lang.Function.bind(function(data) {
-			this.close();
-		}, this);
-		this._routesPresenter.startCreateNewRoute(this.__routeModel, "new",
-			event_finish_func);
-	},
-
-	on_check_names : function(e) {
-		var checked = this.check_names.getValue();
-		if (checked == true) {
-			this.__tableNumbers.setEnabled(true);
-		} else {
-			this.__tableNumbers.setEnabled(false);
-		}
 
 	}
-
-
-
-}
 
 });

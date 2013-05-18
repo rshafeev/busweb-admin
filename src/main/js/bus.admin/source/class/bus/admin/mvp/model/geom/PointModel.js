@@ -29,6 +29,14 @@
  	 	}
  	 },
 
+ 	 statics : {
+
+ 	 	getDistance : function(p1, p2){
+ 	 		var d = (p1.getLat() - p2.getLat())*(p1.getLat() - p2.getLat())  + (p1.getLon() - p2.getLon())*(p1.getLon() - p2.getLon());
+ 	 		return Math.sqrt(d);
+ 	 	}
+ 	 },
+ 	 
  	 properties : {
  	 	/**
  	 	 * Широта

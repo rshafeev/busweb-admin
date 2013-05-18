@@ -119,6 +119,41 @@
 
          getLocale : function(){
          	return bus.admin.mvp.storage.GlobalDataStorage.getLocale();
-         }
-     }
- });
+         },
+
+         /**
+          * Возвращает название дня в соответствии с текущей локалью.
+          * @param  dayID {String}  ID дня. (Sunday, Monday, ...)
+          * @return {String}    Название дня(Воскресенье, Понедельник, ... - для русской локали)
+          */
+          getDayName : function(dayID){
+          	var dayName = null;
+          	switch (dayID) {
+          		case "Sunday" :
+          		dayName = qx.locale.Manager.tr("Sunday");
+          		break;
+          		case "Monday" :
+          		dayName = qx.locale.Manager.tr("Monday");
+          		break;
+          		case "Tuesday" :
+          		dayName = qx.locale.Manager.tr("Tuesday");
+          		break;
+          		case "Wednesday" :
+          		dayName = qx.locale.Manager.tr("Wednesday");
+          		break;
+          		case "Thursday" :
+          		dayName = qx.locale.Manager.tr("Thursday");
+          		break;
+          		case "Friday" :
+          		dayName = qx.locale.Manager.tr("Friday");
+          		break;
+          		case "Saturday" :
+          		dayName = qx.locale.Manager.tr("Saturday");
+          		break;
+          		default :
+          		break;
+          	}
+          	return dayName;
+          }
+      }
+  });

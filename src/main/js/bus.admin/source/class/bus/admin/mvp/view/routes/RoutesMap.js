@@ -35,7 +35,6 @@
      	this.base(arguments);
      	this.__presenter = presenter;
      	this.__markers = {};
-     	this.__preparedMarkers = {};
      	this.__polylines = [];
      	this.__initWidgets();
      	presenter.addListener("select_city", this.__onSelectCity, this);
@@ -67,7 +66,16 @@
 		 minZoom : {
 		 	init : 13,
 		 	check : "Integer"
-		 }
+		 },
+
+		 /**
+		  * Максимальное кол-во маркеров на карте.
+		  * @type {Integer}
+		  */
+		  maxMarkersCount : {
+		  	init : 400,
+		  	check : "Integer"
+		  }
 
 		},
 		members : {
@@ -84,11 +92,6 @@
  		  */
  		  __markers : null,
 
- 		 /**
- 		  * Массив станций, google.maps.Marker
- 		  * @type {Object}
- 		  */
- 		  __preparedMarkers : null,
 
 
  		 /**
@@ -130,15 +133,16 @@
 		 */
 		 __onUpdateWayRelations : function(e){
 		 	this.debug("execute __onUpdateWayRelations() event handler.");
+		 	if(e.getData().sender == this)
+		 		return;
 		 	var relation = e.getData().relation;
 		 	var operation = e.getData().operation;
 		 	var canChange = this.__presenter.getDataStorage().getState() == "make" ? true : false;
-		 	var marker = this.__markers[relation.getCurrStation().getId()];
 		 	var stB = relation.getCurrStation();
 		 	var geom = relation.getGeom();
 		 	
 		 	if(operation == "insert"){
-		 		marker.setIcon(this.__routeStationIcon);
+		 		this.__drawRouteStation(relation.getCurrStation());
 		 		if(geom != undefined){
 		 			this.__insertPolyLine(geom, stB, 'red', canChange);
 		 		}
@@ -146,11 +150,10 @@
 		 	
 		 	if(operation == "remove"){
 		 		if(stB.getId() < 0)
-		 			marker.setIcon(this.__preparedStationIcon);
-		 		else
-		 			marker.setIcon(this.__stationIcon);
-		 		this.debug("geom:", geom);
-		 		
+		 			this.__drawPreparedStation(stB);
+		 		else{
+		 			this.__drawFreeStation(stB);
+		 		}
 		 		if(geom != undefined){
 		 			this.__removePolyline(stB.getId());
 		 		}
@@ -158,7 +161,7 @@
 
 		 	if(operation == "update"){
 		 		if(geom != undefined ){
-		 			var path = this.__makePolylinePath(geom);
+		 			var path = this.__makePathFromPolyline(geom, stB.getId());
 		 			var polyline = this.__getPolyline(stB.getId());
 		 			polyline.setPath(path);
 		 		}else{
@@ -167,6 +170,7 @@
 		 		
 		 	}		 			 		
 		 },
+
 
 		/**
 		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#update_prepared_station update_prepared_station} 
@@ -178,7 +182,7 @@
 		 		return;
 		 	var stationModel = e.getData().station;
 		 	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
-		 	var marker = this.__preparedMarkers[stationModel.getId()];
+		 	var marker = this.__stations[stationModel.getId()];
 		 	marker.setPosition(new google.maps.LatLng(stationModel.getLocation().getLat(), stationModel.getLocation().getLon()));
 		 	marker.setTitle(stationModel.getName(langID));
 		 },
@@ -189,25 +193,71 @@
 		 */
 		 __onInsertPreparedStation : function(e){
 		 	var stationModel = e.getData().station;
-		 	this.__insertPreparedStation(stationModel);
+		 	this.__drawPreparedStation(stationModel);
 
 		 },
+
+		  /**
+		   * Добавляет станцию на карту.
+		   * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции.
+		   * @param options {Map} Опции маркера
+		   * @return {Object}     Возвращает gmaps маркер.
+		   */
+		   __insertStation : function (stationModel, options)
+		   {
+		   	var marker = this.__markers[stationModel.getId()];
+		   	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
+
+		   	if(marker == undefined){
+		   		var map  = this.getGoogleMap().getMapObject();
+		   		var draggable = (options != undefined && options.draggable != undefined) ? options.draggable : false;
+		   		marker = new google.maps.Marker({
+		   			position : new google.maps.LatLng(stationModel.getLocation().getLat(), stationModel.getLocation().getLon())
+		   		});
+		   		marker.set("id", stationModel.getId());
+		   		marker.set("events",{});
+		   		marker.set("station", stationModel);
+		   		marker.setDraggable(draggable);
+		   		if (this.getMinZoom() >= map.getZoom()) {
+		   			marker.setMap(null);
+		   		}
+		   		else{
+		   			marker.setMap(map);
+		   		}
+		   		this.__markers[stationModel.getId()] = marker;
+		   	}
+		   	if(options != undefined)
+		   		marker.setOptions(options);
+		   	marker.setPosition(new google.maps.LatLng(stationModel.getLocation().getLat(), stationModel.getLocation().getLon()));
+		   	marker.setTitle(stationModel.getName(langID));
+		   	return marker;
+		   },
 
 		  /**
 		   * Добавляет "prepared" станцию на карту.
 		   * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции.
 		   * @return {Object}     Возвращает gmaps маркер.
 		   */
-		   __insertPreparedStation : function(stationModel){
+		   __drawPreparedStation : function(stationModel){
+		   	this.debug("execute __drawPreparedStation()");
+		   	var marker = this.__markers[stationModel.getId()];
+		   	if(marker != undefined && marker.get("type") == "prepared"){
+		   		this.debug("__drawPreparedStation(): return;");
+		   		return;
+		   	}
+		   	
 		   	var options = {
 		   		icon : this.__preparedStationIcon,
 		   		draggable : true
 		   	};
-		   	var marker = this.__insertStation(stationModel,options);
-		   	this.__preparedMarkers[stationModel.getId()] = stationModel;
+		   	if(marker == undefined){
+		   		marker = this.__drawFreeStation(stationModel, options);
+		   	}else{
+		   		marker.setOptions(options);
+		   	}
 		   	var self = this;
-
-		   	google.maps.event.addListener(marker, "rightclick", function(mouseEvent) {
+		   	google.maps.event.removeListener(marker.get("events").rightclick);
+		   	var rightclick = google.maps.event.addListener(marker, "rightclick", function(mouseEvent) {
 		   		var langsModel = self.__presenter.getDataStorage().getLangsModel();
 		   		var cityModel = self.__presenter.getDataStorage().getSelectedCity();
 		   		var stationModel = marker.get("station");
@@ -231,18 +281,88 @@
 		   		}, self);
 		   		dlg.open();
 		   	});
+			// Сохраним ссылку на обработчик
+			marker.get("events").rightclick = rightclick;
 
-			// Добавим огбработчик на событие прекращения перемещения маркера
-			google.maps.event.addListener(marker, "dragend", function(mouseEvent) {
+			// Добавим обработчик на событие прекращения перемещения маркера
+			google.maps.event.removeListener(marker.get("events").dragend);
+			var dragend = google.maps.event.addListener(marker, "dragend", function(mouseEvent) {
 				var stationModel = marker.get("station");
 				stationModel.setLocation(marker.getPosition().lat(),marker.getPosition().lng());
 				self.__presenter.updatePreparedStationTrigger(stationModel, null, self);
 			});
-
-			
+			marker.get("events").dragend = dragend;
+			marker.set("type", "prepared");
 			// вернем созданный маркер
 			return marker;
 		},
+
+		  /**
+		   * Добавляет "route" станцию на карту.
+		   * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции.
+		   * @return {Object}     Возвращает gmaps маркер.
+		   */
+		   __drawRouteStation : function(stationModel){
+		   	var marker = this.__markers[stationModel.getId()];
+		   	var options = {
+		   		icon : this.__routeStationIcon
+		   	};
+		   	if(marker == undefined && stationModel.getId() > 0){
+		   		marker = this.__drawFreeStation(stationModel, options);
+		   	}else
+		   	if(marker == undefined){
+		   		marker = this.__drawPreparedStation(stationModel);
+		   	}else{
+		   		marker.setOptions(options);
+		   	}
+		   	marker.set("type", "route");
+		   	
+		   },
+
+
+		  /**
+		   * Добавляет "free" станцию на карту.
+		   * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции.
+		   * @param options {Map} Опции маркера
+		   * @return {Object}     Возвращает gmaps маркер.
+		   */
+		   __drawFreeStation : function(stationModel, options){
+		   	if(options == undefined )
+		   		options = {};
+		   	if(options.icon == undefined)
+		   		options.icon = this.__stationIcon;
+		   	var marker = this.__insertStation(stationModel, options);
+
+		   	if(marker.get("type") != "free"){
+		   		var events = marker.get("events");
+		   		for(var evt in events){
+		   			google.maps.event.removeListener(events[evt]);
+		   		}
+		   		events = {};
+		   		var self = this;
+		   		var clickListener = google.maps.event.addListener(marker, "click", function(
+		   			mouseEvent) {
+		   			var state = self.__presenter.getDataStorage().getState();
+		   			if(state != "make")
+		   				return;
+		   			var stationModel = marker.get("station");
+		   			var relations = self.__presenter.getDataStorage().getSelectedWay().getRelations();
+		   			var position = 0;
+		   			if(relations != undefined)
+		   				position = relations.length;
+		   			self.__presenter.includeStationToRouteWayTrigger(stationModel, position);
+		   			stationModel.location = {
+		   				x : mouseEvent.latLng.lat(),
+		   				y : mouseEvent.latLng.lng()
+		   			};
+		   		});
+		   		events.click = clickListener;
+		   		marker.set("events", events);
+		   		marker.set("type","free");
+		   	}
+		   	return marker;
+
+		   },
 
 		/**
 		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#select_city select_city} вызывается при выборе пользователем города.
@@ -303,6 +423,7 @@
 		 	this.debug("execute __onChangeState() event handler");
 		 	var state = e.getData().newState;
 		 	this.__setState(state);
+
 		 },
 
 
@@ -330,7 +451,8 @@
 		  	});
 
 		  	if(state == "none"){
-
+		  		this.removeStationsByType("free");
+		  		this.removeStationsByType("prepared");
 		  	} 
 		  	if(state == "make"){
 		  		menuItems.unshift({
@@ -342,6 +464,30 @@
 		  	this.__setContextMenuItems(menuItems);
 		  },
 
+		 /**
+		  * Возвращает кол-во маркеров, отображенных на карте
+		  * @return {Integer} Кол-во маркеров.
+		  */
+		  getMarkersCount : function(){
+		  	var count = Object.keys(this.__markers).length;
+		  	return count;
+		  },
+
+		 /**
+		  * Удаляет станции.
+		  * @param type {String} Тип станции. Возможные значения: "route", "free", "prepared"
+		  */
+		  removeStationsByType : function(type){
+		  	this.debug("execute removeStationsByType(" + type +  ")");
+		  	for(var id in this.__markers){
+		  		var marker = this.__markers[id];
+		  		if(marker.get("type") == type){
+		  			this.__removeMapObject(marker);
+		  			delete this.__markers[id];
+		  		}
+		  	}
+		  },
+
 		/**
 		 * С помощью презентера загружает остановки, которые располагаются в видимой части карты. Затем добавляет их
 		 * на карту.
@@ -350,6 +496,7 @@
 		 	var state = this.__presenter.getDataStorage().getState();
 		 	if(state != "make")
 		 		return;
+
 		 	this.debug("execute loadStationsFromBox()");
 		 	var map = this.getGoogleMap().getMapObject();
 		 	if (map == null)
@@ -366,13 +513,14 @@
 		 	p2.setLat(map.getBounds().getNorthEast().lat());
 		 	p2.setLon(map.getBounds().getNorthEast().lng());
 		 	var callback = qx.lang.Function.bind(function(data) {
+		 		if(this.getMarkersCount() > this.getMaxMarkersCount()){
+		 			this.removeStationsByType("free");
+		 		}
 		 		var stations = data.stationsBox.getStations();
 		 		for (var i = 0; i < stations.length; i++) {
-		 			var options = {
-		 				icon : this.__stationIcon,
-		 				draggable : false
-		 			};
-		 			this.__insertStation(stations[i].toModelEx(langID),options);
+		 			var marker = this.__markers[stations[i].getId()];
+		 			if(marker == undefined)
+		 				this.__drawFreeStation(stations[i].toModelEx(langID));
 		 		}
 		 	}, this);
 		 	this.__presenter.loadBoxStations(p1, p2, cityID, langID, callback);
@@ -418,13 +566,24 @@
 		 __onChangeDirection : function(e){
 		 	this.debug("execute __onChangeDirection() event handler");
 		 	var routeModel =  this.__presenter.getDataStorage().getSelectedRoute();
-		 	this.clearMapObjects();
+		 	this.__removeAllPolylines();
+
+		 	for(var id in this.__markers){
+		 		var marker = this.__markers[id];
+		 		var type = marker.get("type");
+		 		if(type != "free"){
+		 			marker.setMap(null);
+		 			delete this.__markers[id];
+		 		}
+		 	}
+
 		 	if(routeModel != null){
 		 		var direction = e.getData().direction;	
 		 		var wayModel = routeModel.getWayByDirection(direction);
 		 		if(wayModel != undefined)
 		 			this.__drawRouteWay(wayModel, false);
 		 	}
+
 		 	this.__drawPreparedStations();
 		 	this.__loadStationsFromBox();
 		 },
@@ -438,7 +597,7 @@
 		  		return;
 		  	var stations = this.__presenter.getDataStorage().getFreePreparedStations();
 		  	for(var i=0;i < stations.length; i++){
-		  		this.__insertPreparedStation(stations[i]);
+		  		this.__drawPreparedStation(stations[i]);
 		  	}
 		  },
 
@@ -469,74 +628,19 @@
 		  		}
 		  		map.fitBounds(bounds);
 		  	}
+
 		  	for (var i = 1; i < relations.length; i++) {
 		  		var stB = relations[i].getCurrStation();
 		  		var polyLine = relations[i].getGeom();
 		  		this.__insertPolyLine(polyLine, stB, 'red', canChange);
 		  	}
-		  	var options = {
-		  		icon : this.__routeStationIcon
-		  	};
 		  	for (var i = 0; i < relations.length; i++) {
 		  		var st = relations[i].getCurrStation();
-		  		this.__insertStation(st, options);
+		  		this.__drawRouteStation(st);
 		  	}
 
 		  },
 
-		  /**
-		   * Добавляет станцию на карту.
-		   * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции.
-		   * @param options {Map} Опции маркера
-		   * @return {Object}     Возвращает gmaps маркер.
-		   */
-		   __insertStation : function (stationModel, options)
-		   {
-		   	var marker = this.__markers[stationModel.getId()];
-		   	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
-		   	if(marker == undefined){
-		   		var map  = this.getGoogleMap().getMapObject();
-		   		var stationIcon = this.__routeStationIcon;
-		   		var draggable = false;
-		   		if(options != undefined && options.icon != undefined){
-		   			stationIcon = options.icon;
-		   		}
-		   		if(options != undefined && options.draggable != undefined){
-		   			draggable = options.draggable;
-		   		}
-		   		marker = new google.maps.Marker({
-		   			position : new google.maps.LatLng(stationModel.getLocation().getLat(),
-		   				stationModel.getLocation().getLon()),
-		   			map : map,
-		   			icon : stationIcon
-		   		});
-		   		marker.set("id", stationModel.getId());
-		   		marker.set("station", stationModel);
-		   		marker.setDraggable(draggable);
-		   		if(options != undefined)
-		   			marker.setOptions(options);
-		   		this.__markers[stationModel.getId()] = marker;
-		   		var self = this;
-		   		google.maps.event.addListener(marker, "click", function(
-		   			mouseEvent) {
-		   			var stationModel = marker.get("station");
-		   			var relations = self.__presenter.getDataStorage().getSelectedWay().getRelations();
-		   			var position = 0;
-		   			if(relations != undefined)
-		   				position = relations.length;
-		   			self.__presenter.includeStationToRouteWayTrigger(stationModel, position);
-		   			stationModel.location = {
-		   				x : mouseEvent.latLng.lat(),
-		   				y : mouseEvent.latLng.lng()
-		   			};
-
-		   		});
-
-		   	}
-		   	marker.setPosition(new google.maps.LatLng(stationModel.getLocation().getLat(), stationModel.getLocation().getLon()));
-		   	marker.setTitle(stationModel.getName(langID));
-		   	return marker;
-		   },
 
 
 
@@ -554,10 +658,24 @@
 		 */
 		 __removeAllPolylines : function() {
 		 	for (var i = 0; i < this.__polylines.length; i++) {
-		 		this.__polylines[i].setMap(null);
+		 		this.__removeMapObject(this.__polylines[i]);
 		 	}
 		 	this.__polylines = [];
 		 },
+
+		 /**
+		  * Удаляет объект карты(маркер, полилиния) с карты и все его обработчики событий.
+		  * @param  mapObj {Object}  Объект карты
+		  */
+		  __removeMapObject : function(mapObj){
+		  	mapObj.setMap(null);
+		  	google.maps.event .clearInstanceListeners(mapObj);
+		  	if(typeof(mapObj.getPath) == "Function"){
+		  		var path = mapObj.getPath();
+		  		google.maps.event .clearInstanceListeners(path);
+		  	}
+		  },
+
 
 		/**
 		 * Удаляет станции.
@@ -565,29 +683,91 @@
 		 __removeAllStations : function() {
 		 	for (var stationID in this.__markers){
 		 		var marker = this.__markers[stationID];
-		 		marker.setMap(null);
+		 		this.__removeMapObject(marker);
 		 	}
 		 	this.__markers = {};
 
 		 },
 
+		 __makePolylineFromPath : function(path){
+		 	var arr =  path.getArray();
+		 	var lineData = [];
+		 	for(var i=0;i < arr.length; i++){
+		 		lineData.push([arr[i].lat(), arr[i].lng()]);
+		 	}
+		 	var geom = new bus.admin.mvp.model.geom.PolyLineModel();
+		 	geom.setPoints(lineData);
+		 	return geom;
+		 },
+
 		 /**
 		  * Создает google.maps path из полилинии 
 		  * @param  polylineModel {bus.admin.mvp.model.geom.PolyLineModel}  Медель полилинии
-		  * @return {Object[]}     google.maps.LatLng[]
+		  * @param  stationBID {Integer} ID конечной станции, к которой привязывается полилиния
+		  * @return {Object}     google.maps.MVCArray< google.maps.LatLng>
 		  */
-		  __makePolylinePath : function(polylineModel){
+		  __makePathFromPolyline : function(polylineModel, stationBID){
 		  	if(polylineModel == undefined)
 		  		return [];
 		  	var points = polylineModel.getPoints();
 		  	if(points == undefined)
 		  		return [];
-		  	var path = [];
+		  	var path = new google.maps.MVCArray();
+		  	var ds = this.__presenter.getDataStorage();
+		  	var self = this;
+		  	path.set("stationBID", stationBID);
+
 		  	for (var i = 0; i < points.length; i++) {
 		  		var lat = points[i][0];
 		  		var lon = points[i][1];
+
 		  		path.push(new google.maps.LatLng(lat, lon));
 		  	}
+
+		  	var changePathListener = function() {
+		  		var stationBID = path.get("stationBID");
+		  		var currRelation = ds.getSelectedWay().getRelationByStationBID(stationBID);
+		  		var prevRelation = ds.getSelectedWay().getPrevRelation(currRelation);
+		  		var len = path.getLength();
+
+		  		if(prevRelation != undefined && prevRelation.getCurrStation() != undefined && len > 0){
+		  			var firstPoint =  path.getArray()[0];
+		  			var staLocation = prevRelation.getCurrStation().getLocation();
+		  			var p1 = new bus.admin.mvp.model.geom.PointModel({
+		  				lat : staLocation.getLat(),
+		  				lon : staLocation.getLon()
+		  			});
+		  			var p2 = new bus.admin.mvp.model.geom.PointModel({
+		  				lat : firstPoint.lat(),
+		  				lon : firstPoint.lng()
+		  			});
+		  			if(bus.admin.mvp.model.geom.PointModel.getDistance(p1, p2) > 0.000001){
+		  				path.setAt(0, new google.maps.LatLng(p1.getLat(), p1.getLon()));
+		  			}
+		  		}
+		  		if(currRelation != undefined && currRelation.getCurrStation() != undefined&& len > 1){
+		  			var lastPoint =  path.getArray()[len-1];
+		  			var stbLocation = currRelation.getCurrStation().getLocation();
+		  			var p1 = new bus.admin.mvp.model.geom.PointModel({
+		  				lat : stbLocation.getLat(),
+		  				lon : stbLocation.getLon()
+		  			});
+		  			var p2 = new bus.admin.mvp.model.geom.PointModel({
+		  				lat : lastPoint.lat(),
+		  				lon : lastPoint.lng()
+		  			});
+		  			if(bus.admin.mvp.model.geom.PointModel.getDistance(p1, p2) > 0.000001){
+		  				path.setAt(len-1, new google.maps.LatLng(p1.getLat(), p1.getLon()));
+		  			}
+		  		}
+		  		var relationModel = new bus.admin.mvp.model.route.RouteRelationModel();
+		  		relationModel.setGeom(self.__makePolylineFromPath(path));
+		  		self.__presenter.updateWayRelationTrigger(stationBID, relationModel, null, self);
+		  	};
+		  	google.maps.event.addListener(path, "insert_at", changePathListener);
+		  	google.maps.event.addListener(path, "remove_at", changePathListener);
+		  	google.maps.event.addListener(path, "set_at", changePathListener);
+
 		  	return path;
 		  },
 
@@ -616,7 +796,7 @@
 		  	for(var i = 0; i < lines.length; i++){
 		  		var stB = lines[i].get("stB");
 		  		if(stB.getId() == stbID){
-		  			lines[i].setMap(null);
+		  			this.__removeMapObject(lines[i]);
 		  			lines.splice(i, 1);
 		  			return;
 		  		}
@@ -634,12 +814,15 @@
 		  __insertPolyLine : function(polyline, stB, color, canChange) {
 		  	var line = new google.maps.Polyline({
 		  		map : this.getGoogleMap().getMapObject(),
-		  		strokeColor : color
+		  		strokeColor : color,
+		  		draggable : false
 		  	});
-		  	line.setPath(this.__makePolylinePath(polyline));
+		  	line.setPath(this.__makePathFromPolyline(polyline, stB.getId()));
+
 		  	line.setEditable(canChange);
 		  	line.set("stB", stB);
 		  	this.__polylines.push(line);
+
 		  	return line;
 		  },
 
@@ -1213,7 +1396,7 @@
 		 		break;
 		 	}
 		 },
-*/
+		 */
 		 refresh : function() {
 		 	this.debug("refresh");
 		 	var map = this.getGoogleMap().getMapObject();

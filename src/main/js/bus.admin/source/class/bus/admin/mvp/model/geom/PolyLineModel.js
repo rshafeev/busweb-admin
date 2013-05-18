@@ -32,9 +32,9 @@
  	 properties : {
 
  	 	
- 	 	},
- 	 	members : 
- 	 	{
+ 	 },
+ 	 members : 
+ 	 {
 
  	 	/**
  	 	 * Точки полилинии 
@@ -73,10 +73,18 @@
  		   * Возвращает точки.
  		   * @return {Number[][]} Точки.
  		   */
- 		  getPoints : function ()
- 		  {
- 		  	return this.__points;
- 		  },
+ 		   getPoints : function ()
+ 		   {
+ 		   	return this.__points;
+ 		   },
+
+  		  /**
+ 		   * Устанавливает точки в массив
+ 		   * @param  points  {Number[][]} Точки.
+ 		   */		  
+ 		   setPoints : function(points){
+ 		   	this.__points = points;
+ 		   },
 
  		  /**
  		   * Устанавливает значение точки в массиве
@@ -84,21 +92,21 @@
  		   * @param  lat {Number}    Широта
  		   * @param  lon {Number}    Долгота
  		   */
- 		  setPoint : function(index, lat, lon){
- 		  	if(this.__points == undefined || index >= this.__points.length){
- 		  		return;
- 		  	}
- 		  	this.__points[index] = [lat, lon];
- 		  },
- 		  
+ 		   setPoint : function(index, lat, lon){
+ 		   	if(this.__points == undefined || index >= this.__points.length){
+ 		   		return;
+ 		   	}
+ 		   	this.__points[index] = [lat, lon];
+ 		   },
+ 		   
  		  /**
  		   * Клонирует текущий объект.
  		   * @return {bus.admin.mvp.model.geom.PolyLineModel} Копия объекта.
  		   */
- 		  clone : function(){
- 		  	var copy = new bus.admin.mvp.model.geom.PolyLineModel(this.toDataModel());
- 		  	return copy;
- 		  }
+ 		   clone : function(){
+ 		   	var copy = new bus.admin.mvp.model.geom.PolyLineModel(this.toDataModel());
+ 		   	return copy;
+ 		   }
 
  		}
 
