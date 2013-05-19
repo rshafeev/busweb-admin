@@ -84,8 +84,8 @@
  		  * @param  dataModel {Object}  JS объект.
  		  */
  		  fromDataModel : function(dataModel){
- 		  	this.setLat(dataModel.lat);
- 		  	this.setLon(dataModel.lon);
+ 		  	this.setLat(parseFloat(dataModel.lat));
+ 		  	this.setLon(parseFloat(dataModel.lon));
  		  },
 
 

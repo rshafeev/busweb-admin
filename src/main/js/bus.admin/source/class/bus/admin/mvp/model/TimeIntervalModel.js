@@ -118,6 +118,7 @@
 				/**
 				 * Преобразование в секунды
 				 * @param value {String} время  в формате HH:MM
+				 * @return {Integer} Время в секундах
 				 */
 				 convertToSeconds : function(value) {
 				 	if(value==null || value.toString().length == 0){
@@ -135,8 +136,7 @@
 				 	var d = new Date();
 				 	d.setTime(secs * 1000);
 				 	var hours = parseInt(secs / 60 / 60).toString();
-				 	var minutes = parseInt((secs - hours * 60 * 60) / 60)
-				 	.toString();
+				 	var minutes = parseInt((secs - hours * 60 * 60) / 60).toString();
 				 	if (hours.length == 1) {
 				 		hours = "0" + hours;
 				 	}

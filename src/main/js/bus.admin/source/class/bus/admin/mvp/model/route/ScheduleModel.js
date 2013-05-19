@@ -143,6 +143,40 @@
  		   	return null;
  		   },
 
+ 		   /**
+ 		    * Возвращает позицию группы дней в массиве
+ 		    * @param  {[type]} groupID [description]
+ 		    * @return {Integer} Позиция в массиве. В случае, если группа с переданным ID не найдена, функция возвращает -1.
+ 		    */
+ 		    getGroupPosition : function(groupID){
+ 		    	var groups = this.getGroups();
+ 		    	if(groups == undefined)
+ 		    		return -1;
+ 		    	for(var i=0;i < groups.length; i++){
+ 		    		if(groups[i].getId() == groupID)
+ 		    			return i;
+ 		    	}
+ 		    	return -1;
+ 		    },
+
+ 		    /**
+ 		     * Выполняет оптимизацию групп дней. Удаляет пустые группы, вводит "all", если имеется только одна группа
+ 		     */
+ 		     optimize : function(){
+ 		     	var arr = [];
+ 		     	var groups  = this.getGroups();
+ 		     	for(var i=0;i < groups.length; i++){
+ 		     		if( groups[i].getDays() != undefined  && groups[i].getDays().length > 0 && groups[i].getDays().length < 7)
+ 		     		{
+ 		     			arr.push(groups[i]);
+ 		     		}else
+ 		     		if(groups[i].getDays() != undefined  &&  groups[i].getDays().length == 7){
+ 		     			groups[i].setDays(["all"]);
+ 		     			arr.push(groups[i]);
+ 		     		}
+ 		     	}
+ 		     	this.setGroups(arr);
+ 		     },
 
  		 /**
  		  * Формирует модель из данных об интервале движения, начале и окончании работы по маршруту <br>

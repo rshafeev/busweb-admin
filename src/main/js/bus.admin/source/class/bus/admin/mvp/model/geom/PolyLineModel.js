@@ -78,6 +78,8 @@
  		   	return this.__points;
  		   },
 
+ 		   
+
   		  /**
  		   * Устанавливает точки в массив
  		   * @param  points  {Number[][]} Точки.

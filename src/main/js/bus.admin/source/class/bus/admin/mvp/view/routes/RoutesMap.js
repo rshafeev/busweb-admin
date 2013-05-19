@@ -178,13 +178,22 @@
 		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
 		 */
 		 __onUpdatePreparedStation : function(e){
+		 	this.debug("execute __onUpdatePreparedStation()");
+		 	var stationModel = e.getData().station;
+		 	console.debug(stationModel.toDataModel());
+		 	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
+		 	this.debug(langID);
+		 	var marker = this.__markers[stationModel.getId()];
+		 	
+		 	this.debug(stationModel.getName(langID));
+		 	marker.setVisible(false);
+		 	marker.setTitle(stationModel.getName(langID));
+		 	marker.setVisible(true);
+		 	console.debug(marker);
 		 	if(e.getData().sender == this)
 		 		return;
-		 	var stationModel = e.getData().station;
-		 	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
-		 	var marker = this.__stations[stationModel.getId()];
 		 	marker.setPosition(new google.maps.LatLng(stationModel.getLocation().getLat(), stationModel.getLocation().getLon()));
-		 	marker.setTitle(stationModel.getName(langID));
+		 	
 		 },
 		/**
 		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#insert_prepared_station insert_prepared_station} 
@@ -400,7 +409,7 @@
 		 	this.debug("execute __onSelectRoute() event handler");
 		 	var routeModel = e.getData().route;
 		 	this.clearMapObjects();
-
+		 	this.__drawPreparedStations();
 		 	if(routeModel != null){
 		 		console.debug(routeModel.toDataModel());
 		 		var isCentering = e.getData().centering_map;
@@ -410,7 +419,6 @@
 		 			this.__drawRouteWay(wayModel, isCentering);
 
 		 	}
-		 	this.__drawPreparedStations();
 		 	this.__loadStationsFromBox();
 
 		 },
@@ -565,26 +573,26 @@
 		 */
 		 __onChangeDirection : function(e){
 		 	this.debug("execute __onChangeDirection() event handler");
-		 	var routeModel =  this.__presenter.getDataStorage().getSelectedRoute();
-		 	this.__removeAllPolylines();
+		 	
+		 	// Отрисуем все "prepared" станции
+		 	this.__drawPreparedStations();
 
+		 	// Все станции старого пути сделаем "free"
 		 	for(var id in this.__markers){
-		 		var marker = this.__markers[id];
-		 		var type = marker.get("type");
-		 		if(type != "free"){
-		 			marker.setMap(null);
-		 			delete this.__markers[id];
+		 		var m = this.__markers[id];
+		 		if(m.get("type") == "route"){
+		 			this.__drawFreeStation(m.get("station"));
 		 		}
 		 	}
 
-		 	if(routeModel != null){
-		 		var direction = e.getData().direction;	
-		 		var wayModel = routeModel.getWayByDirection(direction);
-		 		if(wayModel != undefined)
-		 			this.__drawRouteWay(wayModel, false);
+		 	// Отрисуем текущий путь
+		 	var wayModel =  this.__presenter.getDataStorage().getSelectedWay();
+		 	this.__removeAllPolylines();
+		 	if(wayModel != null){
+		 		this.__drawRouteWay(wayModel, false);
 		 	}
 
-		 	this.__drawPreparedStations();
+		 	// Подгрузим станции
 		 	this.__loadStationsFromBox();
 		 },
 

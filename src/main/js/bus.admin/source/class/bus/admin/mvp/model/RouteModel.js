@@ -243,6 +243,18 @@
  		   },
 
  		  /**
+ 		   * Задает модель пути
+ 		   * @param direction  {bus.admin.mvp.model.route.RouteWayModel}  Модель пути
+ 		   */
+ 		   setWay : function (wayModel)
+ 		   {
+ 		   	if (wayModel.getDirect() == true)
+ 		   		this.setDirectWay(wayModel);
+ 		   	else
+ 		   		this.setReverseWay(wayModel);
+ 		   },
+
+ 		  /**
  		   * Клонирует текущий объект.
  		   * @return {bus.admin.mvp.model.RouteModel} Копия объекта.
  		   */

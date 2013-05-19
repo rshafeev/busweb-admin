@@ -26,17 +26,17 @@
  	/**
  	 * @param  presenter   {bus.admin.mvp.presenter.RoutesPresenter}  Presenter 
  	 */
- 	construct : function(presenter) {
- 		this.base(arguments);
- 		this.__presenter = presenter;
- 		this.__initWidgets();
- 		presenter.addListener("select_route", this.__onSelectRoute, this);
- 		presenter.addListener("change_direction", this.__onChangeDirection, this);
- 		presenter.addListener("change_state", this.__onChangeState, this);
- 		presenter.addListener("update_way_relations", this.__onUpdateWayRelations, this);
- 	},
+ 	 construct : function(presenter) {
+ 	 	this.base(arguments);
+ 	 	this.__presenter = presenter;
+ 	 	this.__initWidgets();
+ 	 	presenter.addListener("select_route", this.__onSelectRoute, this);
+ 	 	presenter.addListener("change_direction", this.__onChangeDirection, this);
+ 	 	presenter.addListener("change_state", this.__onChangeState, this);
+ 	 	presenter.addListener("update_way_relations", this.__onUpdateWayRelations, this);
+ 	 },
 
- 	members : {
+ 	 members : {
 
   		/**
  		 * Presenter представления
@@ -78,25 +78,30 @@
 		 	this.debug("execute __onUpdateWayRelations() event handler.");
 		 	var relation = e.getData().relation;
 		 	var operation = e.getData().operation;
+		 	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
+		 	var index = relation.getIndex();
+		 	var station = relation.getCurrStation();
+		 	var rowsData = this.__stationsTable.getTableModel().getData();
+
 		 	if(operation == "insert"){
-		 		var index = relation.getIndex();
-		 		var station = relation.getCurrStation();
-		 		var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
-		 		var rowsData = this.__stationsTable.getTableModel().getData();
 		 		if(rowsData.length <= index)
 		 			rowsData.push([station.getId(), station.getName(langID)]);
 		 		else
 		 			rowsData.splice(index, 0, [station.getId(), station.getName(langID)]);
 		 		this.__stationsTable.getTableModel().setData(rowsData);
 		 	}
-		 	if(operation == "remove"){
-		 		var index = relation.getIndex();
-		 		var rowsData = this.__stationsTable.getTableModel().getData();
-		 		rowsData.splice(index, 1);
-		 		this.__stationsTable.getTableModel().setData(rowsData);
-		 	}
+		 	else
+		 		if(operation == "update"){
+		 			rowsData[index] = [station.getId(), station.getName(langID)];
+		 			this.__stationsTable.getTableModel().setData(rowsData);		 		
+		 		}
+		 		else
+		 			if(operation == "remove"){
+		 				rowsData.splice(index, 1);
+		 				this.__stationsTable.getTableModel().setData(rowsData);
+		 			}
 
-		 },
+		 		},
 
 
 		 /**
@@ -314,7 +319,7 @@
  		  	if (selectedRow < 0)
  		  		return;
  		  	var rowData = this.__stationsTable.getTableModel().getRowDataAsMap(selectedRow);
- 		  	if(rowData.ID != undefined){
+ 		  	if(rowData != undefined && rowData.ID != undefined){
  		  		this.__presenter.excludeStationToRouteWayTrigger(rowData.ID);	
  		  	}
  		  },

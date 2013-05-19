@@ -188,6 +188,62 @@
 
  		members : {
 
+      /**
+       * Триггер обновления расписания выбранного пути.
+       * @param  scheduleModel {bus.admin.mvp.model.route.ScheduleModel}  Новое расписание
+       * @param  isBoth {Boolean}    Заменить расписание второго пути на scheduleModel тоже?
+      * @param  callback {Function}  callback функция
+      * @param  sender {Object}      Объект, который вызвал триггер
+      */
+      updateScheduleTrigger : function(scheduleModel, isBoth, callback, sender){
+       var route = this.getDataStorage().getSelectedRoute();
+       if(route == undefined){
+         if(callback != undefined )
+          callback({error  : true});
+        return;        
+      }
+      var selectedWay = this.getDataStorage().getSelectedWay();
+      scheduleModel.optimize();
+      if(this.getDataStorage().getState() == "make")
+      {
+        selectedWay.setSchedule(scheduleModel.clone());
+        selectedWay.getSchedule().setRouteWayID(selectedWay.getId());
+        if(isBoth == true){
+          var anotherWay = route.getWayByDirection(!this.getDataStorage().getDirection());
+          anotherWay.setSchedule(scheduleModel.clone());
+          anotherWay.getSchedule().setRouteWayID(anotherWay.getId());
+        }
+        if(callback != undefined )
+          callback({error  : false});
+        return;
+      }
+
+      if(this.getDataStorage().getState() == "none")
+      {
+        var updRoute = new bus.admin.mvp.model.RouteModel();
+        updateRoute.setId(route.getId());
+        var updSelectedWay = new bus.admin.mvp.model.route.RouteWayModel();
+        updSelectedWay.setId(selectedWay.getId());
+        updSelectedWay.setDirect(selectedWay.getDirect());
+        updSelectedWay.setSchedule(scheduleModel.clone());
+        updSelectedWay.getSchedule().setRouteWayID(selectedWay.getId());
+        updRoute.setWay(updSelectedWay);
+        if(isBoth == true){
+          var anotherWay = route.getWayByDirection(!this.getDataStorage().getDirection());
+          var updAnotherWay = new bus.admin.mvp.model.route.RouteWayModel();
+          updAnotherWay.setId(anotherWay.getId());
+          updAnotherWay.setDirect(updAnotherWay.getDirect());
+          updAnotherWay.setSchedule(scheduleModel.clone());
+          updAnotherWay.getSchedule().setRouteWayID(anotherWay.getId());
+          updRoute.setWay(updAnotherWay);
+        }
+        if(callback != undefined )
+          callback({error  : false});
+        return;
+      } 
+
+
+    },
 
      /**
       * Триггер вызывается для обновления дуги
@@ -214,7 +270,7 @@
         };
         this.fireDataEvent("update_way_relations", args);
 
-       },
+      },
 
      /**
       * Триггер вызывается для добавления станции к пути маршрута
@@ -692,14 +748,25 @@
             callback({error  : true});
           return;
         }
-        var newStationModel = this.getDataStorage().updatePreparedStation(stationModel);
+        this.getDataStorage().updatePreparedStation(stationModel);
         var args  = {
           station : stationModel,
           sender  : sender,
           arror   : false
         };
-
         this.fireDataEvent("update_prepared_station", args);
+
+        var routeWay = this.getDataStorage().getSelectedWay();
+        var changes = routeWay.updateStation(stationModel);
+        for(var i=0; i< changes.length; i++){
+          var rargs  =  changes[i];
+          rargs.error = false;
+          rargs.sender = this;
+          this.fireDataEvent("update_way_relations", rargs);
+        }
+        var direction = this.getDataStorage().getDirection();
+        var otherWay = this.getDataStorage().getSelectedRoute().getWayByDirection(!direction);
+        otherWay.updateStation(stationModel);
         if(callback!=undefined)
           callback(args);
       },

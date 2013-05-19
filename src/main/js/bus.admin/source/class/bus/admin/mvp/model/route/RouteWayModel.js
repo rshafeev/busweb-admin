@@ -87,8 +87,8 @@
           updateRelation : function(stationBID, relationModel){
             var r = this.getRelationByStationBID(stationBID);
             if(r != undefined)
-               r.fromDataModel(relationModel.toDataModel());
-            return r;
+             r.fromDataModel(relationModel.toDataModel());
+           return r;
          },
 
         /**
@@ -96,17 +96,17 @@
  	 	   * @param  stationID {Integer}  ID станции
  	 	   * @return {Boolean}   True: есть.
  	 	   */
-          isStationExists: function(stationID){
-            var relations = this.getRelations();
-            if(relations == undefined)
-              return false;
-           for(var i = 0; i < relations.length; i++){
-              if(relations[i].getCurrStation().getId() == stationID){
-                return true;
-             }
+        isStationExists: function(stationID){
+          var relations = this.getRelations();
+          if(relations == undefined)
+            return false;
+          for(var i = 0; i < relations.length; i++){
+            if(relations[i].getCurrStation().getId() == stationID){
+              return true;
+            }
           }	 		
           return false;
-       },
+        },
 
  	 	/**
  	 	 * Возвращает предыдущую дугу
@@ -136,16 +136,16 @@
         getRelationByStationBID : function(stationBID){
          var relations = this.getRelations();
          if(stationBID == undefined || relations == undefined)
-            return null;
+          return null;
 
-         for(var i = 0; i < relations.length; i++){
-            if(relations[i].getCurrStation().getId() == stationBID){
-               return relations[i];
-            }
+        for(var i = 0; i < relations.length; i++){
+          if(relations[i].getCurrStation().getId() == stationBID){
+           return relations[i];
          }
+       }
 
-         return null;
-      },
+       return null;
+     },
 
 
  	 	/**
@@ -167,15 +167,17 @@
  	 	 	return null;
  	 	 },
 
+
+
+
  	 	/** Удаляет станции из пути.
-         * <br><br>Свойства возвращаемого объекта: <br>      
-         * <pre>
-         * <ul>
-         * <li> oldRelation       Модель измененной  дуги, {@link bus.admin.mvp.model.route.RouteRelationModel RouteRelationModel} </li>
-         * <li> relation          Новая модель дуги, {@link bus.admin.mvp.model.route.RouteRelationModel RouteRelationModel </li>
-         * <li> operation         Операция, которая была произведена над дугой ("insert", "remove", "update"), String </li>
-         * <ul>
-         * </pre>
+     * <br><br>Свойства возвращаемого объекта: <br>      
+     * <pre>
+     * <ul>
+     * <li> relation          Новая модель дуги, {@link bus.admin.mvp.model.route.RouteRelationModel RouteRelationModel </li>
+     * <li> operation         Операция, которая была произведена над дугой ("insert", "remove", "update"), String </li>
+     * <ul>
+     * </pre>
  	 	 * @param  stationID Integer}  Модель станции
  	 	 * @param  position {Integer} Положение станции относительно остальных станций
  	 	 * @return {Object[]}   Правки пути.
@@ -230,15 +232,61 @@
  	 	 	return result;
  	 	 },
 
+    /** Обновляет станцию пути.
+     * <br><br>Свойства возвращаемого объекта: <br>      
+     * <pre>
+     * <ul>
+     * <li> relation          Новая модель дуги, {@link bus.admin.mvp.model.route.RouteRelationModel RouteRelationModel </li>
+     * <li> operation         Операция, которая была произведена над дугой ("insert", "remove", "update"), String </li>
+     * <ul>
+     * </pre>
+     * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции
+     * @return {Object[]}   Правки пути.
+     */
+     updateStation : function(stationModel){
+       var result = [];
+       var currRelation = this.getRelationByStationBID(stationModel.getId());
+       var nextRelation = this.getNextRelation(currRelation);
+       if(currRelation != undefined && currRelation.getGeom() != undefined){
+         var geom = currRelation.getGeom().getPoints();
+         var pointsCount = geom.length;
+         if(pointsCount > 1) {
+           geom[pointsCount-1][0] = stationModel.getLocation().getLat();
+           geom[pointsCount-1][1] = stationModel.getLocation().getLon();
+         }
+       }
+
+       if(currRelation != undefined){
+         currRelation.setCurrStation(stationModel);
+         result.push({
+          relation : currRelation,
+          operation : "update"
+        });          
+       }
+
+       if(nextRelation != undefined && nextRelation.getGeom() != undefined){
+         var geom = nextRelation.getGeom().getPoints();
+         var pointsCount = geom.length;
+         if(pointsCount > 0){
+           geom[0][0] = stationModel.getLocation().getLat();
+           geom[0][1] = stationModel.getLocation().getLon();
+         }
+         result.push({
+           relation : nextRelation,
+           operation : "update"
+         });       
+       }
+       return result;
+     },
+
  	 	/** Добавляет станцию к пути на указанную позицию.
-         * <br><br>Свойства возвращаемого объекта: <br>      
-         * <pre>
-         * <ul>
-         * <li> oldRelation       Модель измененной  дуги, {@link bus.admin.mvp.model.route.RouteRelationModel RouteRelationModel} </li>
-         * <li> relation          Новая модель дуги, {@link bus.admin.mvp.model.route.RouteRelationModel RouteRelationModel </li>
-         * <li> operation         Операция, которая была произведена над дугой ("insert", "remove", "update"), String </li>
-         * <ul>
-         * </pre>
+     * <br><br>Свойства возвращаемого объекта: <br>      
+     * <pre>
+     * <ul>
+     * <li> relation          Новая модель дуги, {@link bus.admin.mvp.model.route.RouteRelationModel RouteRelationModel </li>
+     * <li> operation         Операция, которая была произведена над дугой ("insert", "remove", "update"), String </li>
+     * <ul>
+     * </pre>
  	 	 * @param  stationModel {bus.admin.mvp.model.StationModelEx}  Модель станции
  	 	 * @param  position {Integer} Положение станции относительно остальных станций
  	 	 * @return {Object[]}   Правки пути.
@@ -404,6 +452,6 @@
 
 
 
- 		}
+     }
 
- 	});
+   });
