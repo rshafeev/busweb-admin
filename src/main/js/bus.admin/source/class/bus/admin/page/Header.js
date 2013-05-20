@@ -35,40 +35,28 @@
 				}, this);
 				// /////////
 
-				this.__pagesGroup = new bus.admin.page.header.PagesGroup();
+				this.__bookmarksGroup = new bus.admin.page.header.BookmarksGroup();
 
 				this.add(new qx.ui.basic.Label(this.tr("CityWays Admin Tool")));
 				this.add(new qx.ui.core.Spacer(30));
-
-				this.add(this.__pagesGroup);
-
+				this.add(this.__bookmarksGroup);
 				this.add(new qx.ui.core.Spacer(), {
 					flex : 1
 				});
-
 				this.add(new qx.ui.core.Spacer, {
 					flex : 1
 				});
 				this.add(new qx.ui.core.Spacer, {
 					width : "2%"
 				});
-				this._createLocaleBox();
-			},
-
-			properties : {
-				/** The mode the header should be currently in. */
-				mode : {
-					event : "changeMode",
-					check : "String",
-					init : "RIA",
-					apply : "_applyMode"
-				}
+				this.__createLocaleBox();
+				this.debug("Header was initialized");
 			},
 
 			members : {
-				__pagesGroup : null,
+				__bookmarksGroup : null,
 
-				_createLocaleBox : function() {
+				__createLocaleBox : function() {
 					// Build select-box
 					var select = new qx.ui.form.SelectBox("Locale");
 					var items = [];
@@ -118,39 +106,6 @@
 					btnLogout.setFont("default");
 					btnLogout.setAppearance("app-header-label");
 					this.add(btnLogout);		
-				},
-				// property apply
-				_applyMode : function(value) {
-					if (this.__group.getModelSelection().getItem(0) != value) {
-						this.__group.setModelSelection([value]);
-					}
-				},
-
-				/**
-				 * Enables or disabled the button for the given mode.
-				 * 
-				 * @param mode
-				 *            {String} the mode to change the enabled state.
-				 * @param value
-				 *            {boolean}
-				 *            <code>true</true> if the button should be enabled.
-				 */
-				 setEnabledMode : function(mode, value) {
-				 	for (var i = 0; i < this.__buttons.length; i++) {
-				 		if (this.__buttons[i].getModel() == mode) {
-				 			var button = this.__buttons[i];
-				 			break;
-				 		}
-				 	};
-
-				 	var label = value ? this.tr("Mobile") : this
-				 	.tr("Mobile (Webkit only)");
-				 	button.setEnabled(value);
-				 	button.setLabel(label);
-				 },
-
-				 getPagesGroup : function() {
-				 	return this.__pagesGroup;
-				 }
 				}
-			});
+			}
+		});

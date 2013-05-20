@@ -32,9 +32,9 @@
  		presenter.addListener("update_route", this.__onUpdateRoute, this);
  		presenter.addListener("change_state", this.__onChangeState, this);
  		
-},
+ 	},
 
-members : {
+ 	members : {
 
   		/**
  		 * Presenter представления
@@ -510,236 +510,48 @@ members : {
 
 
 
-
-
-
-
-
-
-
-
-
-
-on_insertStationToCurrentRoute : function(e) {
-	var stationModel = e.getData();
-	if (stationModel == null || stationModel.error == true) {
-		this
-		.debug("on_insertStationToCurrentRoute() : event data has errors");
-		return;
-	}
-	var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
-	var stationName = bus.admin.mvp.model.helpers.StationsModelHelper
-	.getStationNameByLang(stationModel, lang_id);
-	var rowsData = this.__stationsTable.getTableModel().getData();
-	rowsData.push([stationModel.id, stationName]);
-	this.__stationsTable.getTableModel().setData(rowsData);
-},
-on_updateRoute : function(e) {
-	var data = e.getData();
-	if (data == null || data.error == true) {
-		this.debug("on_updateRoute() : event data has errors");
-		return;
-	}
-	var opts = data.updateData.opts;
-	var route = data.updateData.route;
-	if (route == null)
-		return;
-	if (opts.isUpdateMainInfo == true) {
-		var row = this.getRouteTableRowByID(route.id);
-		if (row >= 0) {
-			var lang_id = "c_"
-			+ qx.locale.Manager.getInstance().getLocale();
-			var fullName = bus.admin.mvp.model.helpers.RouteModelHelper
-			.getFullName(route, lang_id);
-			var tableModel = this.__tableRoutes.getTableModel();
-			tableModel.setValue(0, row, route.id);
-			tableModel.setValue(1, row, fullName);
-			tableModel.setValue(2, row, route.cost);
-		}
-	}
-	if (opts.isUpdateRouteRelations == true) {
-		if (this.__radioDirect.getValue() == true) {
-			this.__onRadioDirect();
-		} else {
-			this.__onRadioReverse();
-		}
-		this.setStatusForWidgets(this._routesPage.getStatus());
-	}
-},
-
-on_insertRoute : function(e) {
-	var data = e.getData();
-	this.debug("RoutesTabPage: on_insertRoute()1");
-	if (data == null || data.error == true) {
-		this.debug("on_insertRoute() : event data has errors");
-		return;
-	}
-	var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
-	var route = data.route;
-	var name = bus.admin.mvp.model.helpers.RouteModelHelper
-	.getNameByLang(route, lang_id);
-	var name_number = (name ? name.toString() : "")
-	+ (route.number ? route.number.toString() : "");
-
-	var tableModel = this.__tableRoutes.getTableModel();
-	tableModel.setRows([[route.id, name_number, route.cost]],
-		tableModel.getRowCount());
-	this.debug("RoutesTabPage: on_insertRoute(). ok.");
-},
-
-on_removeRoute : function(e) {
-	var data = e.getData();
-	if (data == null || data.error == true) {
-		this.debug("on_removeRoute() : event data has errors");
-		return;
-	}
-	var row = this.getRouteTableRowByID(data.routeID);
-	if (row >= 0) {
-		this.__tableRoutes.getTableModel().removeRows(row, 1);
-		this.setStatusForWidgets(this._routesPage.getStatus());
-	}
+on_btn_import : function(e){
+	var p = this._routesPage.getPresenter();
+	var routeType = this._routesLeftPanel.getRouteType();
+	var city = this._routesPage.getCurrentCityModel();
+	var importForm = new bus.admin.mvp.view.routes.ImportRouteForm(p,routeType,city);
+	importForm.open();
 },
 
 
-		/**
-		 * Обработчик вызывается при начале добавления нового маршрута
-		 * 
-		 * @param {RouteModel}
-		 *            e - (еще не полностью заполненную)
-		 */
-		 on_startCreateNewRoute : function(e) {
-		 	var routeModel = e.getData();
-		 	if (routeModel == null || routeModel.error == true) {
-		 		this.debug("on_startCreateNewRoute() : event data has errors");
-		 		return;
-		 	}
-		 	console.debug(routeModel);
-		 	if (routeModel.reverseRouteWay == null) {
-		 		this.__radioReverse.setEnabled(false);
-		 	} else {
-		 		this.__radioReverse.setEnabled(true);
-		 	}
-		 	if (this.__radioDirect.getValue() == true) {
-		 		this.__onRadioDirect();
-		 	} else {
-		 		this.__radioDirect.setValue(true);
-		 	}
-		 	this.setStatusForWidgets(this._routesPage.getStatus());
-		 },
-
-		/**
-		 * Обработчик вызывается при окончании процесса создания нового
-		 * маршрута: он был отредактирован пользователем, отправлен на сервер и
-		 * сохранен в БД. Теперь можно сделать доступным элементы левой
-		 * панели(список городов и список типов маршрута)
-		 * 
-		 * @param {RouteModel}
-		 *            e
-		 */
-		 on_finishCreateNewRoute : function(e) {
-		 	this.debug("RoutesTabPage: on_finishCreateNewRoute()");
-		 	var data = e.getData();
-		 	if (data == null || (data.error == true && data.isOK == true)) {
-		 		return;
-		 	}
-
-		 	this.setStatusForWidgets(this._routesPage.getStatus());
-		 },
 
 
+on_btn_delete : function(e) {
 
-		 on_btn_import : function(e){
-		 	var p = this._routesPage.getPresenter();
-		 	var routeType = this._routesLeftPanel.getRouteType();
-		 	var city = this._routesPage.getCurrentCityModel();
-		 	var importForm = new bus.admin.mvp.view.routes.ImportRouteForm(p,routeType,city);
-		 	importForm.open();
-		 },
+	var row = this.__tableRoutes.getSelectionModel()
+	.getAnchorSelectionIndex();
+	if (row < 0)
+		return;
+	var rowData = this.__tableRoutes.getTableModel()
+	.getRowDataAsMap(row);
+	var T = this;
+	if (confirm(this
+		.tr('Are you shue that want to delete selected route?'))) {
+		qx.core.Init.getApplication().setWaitingWindow(true);
+	var event_finish_func = qx.lang.Function.bind(function(data) {
+		qx.core.Init.getApplication()
+		.setWaitingWindow(false);
+	}, T);
 
+	T._routesPage.getPresenter().removeRoute(rowData.ID,
+		event_finish_func);
+} else {
+}
 
-
-
-		 on_btn_delete : function(e) {
-
-		 	var row = this.__tableRoutes.getSelectionModel()
-		 	.getAnchorSelectionIndex();
-		 	if (row < 0)
-		 		return;
-		 	var rowData = this.__tableRoutes.getTableModel()
-		 	.getRowDataAsMap(row);
-		 	var T = this;
-		 	if (confirm(this
-		 		.tr('Are you shue that want to delete selected route?'))) {
-		 		qx.core.Init.getApplication().setWaitingWindow(true);
-		 	var event_finish_func = qx.lang.Function.bind(function(data) {
-		 		qx.core.Init.getApplication()
-		 		.setWaitingWindow(false);
-		 	}, T);
-
-		 	T._routesPage.getPresenter().removeRoute(rowData.ID,
-		 		event_finish_func);
-		 } else {
-		 }
-
-		},
-
-		isValidNewRoute : function(route) {
-			this.debug(route);
-			if (route.directRouteWay == null
-				|| route.directRouteWay.route_relations == null)
-				return false;
-
-			if (route.directRouteWay.route_relations.length <= 0) {
-				return false;
-			}
-			if (route.reverseRouteWay != null) {
-				if (route.reverseRouteWay.route_relations == null
-					|| route.reverseRouteWay.route_relations == null
-					|| route.reverseRouteWay.route_relations.length <= 0)
-					return false;
-
-			}
-
-			return true;
-		},
-
-
-
-
-		updateCurrRouteWay : function(relations, directType) {
-			if (relations == null)
-				return;
-
-			var routeModel = this._routesPage.getCurrRouteModel();
-			if (directType == true) {
-				if (routeModel.directRouteWay == null) {
-					routeModel.directRouteWay = {
-						direct : true,
-						route_relations : relations
-					};
-				} else {
-					routeModel.directRouteWay.direct = true;
-					routeModel.directRouteWay.route_relations = relations;
-				}
-				// directRouteWay:
-			} else {
-				if (routeModel.reverseRouteWay == null) {
-					routeModel.reverseRouteWay = {
-						direct : false,
-						route_relations : relations
-					};
-				} else {
-					routeModel.reverseRouteWay.direct = false;
-					routeModel.reverseRouteWay.route_relations = relations;
-				}
-			}
-			this.debug(routeModel);
-		}
+}
 
 
 
 
 
-	}
+
+
+
+}
 
 });

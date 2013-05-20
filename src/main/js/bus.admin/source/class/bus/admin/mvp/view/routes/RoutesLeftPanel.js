@@ -341,46 +341,9 @@
 		 		this.tabView.setHeight(this.getBounds().height
 		 			- this.tabView.getBounds().top - 10);
 		 	}
-		 },
-
-		 on_refresh_cities : function(e) {
-		 	var data = e.getData();
-		 	if (data == null || data.error == true) {
-		 		this.debug("on_refresh_cities() : event data has errors");
-		 		return;
-		 	}
-		 	this.loadCitiesToComboBox(data.models.cities);
-		 },
-
-		 loadCitiesToComboBox : function(cities) {
-		 	this.debug("on_loadCitiesToComboBox()");
-		 	var defaultItem = null;
-		 	var lang_id = "c_" + qx.locale.Manager.getInstance().getLocale();
-		 	this.__comboCities.removeAll();
-		 	for (var i = 0; i < cities.length; i++) {
-		 		var name = bus.admin.mvp.model.helpers.CitiesModelHelper
-		 		.getCityNameByLang(cities[i], lang_id);
-		 		var item = new qx.ui.form.ListItem(name);
-		 		item.setUserData("id", cities[i].id);
-		 		if (defaultItem == null) {
-		 			defaultItem = item;
-		 		}
-
-		 		this.__comboCities.add(item);
-		 	}
-		 	if (defaultItem != null) {
-		 		this.__comboCities.setSelection([defaultItem]);
-		 	}
-
-		 },
-
-		 getSelectableCityID : function() {
-		 	var cityComboItem = bus.admin.helpers.WidgetHelper
-		 	.getSelectionItemFromSelectBox(this.__comboCities);
-		 	if (cityComboItem == null)
-		 		return null;
-		 	return cityComboItem.getUserData("id");
 		 }
+
+
 
 
 

@@ -22,16 +22,11 @@
 		<property name="paramName" value="lang" />
 	</bean>
 
-	<bean
-		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
-		<property name="interceptors">
-			<list>
-				<ref bean="localeChangeInterceptor" />
-			</list>
-		</property>
-	</bean>
-
-
+	<mvc:interceptors>  
+        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+              <property name="paramName" value="lang"></property>
+        </bean>
+	</mvc:interceptors>
 
 	<bean
 		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
@@ -54,7 +49,6 @@
 		<mvc:message-converters register-defaults="true">
 			<bean id="jsonHttpMessageConverter"
 				class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-				<!-- <property name="supportedMediaTypes" value="application/json" /> -->
 			</bean>
 			<bean id="xmlHttpMessageConverter"
 				class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">

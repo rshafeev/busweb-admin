@@ -538,7 +538,7 @@
 		},
 
 
-	}
+
 
 		//==================================================================================
 
@@ -558,7 +558,6 @@
 
 			var schedule = bus.admin.helpers.ObjectHelper.clone(this._currSchedule);
 			schedule.scheduleGroups = [];
-			// fill days
 			for (var i = 0; i < this.__daysGroupsDictionary.length; i++) {
 				var comboDays = this.__daysGroupsDictionary[i].combo;
 				var items = comboDays.getChildren();
@@ -699,5 +698,6 @@
 				event_finish_func);
 		}
 	}
+}
 
 });

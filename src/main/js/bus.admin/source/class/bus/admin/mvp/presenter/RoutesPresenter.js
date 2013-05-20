@@ -221,7 +221,7 @@
       if(this.getDataStorage().getState() == "none")
       {
         var updRoute = new bus.admin.mvp.model.RouteModel();
-        updateRoute.setId(route.getId());
+        updRoute.setId(route.getId());
         var updSelectedWay = new bus.admin.mvp.model.route.RouteWayModel();
         updSelectedWay.setId(selectedWay.getId());
         updSelectedWay.setDirect(selectedWay.getDirect());

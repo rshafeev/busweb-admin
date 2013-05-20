@@ -21,10 +21,10 @@
  	extend : qx.core.Object,
 
  	construct : function() {
- 		var currentPageKey = qx.module.Storage.getLocalItem("global.currentPageKey");
+ 		var lastSelectedPageKey = qx.module.Storage.getLocalItem("global.lastPageKey");
  		
- 		if(currentPageKey != undefined){
- 			this.setCurrentPageKey(currentPageKey);
+ 		if(lastSelectedPageKey != undefined){
+ 			this.setLastSelectedPageKey(lastSelectedPageKey);
  		}
 
  		var supportedLocales =  [{
@@ -56,12 +56,20 @@
  			name : qx.locale.Manager.tr("Metro")
  		}];
  		this.setRouteTypes(routeTypes);
+
+    this.setLoadedPages({});
  	},
 
  	properties : {
+    
+
+   lastSelectedPageKey : {
+      init : "Cities",
+      check : "String"
+    },
 
  		currentPageKey : {
- 			init : "Cities",
+ 			nullable : true,
  			check : "String",
  			apply : "_applyCurrentPageKey" 
  		},
@@ -75,14 +83,13 @@
 		 	check : "String"
 		 },
 
-        /**
-         * Хранит набор языков
-         * @type {bus.admin.mvp.model.LanguagesModel}
-         */
-
-         supportedLocales : {
-         	nullable : true
-         },
+    /**
+     * Хранит набор языков
+     * @type {bus.admin.mvp.model.LanguagesModel}
+     */
+     supportedLocales : {
+      nullable : true
+    },
 
 		/**
 		 * Типы маршрутов.
@@ -90,7 +97,21 @@
 		 */
 		 routeTypes : {
 		 	nullable : true
-		 }
+		 },
+
+
+     /**
+      * Загруженные страницы
+      * key - ключ страницы (Routes, Cities, ...), String
+      * value - объект страницы, bus.admin.mvp.view.AbstractPage
+      * @type {Map}
+      */
+     loadedPages : {
+      nullable : true
+     }
+
+
+
 		},
 
 		statics : {
@@ -114,8 +135,10 @@
          * @param  name {String}   Название свойства
          */
          _applyCurrentPageKey : function(value, old, name){
-         	qx.module.Storage.setLocalItem("global.currentPageKey", value);
+         	qx.module.Storage.setLocalItem("global.lastPageKey", value);
+          this.setLastSelectedPageKey(value);
          },
+
 
          getLocale : function(){
          	return bus.admin.mvp.storage.GlobalDataStorage.getLocale();
@@ -155,5 +178,5 @@
           	}
           	return dayName;
           }
-      }
-  });
+        }
+      });

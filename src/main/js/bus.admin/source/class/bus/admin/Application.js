@@ -23,28 +23,37 @@
  */
 
 /**
- * This is the main application class of your custom application "bus.admin"
+ * Главный класс js приложения
  */
  qx.Class.define("bus.admin.Application", {
  	extend : qx.application.Standalone,
 
-	 properties : {
-	 	dataStorage : {
-	 		nullable : true,
-	 		check : "bus.admin.mvp.storage.GlobalDataStorage"
-	 	}
-	 },
-	 members : {
+ 	properties : {
+ 		presenter : {
+ 			nullable : true,
+ 			check : "bus.admin.mvp.presenter.GlobalPresenter"
+ 		}
+ 	},
+ 	members : {
 
-	 	__header : null,
-	 	__tabs : null,
-	 	__scroll : null,
-	 	__history : null,
-	 	__pageContainer : null,
-	 	__loadingIndicator : null,
-	 	__waitingWindow : null,
-	 	__blocker : null,
+ 		__header : null,
+ 		__tabs : null,
+ 		__scroll : null,
 
+	 	/**
+	 	 * Объект для работы с url параметрами после #
+	 	 * @type {qx.bom.History}
+	 	 */
+	 	 __history : null,
+
+	 	/**
+	 	 * Контайнер страниц
+	 	 * @type {bus.admin.page.PagesContainer}
+	 	 */
+	 	 __pagesContainer : null,
+
+
+	 	 __waitingWindow : null,
 
 		 /**
 		  * Main функция
@@ -52,8 +61,7 @@
 		  main : function() {
 			// Call super class
 			this.base(arguments);
-			this.getRoot().setVisibility("hidden");
-
+			
 			// Enable logging in debug variant
 			if (qx.core.Environment.get("qx.debug") == true) {
 				// support native logging capabilities, e.g. Firebug for Firefox
@@ -71,16 +79,28 @@
 
 			this.__setGlobalOptions();
 			this.__initWidgets();
-			this.__initBookmarkSupport();
 
+			this.__history = qx.bom.History.getInstance();
+			this.__history.addListener("changeState", this.__onBookmarkChanged,	this);
+			var historyState = this.__history.getState();
+			this.__selectPage(historyState);
+
+		},
+
+
+		getDataStorage : function(){
+			return this.getPresenter().getDataStorage();
 		},
 
 	 	/**
 	 	 * Задает такие опции приложения, как локаль, ContextPath. Эти данные берутся из нешней функции  GlobalOptions()
 	 	 */
 	 	 __setGlobalOptions : function(){
-	 	 	var dataStorage  = new bus.admin.mvp.storage.GlobalDataStorage();
+
+	 	 	var presenter = new bus.admin.mvp.presenter.GlobalPresenter();
+	 	 	var dataStorage  = presenter.getDataStorage();
 	 	 	var globalOptions = GlobalOptions();
+	 	 	this.debug("Global opts: ", globalOptions);
 	 	 	var localeManager = qx.locale.Manager.getInstance();
 	 	 	if(globalOptions!= undefined){
 	 	 		dataStorage.setContextPath(globalOptions.contextPath);
@@ -88,124 +108,82 @@
 	 	 	}else{
 	 	 		localeManager.setLocale("en");
 	 	 	}
-	 	 	this.setDataStorage(dataStorage);
+	 	 	this.setPresenter(presenter);
 	 	 },
 
-		// ***************************************************
-		// HISTORY SUPPORT
-		// ***************************************************
-
 		/**
-		 * Back button and bookmark support
+		 * Обработчик изменения текущей страницы 
+		 * @param  e {qx.event.type.Data} Данные события. 
 		 */
-		 __initBookmarkSupport : function() {
-		 	this.__history = qx.bom.History.getInstance();
-		 	this.__history.addListener("changeState", this.__onHistoryChanged,
-		 		this);
+		 __onBookmarkChanged : function(e) {
+		 	this.debug("__onBookmarkChanged : execute");
+		 	var state = new qx.type.BaseString(e.getData());
+		 	this.__selectPage(state);
+		 },
 
-			// load current page 
-			var pageName = null;
-			if (this.__history.getState().match('page-*')) {
-				pageName = this.__history.getState().substr(5);
-				this.getDataStorage().setCurrentPageKey(pageName);
-			} else {
-				pageName = this.getDataStorage().getCurrentPageKey();
-			}
-			var pageButton = this.__header.getPagesGroup().getPageButtonByURL(pageName);
+		 __selectPage : function(historyState){
+		 	var pageKey = this.getDataStorage().getLastSelectedPageKey();
+		 	var historyPageKey = null;
+		 	if (historyState.match('page-*')) {
+		 		historyPageKey = historyState.substr(5);
+		 	} 
+		 	
+		 	this.debug("curr key: ", this.getDataStorage().getCurrentPageKey());
+		 	this.debug("last key: ", pageKey);
+		 	this.debug("curr history key: ", historyPageKey);
 
-			if (pageButton != null) {
-				// when page was loaded, app must start to load data 
-				pageButton.addListener("load_page_finished", function() {
-					// show application
-					this.debug("listener: load_page_finished()");
-					if (qx.core.Init.getApplication().getRoot().isVisible() == false) {
-						qx.core.Init.getApplication().getRoot()
-						.setVisibility("visible");
-					}
-				}, this);
-				this.__header.getPagesGroup().selectPageByObj(pageButton);
-			}
+		 	if(this.getDataStorage().getCurrentPageKey() != null && 
+		 		this.getDataStorage().getCurrentPageKey() == historyPageKey)
+		 	{
+		 		return;
+		 	}
 
-		},
+		 	if(historyPageKey != null){
+		 		pageKey = historyPageKey;
+		 	}
+		 	qx.core.Init.getApplication().setWaitingWindow(true);
+		 	var callback = function(e){
+		 		qx.core.Init.getApplication().setWaitingWindow(false);
+		 	}
+		 	this.debug("load key: ", pageKey);
+		 	this.getPresenter().selectPageTrigger(pageKey, callback, this);
+		 },
 
-		__onHistoryChanged : function(e) {
-			this.debug("__onHistoryChanged : execute");
-			var state = new qx.type.BaseString(e.getData());
-			var pageName = null;
-			if (state.match('page-*')) {
-				pageName = state.substr(5);
-				this.getDataStorage().setCurrentPageKey(pageName);
-				this.__header.getPagesGroup().selectPageByURL(state.substr(5));
-			} else if (state == '') {
-				pageName = this.getDataStorage().getCurrentPageKey();
-			}
-			this.__header.getPagesGroup().selectPageByURL(pageName);
 
-		},
+		 setWaitingWindow : function(visible) {
+		 	if(this.__waitingWindow == undefined){
+		 		this.__waitingWindow = new bus.admin.widget.WaitingWindow(true);
+		 	}
+		 	this.__waitingWindow.setVisible(visible);
+		 },
 
-		getPageContainer : function() {
-			this.debug("call getPageContainer");
-			return this.__pageContainer;
-		},
+		 __initWidgets : function() {
+		 	this.getRoot().setVisibility("hidden");
+		 	var doc = this.getRoot();
+		 	var dockLayout = new qx.ui.layout.Dock();
+		 	var dockLayoutComposite = new qx.ui.container.Composite(dockLayout);
+		 	doc.add(dockLayoutComposite, {
+		 		edge : 0
+		 	});
+		 	this.__header = new bus.admin.page.Header();
+		 	dockLayoutComposite.add(this.__header, {
+		 		edge : "north"
+		 	});
+		 	this.__pagesContainer = new bus.admin.page.PagesContainer();
+		 	this.debug("add __pagesContainer");
+		 	dockLayoutComposite.add(this.__pagesContainer, {
+		 		edge : "center"
+		 	});
 
-		getLoadingIndicator : function() {
-			return this.__loadingIndicator;
-		},
+		 	this.getPresenter().addListener("select_page", function(e) {
+		 		this.debug("listener: load_page_finished()");
+		 		if (qx.core.Init.getApplication().getRoot().isVisible() == false) {
+		 			qx.core.Init.getApplication().getRoot().setVisibility("visible");
+		 		}
+		 		qx.bom.History.getInstance().addToHistory("page-" + e.getData().pageKey);
+		 	}, this);
 
-		getHistoryObj : function() {
-			return this.__history;
-		},
 
-		setWaitingWindow : function(visiable) {
-			if (visiable == false) {
-				this.getRoot().remove(this.__waitingWindow);
-				this.__waitingWindow = null;
-				this.__blocker.unblock();
-			} else if (this.__waitingWindow == null) {
-				this.__waitingWindow = new qx.ui.basic.Image("bus/admin/images/loading.gif");
-				this.__waitingWindow.setMarginTop(-33);
-				this.__waitingWindow.setMarginLeft(-33);
-				this.__waitingWindow.setZIndex(150000000);
-				this.getRoot().add(this.__waitingWindow, {
-					left : "50%",
-					top : "50%"
-				});
-				if (this.__blocker == null)
-					this.__blocker = new qx.bom.Blocker();
-				this.__blocker.block();
-			}
-		},
-
-		__initWidgets : function() {
-			// Document is the application root
-			var doc = this.getRoot();
-			// bus.admin.mvp.presenter.GlobalPresenter
-			var dockLayout = new qx.ui.layout.Dock();
-			var dockLayoutComposite = new qx.ui.container.Composite(dockLayout);
-			doc.add(dockLayoutComposite, {
-				edge : 0
-			});
-
-			this.__pageContainer = new qx.ui.container.Stack();
-
-			var loadingImage = new qx.ui.basic.Image("bus/admin/images/loading.gif");
-			loadingImage.setMarginTop(-33);
-			loadingImage.setMarginLeft(-33);
-			this.__loadingIndicator = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
-			this.__loadingIndicator.add(loadingImage, {
-				left : "50%",
-				top : "50%"
-			});
-			this.__pageContainer.add(this.__loadingIndicator);
-
-			this.__header = new bus.admin.page.Header();
-
-			dockLayoutComposite.add(this.__header, {
-				edge : "north"
-			});
-			dockLayoutComposite.add(this.__pageContainer, {
-				edge : "center"
-			});
+		 }
 		}
-	}
-});
+	});
