@@ -9,6 +9,8 @@ import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
 import org.postgresql.util.PGInterval;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +21,8 @@ import com.pgis.bus.data.orm.RouteWay;
 import com.pgis.bus.data.orm.Station;
 
 public class RouteWayModelExTest {
+	private static final Logger log = LoggerFactory.getLogger(RouteWayModelExTest.class);
+
 	RouteWay routeWay = new RouteWay();
 
 	@Before
@@ -57,12 +61,7 @@ public class RouteWayModelExTest {
 
 		RouteRelationModelEx r = model.getRelations().iterator().next();
 		ObjectMapper mapper = new ObjectMapper();
-		try {
-			System.out.println(mapper.writeValueAsString(r));
-			System.out.println((new ObjectMapper()).writeValueAsString(r));
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		log.info(mapper.writeValueAsString(r));
+		log.info((new ObjectMapper()).writeValueAsString(r));
 	}
 }

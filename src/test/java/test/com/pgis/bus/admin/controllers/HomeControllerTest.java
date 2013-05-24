@@ -41,8 +41,5 @@ public class HomeControllerTest extends ControllerTestConf {
 
 		MockHttpServletResponse response = this.mockMvc.perform(get("/").session(session)).andDo(print())
 				.andExpect(status().isOk()).andReturn().getResponse();
-
-		log.info("CODE : " + response.getStatus());
-		log.info("RESULT : " + response.getContentAsString());
 	}
 }

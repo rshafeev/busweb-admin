@@ -32,7 +32,7 @@ qx.Class.define("bus.admin.widget.MsgDlg",
        * @param  message {String}  Текст сообщения 
        * @param  caption {String} Заголовок диалогового окна.
        */
-      info : function(caption, message){
+      info : function(message, caption){
         alert(message);
       },
 
@@ -41,7 +41,7 @@ qx.Class.define("bus.admin.widget.MsgDlg",
        * @param  message {String}  Текст сообщения 
        * @param  caption {String} Заголовок диалогового окна.
        */
-      warn : function(caption, message){
+      warn : function(message, caption){
          alert(message);
       },
 
@@ -50,16 +50,16 @@ qx.Class.define("bus.admin.widget.MsgDlg",
        * @param  message {String}  Текст сообщения 
        * @param  caption {String} Заголовок диалогового окна.
        */
-      error : function(caption, message){
+      error : function(message, caption){
          alert(message);
       }
   },
 
   /**
-   * @param  text {String}  Текст сообщения 
+   * @param  message {String}  Текст сообщения 
    * @param  caption {String} Заголовок диалогового окна.
    */
-  construct: function(caption, text)
+  construct: function(message, caption)
   {
     this.base(arguments,"caption");
     this.setModal(true);
@@ -67,7 +67,7 @@ qx.Class.define("bus.admin.widget.MsgDlg",
     	this.center();
     	
     },this);
-    var label = new qx.ui.basic.Label(text);
+    var label = new qx.ui.basic.Label(message);
     this.add(label);
     this.center();
   },

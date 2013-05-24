@@ -49,7 +49,7 @@ public class StationsController extends BaseController {
 			log.error("getStationsByCity exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 
 	}
@@ -73,7 +73,7 @@ public class StationsController extends BaseController {
 			log.error("getAllByCityInBox exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 
 	}
@@ -95,7 +95,7 @@ public class StationsController extends BaseController {
 			log.error("getAllByCityInBox exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 	}
 
@@ -118,7 +118,7 @@ public class StationsController extends BaseController {
 			log.error("insert exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 
 	}
@@ -142,7 +142,7 @@ public class StationsController extends BaseController {
 			log.error("update exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 
 	}
@@ -166,7 +166,7 @@ public class StationsController extends BaseController {
 			log.error("delete exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 
 	}

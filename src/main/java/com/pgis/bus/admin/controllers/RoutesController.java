@@ -2,7 +2,9 @@ package com.pgis.bus.admin.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,26 +31,19 @@ public class RoutesController extends BaseController {
 	@ResponseBody
 	public Object getRoutesList(Integer cityID, String routeTypeID, String langID) {
 		try {
-			log.debug("getRoutesList()");
-			log.debug("cityID:" + cityID);
-			log.debug("routeTypeID:" + routeTypeID);
-			log.debug("langID:" + langID);
+			log.debug("execute action getRoutesList({},{},{})", new Object[] { cityID, routeTypeID, langID });
+
 			IDataModelsService modelsService = super.getModelsService();
 			modelsService.setLocale(LangEnum.valueOf(LangEnumModel.valueOf(langID)));
-			// get routes and create model
-
 			RoutesListModel model = modelsService.Routes().getRoutesList(cityID,
 					RouteTypeModel.getDBRouteType(routeTypeID));
-			// send model
-			// String routesModelJson = (new Gson()).toJson(model);
 			return model;
 
 		} catch (Exception e) {
-			log.error("get_all_list exception", e);
-			// return (new Gson()).toJson();
+			log.error("getRoutesList() error.", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 
 	}
@@ -57,80 +52,109 @@ public class RoutesController extends BaseController {
 	@ResponseBody
 	public Object get(Integer routeID) {
 		try {
+			log.debug("execute action get({})", new Object[] { routeID });
 			if (routeID == null)
 				throw new Exception("can not convert routeID from json to string");
 			Route route = this.getDbService().Routes().get(routeID);
 			RouteModelEx model = new RouteModelEx(route);
-			// send model
-			ObjectMapper mapper = new ObjectMapper();
-
-			log.debug(mapper.writeValueAsString(model));
 			return model;
 
 		} catch (Exception e) {
 			log.error("get exception", e);
-			// return (new Gson()).toJson();
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 	}
 
-	@RequestMapping(value = "insert_route", method = RequestMethod.POST)
+	@RequestMapping(value = "insert", method = RequestMethod.POST)
 	@ResponseBody
 	public Object insert(@RequestBody RouteModelEx routeModel) {
-		log.debug("insert_route()");
+		log.debug("insert()");
+		IDataBaseService db = super.getDbService();
 		try {
-			// super.getDbService().Routes().insert(newRoute);
-			return routeModel;
+			Route ormRoute = routeModel.toORMObject();
+			db.Routes().insert(ormRoute);
+			db.commit();
+			return new RouteModelEx(ormRoute);
 
 		} catch (Exception e) {
+			db.rollback();
 			log.error("insert exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 
 	}
 
-	@RequestMapping(value = "delete", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "remove", method = { RequestMethod.POST })
 	@ResponseBody
-	public Object delete(Integer route_id) {
-		log.debug(route_id.toString());
+	public Object remove(Integer routeID) {
+		log.debug(routeID.toString());
 		IDataBaseService db = super.getDbService();
 		try {
-			if (route_id == null || route_id.intValue() <= 0)
-				throw new Exception("bad route_id");
+
+			if (routeID == null || routeID.intValue() <= 0)
+				throw new Exception("request error: bad routeID");
 			// удалим маршрут из БД
-			db.Routes().remove(route_id.intValue());
+			db.Routes().remove(routeID);
 			db.commit();
 			return "\"ok\"";
 		} catch (Exception e) {
+			db.rollback();
 			log.error("delete exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 	}
 
+	/**
+	 * Обновляет маршрут. Причем можно передавать не все данные маршрута, а только те его дочерние объекты, которые
+	 * нужно обновить. Например, для обновления расписания все данные могут быть null, кроме объъекта Schedule у пути.
+	 * ID маршрута должен быть задан обязательно, иначе метод не сможет вернуть обновленный маршрут.
+	 * 
+	 * @param routeModel Данные маршрута, которые требуется обновить
+	 * @return {RouteModelEx} Обновленный маршрут
+	 */
 	@RequestMapping(value = "update", method = RequestMethod.POST)
 	@ResponseBody
 	public Object update(@RequestBody RouteModelEx routeModel) {
 		// RouteModelEx
-		log.debug("update()");
-		log.debug(routeModel.toString());
+		log.debug("execute action update(@RequestBody RouteModelEx routeModel)");
 		IDataBaseService db = super.getDbService();
 		try {
-			Route ormRoute = routeModel.toORMObject();
-			db.Routes().update(ormRoute);
+			// Запомним ID маршрута
+			int routeID = routeModel.getId().intValue();
+
+			/*
+			 * Если не нужно обновлять данные самого объекта Route, то необходимо обнулить ID маршрута. В этом случае
+			 * одно из полей routeModel будет пустым (будем проверять поле routeType). Если этого не делать, то
+			 * dbService попытается обновить такие данные маршрута, как routeType,cost, cityID.
+			 */
+			if (routeModel.getRouteTypeID() == null) {
+				routeModel.setId(null);
+			}
+
+			// преобразуем модель в orm объект
+			Route route = routeModel.toORMObject();
+			log.debug(route.toString());
+			// Обновим те объекты route, которые не null
+			db.Routes().update(route);
+
+			// Вытащим из БД обновленный марщрут
+			Route responseRoute = db.Routes().get(routeID);
+
+			// Сохраним изменения
 			db.commit();
-			return new RouteModelEx(ormRoute);
+			return new RouteModelEx(responseRoute);
 		} catch (Exception e) {
 			db.rollback();
 			log.error("update exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 	}
 

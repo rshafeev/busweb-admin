@@ -386,9 +386,11 @@
  		 		id : this.getId(),
  		 		routeID : this.getRouteID(),
  		 		direct : this.getDirect(),
- 		 		relations : [],
- 		 		schedule : this.getSchedule().toDataModel()
+ 		 		relations : []
  		 	}
+      if(this.getSchedule() != undefined){
+        dataModel.schedule = this.getSchedule().toDataModel();
+      }
  		 	var relations = this.getRelations();
  		 	if(relations != undefined){
  		 		for(var i=0;i < relations.length; i++){

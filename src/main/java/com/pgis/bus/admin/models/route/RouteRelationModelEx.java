@@ -152,7 +152,10 @@ public class RouteRelationModelEx implements Serializable {
 		r.setStationBId(this.currStation.getId());
 		r.setGeom(GeoObjectsHelper.createLine(this.geom));
 		if (prevRelation != null)
-			r.setStationBId(prevRelation.getCurrStation().getId());
+			r.setStationAId(prevRelation.getCurrStation().getId());
+		if (this.currStation.getId() <= 0) {
+			r.setStationB(this.currStation.toORMObject());
+		}
 		return r;
 	}
 

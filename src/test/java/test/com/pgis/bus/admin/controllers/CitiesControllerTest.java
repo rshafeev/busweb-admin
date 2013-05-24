@@ -81,7 +81,6 @@ public class CitiesControllerTest extends ControllerTestConf {
 		CityModelEx requestModel = new CityModelEx(city);
 		String jsonInputModel = (new ObjectMapper()).writeValueAsString(requestModel);
 		// Testing
-		log.info(jsonInputModel);
 		MockHttpSession session = this.getSession("admin", "pass");
 
 		MockHttpServletResponse response = this.mockMvc
@@ -90,8 +89,6 @@ public class CitiesControllerTest extends ControllerTestConf {
 								.accept(MediaType.APPLICATION_JSON).body(jsonInputModel.getBytes()).session(session))
 				.andDo(print()).andReturn().getResponse();
 
-		log.info("CODE : " + response.getStatus());
-		log.info("RESULT : " + response.getContentAsString());
 		// Check
 		CityModelEx responseModel = (new ObjectMapper()).readValue(response.getContentAsString(), CityModelEx.class);
 		assertEquals(requestModel.getId(), responseModel.getId());

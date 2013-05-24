@@ -51,7 +51,7 @@ public class ImportController extends BaseController {
 			log.error("JsonSyntaxException exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 	}
 
@@ -77,7 +77,7 @@ public class ImportController extends BaseController {
 			log.error("exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 
 		}
 	}
@@ -99,7 +99,7 @@ public class ImportController extends BaseController {
 			log.error("exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 	}
 }

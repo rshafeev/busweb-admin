@@ -56,9 +56,6 @@ public class RoutesControllerTest extends ControllerTestConf {
 		MockHttpServletResponse response = this.mockMvc.perform(post("/routes//get").param("routeID", "100"))
 				.andDo(print()).andExpect(redirectedUrl("http://localhost/login")).andReturn().getResponse();
 
-		// .alwaysExpect(status().isOk())
-		log.info("CODE : " + response.getStatus());
-		log.info("RESULT : " + response.getContentAsString());
 	}
 
 	@Test
@@ -82,8 +79,6 @@ public class RoutesControllerTest extends ControllerTestConf {
 				.perform(get("/routes/get.json").param("routeID", "100").session(session)).andDo(print()).andReturn()
 				.getResponse();
 
-		log.info("CODE : " + response.getStatus());
-		log.info("RESULT : " + response.getContentAsString());
 		// Check
 		RouteModelEx model = (new ObjectMapper()).readValue(response.getContentAsString(), RouteModelEx.class);
 		assertEquals(route.getId(), model.getId());
@@ -103,6 +98,8 @@ public class RoutesControllerTest extends ControllerTestConf {
 		IDataBaseService dbService = Mockito.mock(IDataBaseService.class);
 		IRoutesRepository routesRepository = Mockito.mock(IRoutesRepository.class);
 		doNothing().when(routesRepository).update(any(Route.class));
+		doReturn(route).when(routesRepository).get(anyInt());
+
 		doReturn(routesRepository).when(dbService).Routes();
 
 		controller.setDbService(dbService);
@@ -112,7 +109,6 @@ public class RoutesControllerTest extends ControllerTestConf {
 		RouteModelEx requestModel = new RouteModelEx(route);
 		String jsonInputModel = (new ObjectMapper()).writeValueAsString(requestModel);
 		// Testing
-		log.info(jsonInputModel);
 		MockHttpSession session = this.getSession("admin", "pass");
 
 		MockHttpServletResponse response = this.mockMvc
@@ -121,9 +117,6 @@ public class RoutesControllerTest extends ControllerTestConf {
 								.accept(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_JSON)
 								.body(jsonInputModel.getBytes()).session(session)).andDo(print()).andReturn()
 				.getResponse();
-
-		log.info("CODE : " + response.getStatus());
-		log.info("RESULT : " + response.getContentAsString());
 		// Check
 		RouteModelEx responseModel = (new ObjectMapper()).readValue(response.getContentAsString(), RouteModelEx.class);
 		assertEquals(requestModel.getId(), responseModel.getId());
@@ -133,20 +126,22 @@ public class RoutesControllerTest extends ControllerTestConf {
 	@Test
 	public void testUpdate2() throws Exception {
 		log.info("testUpdate2() ");
+		// Input data
+		String jsonInputModel = "{\"id\":270,\"cityID\":1,\"routeTypeID\":\"bus\",\"cost\":1,\"numberKey\":4058,"
+				+ "\"number\":[{\"id\":13193,\"lang\":\"uk\",\"value\":\"3\"},{\"id\":13192,\"lang\":\"en\",\"value\":\"3\"},"
+				+ "{\"id\":13191,\"lang\":\"ru\",\"value\":\"3\"}],\"directWay\":null,\"reverseWay\":null}";
+
 		// Mocking
 		IDataModelsService dbModelsService = Mockito.mock(IDataModelsService.class);
 		IDataBaseService dbService = Mockito.mock(IDataBaseService.class);
 		IRoutesRepository routesRepository = Mockito.mock(IRoutesRepository.class);
 		doReturn(routesRepository).when(dbService).Routes();
+		doReturn((new ObjectMapper()).readValue(jsonInputModel, RouteModelEx.class).toORMObject()).when(
+				routesRepository).get(270);
 		controller.setDbService(dbService);
 		controller.setModelsService(dbModelsService);
 
-		// Input data
-		String jsonInputModel = "{\"id\":270,\"cityID\":1,\"routeTypeID\":\"bus\",\"cost\":1,\"numberKey\":4058,"
-				+ "\"number\":[{\"id\":13193,\"lang\":\"uk\",\"value\":\"3\"},{\"id\":13192,\"lang\":\"en\",\"value\":\"3\"},"
-				+ "{\"id\":13191,\"lang\":\"ru\",\"value\":\"3\"}],\"directWay\":null,\"reverseWay\":null}";
 		// Testing
-		log.info(jsonInputModel);
 		MockHttpSession session = this.getSession("admin", "pass");
 
 		MockHttpServletResponse response = this.mockMvc
@@ -155,11 +150,9 @@ public class RoutesControllerTest extends ControllerTestConf {
 								.body(jsonInputModel.getBytes()).session(session)).andDo(print()).andReturn()
 				.getResponse();
 
-		log.info("CODE : " + response.getStatus());
-		log.info("RESULT : " + response.getContentAsString());
 		// Check
 		RouteModelEx responseModel = (new ObjectMapper()).readValue(response.getContentAsString(), RouteModelEx.class);
-		assertEquals(270, responseModel.getId());
+		assertEquals(270, responseModel.getId().intValue());
 
 	}
 
@@ -186,12 +179,6 @@ public class RoutesControllerTest extends ControllerTestConf {
 						post("/routes//get").param("routeID", "100").session(session).accept(MediaType.APPLICATION_XML))
 				.andDo(print()).andReturn().getResponse();
 
-		// Check
-		// RouteModelEx model = (new Gson()).fromJson(response.getContentAsString(), RouteModelEx.class);
-		// assertEquals(route.getId(), model.getId());
-		log.info("CODE : " + response.getStatus());
-		log.info("RESULT : " + response.getContentAsString());
-
 	}
 
 	@Test
@@ -212,7 +199,6 @@ public class RoutesControllerTest extends ControllerTestConf {
 				+ "<reverseWay><direct>false</direct><id>0</id><routeID>0</routeID></reverseWay>"
 				+ "<routeTypeID>metro</routeTypeID></routeModelEx>";
 		// Testing
-		log.info(xmlRequestModel);
 		MockHttpSession session = this.getSession("admin", "pass");
 		// .contentType(MediaType.APPLICATION_JSON)
 		ResultActions actions = this.mockMvc.perform(post("/routes/update.xml").contentType(MediaType.APPLICATION_XML)
@@ -222,29 +208,30 @@ public class RoutesControllerTest extends ControllerTestConf {
 		actions.andExpect(status().isOk());
 
 		MockHttpServletResponse response = actions.andReturn().getResponse();
-		log.info("RESULT : " + response.getContentAsString());
 
 	}
 
 	@Test
 	public void testUpdateXML2() throws Exception {
 		log.info("testGetXML2() ");
-		// Mocking
-		IDataModelsService dbModelsService = Mockito.mock(IDataModelsService.class);
-		IDataBaseService dbService = Mockito.mock(IDataBaseService.class);
-		IRoutesRepository routesRepository = Mockito.mock(IRoutesRepository.class);
-		doReturn(routesRepository).when(dbService).Routes();
-		controller.setDbService(dbService);
-		controller.setModelsService(dbModelsService);
-
 		// Input data
 		String xmlRequestModel = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><routeModelEx>"
 				+ "<cityID>0</cityID><cost>0.0</cost><directWay><direct>false</direct><id>0</id>"
 				+ "<routeID>0</routeID></directWay><id>11</id><numberKey>0</numberKey>"
 				+ "<reverseWay><direct>false</direct><id>0</id><routeID>0</routeID></reverseWay>"
 				+ "<routeTypeID>metro</routeTypeID></routeModelEx>";
+
+		// Mocking
+		IDataModelsService dbModelsService = Mockito.mock(IDataModelsService.class);
+		IDataBaseService dbService = Mockito.mock(IDataBaseService.class);
+		IRoutesRepository routesRepository = Mockito.mock(IRoutesRepository.class);
+		doReturn(routesRepository).when(dbService).Routes();
+		doReturn(XStreamMarshallerHelper.unmarshal(xmlRequestModel, RouteModelEx.class).toORMObject()).when(
+				routesRepository).get(anyInt());
+		controller.setDbService(dbService);
+		controller.setModelsService(dbModelsService);
+
 		// Testing
-		log.info(xmlRequestModel);
 		MockHttpSession session = this.getSession("admin", "pass");
 
 		MockHttpServletResponse response = this.mockMvc
@@ -252,11 +239,9 @@ public class RoutesControllerTest extends ControllerTestConf {
 						post("/routes/update.xml").contentType(MediaType.APPLICATION_XML)
 								.body(xmlRequestModel.getBytes()).session(session)).andDo(print()).andReturn()
 				.getResponse();
-		log.info("CODE : " + response.getStatus());
-		log.info("RESULT : " + response.getContentAsString());
 		RouteModelEx responseModel = XStreamMarshallerHelper.unmarshal(response.getContentAsString(),
 				RouteModelEx.class);
-		assertEquals(11, responseModel.getId());
+		assertEquals(11, (int) responseModel.getId());
 
 	}
 }

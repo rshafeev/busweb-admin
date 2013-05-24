@@ -92,7 +92,6 @@ public class StationsControllerTest extends ControllerTestConf {
 		// Input data
 		String jsonRequestModel = (new ObjectMapper()).writeValueAsString(requestModel);
 		// Testing
-		log.info(jsonRequestModel);
 		MockHttpSession session = this.getSession("admin", "pass");
 
 		MockHttpServletResponse response = this.mockMvc
@@ -101,8 +100,6 @@ public class StationsControllerTest extends ControllerTestConf {
 								.accept(MediaType.APPLICATION_JSON).body(jsonRequestModel.getBytes()).session(session))
 				.andDo(print()).andReturn().getResponse();
 
-		log.info("CODE : " + response.getStatus());
-		log.info("RESULT : " + response.getContentAsString());
 		// Check
 		StationsBoxModel responseModel = (new ObjectMapper()).readValue(response.getContentAsString(),
 				StationsBoxModel.class);

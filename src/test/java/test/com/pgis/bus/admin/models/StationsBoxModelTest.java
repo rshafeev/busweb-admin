@@ -36,7 +36,6 @@ public class StationsBoxModelTest {
 		// Test
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonData = mapper.writeValueAsString(requestModel);
-		log.info(jsonData);
 		StationsBoxModel responeModel = mapper.readValue(jsonData, StationsBoxModel.class);
 		assertEquals(requestModel.getCityID(), responeModel.getCityID());
 	}
@@ -57,7 +56,6 @@ public class StationsBoxModelTest {
 		requestModel.setStations(stations);
 
 		String xmlData = XStreamMarshallerHelper.marshal(requestModel);
-		log.info(xmlData);
 		// Test
 		StationsBoxModel responeModel = XStreamMarshallerHelper.unmarshal(xmlData, StationsBoxModel.class);
 		assertEquals(requestModel.getCityID(), responeModel.getCityID());

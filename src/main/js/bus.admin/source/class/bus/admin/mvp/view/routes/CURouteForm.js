@@ -17,7 +17,7 @@
  */
 
 /**
- * Диалоговое окно для создания/ редактироания маршрута.
+ * Диалоговое окно для редактироания(начала конструирования нового) маршрута.
  */
  qx.Class.define("bus.admin.mvp.view.routes.CURouteForm", {
  	extend : qx.ui.window.Window,
@@ -166,6 +166,10 @@
  		 	}
  		 },
 
+ 		 /**
+ 		  * Обработчик изменения номера маршрута (транслитерация)
+ 		  * @param e {qx.event.type.Event} Объект события.
+ 		  */
  		 __onChangedEditNumber : function(e){
  		 	var numb = this.__editNumber.getValue();
 
@@ -237,7 +241,6 @@
  		 		this.__editFrequency = new qx.ui.form.TextField("15");
  		 		this.__editFrequency.setWidth(80);
 
-				// bus.admin.helpers.ObjectHelper.validateTime
 				timeSettings.add(labelTimeA, {
 					left : 10,
 					top : 10
@@ -278,7 +281,6 @@
 				});
 
 			}
-			// add to cantainer
 
 			this.add(mainSettings, {
 				left : 0,

@@ -258,7 +258,6 @@
 			this.__mainContainer.add(this.__btnRemodelRoute);
 			this.__mainContainer.add(this.btn_delete);
 
-			//this.__routeTabView = this.__createRouteTabView();
 			this.__routeTabsView = new bus.admin.mvp.view.routes.tabs.RouteTabsView(this.__presenter);
 
 			this.__mainContainer.add(this.__routeTabsView, {

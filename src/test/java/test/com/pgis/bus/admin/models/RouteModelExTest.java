@@ -33,13 +33,6 @@ public class RouteModelExTest {
 
 	@Before
 	public void init() throws SQLException {
-
-		/*
-		 * Schedule dSchedule = new Schedule(); dSchedule.setId(1); dSchedule.setRouteWayId(10);
-		 * 
-		 * Schedule rSchedule = new Schedule(); rSchedule.setId(1); rSchedule.setRouteWayId(10);
-		 */
-
 		RouteWay directWay = new RouteWay();
 		directWay.setId(10);
 		directWay.setRouteID(1000);
@@ -90,7 +83,7 @@ public class RouteModelExTest {
 	}
 
 	@Test
-	public void jsonSerealize() throws Exception {
+	public void jsonSerialize() throws Exception {
 		RouteModelEx requestModel = new RouteModelEx(route1);
 		ObjectMapper json = new ObjectMapper();
 		byte[] data = json.writeValueAsBytes(requestModel);
@@ -99,18 +92,18 @@ public class RouteModelExTest {
 	}
 
 	@Test
-	public void jsonDeserealize() throws Exception {
+	public void jsonDeserialize() throws Exception {
 		ObjectMapper json = new ObjectMapper();
 
 		String jsonInputModel = "{\"id\":270,\"cityID\":1,\"routeTypeID\":\"bus\",\"cost\":1,\"numberKey\":4058,"
 				+ "\"number\":[{\"id\":13193,\"lang\":\"uk\",\"value\":\"3\"},{\"id\":13192,\"lang\":\"en\",\"value\":\"3\"},"
 				+ "{\"id\":13191,\"lang\":\"ru\",\"value\":\"3\"}],\"directWay\":null,\"reverseWay\":null}";
 		RouteModelEx responeModel = json.readValue(jsonInputModel, RouteModelEx.class);
-		assertEquals(270, responeModel.getId());
+		assertEquals(270, responeModel.getId().intValue());
 	}
 
 	@Test
-	public void xmlDesedealize() throws Exception {
+	public void xmlDeserialize() throws Exception {
 
 		File file = ResourceUtils.getFile(this.getClass().getResource("/routeModel1.json"));
 		String jsonData = com.pgis.bus.data.helpers.FileManager.getFileData(file);
@@ -122,6 +115,5 @@ public class RouteModelExTest {
 
 		RouteModelEx responeModel = XStreamMarshallerHelper.unmarshal(xmlData, RouteModelEx.class);
 		assertEquals(requestModel.getId(), responeModel.getId());
-		log.info(xmlData);
 	}
 }

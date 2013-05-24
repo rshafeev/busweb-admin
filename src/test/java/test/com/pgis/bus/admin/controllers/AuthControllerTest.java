@@ -35,9 +35,6 @@ public class AuthControllerTest extends ControllerTestConf {
 		log.info("testLoginPage() ");
 		MockHttpServletResponse response = this.mockMvc.perform(get("/login")).andDo(print()).andReturn().getResponse();
 
-		// .alwaysExpect(status().isOk())
-		log.info("CODE : " + response.getStatus());
-		log.info("RESULT : " + response.getContentAsString());
 	}
 
 }

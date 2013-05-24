@@ -2,6 +2,8 @@ package com.pgis.bus.admin.controllers;
 
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
 
 import com.pgis.bus.data.DBConnectionFactory;
@@ -11,6 +13,7 @@ import com.pgis.bus.data.service.impl.DataBaseService;
 import com.pgis.bus.data.service.impl.DataModelsService;
 
 public abstract class BaseController {
+	private static final Logger log = LoggerFactory.getLogger(BaseController.class);
 
 	private IDataBaseService dbService;
 	private IDataModelsService modelsService;
@@ -36,6 +39,7 @@ public abstract class BaseController {
 			try {
 				dbService = new DataBaseService(DBConnectionFactory.getConnectionManager());
 			} catch (Exception e) {
+				log.error("Can not create dbService", e);
 			}
 		}
 		return dbService;
@@ -47,14 +51,13 @@ public abstract class BaseController {
 			try {
 				modelsService = new DataModelsService(locale, DBConnectionFactory.getConnectionManager());
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Can not create modelsService", e);
 			}
-
 		}
 		return modelsService;
 	}
 
-	public void disposeDataServices() {
+	public void release() {
 		if (dbService != null && externDbService == false) {
 			dbService.dispose();
 			dbService = null;
@@ -67,10 +70,13 @@ public abstract class BaseController {
 
 	public void setDbService(IDataBaseService dbService) {
 		this.dbService = dbService;
+		this.externDbService = true;
+
 	}
 
 	public void setModelsService(IDataModelsService modelsService) {
 		this.modelsService = modelsService;
+		this.externModelsService = true;
 	}
 
 }

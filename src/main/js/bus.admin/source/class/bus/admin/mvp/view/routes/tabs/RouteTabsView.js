@@ -241,7 +241,7 @@
 
 
 		/**
-		 * [__createStationsTable description]
+		 *Создает виджет "таблица" для отображентия списка станций пути 
 		 */
 		 __createStationsTable : function() {
 			// table model

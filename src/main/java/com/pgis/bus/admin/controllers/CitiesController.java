@@ -45,7 +45,7 @@ public class CitiesController extends BaseController {
 			log.error("exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 
 	}
@@ -82,7 +82,7 @@ public class CitiesController extends BaseController {
 			log.error("exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 
 	}
@@ -118,7 +118,7 @@ public class CitiesController extends BaseController {
 			log.error("exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 
 	}
@@ -142,7 +142,7 @@ public class CitiesController extends BaseController {
 			log.error("exception", e);
 			return new ErrorModel(e);
 		} finally {
-			super.disposeDataServices();
+			super.release();
 		}
 	}
 

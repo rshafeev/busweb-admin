@@ -32,7 +32,7 @@ public class RouteWayModelEx implements Serializable {
 	/**
 	 * ID пути
 	 */
-	private int id;
+	private Integer id;
 
 	/**
 	 * ID маршрута, которому принадлежит данный путь
@@ -72,11 +72,11 @@ public class RouteWayModelEx implements Serializable {
 
 	}
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -114,7 +114,7 @@ public class RouteWayModelEx implements Serializable {
 
 	public RouteWay toORMObject() {
 		RouteWay routeWay = new RouteWay();
-		routeWay.setId(routeWay.getId());
+		routeWay.setId(this.id);
 		routeWay.setDirect(this.direct);
 		routeWay.setSchedule(new Schedule(this.schedule));
 		routeWay.setRouteID(this.routeID);

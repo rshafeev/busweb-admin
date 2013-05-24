@@ -25,6 +25,7 @@
 		this.__contextPath  = qx.core.Init.getApplication().getDataStorage().getContextPath();
 	},
 	members : {
+		
 		/**
 		 * Синхронный запрос (блокирующий)  или асинхронный?
 		 * @type {Boolean}
@@ -97,68 +98,47 @@
 			request.addListener("failed", callback, self);
 			request.send();
 			return request;
-		} 		 
+		},	 
 
-		 /*
-		 getRoute : function(data, completed_func, failed_func, self) {
-
-		 	var data_json = qx.lang.Json.stringify(data);
-		 	this.debug(data);
-		 	var request = new qx.io.remote.Request(
-		 		"/routes/get_route", "POST", "application/json");
-		 	request.setAsynchronous(!this.__sync);
-		 	request.setParseJson(true);
-		 	request.setParameter("data", data_json, true);
-		 	request.addListener("completed", completed_func, self);
-		 	request.addListener("failed", failed_func, self);
-		 	request.send();
-		 	return request;
-		 },
-		 insertRoute : function(data, completed_func, failed_func, self) {
-
-		 	var data_json = qx.lang.Json.stringify(data);
-		 	this.debug(data);
-		 	var request = new qx.io.remote.Request(
-		 		"/routes/insert_route", "POST", "application/json");
-		 	request.setAsynchronous(!this.__sync);
-		 	request.setParseJson(true);
-		 	request.setParameter("data", data_json, true);
-		 	request.addListener("completed", completed_func, self);
-		 	request.addListener("failed", failed_func, self);
-		 	request.send();
-		 	return request;
-
-		 },
-
-		 updateRoute : function(data, completed_func, failed_func, self) {
-
-		 	var data_json = qx.lang.Json.stringify(data);
-		 	this.debug(data);
-		 	var request = new qx.io.remote.Request(
-		 		"/routes/update", "POST", "application/json");
-		 	request.setAsynchronous(!this.__sync);
-		 	request.setParseJson(true);
-		 	request.setParameter("data", data_json, true);
-		 	request.addListener("completed", completed_func, self);
-		 	request.addListener("failed", failed_func, self);
-		 	request.send();
-		 	return request;
-
-		 },
-
-		 removeRoute : function(route_id, completed_func, failed_func, self) {
-		 	var request = new qx.io.remote.Request(
-		 		"/routes/delete", "POST", "application/json");
-		 	request.setAsynchronous(!this.__sync);
-		 	request.setParseJson(true);
-		 	request.setParameter("route_id", route_id.toString(), true);
-		 	request.addListener("completed", completed_func, self);
-		 	request.addListener("failed", failed_func, self);
-		 	request.send();
-		 	return request;
-
-		 }
+ 		/**
+ 		 * Добавляет маршрут в БД. 
+ 		 * @param  routeModel {bus.admin.mvp.model.RouteModel}  Модель маршрута
+		 * @param  callback  {Function}  Функция вызывается после получения ответа сервера. 
+		 *                               Аргументом функции является объект типа {@link qx.io.remote.Response}.
+		 * @param  self      {Object}    Объект this для callback функции
+		 * @return {qx.io.remote.Request}  Объект управления запросом.
 		 */
+		 insert : function(routeModel,callback, self) {
+		 	var routeJson = qx.lang.Json.stringify(routeModel.toDataModel()); 
+		 	var request = new qx.io.remote.Request(this.__contextPath + "routes/insert", "POST", "application/json");
+		 	request.setRequestHeader("Content-Type", "application/json");
+			request.setAsynchronous(!this.__sync);
+		 	request.setParseJson(true);
+		 	request.setData(routeJson);
+		 	request.addListener("completed", callback, self);
+		 	request.addListener("failed", callback, self);
+		 	request.send();
+		 	return request;
+
+		 },
+
+		/**
+		 * Удаляет маршрут. В ответе от сервера содержится инфрмация об успешности операции.
+		 * @param  routeID {Integer}  ID маршрута.
+		 * @param  callback {Function}  Функция вызывается после получения ответа сервера. Аргументом функции является объект типа {@link qx.io.remote.Response}.
+		 * @param  self      {Object} Объект this для callback функции
+		 * @return {qx.io.remote.Request}  Объект управления запросом.
+		 */
+		 remove : function(routeID, callback, self) {
+		 	var request = new qx.io.remote.Request(this.__contextPath  + "routes/remove.json",	"POST", "application/json");
+		 	request.setAsynchronous(!this.__sync);
+		 	request.setParseJson(true);
+		 	request.setParameter("routeID", routeID, true);
+		 	request.addListener("completed", callback, self);
+		 	request.addListener("failed", callback, self);
+		 	request.send();
+		 	return request;
+		 }
 
 		}
 	});
