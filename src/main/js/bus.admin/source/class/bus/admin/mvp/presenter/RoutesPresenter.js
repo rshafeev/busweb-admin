@@ -100,6 +100,21 @@
        "insert_route" : "qx.event.type.Data",
 
       /**
+       * Событие наступает после удаления маршрута из БД.
+       * <br><br>Свойства возвращаемого объекта: <br>      
+       * <pre>
+       * <ul>
+       * <li> routeID         ID удаленного маршрута, Integer </li>
+       * <li> error           Наличие ошибки при выполнении события, Boolean. </li>
+       * <li> errorCode       Код ошибки, String. </li>
+       * <li> errorRemoteInfo Описание ошибки с сервера, String. </li>
+       * <li> sender          Объект, который вызвал триггер, Object </li>
+       * <ul>
+       * </pre>
+       */    
+       "remove_route" : "qx.event.type.Data",
+
+      /**
        * Событие наступает после выбора маршрута в таблице.
        * <br><br>Свойства возвращаемого объекта: <br>      
        * <pre>
@@ -203,13 +218,89 @@
  		},
 
  		members : {
-    /**
+       
+      /**
+       * Удаляет маршрут
+       * @param  routeID {bus.admin.mvp.model.RouteModel} Модель маршрута
+       * @param  callback {Function}   Callback функиця
+       * @param  sender {Object}       Объект, который вызвал триггер
+       */
+       removeRouteTrigger : function(routeID, callback, sender){
+
+         var state = this.getDataStorage().getState();
+
+         // Если страница находится в состоянии конструирования маршрута, то выходим.
+         if(state != "none"){
+          if(callback != undefined){
+            callback({error: true});
+          }
+          return;
+        }
+
+        var dataRequest =  new bus.admin.net.DataRequest();
+        dataRequest.Routes().remove(routeID, function(responce){
+          var data = responce.getContent();
+          this.debug("Routes: remove(): received route`s data");
+          console.debug(data);
+          var args ={};
+
+          if(data == null || data.error != null)
+          {
+            args = {
+              route : routeID,
+              error  : true,
+              errorCode : data.error != undefined ? data.error.code : "req_err",
+              errorRemoteInfo :  data.error != undefined ? data.error.info : null
+            };
+          }
+          else
+          {
+            var routeModel = new bus.admin.mvp.model.RouteModel(data);
+            var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
+
+            args = {
+              routeID : routeID,
+              error  :  false,
+              sender : sender
+            };
+            // Обновим список маршрутов
+            var routesList = this.getDataStorage().getRoutesListModel();
+            if(routesList != undefined){
+              routesList.remove(routeID);
+            }
+
+            // Оповестим слушателей об удалении маршрута
+            this.fireDataEvent("remove_route", args);
+
+            // Если удаленный маршрут является текущим, уберем его.
+            var route = this.getDataStorage().getSelectedRoute();
+            if(route != undefined && route.getId() == routeID){
+              var selectedArgs = {
+                error  :  false,
+                sender : sender,
+                route : null,
+                prevRoute : route
+              };
+              this.getDataStorage().setSelectedRoute(null);
+              this.fireDataEvent("select_route", selectedArgs);
+            }
+          }
+          
+          if(callback != undefined)
+            callback(args);
+        },this);
+        // exit
+        return;
+      },
+
+      /**
        * Добавляет новый маршрут
        * @param  routeModel {bus.admin.mvp.model.RouteModel} Модель маршрута
        * @param  callback {Function}   Callback функиця
        * @param  sender {Object}       Объект, который вызвал триггер
        */
        insertRouteTrigger : function(routeModel, callback, sender){
+
          var state = this.getDataStorage().getState();
 
          // Если страница находится в состоянии конструирования маршрута, то выходим.
@@ -264,15 +355,15 @@
               sender : sender,
               route : routeModel
             };
-            var prevRoute = self.getDataStorage().getSelectedRoute();
+            var prevRoute = this.getDataStorage().getSelectedRoute();
             if(prevRoute != undefined)
               selectedArgs.prevRoute = prevRoute.clone();
             else
               selectedArgs.prevRoute = null;
             selectedArgs.centering_map = true;
             if(args.error == false){
-              self.getDataStorage().setSelectedRoute(routeModel);
-              self.fireDataEvent("select_route", selectedArgs);
+              this.getDataStorage().setSelectedRoute(routeModel);
+              this.fireDataEvent("select_route", selectedArgs);
             }
           }
           
@@ -524,7 +615,7 @@
        }
        else
        {
-        var routesListModel = new bus.admin.mvp.model.RoutesListModel(data.routesList);
+        var routesListModel = new bus.admin.mvp.model.RoutesListModel(data);
         this.getDataStorage().setSelectedCityID(cityID);
         this.getDataStorage().setSelectedRouteTypeID(routeTypeID);
         this.getDataStorage().setRoutesListModel(routesListModel);
@@ -858,9 +949,10 @@
           var currRoute = this.getDataStorage().getSelectedRoute();
           console.debug(currRoute.toDataModel());
           if(currRoute.getId() > 0){
-
             this.updateRouteTrigger(currRoute, update_callback);
-          }
+          }else
+          this.insertRouteTrigger(currRoute, update_callback);
+
         }
         else {
           this.__cancelMakeRoute(callback, sender);

@@ -14,6 +14,7 @@
 
 /**
  * @ignore(alert)
+ * @ignore(confirm)
  * @lint ignoreDeprecated(alert) 
  */
 
@@ -52,6 +53,15 @@ qx.Class.define("bus.admin.widget.MsgDlg",
        */
       error : function(message, caption){
          alert(message);
+      },
+
+      /**
+       * Confirm сообщение
+       * @param  message {String}  Текст сообщения 
+       * @return {Boolean}    Yes/no
+       */
+      confirm : function(message){
+        return confirm(message);
       }
   },
 

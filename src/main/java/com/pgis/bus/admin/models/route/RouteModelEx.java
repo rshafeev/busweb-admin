@@ -60,6 +60,8 @@ public class RouteModelEx implements Serializable {
 	 */
 	private RouteWayModelEx reverseWay;
 
+	private boolean visible;
+
 	public RouteModelEx() {
 
 	}
@@ -76,7 +78,7 @@ public class RouteModelEx implements Serializable {
 		this.numberKey = route.getNumberKey();
 		this.directWay = new RouteWayModelEx(route.getDirectRouteWay());
 		this.reverseWay = new RouteWayModelEx(route.getReverseRouteWay());
-
+		this.visible = route.isVisible();
 	}
 
 	public Integer getId() {
@@ -135,6 +137,14 @@ public class RouteModelEx implements Serializable {
 		this.reverseWay = reverseWay;
 	}
 
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+
 	public Route toORMObject() {
 		Route route = new Route();
 		route.setId(id);
@@ -143,6 +153,7 @@ public class RouteModelEx implements Serializable {
 		route.setCost(cost);
 		route.setNumberKey(this.numberKey);
 		route.setNumber(StringValueModel.createORMObjects(this.number));
+		route.setVisible(this.visible);
 		try {
 			if (this.directWay != null) {
 				RouteWay dWay = this.directWay.toORMObject();

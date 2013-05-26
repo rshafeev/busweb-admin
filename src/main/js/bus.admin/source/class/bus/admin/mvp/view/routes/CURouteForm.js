@@ -61,10 +61,16 @@
  		 __routeModel : null,
 
  		 /**
- 		  * Использовать транслит.
+ 		  * Checkbox: Использовать транслит?
  		  * @type {qx.ui.form.CheckBox}
  		  */
  		  __ckeckTranslit : null,
+
+ 		 /**
+ 		  * Checkbox: True: маршрут виден пользователю и добавлен к  транспортному графу
+ 		  * @type {qx.ui.form.CheckBox}
+ 		  */
+ 		  __checkVisible : null,
 
  		  /**
  		   * Поле ввода номера маршрута(Используется транслитерация, т.е. при вводе номера в данное поле производится транслит номера на все языки)
@@ -170,19 +176,19 @@
  		  * Обработчик изменения номера маршрута (транслитерация)
  		  * @param e {qx.event.type.Event} Объект события.
  		  */
- 		 __onChangedEditNumber : function(e){
- 		 	var numb = this.__editNumber.getValue();
+ 		  __onChangedEditNumber : function(e){
+ 		  	var numb = this.__editNumber.getValue();
 
- 		 	var rowsData = this.__tableNumbers.getTableModel().getData();
+ 		  	var rowsData = this.__tableNumbers.getTableModel().getData();
 
- 		 	for (var i = 0; i < rowsData.length; i++) {
- 		 		var langID = rowsData[i][0];
- 		 		var number = bus.admin.helpers.LanguageHelper.translitToLang(numb, langID);
- 		 		this.__tableNumbers.getTableModel().setValue(2, i, number);
- 		 	}	
+ 		  	for (var i = 0; i < rowsData.length; i++) {
+ 		  		var langID = rowsData[i][0];
+ 		  		var number = bus.admin.helpers.LanguageHelper.translitToLang(numb, langID);
+ 		  		this.__tableNumbers.getTableModel().setValue(2, i, number);
+ 		  	}	
 
 
- 		 },
+ 		  },
 
  		/**
  		 * Создает дочерние виджеты
@@ -192,6 +198,11 @@
 
  		 	var mainSettings = new qx.ui.groupbox.GroupBox(this.tr("Main info"));
  		 	mainSettings.setLayout(new qx.ui.layout.Canvas());
+
+ 		 	if (this.__isChangeDlg == true) {
+ 		 		this.__checkVisible = new qx.ui.form.CheckBox(this.tr("Visible"));
+ 		 		mainSettings.add(this.__checkVisible, { left : 5, top : 210 });
+ 		 	}
 
  		 	this.__ckeckTranslit = new qx.ui.form.CheckBox(this.tr("Translit"));
  		 	this.__ckeckTranslit.addListener("changeValue", this.__onCkeckTranslit, this);
@@ -241,72 +252,73 @@
  		 		this.__editFrequency = new qx.ui.form.TextField("15");
  		 		this.__editFrequency.setWidth(80);
 
-				timeSettings.add(labelTimeA, {
-					left : 10,
-					top : 10
-				});
-				timeSettings.add(this.__editTimeA, {
-					left : 110,
-					top : 10
-				});
-				timeSettings.add(labelTimeB, {
-					left : 10,
-					top : 50
-				});
-				timeSettings.add(this.__editTimeB, {
-					left : 110,
-					top : 50
-				});
+ 		 		timeSettings.add(labelTimeA, {
+ 		 			left : 10,
+ 		 			top : 10
+ 		 		});
+ 		 		timeSettings.add(this.__editTimeA, {
+ 		 			left : 110,
+ 		 			top : 10
+ 		 		});
+ 		 		timeSettings.add(labelTimeB, {
+ 		 			left : 10,
+ 		 			top : 50
+ 		 		});
+ 		 		timeSettings.add(this.__editTimeB, {
+ 		 			left : 110,
+ 		 			top : 50
+ 		 		});
 
-				timeSettings.add(labelFreq, {
-					left : 10,
-					top : 90
-				});
-				timeSettings.add(this.__editFrequency, {
-					left : 110,
-					top : 90
-				});
-				this.__checkSameWays = new qx.ui.form.CheckBox("Same ways");
-				this.__checkSameWays.setValue(false);
-
-				
-				this.add(timeSettings, {
-					left : 280,
-					top : -10
-				});
-				
-				this.add(this.__checkSameWays, {
-					left : 300,
-					top : 170
-				});
-
-			}
-
-			this.add(mainSettings, {
-				left : 0,
-				top : -10
-			});
+ 		 		timeSettings.add(labelFreq, {
+ 		 			left : 10,
+ 		 			top : 90
+ 		 		});
+ 		 		timeSettings.add(this.__editFrequency, {
+ 		 			left : 110,
+ 		 			top : 90
+ 		 		});
+ 		 		this.__checkSameWays = new qx.ui.form.CheckBox("Same ways");
+ 		 		this.__checkSameWays.setValue(false);
 
 
-			this.add(this.__btnSave, {
-				left : 110,
-				top : 230
-			});
-			this.add(this.__btnCancel, {
-				left : 220,
-				top : 230
-			});
+ 		 		this.add(timeSettings, {
+ 		 			left : 280,
+ 		 			top : -10
+ 		 		});
 
-		},
+ 		 		this.add(this.__checkSameWays, {
+ 		 			left : 300,
+ 		 			top : 170
+ 		 		});
+
+ 		 	}
+
+ 		 	this.add(mainSettings, {
+ 		 		left : 0,
+ 		 		top : -10
+ 		 	});
+
+
+ 		 	this.add(this.__btnSave, {
+ 		 		left : 110,
+ 		 		top : 275
+ 		 	});
+ 		 	this.add(this.__btnCancel, {
+ 		 		left : 220,
+ 		 		top : 275
+ 		 	});
+
+ 		 },
 
 		/**
 		 * Установка опций формы и дочерних виджетов
 		 */
 		 __setOptions : function() {
-		 	this.setHeight(330);
+		 	this.setHeight(360);
 		 	if (this.__isChangeDlg == true) {
 		 		this.setWidth(350);
 		 		this.setCaption("Change route");
+		 		this.__checkVisible.setValue(this.__routeModel.getVisible());
 		 		this.__editCost.setValue(this.__routeModel.getCost().toString());
 		 	} else {
 		 		this.setWidth(550);
@@ -377,6 +389,7 @@
 		  */
 		  __saveIntoEditRouteMode : function(){
 		  	var self = this;
+		  	this.__routeModel.setVisible(this.__checkVisible.getValue());
 		  	qx.core.Init.getApplication().setWaitingWindow(true);
 		  	var callback = function(args){
 		  		qx.core.Init.getApplication().setWaitingWindow(false);

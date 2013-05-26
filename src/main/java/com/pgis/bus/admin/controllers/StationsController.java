@@ -47,7 +47,7 @@ public class StationsController extends BaseController {
 			return model;
 		} catch (Exception e) {
 			log.error("getStationsByCity exception", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}
@@ -71,7 +71,7 @@ public class StationsController extends BaseController {
 			return model;
 		} catch (SQLException e) {
 			log.error("getAllByCityInBox exception", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}
@@ -93,7 +93,7 @@ public class StationsController extends BaseController {
 			return model;
 		} catch (Exception e) {
 			log.error("getAllByCityInBox exception", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}
@@ -116,7 +116,7 @@ public class StationsController extends BaseController {
 			if (db != null)
 				db.rollback();
 			log.error("insert exception", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}
@@ -140,7 +140,7 @@ public class StationsController extends BaseController {
 			if (db != null)
 				db.rollback();
 			log.error("update exception", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}
@@ -164,7 +164,7 @@ public class StationsController extends BaseController {
 			if (db != null)
 				db.rollback();
 			log.error("delete exception", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}

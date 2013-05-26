@@ -31,7 +31,7 @@ public class LangsController extends BaseController {
 			log.debug("request: langs/get_all.json");
 			return langs;
 		} catch (Exception e) {
-			return new ErrorModel(e);
+			return new ErrorModel();
 		}
 
 	}

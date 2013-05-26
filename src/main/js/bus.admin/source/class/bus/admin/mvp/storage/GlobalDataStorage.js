@@ -177,6 +177,21 @@
           		break;
           	}
           	return dayName;
+          },
+
+          /**
+           * Возвращает название типа маршрута в текущей локали для указанного ID типа маршрута
+           * @param  routeTypeID {String}  ID типа маршрута. Возможные значения: bus, metro, ...
+           * @return {String|null}   Название типа маршрута. null - Не был найден тип маршрута с переданным routeTypeID
+           */
+          getRouteTypeNameByID : function(routeTypeID){
+            var rTypes = this.getRouteTypes();
+            for(var i=0;i < rTypes.length; i++){
+              if( rTypes[i].id == routeTypeID){
+                return  rTypes[i].name;
+              }
+            }
+            return null;
           }
         }
       });

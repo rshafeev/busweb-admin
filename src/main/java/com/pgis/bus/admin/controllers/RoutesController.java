@@ -1,5 +1,7 @@
 package com.pgis.bus.admin.controllers;
 
+import java.util.Collection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -11,8 +13,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pgis.bus.admin.controllers.exp.ControllerException;
+import com.pgis.bus.admin.controllers.exp.ControllerException.errorsList;
+import com.pgis.bus.admin.controllers.exp.RoutesExceptionHandler;
 import com.pgis.bus.admin.models.ErrorModel;
 import com.pgis.bus.admin.models.route.RouteModelEx;
+import com.pgis.bus.admin.models.route.RoutesListModelEx;
 import com.pgis.bus.data.orm.Route;
 import com.pgis.bus.data.orm.type.LangEnum;
 import com.pgis.bus.data.service.IDataBaseService;
@@ -32,16 +38,16 @@ public class RoutesController extends BaseController {
 	public Object getRoutesList(Integer cityID, String routeTypeID, String langID) {
 		try {
 			log.debug("execute action getRoutesList({},{},{})", new Object[] { cityID, routeTypeID, langID });
-
-			IDataModelsService modelsService = super.getModelsService();
-			modelsService.setLocale(LangEnum.valueOf(LangEnumModel.valueOf(langID)));
-			RoutesListModel model = modelsService.Routes().getRoutesList(cityID,
-					RouteTypeModel.getDBRouteType(routeTypeID));
+			LangEnum lang = LangEnum.valueOf(LangEnumModel.valueOf(langID));
+			String routeType = RouteTypeModel.getDBRouteType(routeTypeID);
+			IDataBaseService dbService = super.getDbService();
+			Collection<Route> routes = dbService.Routes().getAll(lang, cityID, routeType);
+			RoutesListModelEx model = new RoutesListModelEx(routes, lang);
 			return model;
 
 		} catch (Exception e) {
 			log.error("getRoutesList() error.", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}
@@ -54,14 +60,17 @@ public class RoutesController extends BaseController {
 		try {
 			log.debug("execute action get({})", new Object[] { routeID });
 			if (routeID == null)
-				throw new Exception("can not convert routeID from json to string");
+				throw new ControllerException(" parameter 'routeID' is empty", errorsList.imputParams);
 			Route route = this.getDbService().Routes().get(routeID);
+			if (route == null)
+				throw new ControllerException("Route with input id is not exist", errorsList.not_exist);
 			RouteModelEx model = new RouteModelEx(route);
 			return model;
-
 		} catch (Exception e) {
 			log.error("get exception", e);
-			return new ErrorModel(e);
+			RoutesExceptionHandler handler = new RoutesExceptionHandler(e);
+			handler.handleGet();
+			return handler.makeModel();
 		} finally {
 			super.release();
 		}
@@ -75,13 +84,15 @@ public class RoutesController extends BaseController {
 		try {
 			Route ormRoute = routeModel.toORMObject();
 			db.Routes().insert(ormRoute);
+			RouteModelEx route = new RouteModelEx(ormRoute);
 			db.commit();
-			return new RouteModelEx(ormRoute);
-
+			return route;
 		} catch (Exception e) {
 			db.rollback();
 			log.error("insert exception", e);
-			return new ErrorModel(e);
+			RoutesExceptionHandler handler = new RoutesExceptionHandler(e);
+			handler.handleGet();
+			return handler.makeModel();
 		} finally {
 			super.release();
 		}
@@ -95,8 +106,10 @@ public class RoutesController extends BaseController {
 		IDataBaseService db = super.getDbService();
 		try {
 
-			if (routeID == null || routeID.intValue() <= 0)
-				throw new Exception("request error: bad routeID");
+			if (routeID == null)
+				throw new ControllerException(" parameter 'routeID' is empty", errorsList.imputParams);
+			if (routeID.intValue() <= 0)
+				throw new ControllerException(" bad value of parameter 'routeID'", errorsList.imputParams);
 			// удалим маршрут из БД
 			db.Routes().remove(routeID);
 			db.commit();
@@ -104,7 +117,7 @@ public class RoutesController extends BaseController {
 		} catch (Exception e) {
 			db.rollback();
 			log.error("delete exception", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}
@@ -152,7 +165,7 @@ public class RoutesController extends BaseController {
 		} catch (Exception e) {
 			db.rollback();
 			log.error("update exception", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}

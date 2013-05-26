@@ -28,8 +28,10 @@
  		this.__initWidgets();
 
  		presenter.addListener("load_routes_list", this.__onLoadRoutesList, this);
+ 		presenter.addListener("insert_route", this.__onInsertRoute, this);
  		presenter.addListener("select_route", this.__onSelectRoute, this);
  		presenter.addListener("update_route", this.__onUpdateRoute, this);
+ 		presenter.addListener("remove_route", this.__onRemoveRoute, this);
  		presenter.addListener("change_state", this.__onChangeState, this);
  		
  	},
@@ -80,16 +82,40 @@
  		   __btnSave : null,
 
  		  /**
+ 		   * Кнопка запуска процесса реконструирования маршрута (с последующим переводом страницы с состояние "make").
+ 		   * @type {qx.ui.form.Button}
+ 		   */
+ 		   __btnRemodelRoute : null,
+
+ 		  /**
  		   * Кнопка для прекращения процесса конструирования маршута.
  		   * @type {qx.ui.form.Button}
  		   */
  		   __btnСancel : null,
 
- 		   __mainContainer : null,
- 		   __scrollContainer : null,
- 		   btn_import : null,
- 		   __btnRemodelRoute : null,
- 		   btn_delete : null,
+ 	 	  /**
+ 		   * Кнопка для вызова диалогового окна для импортирования маршрутов из  файла или БД в формате json.
+ 		   * @type {qx.ui.form.Button}
+ 		   */	   
+ 		   __btnImport : null,
+ 		   
+  	 	  /**
+ 		   * Кнопка удаления маршрута.
+ 		   * @type {qx.ui.form.Button}
+ 		   */
+ 		   __btnDelete : null,
+
+ 		   /**
+ 		    * Контейнер дочерних виджетов.
+ 		    * @type {qx.ui.container.Composite}
+ 		    */
+ 		    __mainContainer : null,
+
+ 		   /**
+ 		    * Полоса прокрутки
+ 		    * @type {qx.ui.container.Scroll}
+ 		    */
+ 		    __scrollContainer : null,
 
 		 /**
 		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#select_route select_route} вызывается при выборе 
@@ -118,28 +144,28 @@
 		  */
 		  __setState : function(state){
 		  	var routeModel = this.__presenter.getDataStorage().getSelectedRoute();
+		  	this.__btnImport.setVisibility("hidden");
 		  	if(state == "none"){
 		  		if(routeModel == null){
-		  			this.btn_import.setEnabled(false);
+		  			//this.__btnImport.setEnabled(true);
 		  			this.__btnEdit.setEnabled(false);
 		  			this.__btnRemodelRoute.setEnabled(false);
-		  			this.btn_delete.setEnabled(false);
-
+		  			this.__btnDelete.setEnabled(false);
 		  		}else{
 		  			this.__btnNew.setEnabled(true);
-		  			this.btn_import.setEnabled(true);
+		  			//this.__btnImport.setEnabled(true);
 		  			this.__btnEdit.setEnabled(true);
 		  			this.__btnRemodelRoute.setEnabled(true);
-		  			this.btn_delete.setEnabled(true);
+		  			this.__btnDelete.setEnabled(true);
 		  		}
 		  		this.__tableRoutes.setEnabled(true);
 		  		this.__btnSave.setVisibility("hidden");
 		  		this.__btnСancel.setVisibility("hidden");
 		  		this.__btnNew.setVisibility("visible");
-		  		this.btn_import.setVisibility("visible");
+		  		//this.__btnImport.setVisibility("visible");
 		  		this.__btnEdit.setVisibility("visible");
 		  		this.__btnRemodelRoute.setVisibility("visible");
-		  		this.btn_delete.setVisibility("visible");
+		  		this.__btnDelete.setVisibility("visible");
 		  	} 
 
 		  	if(state == "make"){
@@ -147,23 +173,23 @@
 		  		this.__btnSave.setVisibility("visible");
 		  		this.__btnСancel.setVisibility("visible");
 		  		this.__btnNew.setVisibility("hidden");
-		  		this.btn_import.setVisibility("hidden");
+		  		//this.__btnImport.setVisibility("hidden");
 		  		this.__btnEdit.setVisibility("hidden");
 		  		this.__btnRemodelRoute.setVisibility("hidden");
-		  		this.btn_delete.setVisibility("hidden");
+		  		this.__btnDelete.setVisibility("hidden");
 		  	}
 
 		  },
 
 		 /**
-		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#update_route update_route} вызывается при выборе 
-		 * пользователем маршрута.
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#update_route update_route} вызывается при изменении 
+		 * маршрута.
 		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
 		 */
 		 __onUpdateRoute : function (e){
 		 	this.debug("execute __onUpdateRoute() event handler");
 		 	var route = e.getData().requestRoute;
-		 	var rowIndex = this._getTableRowIndexByRouteID(route.getId());
+		 	var rowIndex = this.__getTableRowIndexByRouteID(route.getId());
 		 	if(rowIndex < 0){
 		 		return;
 		 	}
@@ -172,6 +198,39 @@
 		 	tableModel.setValue(0, rowIndex, route.getId());
 		 	tableModel.setValue(1, rowIndex, route.getNumber(langID));
 		 	tableModel.setValue(2, rowIndex, route.getCost());
+		 	tableModel.setValue(3, rowIndex, route.getVisible().toString());
+		 },
+
+		 /**
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#insert_route insert_route} вызывается при добавлении 
+		 * нового маршрута.
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 __onInsertRoute : function (e){
+		 	this.debug("execute __onInsertRoute() event handler");
+		 	var route = e.getData().route;
+		 	var rowsData = this.__tableRoutes.getTableModel().getData();
+		 	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
+		 	rowsData.push([route.getId(), route.getNumber(langID), route.getCost(), route.getVisible().toString()]);
+		 	this.__tableRoutes.getTableModel().setData(rowsData);
+		 },
+
+		 /**
+		 * Обработчик события  {@link bus.admin.mvp.presenter.RoutesPresenter#remove_route remove_route} вызывается при удалении 
+		 * маршрута.
+		 * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+		 */
+		 __onRemoveRoute : function (e){
+		 	this.debug("execute __onRemoveRoute() event handler");
+		 	var routeID = e.getData().routeID;
+		 	var rowIndex = this.__getTableRowIndexByRouteID(routeID);
+		 	if(rowIndex < 0){
+		 		return;
+		 	}
+		 	var rowsData = this.__tableRoutes.getTableModel().getData();
+		 	var langID = qx.core.Init.getApplication().getDataStorage().getLocale();
+		 	rowsData.splice(rowIndex, 1);
+		 	this.__tableRoutes.getTableModel().setData(rowsData);
 		 },
 
 
@@ -196,35 +255,31 @@
 			this.__btnNew.addListener("execute", this._onClickBtnNew, this);
 
 
-			this.btn_import = new qx.ui.form.Button(this.tr("Import..."),
-				"bus/admin/images/btn/go-bottom.png");
-			this.btn_import.setWidth(105);
-			
-			this.__btnEdit = new qx.ui.form.Button(this.tr("Edit..."),
-				"bus/admin/images/btn/go-bottom.png");
+			this.__btnImport = new qx.ui.form.Button(this.tr("Import..."),	"bus/admin/images/btn/go-bottom.png");
+			this.__btnImport.setWidth(105);
+			this.__btnImport.addListener("execute", this.__onBtnImport, this);
+
+			this.__btnEdit = new qx.ui.form.Button(this.tr("Edit..."), "bus/admin/images/btn/go-bottom.png");
 			this.__btnEdit.setWidth(105);
 			this.__btnEdit.addListener("execute", this.__onClickBtnEdit, this);
 
 
-			this.__btnRemodelRoute = new qx.ui.form.Button(this.tr("Remodel"),
-				"bus/admin/images/btn/utilities-text-editor.png");
+			this.__btnRemodelRoute = new qx.ui.form.Button(this.tr("Remodel"),	"bus/admin/images/btn/utilities-text-editor.png");
 			this.__btnRemodelRoute.setWidth(105);
 			this.__btnRemodelRoute.addListener("execute", this.__onBtnRemodelRoute, this);
 
 
-			this.btn_delete = new qx.ui.form.Button(this.tr("Delete"),
-				"bus/admin/images/btn/edit-delete.png");
-			this.btn_delete.setWidth(105);
+			this.__btnDelete = new qx.ui.form.Button(this.tr("Delete"),	"bus/admin/images/btn/edit-delete.png");
+			this.__btnDelete.setWidth(105);
+			this.__btnDelete.addListener("execute", this.__onBtnDelete, this);
 
-			this.__btnSave = new qx.ui.form.Button(this.tr("Save"),
-				"bus/admin/images/btn/dialog-apply.png");
+			this.__btnSave = new qx.ui.form.Button(this.tr("Save"),	"bus/admin/images/btn/dialog-apply.png");
 			this.__btnSave.setWidth(105);
 			this.__btnSave.setVisibility("hidden");
 			this.__btnSave.addListener("execute", this.__onClickBtnSave, this);
 			
 
-			this.__btnСancel = new qx.ui.form.Button(this.tr("Cancel"),
-				"bus/admin/images/btn/dialog-cancel.png");
+			this.__btnСancel = new qx.ui.form.Button(this.tr("Cancel"),	"bus/admin/images/btn/dialog-cancel.png");
 			this.__btnСancel.setWidth(105);
 			this.__btnСancel.setVisibility("hidden");
 			this.__btnСancel.addListener("execute", this.__onBtnСancel, this);
@@ -232,7 +287,8 @@
 			// add widgets
 			var filterLabel = new qx.ui.basic.Label(this.tr("Filter:"));
 			this.__filterField = new qx.ui.form.TextField();
-
+			this.__filterField.addListener("changeValue", this.__onChangeFilterField, this);
+			
 			this.__tableRoutes = this.__createRoutesTable();
 
 			this.__mainContainer.add(filterLabel, {
@@ -253,10 +309,10 @@
 			this.__mainContainer.add(this.__btnSave);
 			this.__mainContainer.add(this.__btnСancel);
 			this.__mainContainer.add(this.__btnNew);
-			this.__mainContainer.add(this.btn_import);
+			this.__mainContainer.add(this.__btnImport);
 			this.__mainContainer.add(this.__btnEdit);
 			this.__mainContainer.add(this.__btnRemodelRoute);
-			this.__mainContainer.add(this.btn_delete);
+			this.__mainContainer.add(this.__btnDelete);
 
 			this.__routeTabsView = new bus.admin.mvp.view.routes.tabs.RouteTabsView(this.__presenter);
 
@@ -272,12 +328,8 @@
 				height : "100%"
 			});
 
-			this.__filterField.addListener("changeValue", this.__onChangeFilterField, this);
+			
 
-			/*
-			this.btn_import.addListener("execute", this.on_btn_import, this);
-			this.btn_delete.addListener("execute", this.on_btn_delete, this);
-			*/
 		},
 
 		/**
@@ -286,10 +338,12 @@
 		 __createRoutesTable : function() {
 			// table model
 			var tableModel = new qx.ui.table.model.Filtered();
-			tableModel.setColumns(["ID", "Number", "Cost"]);
+			tableModel.setColumns(["ID", "Number", "Cost", "Visible"]);
 			tableModel.setColumnEditable(0, false);
 			tableModel.setColumnEditable(1, false);
 			tableModel.setColumnEditable(2, false);
+			tableModel.setColumnEditable(3, false);
+
 
 			// table
 			var routesTable = new qx.ui.table.Table(tableModel).set({
@@ -297,7 +351,10 @@
 			});
 			routesTable.setBackgroundColor('white');
 			routesTable.setStatusBarVisible(false);
-
+			routesTable.setColumnWidth(0, 65);
+			routesTable.setColumnWidth(1, 75);
+			routesTable.setColumnWidth(2, 45);
+			routesTable.setColumnWidth(3, 60);
 			routesTable.setHeight(150);
 
 			return routesTable;
@@ -325,7 +382,7 @@
  		 	var routes = routesList.getAll();
  		 	this.__tableRoutes.removeListener("cellClick",	this.__onClickTableRoutes, this);
  		 	for(var i = 0; i <  routes.length; i++){
- 		 		rowsData.push([routes[i].getId(), routes[i].getNumber(), routes[i].getCost()]);
+ 		 		rowsData.push([routes[i].getId(), routes[i].getNumber(), routes[i].getCost(), routes[i].getVisible().toString()]);
  		 	}
  		 	this.__tableRoutes.getTableModel().setData(rowsData);
  		 	this.__tableRoutes.addListener("cellClick",	this.__onClickTableRoutes, this);
@@ -386,20 +443,20 @@
  		  		this.__btnNew.setUserBounds(
  		  			this.__mainContainer.getBounds().width - 110, 50,
  		  			this.__btnNew.getBounds().width, this.__btnNew.getBounds().height);
- 		  		this.btn_import.setUserBounds(
- 		  			this.__mainContainer.getBounds().width - 110, 85,
- 		  			this.btn_import.getBounds().width, this.btn_import.getBounds().height);
-
  		  		this.__btnEdit.setUserBounds(
- 		  			this.__mainContainer.getBounds().width - 110, 120,
+ 		  			this.__mainContainer.getBounds().width - 110, 85,
  		  			this.__btnEdit.getBounds().width, this.__btnEdit.getBounds().height);
- 		  		this.__btnRemodelRoute.setUserBounds(
- 		  			this.__mainContainer.getBounds().width - 110, 155,
- 		  			this.__btnRemodelRoute.getBounds().width, this.__btnRemodelRoute.getBounds().height);
 
- 		  		this.btn_delete.setUserBounds(
+ 		  		this.__btnRemodelRoute.setUserBounds(
+ 		  			this.__mainContainer.getBounds().width - 110, 120,
+ 		  			this.__btnRemodelRoute.getBounds().width, this.__btnRemodelRoute.getBounds().height);
+ 		  		this.__btnDelete.setUserBounds(
+ 		  			this.__mainContainer.getBounds().width - 110, 155,
+ 		  			this.__btnDelete.getBounds().width, this.__btnDelete.getBounds().height);
+
+ 		  		this.__btnImport.setUserBounds(
  		  			this.__mainContainer.getBounds().width - 110, 190,
- 		  			this.btn_delete.getBounds().width, this.btn_delete.getBounds().height);
+ 		  			this.__btnImport.getBounds().width, this.__btnImport.getBounds().height);
 
  		  	}
  		  	if (this.__routeTabsView != null) {
@@ -448,7 +505,7 @@
  		 	var callback = function(args){
  		 		qx.core.Init.getApplication().setWaitingWindow(false);
  		 		if(args.error == true){
- 		 			bus.admin.widget.MsgDlg.error(self.tr("Error"), self.tr("Can not save route. Please, check input data and try again."));
+ 		 			bus.admin.widget.MsgDlg.error(self.tr("Can not save route. Please, check input data and try again."));
  		 			return;
  		 		}
  		 	};
@@ -489,7 +546,7 @@
 		 * @param  id {Integer}  ID маршрута
 		 * @return {Integer}    Номер строки
 		 */
-		 _getTableRowIndexByRouteID : function(id) {
+		 __getTableRowIndexByRouteID : function(id) {
 		 	var tableModel = this.__tableRoutes.getTableModel();
 		 	for (var i = 0; i < tableModel.getRowCount(); i++) {
 		 		var rowData = tableModel.getRowDataAsMap(i);
@@ -500,57 +557,43 @@
 		 	return -1;
 		 },
 
+		 /**
+		  * Обработчик нажатия на кнопку вызова диалогового окна импортирования маршрутов
+		  */
+		  __onBtnImport : function(){
+		  	var presenter = this.__presenter;
+		  	var routeType = this.__presenter.getDataStorage().getSelectedRouteTypeID();
+		  	var city = this.__presenter.getDataStorage().getSelectedCity();
+		  	var importForm = new bus.admin.mvp.view.routes.ImportRouteForm(presenter, routeType, city);
+		  	importForm.open();
+		  },
 
-//*******************************************************************************************************
-
-
-
-
-
-
-
-on_btn_import : function(e){
-	var p = this._routesPage.getPresenter();
-	var routeType = this._routesLeftPanel.getRouteType();
-	var city = this._routesPage.getCurrentCityModel();
-	var importForm = new bus.admin.mvp.view.routes.ImportRouteForm(p,routeType,city);
-	importForm.open();
-},
-
-
-
-
-on_btn_delete : function(e) {
-
-	var row = this.__tableRoutes.getSelectionModel()
-	.getAnchorSelectionIndex();
-	if (row < 0)
-		return;
-	var rowData = this.__tableRoutes.getTableModel()
-	.getRowDataAsMap(row);
-	var T = this;
-	if (confirm(this
-		.tr('Are you shue that want to delete selected route?'))) {
-		qx.core.Init.getApplication().setWaitingWindow(true);
-	var event_finish_func = qx.lang.Function.bind(function(data) {
-		qx.core.Init.getApplication()
-		.setWaitingWindow(false);
-	}, T);
-
-	T._routesPage.getPresenter().removeRoute(rowData.ID,
-		event_finish_func);
-} else {
-}
-
-}
+		  /**
+		   * Обработчик нажатия на кнопку удаления маршрута
+		   */
+		   __onBtnDelete : function() {
+		   	var row = this.__tableRoutes.getSelectionModel().getAnchorSelectionIndex();
+		   	if (row < 0)
+		   		return;
+		   	var rowData = this.__tableRoutes.getTableModel().getRowDataAsMap(row);
+		   	var routeID = rowData.ID;
+		   	if(routeID == undefined || routeID <= 0 )
+		   		return;
+		   	if(bus.admin.widget.MsgDlg.confirm(this.tr('Are you shue that want to delete selected route?')) == true){
+		   		qx.core.Init.getApplication().setWaitingWindow(true);
+		   		var callback = function(args){
+		   			qx.core.Init.getApplication().setWaitingWindow(false);
+		   			if(args.error == true){
+		   				bus.admin.widget.MsgDlg.error(self.tr("Can not delete route. Please, try again."));
+		   				return;
+		   			}
+		   		};
+		   		this.__presenter.removeRouteTrigger(routeID, callback, this);
+		   	}
 
 
+		   }
 
+		}
 
-
-
-
-
-}
-
-});
+	});

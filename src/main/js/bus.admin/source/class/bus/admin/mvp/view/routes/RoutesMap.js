@@ -244,7 +244,7 @@
 		   	var marker = this.__markers[stationModel.getId()];
 		   	if(marker != undefined && marker.get("type") == "prepared"){
 		   		this.debug("__drawPreparedStation(): return;");
-		   		return;
+		   		return marker;
 		   	}
 		   	
 		   	var options = {
@@ -311,13 +311,13 @@
 		   	if(marker == undefined && stationModel.getId() > 0){
 		   		marker = this.__drawFreeStation(stationModel, options);
 		   	}else
-		   	if(marker == undefined){
+		   	if( stationModel.getId() <= 0 ){
 		   		marker = this.__drawPreparedStation(stationModel);
 		   	}else{
 		   		marker.setOptions(options);
 		   	}
 		   	marker.set("type", "route");
-		   	
+		   	return marker;
 		   },
 
 
@@ -566,9 +566,7 @@
 		 __onChangeDirection : function(e){
 		 	this.debug("execute __onChangeDirection() event handler");
 		 	
-		 	// Отрисуем все "prepared" станции
-		 	this.__drawPreparedStations();
-
+		 	
 		 	// Все станции старого пути сделаем "free"
 		 	for(var id in this.__markers){
 		 		var m = this.__markers[id];
@@ -576,6 +574,10 @@
 		 			this.__drawFreeStation(m.get("station"));
 		 		}
 		 	}
+
+		 	// Отрисуем все "prepared" станции
+		 	this.__drawPreparedStations();
+
 
 		 	// Отрисуем текущий путь
 		 	var wayModel =  this.__presenter.getDataStorage().getSelectedWay();

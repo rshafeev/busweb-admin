@@ -49,35 +49,11 @@
  	 	 	check : "String"
  	 	 },
 
- 	 	 startWork : {
- 	 	 	nullable : true,
- 	 	 	check : "bus.admin.mvp.model.TimeIntervalModel"
- 	 	 },
-
- 	 	 finishWork : {
- 	 	 	nullable : true,
- 	 	 	check : "bus.admin.mvp.model.TimeIntervalModel"
- 	 	 },
-
- 	 	 minInterval : {
- 	 	 	nullable : true,
- 	 	 	check : "bus.admin.mvp.model.TimeIntervalModel"
- 	 	 },
-
- 	 	 maxInterval : {
- 	 	 	nullable : true,
- 	 	 	check : "bus.admin.mvp.model.TimeIntervalModel"
- 	 	 },
-
- 	 	 startStation : {
- 	 	 	nullable : true,
- 	 	 	check : "String"
- 	 	 },
-
- 	 	 finishStation : {
- 	 	 	nullable : true,
- 	 	 	check : "String"
+ 	 	 visible : {
+  	 	 	nullable : true,
+ 	 	 	check : "Boolean"	 	 	
  	 	 }
+
 
  	 	},
  	 	members : 
@@ -93,12 +69,8 @@
  		 		id : this.getId(),
  		 		number : this.getNumber(),
  		 		cost : this.getCost(),
- 		 		startWork : this.getStartWork().toDataModel(),
- 		 		finishWork : this.getFinishWork().toDataModel(),
- 		 		minInterval :  this.getMinInterval().toDataModel(),
- 		 		maxInterval : this.getMaxInterval().toDataModel(),
- 		 		startStation : this.getStartStation(),
- 		 		finishStation : this.getFinishStation() 
+ 		 		visible : this.getVisible()
+ 		 		
  		 	}
  		 	return dataModel;
  		 },
@@ -129,18 +101,10 @@
  		  		this.setCost(dataModel.cost);
  		  	if(dataModel.number != undefined)
  		  		this.setNumber(dataModel.number);
- 		  	if(dataModel.startWork != undefined)
- 		  		this.setStartWork(new bus.admin.mvp.model.TimeIntervalModel(dataModel.startWork));
- 		  	if(dataModel.finishWork != undefined)
- 		  		this.setFinishWork(new bus.admin.mvp.model.TimeIntervalModel(dataModel.finishWork));
- 		  	if(dataModel.minInterval != undefined)
- 		  		this.setMinInterval(new bus.admin.mvp.model.TimeIntervalModel(dataModel.minInterval));
- 		  	if(dataModel.maxInterval != undefined)
- 		  		this.setMaxInterval(new bus.admin.mvp.model.TimeIntervalModel(dataModel.maxInterval));
- 		  	if(dataModel.startStation != undefined)
- 		  		this.setStartStation(dataModel.startStation);
- 		  	if(dataModel.finishStation != undefined)
- 		  		this.setFinishStation(dataModel.finishStation);
+ 		  	else
+ 		  		this.setNumber("");
+ 		  	if(dataModel.visible != undefined)
+ 		  		this.setVisible(dataModel.visible);
  		  },
 
  		  /**
@@ -152,6 +116,7 @@
  		   	this.setId(routeModel.getId());
  		   	this.setCost(routeModel.getCost());
  		   	this.setNumber(routeModel.getNumber(langID));
+ 		   	this.setVisible(routeModel.getVisible())
  		   },
 
 

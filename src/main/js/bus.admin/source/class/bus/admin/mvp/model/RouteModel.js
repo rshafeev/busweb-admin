@@ -85,7 +85,16 @@
  	 	  reverseWay :{
  	 	  	check : "bus.admin.mvp.model.route.RouteWayModel",
  	 	  	nullable : true
- 	 	  }
+ 	 	  },
+
+ 	 	  /**
+ 	 	   * Видимость маршрута
+ 	 	   * @type {Object}
+ 	 	   */
+ 	 	   visible : {
+ 	 	   	nullable : true,
+ 	 	   	check : "Boolean"
+ 	 	   }
 
 
 
@@ -166,6 +175,7 @@
  		 		cost : this.getCost(),
  		 		numberKey : this.getNumberKey(),
  		 		number : this.__number,
+ 		 		visible : this.getVisible(),
  		 		directWay : null,
  		 		reverseWay : null		 		
  		 	}
@@ -207,6 +217,8 @@
  		  		this.setNumberKey(dataModel.numberKey);
  		  	if(dataModel.cost != undefined)
  		  		this.setCost(dataModel.cost);
+ 		  	if(dataModel.visible != undefined)
+ 		  		this.setVisible(dataModel.visible);
  		  	if(dataModel.routeTypeID != undefined)
  		  		this.setRouteTypeID(dataModel.routeTypeID);
  		  	if(dataModel.directWay != undefined){

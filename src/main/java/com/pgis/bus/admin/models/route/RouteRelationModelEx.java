@@ -11,8 +11,8 @@ import com.pgis.bus.admin.models.station.StationModelEx;
 import com.pgis.bus.data.helpers.GeoObjectsHelper;
 import com.pgis.bus.data.helpers.PGIntervalHelper;
 import com.pgis.bus.data.models.factory.TimeIntervalModelFactory;
-import com.pgis.bus.data.models.factory.geom.PolyLineModelFactory;
 import com.pgis.bus.data.orm.RouteRelation;
+import com.pgis.bus.data.orm.type.LineStringEx;
 import com.pgis.bus.net.models.TimeIntervalModel;
 import com.pgis.bus.net.models.geom.PolyLineModel;
 
@@ -69,8 +69,10 @@ public class RouteRelationModelEx implements Serializable {
 		this.id = r.getId();
 		this.index = r.getPositionIndex();
 		this.distance = r.getDistance();
-		this.move = TimeIntervalModelFactory.createModel(r.getMoveTime());
-		this.geom = PolyLineModelFactory.createModel(r.getGeom());
+		if (r.getMoveTime() != null)
+			this.move = TimeIntervalModelFactory.createModel(r.getMoveTime());
+		if (r.getGeom() != null)
+			this.geom = r.getGeom().toModel();
 		this.currStation = new StationModelEx(r.getStationB());
 		this.routeWayID = r.getRouteWayID();
 
@@ -145,12 +147,14 @@ public class RouteRelationModelEx implements Serializable {
 	public RouteRelation toORMObject(RouteRelationModelEx prevRelation) {
 		RouteRelation r = new RouteRelation();
 		r.setId(this.id);
+
 		r.setMoveTime(PGIntervalHelper.fromModel(this.move));
 		r.setDistance(this.distance);
 		r.setPositionIndex(this.index);
 		r.setRouteWayID(this.routeWayID);
 		r.setStationBId(this.currStation.getId());
-		r.setGeom(GeoObjectsHelper.createLine(this.geom));
+		if (this.geom != null)
+			r.setGeom(new LineStringEx(this.geom));
 		if (prevRelation != null)
 			r.setStationAId(prevRelation.getCurrStation().getId());
 		if (this.currStation.getId() <= 0) {

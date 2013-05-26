@@ -189,7 +189,8 @@
 			tableModel.setColumns(["Language", "Name"]);
 			tableModel.setColumnEditable(0, false);
 			tableModel.setColumnEditable(1, true);
-
+ 		   	tableModel.setColumnSortable(0, false);
+ 		   	tableModel.setColumnSortable(1, false);
 			// table
 			this._tableNames = new qx.ui.table.Table(tableModel).set({
 				decorator : null

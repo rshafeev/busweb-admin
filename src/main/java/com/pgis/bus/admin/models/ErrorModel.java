@@ -1,30 +1,49 @@
 package com.pgis.bus.admin.models;
 
-import com.pgis.bus.admin.helpers.ControllerException;
-import com.pgis.bus.admin.helpers.ControllerException.err_enum;
-import com.pgis.bus.data.repositories.RepositoryException;
+import javax.xml.bind.annotation.XmlRootElement;
 
+import com.pgis.bus.admin.controllers.exp.ExceptionHandler;
+
+@XmlRootElement
 public class ErrorModel {
 
-	private err_enum error;
+	private String error = "unknown";
+	private String errorMsg;
+	private int errorCode;
 
-	public ErrorModel(Exception e) {
-		if (e instanceof RepositoryException) {
-			this.error = (new ControllerException((RepositoryException) e))
-					.getErrorCode();
-		} else if (e instanceof ControllerException) {
-			this.error = ((ControllerException) e).getErrorCode();
-		} else {
-			this.error = err_enum.c_error_unknown;
-		}
+	public ErrorModel() {
 
 	}
 
-	public err_enum getError() {
+	public ErrorModel(String error, String errorMsg, int errorCode) {
+		super();
+		this.error = error;
+		this.errorMsg = errorMsg;
+		this.errorCode = errorCode;
+	}
+
+	public String getError() {
 		return error;
 	}
 
-	public void setError(err_enum error) {
+	public void setError(String error) {
 		this.error = error;
 	}
+
+	public String getErrorMsg() {
+		return errorMsg;
+	}
+
+	public void setErrorMsg(String errorMsg) {
+		this.errorMsg = errorMsg;
+	}
+
+	public int getErrorCode() {
+		return errorCode;
+	}
+
+	public void setErrorCode(int errorCode) {
+		this.errorCode = errorCode;
+	}
+
 }

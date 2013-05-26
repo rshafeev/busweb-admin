@@ -79,9 +79,11 @@
  		  fromDataModel : function(dataModel){
  		  	if(dataModel == undefined)
  		  		return;
+ 		  	var routes = dataModel.routes;
+ 		  	
  		  	this.__routesList = [];
- 		  	for(var i = 0; i < dataModel.length; i++){
- 		  		this.__routesList.push(new bus.admin.mvp.model.RouteInfoModel(dataModel[i]));
+ 		  	for(var i = 0; i < routes.length; i++){
+ 		  		this.__routesList.push(new bus.admin.mvp.model.RouteInfoModel(routes[i]));
  		  	}
  		  },
 

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.pgis.bus.admin.helpers.ControllerException;
+import com.pgis.bus.admin.controllers.exp.ControllerException;
 import com.pgis.bus.admin.models.ErrorModel;
 import com.pgis.bus.admin.models.StringValueModel;
 import com.pgis.bus.admin.models.city.CitiesModelEx;
@@ -43,7 +43,7 @@ public class CitiesController extends BaseController {
 			return new CitiesModelEx(citiesModel);
 		} catch (Exception e) {
 			log.error("exception", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}
@@ -68,7 +68,7 @@ public class CitiesController extends BaseController {
 					City city = this.getDbService().Cities().getByName(LangEnum.valueOf(s.getLang()), s.getValue());
 					if (city != null && city.getId() != updateCity.getId()) {
 						// город с таким названием уже существует
-						throw new ControllerException(ControllerException.err_enum.c_city_already_exist);
+						throw new ControllerException(ControllerException.errorsList.already_exist);
 					}
 				}
 			}
@@ -80,7 +80,7 @@ public class CitiesController extends BaseController {
 			if (db != null)
 				db.rollback();
 			log.error("exception", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}
@@ -105,7 +105,7 @@ public class CitiesController extends BaseController {
 				City city = db.Cities().getByName(s.getLangID(), s.getValue());
 				if (city != null) {
 					// город с таким названием уже существует
-					throw new ControllerException(ControllerException.err_enum.c_city_already_exist);
+					throw new ControllerException(ControllerException.errorsList.already_exist);
 				}
 			}
 			// добавим город в БД
@@ -116,7 +116,7 @@ public class CitiesController extends BaseController {
 			if (db != null)
 				db.rollback();
 			log.error("exception", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}
@@ -130,7 +130,7 @@ public class CitiesController extends BaseController {
 		IDataBaseService db = null;
 		try {
 			if (city_id == null || city_id.intValue() <= 0)
-				throw new ControllerException(ControllerException.err_enum.c_city_already_exist);
+				throw new ControllerException(ControllerException.errorsList.already_exist);
 			// удалим город из БД
 			db = super.getDbService();
 			db.Cities().remove(city_id);
@@ -140,7 +140,7 @@ public class CitiesController extends BaseController {
 			if (db != null)
 				db.rollback();
 			log.error("exception", e);
-			return new ErrorModel(e);
+			return new ErrorModel();
 		} finally {
 			super.release();
 		}
