@@ -2,17 +2,12 @@ package com.pgis.bus.admin.helpers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
-
 import javax.xml.bind.Unmarshaller;
-
-import org.junit.runner.Result;
 import org.springframework.oxm.XmlMappingException;
 
 public class XStreamMarshallerHelper {
