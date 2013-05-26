@@ -39,16 +39,29 @@
  	 	 	check : "Integer"
  	 	 },
 
+ 	 	 /**
+ 	 	  * Стоимость проезда
+ 	 	  * @type {Number}
+ 	 	  */
  	 	 cost : {
  	 	 	nullable : true,
  	 	 	check : "Number"
  	 	 },
 
+ 	 	 /**
+ 	 	  * Номер маршрута в текущей локали
+ 	 	  * @type {String}
+ 	 	  */
  	 	 number : {
  	 	 	nullable : true,
  	 	 	check : "String"
  	 	 },
 
+
+ 	 	 /**
+ 	 	  * Включен ли маршрут в транспортный граф?
+ 	 	  * @type {Object}
+ 	 	  */
  	 	 visible : {
   	 	 	nullable : true,
  	 	 	check : "Boolean"	 	 	

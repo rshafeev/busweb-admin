@@ -21,22 +21,26 @@
  */
  qx.Class.define("bus.admin.mvp.view.routes.tabs.RoutesTabPage", {
  	extend : qx.ui.tabview.Page,
- 	construct : function(presenter) {
- 		this.base(arguments, "Routes", "icon/16/apps/utilities-notes.png");
- 		this.__presenter = presenter;
- 		this.setLayout(new qx.ui.layout.Canvas());
- 		this.__initWidgets();
+ 	
+ 	/**
+ 	 * @param  presenter   {bus.admin.mvp.presenter.RoutesPresenter}  Presenter 
+ 	 */
+ 	 construct : function(presenter) {
+ 	 	this.base(arguments, "Routes", "icon/16/apps/utilities-notes.png");
+ 	 	this.__presenter = presenter;
+ 	 	this.setLayout(new qx.ui.layout.Canvas());
+ 	 	this.__initWidgets();
 
- 		presenter.addListener("load_routes_list", this.__onLoadRoutesList, this);
- 		presenter.addListener("insert_route", this.__onInsertRoute, this);
- 		presenter.addListener("select_route", this.__onSelectRoute, this);
- 		presenter.addListener("update_route", this.__onUpdateRoute, this);
- 		presenter.addListener("remove_route", this.__onRemoveRoute, this);
- 		presenter.addListener("change_state", this.__onChangeState, this);
- 		
- 	},
+ 	 	presenter.addListener("load_routes_list", this.__onLoadRoutesList, this);
+ 	 	presenter.addListener("insert_route", this.__onInsertRoute, this);
+ 	 	presenter.addListener("select_route", this.__onSelectRoute, this);
+ 	 	presenter.addListener("update_route", this.__onUpdateRoute, this);
+ 	 	presenter.addListener("remove_route", this.__onRemoveRoute, this);
+ 	 	presenter.addListener("change_state", this.__onChangeState, this);
+ 	 	
+ 	 },
 
- 	members : {
+ 	 members : {
 
   		/**
  		 * Presenter представления
@@ -334,6 +338,7 @@
 
 		/**
 		 * Создает таблицу, отображающую список маршрутов.
+		 * @return {qx.ui.table.Table} Таблица
 		 */
 		 __createRoutesTable : function() {
 			// table model

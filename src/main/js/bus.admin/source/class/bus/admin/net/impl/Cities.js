@@ -18,6 +18,9 @@
 qx.Class.define("bus.admin.net.impl.Cities", {
 	extend : Object,
 
+	/**
+	 * @param  sync {Boolean}  Синхронное или ассинхронное выполнение запроса?
+	 */
 	construct : function(sync) {
 		if (sync != undefined) {
 			this.__sync = sync;

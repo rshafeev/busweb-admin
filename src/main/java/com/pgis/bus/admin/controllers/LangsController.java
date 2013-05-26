@@ -19,16 +19,16 @@ import com.pgis.bus.data.orm.Language;
 public class LangsController extends BaseController {
 	private static final Logger log = LoggerFactory.getLogger(CitiesController.class);
 
-	@RequestMapping(value = "get_all", method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "getAll", method = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseBody
-	public Object get_all(HttpServletResponse response) {
+	public Object getAll(HttpServletResponse response) {
 		try {
+			log.debug("request: langs/getAll");
 			String contentType = "text/html;charset=UTF-8";
 			response.setContentType(contentType);
 			response.setCharacterEncoding("utf-8");
 			// Загрузим список всех городов из БД
 			Collection<Language> langs = this.getDbService().Langs().getAll();
-			log.debug("request: langs/get_all.json");
 			return langs;
 		} catch (Exception e) {
 			return new ErrorModel();

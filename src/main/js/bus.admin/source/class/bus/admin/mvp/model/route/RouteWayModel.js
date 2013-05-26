@@ -178,8 +178,7 @@
      * <li> operation         Операция, которая была произведена над дугой ("insert", "remove", "update"), String </li>
      * <ul>
      * </pre>
- 	 	 * @param  stationID Integer}  Модель станции
- 	 	 * @param  position {Integer} Положение станции относительно остальных станций
+ 	 	 * @param  stationID {Integer}  Модель станции
  	 	 * @return {Object[]}   Правки пути.
  	 	 */
  	 	 removeStation : function(stationID){

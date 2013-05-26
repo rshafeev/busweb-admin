@@ -62,12 +62,19 @@
 
  	properties : {
     
-
+    /**
+     * Последняя страница, которая была открыта пользователем. Значение может браться из хранилища браузера.
+     * @type {String}
+     */
    lastSelectedPageKey : {
       init : "Cities",
       check : "String"
     },
 
+    /**
+     * Key текущей страницы
+     * @type {String}
+     */
  		currentPageKey : {
  			nullable : true,
  			check : "String",
@@ -139,7 +146,10 @@
           this.setLastSelectedPageKey(value);
          },
 
-
+         /**
+          * Возвращает текущий язык локали
+          * @return {String} Текущий язык локали. Возможные значения: ru, en, ...
+          */
          getLocale : function(){
          	return bus.admin.mvp.storage.GlobalDataStorage.getLocale();
          },

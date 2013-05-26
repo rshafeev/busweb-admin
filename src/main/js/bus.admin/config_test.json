@@ -18,7 +18,7 @@
 		"LOCALES" : ["en","ru"],
 		"CACHE" : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
 		"ROOT" : ".",
-		"BUILD_PATH" :"${ROOT}/../../../../WebContent/tests"
+		"BUILD_PATH" :"${ROOT}/../../../../WebContent/media/tests"
 
 	},
 

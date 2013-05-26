@@ -132,6 +132,11 @@
 				 	return (t.hh * 60 * 60 + t.mm * 60);
 				 },
 
+				 /**
+				  * Преборазует секунды во время в формате чч:мм
+				  * @param  secs {Integer}  Секунды
+				  * @return {String}   Время в формате чч:мм
+				  */
 				 convertSecsToHHMM : function(secs) {
 				 	var d = new Date();
 				 	d.setTime(secs * 1000);

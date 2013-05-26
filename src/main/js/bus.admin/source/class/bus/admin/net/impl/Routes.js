@@ -18,19 +18,22 @@
  qx.Class.define("bus.admin.net.impl.Routes", {
  	extend : qx.core.Object,
 
-	construct : function(sync) {
-		if (sync != undefined) {
-			this.__sync = sync;
-		}
-		this.__contextPath  = qx.core.Init.getApplication().getDataStorage().getContextPath();
-	},
-	members : {
-		
+	/**
+	 * @param  sync {Boolean}  Синхронное или ассинхронное выполнение запроса?
+	 */
+	 construct : function(sync) {
+	 	if (sync != undefined) {
+	 		this.__sync = sync;
+	 	}
+	 	this.__contextPath  = qx.core.Init.getApplication().getDataStorage().getContextPath();
+	 },
+	 members : {
+	 	
 		/**
 		 * Синхронный запрос (блокирующий)  или асинхронный?
 		 * @type {Boolean}
 		 */
-		__sync : false,
+		 __sync : false,
 
 		/**
 		 * Папка web-приложения на сервере
@@ -90,15 +93,15 @@
 		 update : function(routeModel, callback,	self) {
 		 	var routeJson = qx.lang.Json.stringify(routeModel.toDataModel()); 
 		 	var request = new qx.io.remote.Request(this.__contextPath + "routes/update.json", "POST", "application/json");
-			request.setRequestHeader("Content-Type", "application/json");
-			request.setAsynchronous(!this.__sync);
+		 	request.setRequestHeader("Content-Type", "application/json");
+		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
-			request.setData(routeJson);
-			request.addListener("completed", callback, self);
-			request.addListener("failed", callback, self);
-			request.send();
-			return request;
-		},	 
+		 	request.setData(routeJson);
+		 	request.addListener("completed", callback, self);
+		 	request.addListener("failed", callback, self);
+		 	request.send();
+		 	return request;
+		 },	 
 
  		/**
  		 * Добавляет маршрут в БД. 
@@ -112,7 +115,7 @@
 		 	var routeJson = qx.lang.Json.stringify(routeModel.toDataModel()); 
 		 	var request = new qx.io.remote.Request(this.__contextPath + "routes/insert", "POST", "application/json");
 		 	request.setRequestHeader("Content-Type", "application/json");
-			request.setAsynchronous(!this.__sync);
+		 	request.setAsynchronous(!this.__sync);
 		 	request.setParseJson(true);
 		 	request.setData(routeJson);
 		 	request.addListener("completed", callback, self);

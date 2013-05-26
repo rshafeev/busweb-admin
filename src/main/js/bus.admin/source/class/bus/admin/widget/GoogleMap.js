@@ -60,6 +60,10 @@
  		   */
  		   __contextMenu : null,
 
+ 		   /**
+ 		    * Задает карте контекстное меню
+ 		    * @param  menuItems {Object[]}  Элементы меню
+ 		    */
  		   setContextMenu : function(menuItems){
  		   	this.debug("execute setContextMenu()");
  		   	var map = this.getMapObject();
@@ -99,6 +103,10 @@
  		   	this.debug("setContextMenu() : exit();");
  		   },
 
+ 		   /**
+ 		    * Возвращает объект, отрисовывающий контекстное меню карты
+ 		    * @return {Object} Контекстное меню, ContextMenu
+ 		    */
  		   getContextMenu : function(){
  		   	return this.__contextMenu;
  		   },

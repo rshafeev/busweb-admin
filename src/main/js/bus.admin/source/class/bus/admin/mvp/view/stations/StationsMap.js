@@ -260,7 +260,7 @@
 
 		/**
 		 * Выводит остановки на карту
-		 * @param  stationsModel {bus.admin.mvp.model.StationsBoxModel}  Остановки.
+		 * @param  stationsBoxModel {bus.admin.mvp.model.StationsBoxModel}  Остановки.
 		 */
 		 insertStations : function(stationsBoxModel){
 		 	this.debug("execute insertStations()");

@@ -15,8 +15,8 @@ bin*/
 target*/
 build/
 WebContent/resource
-WebContent/tests
-WebContent/apidocs
+WebContent/media/tests
+WebContent/media/apidocs
 WebContent/script/**
 WebContent/WEB-INF/classes
 WebContent/META-INF/context.xml

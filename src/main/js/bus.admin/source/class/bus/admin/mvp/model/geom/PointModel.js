@@ -31,6 +31,12 @@
 
  	 statics : {
 
+ 	 	/**
+ 	 	 * Возвращает эвклидово расстояние между двумя точками
+ 	 	 * @param  p1 {bus.admin.mvp.model.geom.PointModel}  точка1
+ 	 	 * @param  p2 {bus.admin.mvp.model.geom.PointModel}  точка2
+ 	 	 * @return {Number}  Эвклидово расстояние между двумя точками
+ 	 	 */
  	 	getDistance : function(p1, p2){
  	 		var d = (p1.getLat() - p2.getLat())*(p1.getLat() - p2.getLat())  + (p1.getLon() - p2.getLon())*(p1.getLon() - p2.getLon());
  	 		return Math.sqrt(d);

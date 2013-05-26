@@ -29,6 +29,9 @@
  	extend : qx.application.Standalone,
 
  	properties : {
+ 		/**
+ 		 * Глобальный презентер приложения
+ 		 */
  		presenter : {
  			nullable : true,
  			check : "bus.admin.mvp.presenter.GlobalPresenter"
@@ -52,7 +55,10 @@
 	 	 */
 	 	 __pagesContainer : null,
 
-
+	 	 /**
+	 	  * Индикатор ожидания
+	 	  * @type {bus.admin.widget.WaitingWindow}
+	 	  */
 	 	 __waitingWindow : null,
 
 		 /**
@@ -87,7 +93,10 @@
 
 		},
 
-
+		/**
+		 * Возвращает глобальное хранилище приложения
+		 * @return {bus.admin.mvp.storage.GlobalDataStorage} Хранилище
+		 */
 		getDataStorage : function(){
 			return this.getPresenter().getDataStorage();
 		},
@@ -121,16 +130,17 @@
 		 	this.__selectPage(state);
 		 },
 
+		 /**
+		  * Делает активной ту страницу, key которой сохранен в хранилище браузера или
+		  * в глобальном хранилище приложения
+		  * @param  historyState {String} Параметры url
+		  */
 		 __selectPage : function(historyState){
 		 	var pageKey = this.getDataStorage().getLastSelectedPageKey();
 		 	var historyPageKey = null;
 		 	if (historyState.match('page-*')) {
 		 		historyPageKey = historyState.substr(5);
 		 	} 
-		 	
-		 	this.debug("curr key: ", this.getDataStorage().getCurrentPageKey());
-		 	this.debug("last key: ", pageKey);
-		 	this.debug("curr history key: ", historyPageKey);
 
 		 	if(this.getDataStorage().getCurrentPageKey() != null && 
 		 		this.getDataStorage().getCurrentPageKey() == historyPageKey)
@@ -149,7 +159,10 @@
 		 	this.getPresenter().selectPageTrigger(pageKey, callback, this);
 		 },
 
-
+		 /**
+		  * Устанавливает индикатор ожидания
+		  * @param  visible {Boolean}  Видимость индикатора
+		  */
 		 setWaitingWindow : function(visible) {
 		 	if(this.__waitingWindow == undefined){
 		 		this.__waitingWindow = new bus.admin.widget.WaitingWindow(true);
@@ -157,6 +170,9 @@
 		 	this.__waitingWindow.setVisible(visible);
 		 },
 
+		 /**
+		  * Инициализация дочерних виджетов
+		  */
 		 __initWidgets : function() {
 		 	this.getRoot().setVisibility("hidden");
 		 	var doc = this.getRoot();

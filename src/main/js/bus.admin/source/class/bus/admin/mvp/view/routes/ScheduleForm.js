@@ -421,7 +421,7 @@
 		/**
 		 * Выбирает группу дней и заполняет для нее таблицу расписания
 		 * @param  groupID {Integer}      ID группы
-		 * @param  {Boolean} isReloadTimetable Обновить таблицу расписания?
+		 * @param  isReloadTimetable {Boolean}  Обновить таблицу расписания?
 		 */
 		 __selectDaysGroup : function(groupID, isReloadTimetable){
 		 	this.debug("execute __selectDaysGroup()");
@@ -573,6 +573,10 @@
 		 	this.__removeRowToTimetable(rowIndex);
 		 },
 
+		 /**
+		  * Синхронизирует дни групп в моделе расписания с данными виджетов
+		  * @return {[type]} [description]
+		  */
 		 __refreshDaysInModel : function(){
 		 	var lists = this.__daysGroupsDictionary;
 		 	for(var groupID in this.__daysGroupsDictionary){
@@ -589,6 +593,10 @@
 		 	}
 		 },
 
+		 /**
+		  * Выполняет сохранение изменений в расписании через презентер. В случае успешного внесения измменений, окно закрывается.
+		  * @param  isBoth {Boolean}  Сохранить данное расписание для обоих направлений?
+		  */
 		 __saveSchedule : function(isBoth){
 		 	this.__refreshDaysInModel();
 			// Сохраним расписание для выбранной группы

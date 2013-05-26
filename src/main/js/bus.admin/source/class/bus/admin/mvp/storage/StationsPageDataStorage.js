@@ -113,7 +113,7 @@ qx.Class.define("bus.admin.mvp.storage.StationsPageDataStorage", {
             members : {
                /**
                * Возвращает набор языков
-               * @type {bus.admin.mvp.model.LanguagesModel}
+               * @return {bus.admin.mvp.model.LanguagesModel}
                */
                getLangsModel : function(){
                 return qx.core.Init.getApplication().getDataStorage().getSupportedLocales();

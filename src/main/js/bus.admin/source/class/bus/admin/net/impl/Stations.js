@@ -18,18 +18,21 @@
  qx.Class.define("bus.admin.net.impl.Stations", {
  	extend : qx.core.Object,
 
-	construct : function(sync) {
-		if (sync != undefined) {
-			this.__sync = sync;
-		}
-		this.__contextPath  = qx.core.Init.getApplication().getDataStorage().getContextPath();
-	},
-	members : {
+	/**
+	 * @param  sync {Boolean}  Синхронное или ассинхронное выполнение запроса?
+	 */
+	 construct : function(sync) {
+	 	if (sync != undefined) {
+	 		this.__sync = sync;
+	 	}
+	 	this.__contextPath  = qx.core.Init.getApplication().getDataStorage().getContextPath();
+	 },
+	 members : {
 		/**
 		 * Синхронный запрос (блокирующий)  или асинхронный?
 		 * @type {Boolean}
 		 */
-		__sync : false,
+		 __sync : false,
 
 		/**
 		 * Папка web-приложения на сервере
@@ -72,7 +75,7 @@
 		 	request.setParseJson(true);
 		 	request.setAsynchronous(!this.__sync);
 		 	request.setRequestHeader("Content-Type", "application/json");
-			request.setData(requestBody);
+		 	request.setData(requestBody);
 		 	request.addListener("completed", callback, self);
 		 	request.addListener("failed", callback, self);
 		 	request.send();

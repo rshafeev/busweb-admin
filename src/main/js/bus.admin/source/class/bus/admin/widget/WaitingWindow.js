@@ -49,7 +49,10 @@
     __blocker : null,
 
 
-
+    /**
+     * Показывает/скрывает индикатор
+     * @param  val {Boolean}  Видимость индикатора
+     */
     __showIndicator : function(val){
       if(val == this.__visible)
         return;
@@ -72,6 +75,10 @@
       }
     },
 
+    /**
+     * Задает видимость индикатора ожидания
+     * @param  val {Boolean} Видимость
+     */
     setVisible : function(val){
       if(this.__isCalculateVisible == true){
         this.__calc = val == true ? (this.__calc + 1) : this.__calc;

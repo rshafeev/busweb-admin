@@ -498,15 +498,13 @@
           args.sender = this;
           this.fireDataEvent("update_way_relations", args);
         }
-
-
       },
+
       /**
-       * [ description]
-       * @param  {[type]}   stationModel [description]
-       * @param  {Function} callback     [description]
-       * @param  {[type]}   sender       [description]
-       * @return {[type]}                [description]
+       * Исключает станцию из текущего пути
+       * @param stationID  {Integer}  ID станции
+       * @param  callback {Function}  callback функция
+       * @param  sender {Object}      Объект, который вызвал триггер
        */
        excludeStationToRouteWayTrigger : function(stationID, callback, sender){
         this.debug("execute excludeStationToRouteWayTrigger()");

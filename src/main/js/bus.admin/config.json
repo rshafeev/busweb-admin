@@ -61,7 +61,7 @@
 
 		"api" : {
 			"let" : {
-				"BUILD_PATH" : "${ROOT}/../../../../WebContent/apidocs",
+				"BUILD_PATH" : "${ROOT}/../../../../WebContent/media/apidocs",
 				"API_EXCLUDE" : ["qx.*", "qx.test.*", "${APPLICATION}.theme.*",
 				"${APPLICATION}.test.*", "${APPLICATION}.simulation.*"],
 			}     

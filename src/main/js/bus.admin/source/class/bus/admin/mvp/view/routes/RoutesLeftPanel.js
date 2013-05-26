@@ -145,6 +145,7 @@
 		/**
 		 * Заполняет выпадающий список типов маршрута.
 		 * @param  routeTypes          {Object[]} Типы маршрутов.
+		 * @param  selectedRouteTypeID {String} Выбранный тип маршрутов
 		 */
 		 __fillComboRouteTypes : function(routeTypes, selectedRouteTypeID){
 		 	this.__comboRouteTypes.removeListener("changeSelection", this.__onChangeComboRouteTypes, this);
@@ -169,6 +170,7 @@
 		/**
 		 * Заполняет выпадающий список городов.
 		 * @param  citiesModel  {bus.admin.mvp.model.CitiesModel} Города.
+		 * @param  selectedCityID {Integer} ID выбранного города.
 		 */
 		 __fillComboCities : function(citiesModel, selectedCityID) {
 		 	this.debug("execute __fillComboCities()");

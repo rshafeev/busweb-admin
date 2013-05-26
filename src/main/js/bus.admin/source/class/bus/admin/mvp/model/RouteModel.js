@@ -19,8 +19,7 @@
  	extend : Object,
 
  	/**
- 	 * В конструктор передается JS объект, который имеет следующий формат:
- 	 * 
+ 	 * В конструктор передается JS объект
  	 * @param  dataModel {Object|null}  JS объект.
  	 */
  	 construct : function(dataModel) {
@@ -256,7 +255,7 @@
 
  		  /**
  		   * Задает модель пути
- 		   * @param direction  {bus.admin.mvp.model.route.RouteWayModel}  Модель пути
+ 		   * @param wayModel {bus.admin.mvp.model.route.RouteWayModel}  Модель пути
  		   */
  		   setWay : function (wayModel)
  		   {

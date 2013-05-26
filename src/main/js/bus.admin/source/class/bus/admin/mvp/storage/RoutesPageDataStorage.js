@@ -65,7 +65,6 @@
                 check : "bus.admin.mvp.model.RoutesListModel"
               },
 
-
               /**
                * ID города, который был выбран пользователем из выпадющего списка
                */
@@ -94,8 +93,6 @@
                 check : "bus.admin.mvp.model.RouteModel"
               },
 
-
-
               /**
                * Центр карты.
                * @type {Object}
@@ -104,13 +101,20 @@
                 nullable : true
               },
 
-              
+              /**
+               * Выбранный тип маршрутов
+               * @type {String}
+               */
               selectedRouteTypeID: {
                 check : "String",
                 init : "bus",
                 apply : "_applySelectedRouteTypeID" 
               },
 
+              /**
+               * Выбранное направление пути. (True: прямой путь, False: обратный путь)
+               * @type {Object}
+               */
               direction :{
                 check : "Boolean",
                 init : true
@@ -136,7 +140,7 @@
 
                /**
                * Возвращает набор языков
-               * @type {bus.admin.mvp.model.LanguagesModel}
+               * @return {bus.admin.mvp.model.LanguagesModel}
                */
                getLangsModel : function(){
                 return qx.core.Init.getApplication().getDataStorage().getSupportedLocales();
@@ -144,7 +148,7 @@
 
               /**
                * Массив типов маршрутов. Каждый элемент имеет поле id и name. 
-               * @type {Object[]}
+               * @return {Object[]}
                */
                getRouteTypes : function(){
                 return qx.core.Init.getApplication().getDataStorage().getRouteTypes();

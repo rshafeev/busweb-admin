@@ -21,11 +21,11 @@ public class HomeController {
 
 	@RequestMapping(value = "apidocs")
 	public ModelAndView apidocs(Integer login_error) {
-		return new ModelAndView("redirect:/apidocs/index.html");
+		return new ModelAndView("redirect:/media/apidocs/index.html");
 	}
 
 	@RequestMapping(value = "tests")
 	public ModelAndView tests(Integer login_error) {
-		return new ModelAndView("redirect:/tests/index.html");
+		return new ModelAndView("redirect:/media/tests/index.html");
 	}
 }

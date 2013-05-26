@@ -1,23 +1,20 @@
-/*******************************************************************************
- * 
- * qooxdoo - the new era of web development
- * 
- * http://qooxdoo.org
- * 
- * Copyright: 2004-2008 1&1 Internet AG, Germany, http://www.1und1.de
- * 
- * License: LGPL: http://www.gnu.org/licenses/lgpl.html EPL:
- * http://www.eclipse.org/org/documents/epl-v10.php See the LICENSE file in the
- * project's top-level directory for details.
- * 
- * Authors: Jonathan Weiß (jonathan_rass) Tristan Koch (tristankoch)
- * 
- ******************************************************************************/
+/*************************************************************************
+ *
+ * Copyright:
+ * Bus.Admin-lib is copyright (c) 2012, {@link http://ways.in.ua} Inc. All Rights Reserved. 
+ *
+ * License:
+ * Bus.Admin-lib is free software, licensed under the MIT license. 
+ * See the file {@link http://api.ways.in.ua/license.txt|license.txt} in this distribution for more details.
+ *
+ * Authors:
+ * Roman Shafeyev (rs@premiumgis.com)
+ *
+ *************************************************************************/
 
 /**
- * The Application's header
+ * Заголовок приложения. На нем размещаются навигация страниц, кнопка выхода, переключение локали и др.
  */
-
  qx.Class.define("bus.admin.page.Header", {
  	extend : qx.ui.container.Composite,
 
@@ -26,38 +23,49 @@
 			 */
 			 construct : function() {
 			 	this.base(arguments, new qx.ui.layout.HBox());
-			 	this.setAppearance("app-header");
+			 	this.__initWidgets();
+			 },
 
-				// EVIL HACK
-				this.addListener("appear", function() {
-					var el = this.getContentElement();
-					el.setStyle("top",(parseInt(el.getStyle("top")) + 1) + "px");
-				}, this);
-				// /////////
+			 members : {
 
-				this.__bookmarksGroup = new bus.admin.page.header.BookmarksGroup();
+				/**
+				 * Вкладки страниц
+				 * @type {bus.admin.page.header.BookmarksGroup}
+				 */
+				 __bookmarksGroup : null,
 
-				this.add(new qx.ui.basic.Label(this.tr("CityWays Admin Tool")));
-				this.add(new qx.ui.core.Spacer(30));
-				this.add(this.__bookmarksGroup);
-				this.add(new qx.ui.core.Spacer(), {
-					flex : 1
-				});
-				this.add(new qx.ui.core.Spacer, {
-					flex : 1
-				});
-				this.add(new qx.ui.core.Spacer, {
-					width : "2%"
-				});
-				this.__createLocaleBox();
-				this.debug("Header was initialized");
-			},
+				/**
+				 * Инициализация дочерних виджетов и настройка заголовка
+				 */
+				 __initWidgets : function(){
+				 	this.setAppearance("app-header");
 
-			members : {
-				__bookmarksGroup : null,
+				 	this.addListener("appear", function() {
+				 		var el = this.getContentElement();
+				 		el.setStyle("top",(parseInt(el.getStyle("top")) + 1) + "px");
+				 	}, this);
+				 	this.__bookmarksGroup = new bus.admin.page.header.BookmarksGroup();
 
-				__createLocaleBox : function() {
-					// Build select-box
+				 	this.add(new qx.ui.basic.Label(this.tr("CityWays Admin Tool")));
+				 	this.add(new qx.ui.core.Spacer(30));
+				 	this.add(this.__bookmarksGroup);
+				 	this.add(new qx.ui.core.Spacer(), {
+				 		flex : 1
+				 	});
+				 	this.add(new qx.ui.core.Spacer, {
+				 		flex : 1
+				 	});
+				 	this.add(new qx.ui.core.Spacer, {
+				 		width : "2%"
+				 	});
+				 	this.__createLocaleBox();
+				 	this.debug("Header was initialized");
+				 },
+
+				 /**
+				  * Создает выпадающий список переключения языка локали
+				  */
+				 __createLocaleBox : function() {
 					var select = new qx.ui.form.SelectBox("Locale");
 					var items = [];
 					var item1 = new qx.ui.form.ListItem("English");

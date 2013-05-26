@@ -55,7 +55,10 @@
 
        },
 
-
+      /**
+       * Обработчик события {@link bus.admin.mvp.presenter.GlobalPresenter#select_page select_page}
+       * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+       */
        __onSelectPage : function(e){
         var page = e.getData().page;
         this.setSelectedPage(page);

@@ -691,6 +691,11 @@
 
 		 },
 
+		 /**
+		  * Создает модель полилинии из google maps пути
+		  * @param  path {Object} google maps путь
+		  * @return {bus.admin.mvp.model.geom.PolyLineModel}   Модель полилинии
+		  */
 		 __makePolylineFromPath : function(path){
 		 	var arr =  path.getArray();
 		 	var lineData = [];
@@ -773,6 +778,11 @@
 		  	return path;
 		  },
 
+		  /**
+		   * Возвращает линию по ID станции B
+		   * @param  stbID {Integer}  ID станции
+		   * @return {Object|null} gmaps полилиния. Null - если не была найдена.
+		   */
 		  __getPolyline : function(stbID){
 		  	var lines = this.__polylines;
 		  	if(lines == undefined)

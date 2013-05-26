@@ -12,53 +12,63 @@
  *
  *************************************************************************/
 
+/**
+ * Навигация по страницам
+ */
+ qx.Class.define("bus.admin.page.header.BookmarksGroup", {
+ 	extend : qx.ui.form.RadioButtonGroup,
+ 	include : [qx.ui.core.MContentPadding],
 
-qx.Class.define("bus.admin.page.header.BookmarksGroup", {
-	extend : qx.ui.form.RadioButtonGroup,
-	include : [qx.ui.core.MContentPadding],
+ 	construct : function() {
+ 		this.base(arguments, new qx.ui.layout.HBox(1));
+ 		this.__initWidgets();
+ 		var presenter  = qx.core.Init.getApplication().getPresenter();
+ 		presenter.addListener("select_page", this.__onSelectPage, this);
 
-	construct : function() {
-		this.base(arguments, new qx.ui.layout.HBox(1));
-		this.__initWidgets();
-		var presenter  = qx.core.Init.getApplication().getPresenter();
-		presenter.addListener("select_page", this.__onSelectPage, this);
+ 	},
 
-	},
+ 	members : {
 
-	members : {
-		__initWidgets : function() {
-			this.debug("execute __initWidgets()");
-			var cities = new bus.admin.page.header.BookmarkButton(this.tr("Cities"), "Cities");
-			cities.set({
-				appearance : "modeButton"
-			});
-			this.add(cities);
+		/**
+		 * Инициализация вкладок навигации
+		 */
+		 __initWidgets : function() {
+		 	this.debug("execute __initWidgets()");
+		 	var cities = new bus.admin.page.header.BookmarkButton(this.tr("Cities"), "Cities");
+		 	cities.set({
+		 		appearance : "modeButton"
+		 	});
+		 	this.add(cities);
 
-			var stations = new bus.admin.page.header.BookmarkButton(this.tr("Stations"), "Stations");
-			stations.set({
-				appearance : "modeButton"
-			});
-			this.add(stations);
+		 	var stations = new bus.admin.page.header.BookmarkButton(this.tr("Stations"), "Stations");
+		 	stations.set({
+		 		appearance : "modeButton"
+		 	});
+		 	this.add(stations);
 
-			var routes = new bus.admin.page.header.BookmarkButton(this.tr("Routes"), "Routes");
-			routes.set({
-				appearance : "modeButton"
-			});
-			this.add(routes);
+		 	var routes = new bus.admin.page.header.BookmarkButton(this.tr("Routes"), "Routes");
+		 	routes.set({
+		 		appearance : "modeButton"
+		 	});
+		 	this.add(routes);
 
-		},
+		 },
 
-		__onSelectPage : function(e){
-			var selectedPageKey = e.getData().pageKey;
-			var childs  =  this.getChildren();
-			for(var i=0; i < childs.length; i++){
-				var btnPageKey = childs[i].getUserData("pageKey");
-				if(btnPageKey == selectedPageKey){
-					this.setSelection([childs[i]]);	
-					return;
-				}
-			}
-		}
+        /**
+         * Обработчик события {@link bus.admin.mvp.presenter.GlobalPresenter#select_page select_page}
+         * @param  e {qx.event.type.Data} Данные события. Структуру свойств смотрите в описании события.
+         */
+         __onSelectPage : function(e){
+         	var selectedPageKey = e.getData().pageKey;
+         	var childs  =  this.getChildren();
+         	for(var i=0; i < childs.length; i++){
+         		var btnPageKey = childs[i].getUserData("pageKey");
+         		if(btnPageKey == selectedPageKey){
+         			this.setSelection([childs[i]]);	
+         			return;
+         		}
+         	}
+         }
 
-	}
-});
+     }
+ });

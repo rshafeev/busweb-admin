@@ -12,9 +12,16 @@
  *
  *************************************************************************/
 
+/**
+ * Кнопка(вкладка) переключения страницы
+ */
  qx.Class.define("bus.admin.page.header.BookmarkButton", {
  	extend : qx.ui.form.RadioButton,
 
+ 	/**
+ 	 * @param  label {String}    Label кнопки
+ 	 * @param  pageKey {String}  Key страницы, которую нужно сделать активной после нажатия на текущую кнопку
+ 	 */
  	construct : function(label, pageKey) {
  		this.base(arguments);
  		this.setLabel(label);
@@ -24,8 +31,15 @@
  	},
 
  	members : {
+ 		/**
+ 		 * Key страницы, которую нужно сделать активной после нажатия на текущую кнопку
+ 		 * @type {String}
+ 		 */
  		__pageKey : null,
 
+ 		/**
+ 		 * Обработчик нажатия на кнопку
+ 		 */
  		__onClickButton : function() {
  			this.debug("execute __onClickButton()");
  			if (this.isValue() == true){

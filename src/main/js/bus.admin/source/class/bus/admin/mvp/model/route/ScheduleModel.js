@@ -112,7 +112,7 @@
 
  		  /**
  		   * Добавляет группу
- 		   * @param  {bus.admin.mvp.model.route.ScheduleGroupModel} groupModel Новая группа
+ 		   * @param  groupModel {bus.admin.mvp.model.route.ScheduleGroupModel}  Новая группа
  		   * @return {bus.admin.mvp.model.route.ScheduleGroupModel}            Добавленая группа
  		   */
  		   addGroup : function(groupModel){
@@ -145,7 +145,7 @@
 
  		   /**
  		    * Возвращает позицию группы дней в массиве
- 		    * @param  {[type]} groupID [description]
+ 		    * @param  groupID {Integer}  ID группы
  		    * @return {Integer} Позиция в массиве. В случае, если группа с переданным ID не найдена, функция возвращает -1.
  		    */
  		    getGroupPosition : function(groupID){

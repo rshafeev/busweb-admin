@@ -37,9 +37,11 @@
 
 	 },
 
+	 /**
+	  * Деструктор
+	  */
 	 destruct : function() {
 	 	this.debug("destruct()");
-		//this.__presenter.removeListener("loadImportObjects",	this.on_loadImportObjects, this);
 		this.__presenter = null;
 		this.__cityModel = null;
 		this.__routeType = null;
@@ -145,7 +147,6 @@
 		 	});
 
 		 	this.__btnCancel = new qx.ui.form.Button(this.tr("Cancel"), "bus/admin/images/btn/dialog-cancel.png");
-		 	this.__btnCancel.addListener("execute", this.on_cancel_click, this);
 		 	this.__btnCancel.setWidth(90);
 		 	this.add(this.__btnCancel, {
 		 		left : 180,
@@ -153,7 +154,6 @@
 		 	});
 
 		 	this.__btnDelete = new qx.ui.form.Button(this.tr("Delete"), "bus/admin/images/btn/edit-delete.png");
-		 	this.__btnDelete.addListener("execute", this.on_delete_click, this);
 		 	this.__btnDelete.setWidth(90);
 		 	this.add(this.__btnDelete, {
 		 		left : 270,
@@ -220,9 +220,6 @@
 		 	this.setShowMinimize(false);
 		 	this.setResizable(false, false, false, false);
 		 	this.center();
-			//this.addListenerOnce("appear", this.__onAppear, this);
-			this.__btnInsert.addListener("execute", this.on_insert_click, this);
-			this.__btnCancel.addListener("execute", this.on_cancel_click, this);
 			
 		},
 
@@ -275,83 +272,7 @@
 				}
 			};
 			reader.readAsText(files[0]);
-		},
-
-		on_loadImportObjects : function(e) {
-			var data = e.getData();
-
-			if (data == null || (data != null && data.error == true)) {
-				this.debug("Error! execute on_loadImportObjects()");
-				return;
-			}
-			this.debug("info! execute on_loadImportObjects()1");
-			var objects = data.obj;
-			if (objects == null) {
-				this.debug("info! execute on_loadImportObjects()2 null");
-				return;
-			}
-
-			var rowData = [];
-			for (var i = 0; i < objects.length; i++) {
-				rowData.push([objects[i].id, objects[i].route_number]);
-			}
-			this.__tableJsonRoutes.getTableModel().setData(rowData);
-
-		},
-
-		on_insert_click : function(e) {
-			var row = this.__tableJsonRoutes.getSelectionModel()
-			.getAnchorSelectionIndex();
-			if (row < 0)
-				return;
-			var rowData = this.__tableJsonRoutes.getTableModel().getRowDataAsMap(row);
-			var objID = rowData.ID;
-			var presenter = this.__presenter;
-			var routes = presenter.getRoutePage().getCurrRoutesList();
-			if (routes != null) {
-				for (var i = 0; i < routes.length; i++) {
-					if (routes[i].number != null
-						&& routes[i].number.toString().length != 0
-						&& routes[i].number.toString() == rowData.Number
-						.toString()) {
-						alert(this
-							.tr("The route with this number has already exist!"));
-					return;
-				}
-			}
 		}
-		qx.core.Init.getApplication().setWaitingWindow(true);
-		var loadImportRouteFunc = qx.lang.Function.bind(function(data) {
-			qx.core.Init.getApplication().setWaitingWindow(false);
-			if (data == null
-				|| (data != null && data.error == true)) {
-				alert("Error! Can not load import route!");
-			return;
-		}
-		this.debug(data);
-		var startCreateNewRouteFunc = qx.lang.Function.bind(
-			function(e) {
-				this.destroy();
-			}, this);
-		presenter.startCreateNewRoute(data.route, "new",
-			startCreateNewRouteFunc);
-	}, this);
-
-		presenter.loadImportRoute(objID, loadImportRouteFunc);
-	},
-
-	on_cancel_click : function(e) {
-		this.destroy();
-	},
-
-	on_import_click : function(e) {
-
-	},
-
-	on_delete_click : function(e) {
-
-	}
-
 
 }
 });
