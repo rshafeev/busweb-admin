@@ -50,6 +50,24 @@ public class CitiesController extends BaseController {
 
 	}
 
+	@RequestMapping(value = "getByKey", method = { RequestMethod.GET, RequestMethod.POST })
+	@ResponseBody
+	public Object getByKey(String key) {
+		try {
+			log.debug("getByKey({})", key);
+			// Загрузим город из БД
+			IDataBaseService db = super.getDbService();
+			City city = db.Cities().getByKey(key);
+			return new CityModelEx(city);
+		} catch (Exception e) {
+			log.error("exception", e);
+			return new ErrorModel();
+		} finally {
+			super.release();
+		}
+
+	}
+
 	@RequestMapping(value = "update", method = RequestMethod.POST)
 	@ResponseBody
 	public Object update(@RequestBody CityModelEx cityModel) {

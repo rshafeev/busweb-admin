@@ -99,6 +99,14 @@
  		 */
  		 __editScale : null,
 
+
+ 		 /**
+ 		  * Key города
+ 		  * @type {qx.ui.form.TextField}
+ 		  */
+ 		  __editKey : null,
+
+
  		/**
  		 * Таблица для редактирования назания города для разных языков.
  		 * @type {qx.ui.table.Table}
@@ -145,6 +153,7 @@
 			newCityModel.setLocation(this.__editLat.getValue(), this.__editLon.getValue());
 			newCityModel.setShow(this.__checkShow.getValue());
 			newCityModel.setScale(this.__editScale.getValue());
+			newCityModel.setKey(this.__editKey.getValue());
 			for (var i = 0; i < this.__tableNames.getTableModel().getRowCount(); i++) {
 				var rowData = this.__tableNames.getTableModel().getRowDataAsMap(i);
 				var lang = dataStorage.getLangsModel().getLangByName(rowData.Language);
@@ -177,6 +186,7 @@
 			var newCityModel = this.__cityModel.clone();
 			newCityModel.setLocation(this.__editLat.getValue(), this.__editLon.getValue());
 			newCityModel.setScale(this.__editScale.getValue());
+			newCityModel.setKey(this.__editKey.getValue());
 			for (var i = 0; i < this.__tableNames.getTableModel().getRowCount(); i++) {
 				var rowData = this.__tableNames.getTableModel()
 				.getRowDataAsMap(i);
@@ -237,8 +247,11 @@
 		 	this.__btnCancel.addListener("execute", this.__onClickBtnCancel, this);
 		 	this.__btnCancel.setWidth(90);
 
-			// names table
 
+		 	var labelKey = new qx.ui.basic.Label(this.tr("Key:"));
+		 	this.__editKey = new qx.ui.form.TextField();
+
+			// names table
 			var tableModel = new qx.ui.table.model.Simple();
 			tableModel.setColumns(["Language", "Name"]);
 			tableModel.setColumnEditable(0, false);
@@ -294,18 +307,30 @@
 				left : 0,
 				top : -15
 			});
-			this.add(this.__tableNames, {
+
+			this.add(labelKey, {
 				left : 10,
 				top : 130
 			});
 
+			this.add(this.__editKey, {
+				left : 120,
+				top : 130
+			});
+
+
+			this.add(this.__tableNames, {
+				left : 10,
+				top : 180
+			});
+
 			this.add(this.__btnSave, {
 				left : 50,
-				top : 265
+				top : 315
 			});
 			this.add(this.__btnCancel, {
 				left : 160,
-				top : 265
+				top : 315
 			});
 
 		},
@@ -314,7 +339,7 @@
 		 * Задает настройки формы и ее дочерним виджетам. Тажке заполняет виджеты данными.
 		 */
 		 __setOptions : function() {
-		 	this.setHeight(350);
+		 	this.setHeight(400);
 		 	this.setWidth(350);
 		 	this.setModal(true);
 		 	this.setAllowMaximize(false);
@@ -334,8 +359,11 @@
 		 		this.__editLon.setValue(this.__cityModel.getLocation().getLon().toString());
 		 	}
 		 	if(this.__cityModel.getScale() != undefined)
-		 	this.__editScale.setValue(this.__cityModel.getScale());
+		 		this.__editScale.setValue(this.__cityModel.getScale());
 
+		 	if(this.__cityModel.getKey() != undefined){
+		 		this.__editKey.setValue(this.__cityModel.getKey());
+		 	}
 			// fill table
 			var langs = this.__presenter.getDataStorage().getLangsModel().getLangs();
 			var rowsData = [];
